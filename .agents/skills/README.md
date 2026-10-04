@@ -21,4 +21,5 @@ skills stored here by default.
 
 | Skill | Purpose |
 |---|---|
+| [Build and test](build-and-test/SKILL.md) | Build the .NET solution with locked dependencies and run every unit test project. |
 | [Commit and push](commit-and-push/SKILL.md) | Review all working-tree changes since `HEAD`, create a representative commit, and push the current branch to `origin`. |

@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "ms-dotnettools.csharp",
+    "ms-dotnettools.csdevkit",
     "editorconfig.editorconfig",
     "davidanson.vscode-markdownlint",
     "redhat.vscode-yaml",

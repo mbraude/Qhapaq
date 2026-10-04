@@ -1,0 +1,178 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Qhapaq: Build",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "Qhapaq.slnx",
+        "-p:RestoreLockedMode=true"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/implementations/dotnet"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Qhapaq: Run CLI",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/Qhapaq.Implementations.CLI/Qhapaq.Implementations.CLI.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/implementations/dotnet"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Qhapaq: Test Unit",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Qhapaq: Test Unit: Architecture",
+        "Qhapaq: Test Unit: Business",
+        "Qhapaq: Test Unit: DAL",
+        "Qhapaq: Test Unit: Service V1"
+      ],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Qhapaq: Test Integration",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Qhapaq: Test Integration: CLI",
+        "Qhapaq: Test Integration: Hosting",
+        "Qhapaq: Test Integration: MCP"
+      ],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Qhapaq: Test All",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Qhapaq: Test Unit",
+        "Qhapaq: Test Integration"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Qhapaq: Test Unit: Architecture",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/unit/Qhapaq.Architecture.Tests/Qhapaq.Architecture.Tests.csproj",
+        "-p:RestoreLockedMode=true"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/implementations/dotnet"
+      },
+      "problemMatcher": "$msCompile",
+      "hide": true
+    },
+    {
+      "label": "Qhapaq: Test Unit: Business",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/unit/Qhapaq.Business.Tests/Qhapaq.Business.Tests.csproj",
+        "-p:RestoreLockedMode=true"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/implementations/dotnet"
+      },
+      "problemMatcher": "$msCompile",
+      "hide": true
+    },
+    {
+      "label": "Qhapaq: Test Unit: DAL",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/unit/Qhapaq.DAL.Tests/Qhapaq.DAL.Tests.csproj",
+        "-p:RestoreLockedMode=true"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/implementations/dotnet"
+      },
+      "problemMatcher": "$msCompile",
+      "hide": true
+    },
+    {
+      "label": "Qhapaq: Test Unit: Service V1",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/unit/Qhapaq.Service.V1.Tests/Qhapaq.Service.V1.Tests.csproj",
+        "-p:RestoreLockedMode=true"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/implementations/dotnet"
+      },
+      "problemMatcher": "$msCompile",
+      "hide": true
+    },
+    {
+      "label": "Qhapaq: Test Integration: CLI",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/integration/Qhapaq.Implementations.CLI.Tests/Qhapaq.Implementations.CLI.Tests.csproj",
+        "-p:RestoreLockedMode=true"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/implementations/dotnet"
+      },
+      "problemMatcher": "$msCompile",
+      "hide": true
+    },
+    {
+      "label": "Qhapaq: Test Integration: Hosting",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/integration/Qhapaq.Implementations.Hosting.Tests/Qhapaq.Implementations.Hosting.Tests.csproj",
+        "-p:RestoreLockedMode=true"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/implementations/dotnet"
+      },
+      "problemMatcher": "$msCompile",
+      "hide": true
+    },
+    {
+      "label": "Qhapaq: Test Integration: MCP",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/integration/Qhapaq.Implementations.MCP.Tests/Qhapaq.Implementations.MCP.Tests.csproj",
+        "-p:RestoreLockedMode=true"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/implementations/dotnet"
+      },
+      "problemMatcher": "$msCompile",
+      "hide": true
+    }
+  ]
+}

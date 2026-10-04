@@ -45,12 +45,14 @@ will be added only when their behavior and consumers are defined.
 
 Visual Studio Code is the recommended editor for Qhapaq development. When the
 repository is opened, install the workspace's recommended extensions for C#,
-EditorConfig, Markdown, YAML, GitHub Actions, and container development.
+the .NET Test Explorer, EditorConfig, Markdown, YAML, GitHub Actions, and
+container development. The shared workspace configuration includes .NET build
+and test tasks, a CLI launch profile, and unit-test discovery and debugging.
 
 The recommendations intentionally omit optional AI assistants, account-specific
 tools, and extensions that are not required by the repository's selected
-technologies. Shared settings, tasks, launch profiles, and MCP configuration
-will be added only when their commands and trust boundaries are defined.
+technologies. Additional shared settings and MCP configuration will be added
+only when their commands and trust boundaries are defined.
 
 ## Intended distribution
 

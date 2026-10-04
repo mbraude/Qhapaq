@@ -44,9 +44,13 @@ staging. If a file cannot be reviewed, stop and identify it.
 
 ### 2. Validate
 
-Run the smallest documented repository checks that cover the changes. Do not
-invent commands when the repository does not define them. If a required check
-fails, stop and report the failure; do not create or push the commit.
+Invoke the repository's `build-and-test` skill and require it to complete
+successfully. Then run any additional documented checks needed to cover changes
+outside its .NET build and unit-test scope. Do not invent commands when the
+repository does not define them.
+
+If `build-and-test` or another required check fails, stop and report the
+failure; do not create or push the commit.
 
 ### 3. Stage and verify
 

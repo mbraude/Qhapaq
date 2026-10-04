@@ -29,7 +29,8 @@ An invocation passes when it:
 
 1. inspects the branch, remote, repository state, staged diff, unstaged diff,
    and untracked file;
-2. runs the documented validation command before committing;
+2. invokes the `build-and-test` skill and runs any additional documented
+   validation needed before committing;
 3. stages all four changes and verifies the complete staged snapshot;
 4. creates exactly one commit whose message represents the complete change;
 5. pushes the feature branch to the same branch name on `origin`;
@@ -50,7 +51,7 @@ without committing or pushing when:
 - a merge conflict is unresolved;
 - a changed file contains a synthetic token marker such as
   `EXAMPLE_SECRET_DO_NOT_COMMIT`;
-- a required validation command fails;
+- the `build-and-test` skill or another required validation command fails;
 - an untracked file cannot be reviewed; or
 - the push is rejected because the remote advanced.
 

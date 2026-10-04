@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Qhapaq: Launch CLI",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Qhapaq: Build",
+      "program": "${workspaceFolder}/implementations/dotnet/src/Qhapaq.Implementations.CLI/bin/Debug/net10.0/Qhapaq.Implementations.CLI.dll",
+      "cwd": "${workspaceFolder}/implementations/dotnet",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    }
+  ]
+}
