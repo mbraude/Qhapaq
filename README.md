@@ -29,14 +29,25 @@ are indexed in [specs/README.md](specs/README.md).
 | [scripts/](scripts/) | Maintained local and CI automation entry points. |
 | [build/](build/) | Build orchestration configuration. |
 | [tools/](tools/) | Project-owned development utilities and tool configuration. |
+| [.vscode/](.vscode/) | Shared Visual Studio Code extension recommendations and workspace configuration. |
 | [.agents/skills/](.agents/skills/) | Portable, reviewed skills for repository work. |
 | [.ai/](.ai/) | Reusable prompts and evaluations for AI-assisted development. |
 | [AGENTS.md](AGENTS.md) | Repository-wide working agreements for AI agents. |
 | [Coding conventions](docs/development/coding-conventions.md) | Detailed engineering requirements and defaults. |
 
-Additional GitHub workflows, community files, editor configuration, and
-language-specific projects will be added only when their behavior and consumers
-are defined.
+Additional GitHub workflows, community files, and language-specific projects
+will be added only when their behavior and consumers are defined.
+
+## Editor setup
+
+Visual Studio Code is the recommended editor for Qhapaq development. When the
+repository is opened, install the workspace's recommended extensions for C#,
+EditorConfig, Markdown, YAML, GitHub Actions, and container development.
+
+The recommendations intentionally omit optional AI assistants, account-specific
+tools, and extensions that are not required by the repository's selected
+technologies. Shared settings, tasks, launch profiles, and MCP configuration
+will be added only when their commands and trust boundaries are defined.
 
 ## Intended distribution
 

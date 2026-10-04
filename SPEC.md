@@ -532,7 +532,7 @@ These conventions should be revisited before the first public release.
 
 ### After the Technology Decision
 
-- [ ] Add focused `.gitignore`, `.editorconfig`, and `.gitattributes` files.
+- [x] Add focused `.gitignore`, `.editorconfig`, and `.gitattributes` files.
 - [x] Create the source, test, example, and documentation directories in the
       conventions of the selected ecosystem.
 - [ ] Define the normative CLI contract and conformance levels.

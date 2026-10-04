@@ -1,0 +1,43 @@
+* text=auto
+
+# Repository text uses LF for deterministic cross-platform diffs.
+*.cs text eol=lf diff=csharp
+*.csx text eol=lf diff=csharp
+*.csproj text eol=lf
+*.props text eol=lf
+*.targets text eol=lf
+*.sln text eol=lf
+*.slnx text eol=lf
+*.json text eol=lf
+*.jsonc text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.xml text eol=lf
+*.xsd text eol=lf
+*.ps1 text eol=lf
+*.psm1 text eol=lf
+*.sh text eol=lf
+
+# Windows command scripts require CRLF for compatibility with legacy tools.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Common binary assets must not be normalized.
+*.a binary
+*.dll binary
+*.dylib binary
+*.exe binary
+*.gif binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.lib binary
+*.nupkg binary
+*.pdf binary
+*.pdb binary
+*.png binary
+*.snupkg binary
+*.so binary
+*.zip binary

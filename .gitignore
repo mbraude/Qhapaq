@@ -1,0 +1,46 @@
+# .NET build output
+**/bin/
+**/obj/
+artifacts/
+
+# Generated executable and package binaries
+*.a
+*.dll
+*.dylib
+*.exe
+*.lib
+*.nupkg
+*.pdb
+*.snupkg
+*.so
+
+# Test and analysis output
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
+BenchmarkDotNet.Artifacts/
+
+# Local tool state
+.dotnet/
+.nuget/
+
+# IDE and editor state
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs and operating-system metadata
+*.log
+.DS_Store
+Desktop.ini
+Thumbs.db
