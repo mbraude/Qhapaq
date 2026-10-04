@@ -533,7 +533,7 @@ These conventions should be revisited before the first public release.
 ### After the Technology Decision
 
 - [ ] Add focused `.gitignore`, `.editorconfig`, and `.gitattributes` files.
-- [ ] Create the source, test, example, and documentation directories in the
+- [x] Create the source, test, example, and documentation directories in the
       conventions of the selected ecosystem.
 - [ ] Define the normative CLI contract and conformance levels.
 - [ ] Add language-neutral schemas and initial conformance vectors.
@@ -542,11 +542,13 @@ These conventions should be revisited before the first public release.
 - [ ] Define the initial authentication-provider set and protected token-cache
       behavior.
 - [ ] Add local build, formatting, linting, and test commands.
-- [ ] Add `README.md`, contribution guidelines, community health files, and AI
+- [x] Add `README.md` and initial repository-wide and path-specific AI
       instructions.
+- [ ] Add contribution guidelines and community health files.
 - [ ] Add commercial-licensing, trademark, and contributor-rights policies
       after legal review.
-- [ ] Add coding conventions and toolchain guidance under `docs/development/`.
+- [x] Add coding conventions under `docs/development/`.
+- [ ] Add toolchain guidance under `docs/development/`.
 - [ ] Add only those MCP configurations and skills with defined consumers and
       documented trust boundaries.
 - [ ] Add required pull request CI, branch protection, and dependency
