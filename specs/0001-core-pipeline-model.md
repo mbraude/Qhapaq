@@ -11,7 +11,8 @@ for building larger typed operations from small typed primitives. Pipelines can
 be constructed through the enhanced C# API or represented as canonical,
 versioned JSON. The same definition model supports validation, Mermaid
 visualization, persistence, AI-assisted authoring, CLI use, and policy-gated MCP
-execution.
+execution. A validated definition can also be exported as a portable invocation
+skill for repeated use by AI systems.
 
 The v1 reference implementation targets .NET 10. CLI and MCP contracts are
 language-neutral. Pipeline definitions are persistable, but individual runs are
@@ -26,6 +27,8 @@ non-durable and cannot resume after process failure.
 - Add cross-cutting behavior through type-preserving decorators.
 - Give declarative pipelines deterministic validation and binding behavior.
 - Make operations and pipeline shapes discoverable to AI systems.
+- Generate portable skills that invoke an exact pipeline with
+  schema-validated boundary inputs.
 - Let non-.NET systems use Qhapaq through stable CLI and MCP contracts.
 - Separate safe authoring and validation from privileged execution.
 - Keep the core independent of any particular dependency injection, logging, or
@@ -204,6 +207,11 @@ A pipeline has three representations:
 3. **Run:** one non-durable invocation of a bound plan with a typed or
    deserialized boundary input.
 
+An invocation skill is a packaging and discovery artifact around a definition
+or exact definition reference. It is not a fourth executable representation.
+The definition remains the source of truth, and a conforming host remains
+responsible for validation, binding, policy, and execution.
+
 The definition is the source of truth. An execution plan is a derived cache and
 must not be treated as a portable artifact. In v1, "compile" means binding a
 definition into this validated execution plan. It does not mean generating C#,
@@ -316,7 +324,8 @@ or define a pipeline.
 
 The CLI is a normative cross-language process boundary. It supports operation
 discovery, validation, Mermaid rendering, plan inspection, and policy-gated
-execution over canonical JSON.
+execution over canonical JSON. It also generates portable invocation-skill
+bundles from validated definitions.
 
 Machine-readable input and output use versioned JSON through files or standard
 input and standard output. Human diagnostics go to standard error and must not
@@ -335,10 +344,15 @@ validation, binding, visualization, and execution services used by other hosts.
 Its v1 tools support:
 
 - Listing and inspecting registered operation descriptors.
+- Listing and inspecting persisted pipeline definitions when the host exposes a
+  pipeline store.
 - Validating a pipeline definition.
 - Creating or transforming a pipeline definition.
 - Generating a Mermaid flowchart.
+- Generating a portable pipeline invocation-skill bundle.
 - Executing a validated definition when host policy explicitly permits it.
+- Executing an exact persisted pipeline reference when the host advertises that
+  capability and policy explicitly permits it.
 
 Execution is privileged and must be policy-gated. The host must be able to
 disable it, constrain available operations and capabilities, enforce resource
@@ -347,7 +361,131 @@ document. The server must not load code or expand its registry based solely on
 untrusted MCP input. MCP tools must not install extensions, modify trusted host
 profiles, return credential material, or broaden execution policy.
 
-## 13. Security and Reliability Requirements
+## 13. Portable Pipeline Invocation Skills
+
+### 13.1 Purpose and Authority
+
+A pipeline invocation skill gives an AI system reviewed instructions and
+machine-readable artifacts for invoking a particular Qhapaq pipeline. It is a
+thin adapter over the normative CLI or MCP execution contract. It must not
+reimplement pipeline semantics, contain executable operation code, or act as a
+capability token.
+
+Possession or invocation of a skill grants no execution, connection, secret,
+network, extension, budget, or payload-disclosure authority. Every invocation
+must pass the same complete validation, binding, policy, budget, credential
+resolution, and disclosure checks as a direct CLI or MCP request.
+
+### 13.2 Parameter Model
+
+The pipeline boundary input schema is the skill's parameter contract. A
+generated skill must not introduce a second expression or parameter language.
+Runtime input is a JSON value validated against that schema before any operation
+starts.
+
+Static operation configuration is not implicitly overridable. A pipeline author
+who wants a value to vary between invocations must expose it through the
+pipeline boundary input or use an explicit operation whose declared semantics
+perform that binding. Skills and invocation requests must not patch arbitrary
+locations in a canonical definition.
+
+Examples and default values, when exported, are non-authoritative documentation
+unless the pipeline input schema gives them normative semantics. A generator
+must not invent omitted required values or silently substitute invalid input.
+
+### 13.3 Portable Bundle Profile
+
+The v1 portable profile is a self-contained directory with:
+
+- `SKILL.md`, containing human- and agent-readable invocation guidance.
+- `qhapaq-skill.json`, a versioned machine-readable manifest.
+- `references/input.schema.json` and `references/output.schema.json`.
+- `references/pipeline.json` in snapshot mode.
+
+The manifest declares:
+
+- Its Qhapaq skill-bundle format identifier and version.
+- The pipeline ID, exact pipeline version, and canonical definition digest.
+- Whether the bundle uses snapshot or reference mode.
+- The pipeline document format version.
+- Relative paths and media types for included artifacts.
+- Required host capabilities and declared pipeline side-effect
+  characteristics.
+- Generator identity and version as informational provenance.
+
+Paths in a bundle are normalized relative paths and must not escape the bundle
+root. A bundle must not contain credentials, resolved secret values, token-cache
+material, trusted host-profile contents, implementation type names, executable
+operation code, or policy overrides.
+
+`SKILL.md` describes when the pipeline is appropriate, identifies its side
+effects and prerequisites, explains the boundary input, and directs the consumer
+to the normative Qhapaq CLI or MCP operation. Generated prose, pipeline
+metadata, operation descriptions, examples, and other untrusted display text
+must be clearly delimited so they cannot silently become authoritative
+instructions or override the manifest, pipeline definition, host policy, or
+higher-authority guidance.
+
+Client-specific skill, prompt, or agent formats are adapters over this portable
+bundle. They must preserve its exact pipeline identity, version, digest,
+parameter schema, authority limits, and disclosure behavior.
+
+### 13.4 Snapshot and Reference Modes
+
+Snapshot mode is the required portable mode and includes the canonical pipeline
+definition in the bundle. Before execution, the host recomputes its canonical
+digest and rejects a mismatch. Snapshot mode does not require access to the host
+that generated the skill, but the executing host must provide the exact
+registered operations and permitted capabilities required by the definition.
+
+Reference mode identifies a persisted definition by stable pipeline ID, exact
+pipeline version, and expected canonical digest. It is an optional host
+capability for centrally managed pipelines. The host resolves the reference and
+must fail before execution if it is absent or if its identity, version, or
+digest differs. Reference mode must not select an unspecified `latest` version
+or silently follow a mutable alias.
+
+A skill must be regenerated or explicitly reviewed when the intended canonical
+definition changes. Updating examples or non-semantic guidance must not alter
+the pinned definition digest.
+
+### 13.5 CLI and MCP Generation
+
+The normative CLI supports generating a bundle from a validated canonical
+definition and may write the resulting bounded directory tree to a
+user-selected destination. It must refuse path traversal, unexpected overwrite,
+invalid definitions, unresolved exact operation versions, or content that would
+place prohibited sensitive material in the bundle.
+
+The MCP surface accepts a validated definition or exact persisted reference and
+returns a structured bundle or an MCP resource containing that bundle. An MCP
+tool must not write to an arbitrary client-selected filesystem path. Skill
+generation does not install the skill, persist or approve a connection, modify
+a trusted profile, install an extension, or broaden execution or disclosure
+policy.
+
+Executing a generated skill uses the ordinary definition-execution request in
+snapshot mode or an exact-reference execution request in reference mode. The
+structured result includes the pipeline ID, version, digest, run ID, status, and
+either a schema-valid output or a structured indication that output was
+withheld, redacted, summarized, or limited by policy. CLI and MCP mappings use
+the same language-neutral result and error models.
+
+### 13.6 Compatibility and Conformance
+
+The skill-bundle format version is independent of the pipeline document,
+pipeline, operation, package, CLI, and MCP protocol versions. A breaking bundle
+change requires a new bundle format version.
+
+Snapshot skill generation is part of host conformance for implementations that
+claim invocation-skill support. Reference-mode generation and execution are
+reported as a separate host capability. Shared conformance vectors cover bundle
+structure, path safety, canonical digest verification, input validation,
+version and digest mismatch rejection, authority preservation, secret
+exclusion, disclosure enforcement, and resistance to instruction injection
+through untrusted metadata.
+
+## 14. Security and Reliability Requirements
 
 - Reject unknown document versions and unknown fields where ambiguity would
   affect execution.
@@ -363,7 +501,7 @@ profiles, return credential material, or broaden execution policy.
 - Treat operation descriptions and other registry metadata as untrusted display
   text at protocol and UI boundaries.
 
-## 14. Observability
+## 15. Observability
 
 Every implementation should integrate with its ecosystem's logging, metrics, and
 distributed tracing standards. The .NET reference implementation uses standard
@@ -374,7 +512,7 @@ without recording input or output payloads by default.
 The detailed event and metric contract will be specified separately. The core
 operation interface remains independent of a Qhapaq-specific execution context.
 
-## 15. Compatibility, Conformance, and Versioning
+## 16. Compatibility, Conformance, and Versioning
 
 The following versions are independent:
 
@@ -404,14 +542,14 @@ and behavioral test vectors it passes. Future implementations live under
 `implementations/<language>/` and reuse the same root specifications, schemas,
 and conformance data.
 
-## 16. .NET Package Boundaries
+## 17. .NET Package Boundaries
 
 The initial package decomposition is:
 
 - `Qhapaq.Abstractions`: operation contracts and minimal shared types.
 - `Qhapaq`: combinators, registry, document model, JSON parsing and
   canonicalization, binding, execution plans, execution, and deterministic
-  Mermaid generation.
+  Mermaid and portable invocation-skill generation.
 - `Qhapaq.Hosting`: integration with .NET hosting and dependency injection.
 - `Qhapaq.Mcp`: separately hosted MCP adapter.
 
@@ -423,7 +561,7 @@ The `qhapaq` CLI is a separately distributed executable built from the same
 reference implementation. It is not an additional reusable NuGet library
 boundary.
 
-## 17. Testing Strategy
+## 18. Testing Strategy
 
 The implementation requires:
 
@@ -437,12 +575,20 @@ The implementation requires:
 - Mermaid golden tests.
 - MCP tests proving execution is unavailable or rejected when policy disallows
   it.
+- Skill-bundle golden tests for snapshot generation, manifest and path
+  validation, exact identity/version/digest pinning, and round-tripping through
+  CLI and MCP.
+- Skill-execution tests proving invalid boundary input and changed referenced
+  definitions fail before operations start.
+- Skill-security tests proving generated artifacts contain no secrets, cannot
+  broaden authority, preserve disclosure controls, and safely delimit untrusted
+  metadata.
 - CLI contract tests for JSON output, diagnostics, exit statuses, and execution
   policy.
 - Shared conformance tests that do not depend on .NET implementation details.
 - Trimming and clean-package consumer tests for published libraries.
 
-## 18. Alternatives Considered
+## 19. Alternatives Considered
 
 ### TypeScript or Python as the reference runtime
 
@@ -483,7 +629,21 @@ schemas, and conformance suite portable while shipping one reference engine.
 Additional implementations can be added when an in-process use case justifies
 their maintenance cost.
 
-## 19. Open Questions
+### Skills as another executable pipeline format
+
+Making `SKILL.md`, scripts, prompts, or client-specific agent files executable
+pipeline sources would create competing semantics and weaken deterministic
+validation. Qhapaq instead treats a skill as a portable adapter that embeds or
+exactly references canonical JSON and delegates execution to a conforming host.
+
+### Mutable or latest pipeline references
+
+Allowing a generated skill to follow an unspecified latest version would make
+reviewed automations change behavior without review and could broaden side
+effects or data access. Reference-mode skills therefore pin pipeline identity,
+version, and canonical digest and fail closed on mismatch.
+
+## 20. Open Questions
 
 1. What JSON canonicalization scheme and JSON Schema draft will be normative?
 2. How are schema references packaged and resolved without network-dependent

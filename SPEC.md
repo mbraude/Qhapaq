@@ -1,7 +1,7 @@
 # Qhapaq Project Specification
 
 > **Status:** Draft  
-> **Version:** 0.1  
+> **Version:** 0.3
 > **Last updated:** 2026-10-04
 
 ## 1. Purpose
@@ -63,6 +63,9 @@ and gRPC hosting, are tracked in
 AI-assisted connection onboarding and its local consent boundary are specified
 in
 [`specs/0004-ai-assisted-connections.md`](specs/0004-ai-assisted-connections.md).
+Continuous integration, release publication, and website delivery are specified
+in
+[`specs/0005-build-release-and-website-delivery.md`](specs/0005-build-release-and-website-delivery.md).
 
 ### 1.2 Initial Scope Boundaries
 
@@ -78,6 +81,9 @@ Qhapaq v1 will:
 - Generate Mermaid flowcharts from validated definitions.
 - Expose authoring, discovery, validation, visualization, and policy-gated
   execution through a separately hosted MCP server.
+- Generate portable pipeline invocation skills that let AI systems execute an
+  exact validated pipeline with schema-validated boundary inputs through the
+  normative CLI or MCP contract.
 - Publish conformance schemas and test vectors independently of the .NET
   implementation.
 - Let users build an operation catalog from built-ins, explicitly selected
@@ -133,16 +139,18 @@ assumptions into portable pipeline and catalog documents.
 
 ### 1.5 Public Project Website
 
-Qhapaq will have a public static website hosted on Azure. The site will advertise
-the project, explain its purpose and capabilities, show representative use
-cases, and direct users to installation, documentation, source, packages, and
-community resources.
+Qhapaq will have a public static website hosted on Azure Static Web Apps. The
+site will advertise the project, explain its purpose and capabilities, show
+representative use cases, and direct users to installation, documentation,
+source, packages, and community resources.
 
 The website is a product and documentation surface, not a Qhapaq execution,
-configuration, credential, or control-plane component. Its information
-architecture, visual design, content workflow, accessibility requirements,
-framework, Azure hosting service, domain, analytics, and deployment process will
-be defined in a separate specification before implementation.
+configuration, credential, or control-plane component. Pull requests receive
+isolated preview deployments, and reviewed changes merged to `main` deploy
+automatically to production. Its information architecture, visual design,
+accessibility requirements, framework, domain, and analytics remain separate
+design decisions. Build and deployment behavior is defined in
+[`specs/0005-build-release-and-website-delivery.md`](specs/0005-build-release-and-website-delivery.md).
 
 ### 1.6 Licensing, Commercial Rights, and Brand
 
@@ -354,6 +362,14 @@ Skills should implement repeatable capabilities rather than hold general
 repository policy. General policy belongs in `AGENTS.md`, `CONTRIBUTING.md`, or
 the relevant document under `docs/development/`.
 
+Qhapaq-generated pipeline invocation skills are product artifacts, not
+repository-collaboration policy. They contain or reference a canonical pipeline
+definition and delegate validation, binding, policy enforcement, and execution
+to a conforming Qhapaq host. They must not become an additional executable
+pipeline format or grant authority beyond the active host policy. The portable
+invocation-skill profile is defined in
+[`specs/0001-core-pipeline-model.md`](specs/0001-core-pipeline-model.md).
+
 Any tool-specific instruction file, including proposed `.dm` files, must have a
 documented consumer and format before it is added. Tool-neutral guidance should
 remain authoritative to avoid conflicting instructions.
@@ -410,34 +426,46 @@ override higher-authority project guidance.
 
 ## 5. Automation Strategy
 
-Automation will be introduced in stages.
+Automation is event-driven and implemented with GitHub Actions. Repository
+scripts remain the authoritative entry points for build, test, package, and
+site-generation behavior so contributors can reproduce CI locally.
 
-### Stage 1: Repository Health
+### 5.1 Pull Requests
 
-- Validate formatting and linting.
-- Run unit tests and static/type analysis.
-- Check links and documentation conventions.
-- Scan committed content for secrets.
-- Perform dependency and license review.
+Every pull request targeting `main` runs required formatting, build, test,
+conformance, package smoke, documentation, secret, dependency, and license
+checks. Website changes receive an isolated Azure Static Web Apps preview that
+is removed when the pull request closes. Pull-request workflows do not receive
+package-publishing or production-deployment credentials.
 
-### Stage 2: Packaging
+### 5.2 Main and Edge
 
-- Build reproducible packages.
-- Generate a software bill of materials where appropriate.
-- Sign release artifacts and publish checksums.
-- Verify packages in a clean environment.
+Every reviewed merge or other protected push to `main` runs a release-shaped
+build, publishes a public `edge` build identified by its exact commit, updates
+the moving edge download pointer and container tag, and deploys the production
+website. Edge artifacts are explicitly unstable and are not pushed to the stable
+nuget.org feed.
 
-### Stage 3: Release and Deployment
+### 5.3 Stable Releases
 
-- Use protected GitHub environments for deployments.
-- Prefer workload identity federation over stored cloud credentials.
-- Require explicit approvals for production changes.
-- Preserve provenance and an audit trail for released artifacts.
-- Provide a documented rollback or recovery path.
+Stable and prerelease publication is triggered only by protected Semantic
+Version tags. The tag is the explicit release decision; the subsequent verified
+publication is automatic. A release builds one artifact set and publishes those
+exact bytes as NuGet packages, self-contained CLI archives, a container image,
+schemas, conformance data, checksums, SBOMs, provenance, and release notes.
+Published stable artifacts are immutable.
 
-CI should run on pull requests and protected branches. Releases should be
-triggered from immutable version tags or an auditable release workflow, not from
-unreviewed branch pushes.
+Stable releases are readiness-driven during v1 rather than forced onto a fixed
+calendar. Maintainers review readiness at least monthly. Nightly and weekly
+scheduled workflows provide deeper platform, integration, dependency, license,
+and security assurance but do not publish stable releases.
+
+Protected GitHub environments, least-privilege workflow permissions, trusted
+publishing, and workload identity federation are used where supported. A
+narrowly scoped, rotated deployment token may be used where Azure Static Web
+Apps requires it. All channels preserve provenance and an audit trail and have
+documented recovery behavior. The normative model is defined in
+[`specs/0005-build-release-and-website-delivery.md`](specs/0005-build-release-and-website-delivery.md).
 
 ## 6. Specification Process
 
@@ -469,6 +497,9 @@ The initial recommendation is:
 - Use Conventional Commits only if release automation will consume them.
 - Adopt Semantic Versioning once a public API exists.
 - Treat breaking changes as explicit design decisions.
+- Let automation maintain a release proposal and changelog when the project has
+  enough user-visible changes; publishing still begins only from a protected
+  version tag.
 
 These conventions should be revisited before the first public release.
 
@@ -494,6 +525,8 @@ These conventions should be revisited before the first public release.
 - [x] Define the initial `Qhapaq.Abstractions`, `Qhapaq`, `Qhapaq.Hosting`,
       and `Qhapaq.Mcp` package boundaries.
 - [x] Record the future Azure-hosted static project website as a product surface.
+- [x] Define the event-driven CI, edge, stable-release, and website delivery
+      model.
 - [x] Select PolyForm Internal Use License 1.0.0 as the public source-available
       license.
 
@@ -504,6 +537,8 @@ These conventions should be revisited before the first public release.
       conventions of the selected ecosystem.
 - [ ] Define the normative CLI contract and conformance levels.
 - [ ] Add language-neutral schemas and initial conformance vectors.
+- [ ] Define the portable pipeline invocation-skill bundle schema and generate
+      it through the normative CLI and MCP surfaces.
 - [ ] Define the initial authentication-provider set and protected token-cache
       behavior.
 - [ ] Add local build, formatting, linting, and test commands.
@@ -514,12 +549,17 @@ These conventions should be revisited before the first public release.
 - [ ] Add coding conventions and toolchain guidance under `docs/development/`.
 - [ ] Add only those MCP configurations and skills with defined consumers and
       documented trust boundaries.
-- [ ] Add pull request CI and dependency automation.
+- [ ] Add required pull request CI, branch protection, and dependency
+      automation.
+- [ ] Add Azure Static Web Apps pull-request previews and automatic production
+      deployment from `main`.
+- [ ] Add release-shaped `main` builds and a public edge download channel.
 
 ### Before the First Public Release
 
 - [ ] Document the support and compatibility policy.
-- [ ] Add packaging, provenance, signing, and release automation.
+- [ ] Add protected-tag packaging, trusted publishing, provenance, signing or
+      attestation, and release automation.
 - [ ] Add security reporting and vulnerability response procedures.
 - [ ] Confirm license compatibility and required attributions.
 - [ ] Complete legal review of the public license, commercial terms, trademark
@@ -536,9 +576,9 @@ These conventions should be revisited before the first public release.
 | D-003 | What package and distribution formats will be provided? | Decided: four NuGet packages, self-contained CLI executables, a container image, and canonical JSON |
 | D-004 | Which public source license will the project use? | Decided: PolyForm Internal Use License 1.0.0, with separate commercial licensing and trademark policy |
 | D-005 | Which operating systems and architectures will be supported? | Open |
-| D-006 | Which build and documentation systems will be used? | Open |
+| D-006 | Which build and documentation systems will be used? | Partial: GitHub Actions orchestrates CI/CD and calls repository scripts; the .NET build orchestration and static-site generator remain open |
 | D-007 | Will Qhapaq deploy a service, publish only a library, or do both? | Decided: publish .NET libraries, a portable CLI, and an optional separately hosted MCP server |
-| D-008 | Which AI tools, skill conventions, and instruction formats, including `.dm`, must be supported? | Partial: MCP is a product surface; repository-agent conventions remain open |
+| D-008 | Which AI tools, skill conventions, and instruction formats, including `.dm`, must be supported? | Partial: MCP and a portable `SKILL.md`-based pipeline invocation profile are product surfaces; other repository-agent conventions remain open |
 | D-009 | What governance and maintainer model will apply? | Open |
 | D-010 | Which MCP servers, trust boundaries, and configuration formats will be supported? | Partial: project-owned server with host-controlled discovery and policy-gated execution |
 | D-011 | What is the canonical declarative format? | Decided: versioned JSON with generated Mermaid visualization |
@@ -552,7 +592,10 @@ These conventions should be revisited before the first public release.
 | D-019 | Which deferred product evolutions must v1 preserve? | Decided: remote credential stores, gRPC Qhapaq hosts, remote gRPC operation providers, and hosted identity/configuration |
 | D-020 | How can AI systems help configure connections safely? | Decided: MCP proposes immutable setup plans; a trusted local broker obtains explicit user approval and applies them |
 | D-021 | May configured internal-resource outputs be returned to AI clients? | Decided: payload disclosure through MCP is denied by default and must be explicitly allowed per connection or operation |
-| D-022 | Will Qhapaq have a public project website? | Partial: an Azure-hosted static overview and discovery site is required; design and implementation decisions remain open |
+| D-022 | Will Qhapaq have a public project website? | Partial: Azure Static Web Apps hosts automatic pull-request previews and production deployment from `main`; design, framework, domain, and analytics remain open |
+| D-023 | How can AI systems package and repeat a pipeline invocation? | Decided: generate a portable invocation-skill bundle that embeds or exactly references canonical JSON, uses boundary input as its parameter surface, pins identity/version/digest, and delegates all authority to the host |
+| D-024 | What events publish builds and the website? | Decided: pull requests validate and preview; protected `main` pushes publish edge and production website updates; protected Semantic Version tags publish immutable releases |
+| D-025 | What release cadence applies? | Decided: event-driven edge delivery on every successful `main` change, readiness-driven stable releases with at least monthly review, and scheduled assurance without scheduled stable publication |
 
 ## 10. Definition of Repository Readiness
 
@@ -575,4 +618,6 @@ The repository is ready for implementation when:
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| 0.3 | 2026-10-04 | Defined automated CI, edge builds, immutable releases, and website delivery. |
+| 0.2 | 2026-10-04 | Added portable pipeline invocation skills as a v1 product capability. |
 | 0.1 | 2026-10-04 | Established the initial repository vision, layout, and decision backlog. |

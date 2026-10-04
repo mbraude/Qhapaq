@@ -37,8 +37,8 @@ V1 delivers local single-user CLI and MCP hosting, but establishes:
 - Logical authentication requirement names in portable catalogs.
 - Host-owned bindings from logical requirements to credential providers.
 - Application services for catalog discovery, validation, visualization,
-  planning, execution, cancellation, and diagnostics that are not coupled to
-  CLI or MCP transports.
+  planning, portable invocation-skill generation, execution, cancellation, and
+  diagnostics that are not coupled to CLI or MCP transports.
 - Portable operation descriptors and JSON Schemas.
 - An immutable effective operation registry constructed from configured
   providers.
