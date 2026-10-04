@@ -191,8 +191,10 @@ Qhapaq.Implementations.Hosting
 Each layer registers its own internal concrete types, exposes only its boundary
 abstractions for resolution, and delegates registration only to the immediately
 lower layer. Hosting must not reference Business or DAL. Service must not
-reference DAL. Lower-layer registration entry points remain internal and are
-visible only to the named adjacent Qhapaq assembly and tests.
+reference DAL. The Service V1 registration entry point is public so supported
+hosting adapters can compose the versioned Service boundary. Business and DAL
+registration entry points remain internal and are visible only to the named
+adjacent Qhapaq assembly and tests.
 
 Only an executable or hosting boundary may build or directly access the root
 `IServiceProvider`. Registration methods must not build a nested provider,

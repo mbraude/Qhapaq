@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <PackAsTool>false</PackAsTool>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Qhapaq.Abstractions\Qhapaq.Abstractions.csproj" />
+    <ProjectReference Include="..\Qhapaq.Implementations.Hosting\Qhapaq.Implementations.Hosting.csproj" />
+  </ItemGroup>
+</Project>

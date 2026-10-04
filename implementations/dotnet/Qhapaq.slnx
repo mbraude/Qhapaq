@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Qhapaq.Abstractions/Qhapaq.Abstractions.csproj" />
+    <Project Path="src/Qhapaq.Business/Qhapaq.Business.csproj" />
+    <Project Path="src/Qhapaq.DAL/Qhapaq.DAL.csproj" />
+    <Project Path="src/Qhapaq.Implementations.CLI/Qhapaq.Implementations.CLI.csproj" />
+    <Project Path="src/Qhapaq.Implementations.Hosting/Qhapaq.Implementations.Hosting.csproj" />
+    <Project Path="src/Qhapaq.Implementations.MCP/Qhapaq.Implementations.MCP.csproj" />
+    <Project Path="src/Qhapaq.Service.V1/Qhapaq.Service.V1.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/integration/">
+    <Project Path="tests/integration/Qhapaq.Implementations.CLI.Tests/Qhapaq.Implementations.CLI.Tests.csproj" />
+    <Project Path="tests/integration/Qhapaq.Implementations.Hosting.Tests/Qhapaq.Implementations.Hosting.Tests.csproj" />
+    <Project Path="tests/integration/Qhapaq.Implementations.MCP.Tests/Qhapaq.Implementations.MCP.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/unit/">
+    <Project Path="tests/unit/Qhapaq.Architecture.Tests/Qhapaq.Architecture.Tests.csproj" />
+    <Project Path="tests/unit/Qhapaq.Business.Tests/Qhapaq.Business.Tests.csproj" />
+    <Project Path="tests/unit/Qhapaq.DAL.Tests/Qhapaq.DAL.Tests.csproj" />
+    <Project Path="tests/unit/Qhapaq.Service.V1.Tests/Qhapaq.Service.V1.Tests.csproj" />
+  </Folder>
+</Solution>

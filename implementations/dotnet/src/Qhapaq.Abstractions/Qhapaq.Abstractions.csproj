@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Qhapaq.Abstractions</PackageId>
+    <Description>Public operation-authoring and versioned service contracts for Qhapaq.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Qhapaq.Architecture.Tests" />
+    <InternalsVisibleTo Include="Qhapaq.Business" />
+    <InternalsVisibleTo Include="Qhapaq.Business.Tests" />
+    <InternalsVisibleTo Include="Qhapaq.DAL" />
+    <InternalsVisibleTo Include="Qhapaq.DAL.Tests" />
+    <InternalsVisibleTo Include="Qhapaq.Service.V1" />
+    <InternalsVisibleTo Include="Qhapaq.Service.V1.Tests" />
+    <None Include="..\..\..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>

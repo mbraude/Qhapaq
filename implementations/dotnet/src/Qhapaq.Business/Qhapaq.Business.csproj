@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <ProjectReference Include="..\Qhapaq.Abstractions\Qhapaq.Abstractions.csproj" />
+    <ProjectReference Include="..\Qhapaq.DAL\Qhapaq.DAL.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Qhapaq.Business.Tests" />
+    <InternalsVisibleTo Include="Qhapaq.Service.V1" />
+  </ItemGroup>
+</Project>

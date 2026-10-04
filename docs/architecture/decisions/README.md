@@ -19,3 +19,4 @@ made within the behavior required by those specifications.
 | Decision | Summary |
 | --- | --- |
 | [ADR-0001](0001-use-microsoft-dependency-injection.md) | Use Microsoft dependency injection with adjacent-layer, layer-owned composition. |
+| [ADR-0002](0002-use-xunit-v3-for-dotnet-tests.md) | Use xUnit v3 for .NET architecture, unit, and integration tests. |

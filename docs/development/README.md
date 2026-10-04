@@ -17,3 +17,5 @@ Current guidance:
 
 - [Coding conventions](coding-conventions.md) define repository-wide
   engineering requirements and defaults.
+- [.NET toolchain](dotnet-toolchain.md) documents the pinned SDK and local
+  restore, format, build, and test commands.

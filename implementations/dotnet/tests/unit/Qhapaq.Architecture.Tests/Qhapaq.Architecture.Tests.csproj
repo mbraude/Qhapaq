@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Qhapaq.Abstractions\Qhapaq.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Qhapaq.Business\Qhapaq.Business.csproj" />
+    <ProjectReference Include="..\..\..\src\Qhapaq.DAL\Qhapaq.DAL.csproj" />
+    <ProjectReference Include="..\..\..\src\Qhapaq.Implementations.CLI\Qhapaq.Implementations.CLI.csproj" />
+    <ProjectReference Include="..\..\..\src\Qhapaq.Implementations.Hosting\Qhapaq.Implementations.Hosting.csproj" />
+    <ProjectReference Include="..\..\..\src\Qhapaq.Implementations.MCP\Qhapaq.Implementations.MCP.csproj" />
+    <ProjectReference Include="..\..\..\src\Qhapaq.Service.V1\Qhapaq.Service.V1.csproj" />
+  </ItemGroup>
+</Project>

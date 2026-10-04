@@ -124,10 +124,18 @@ These defaults apply when the .NET 10 projects are created.
 - Use `PascalCase` for namespaces, types, methods, properties, events, constants,
   and public members.
 - Use `camelCase` for parameters and local variables.
-- Use `_camelCase` for private instance fields.
+- Use `camelCase` for instance fields; do not prefix field names with an
+  underscore.
+- Qualify instance field, property, and method references with `this.`.
 - Prefix interfaces with `I`.
 - Suffix asynchronous methods returning `Task`, `Task<T>`, `ValueTask`, or
   `ValueTask<T>` with `Async`, except language- or framework-mandated members.
+- Keep all parameters or arguments on the same line when there are five or
+  fewer and the complete declaration or invocation is no longer than 100
+  characters.
+- When a declaration or invocation exceeds five parameters or 100 characters,
+  put every parameter or argument on its own line. Do not partially wrap a
+  parameter or argument list.
 - Default to one public top-level type per file and match the file name to that
   type.
 - Choose names that describe domain behavior; avoid abbreviations that are not
@@ -146,6 +154,9 @@ These defaults apply when the .NET 10 projects are created.
   product paths.
 - Avoid unnecessary `as`, null-forgiving operators, and broad type casts. Fix
   the type model or add a validated guard.
+- Add XML documentation comments to every type, field, constructor, and method,
+  regardless of visibility. Unit-test types and methods are exempt from this
+  documentation requirement.
 - Public APIs require XML documentation when their purpose, constraints, failure
   modes, or security behavior are not self-evident.
 

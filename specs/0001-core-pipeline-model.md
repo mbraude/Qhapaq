@@ -135,8 +135,11 @@ metadata.
 
 If either branch fails, the composed operation must signal cancellation to the
 other branch, observe both branch tasks, and report every branch failure in a
-Qhapaq parallel-execution exception. Signaling cancellation does not guarantee
-that a branch or its side effects stop immediately.
+`ParallelExecutionException`. Its read-only `BranchExceptions` collection
+reports failures in stable left-to-right branch order. Cancellation caused only
+by a sibling branch failure is not an additional branch failure. Signaling
+cancellation does not guarantee that a branch or its side effects stop
+immediately.
 
 The initial primitive is binary. Larger fan-outs are equivalent to recursive
 binary composition, while authoring APIs may present a flattened named-branch
@@ -191,8 +194,9 @@ and produces `IOperation<TState, TState>`.
 The condition is evaluated before each iteration. The output of one body
 invocation becomes the state for the next condition evaluation. Every loop must
 declare a positive `maxIterations`. If the condition remains true after the
-maximum number of body invocations, execution fails with a loop-limit exception
-instead of returning a potentially incomplete result.
+maximum number of body invocations, execution fails with a
+`LoopLimitExceededException` whose `MaxIterations` value reports the configured
+limit instead of returning a potentially incomplete result.
 
 Arbitrary graph cycles and unbounded loops are invalid in v1.
 

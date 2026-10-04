@@ -1,7 +1,7 @@
 # .NET Reference Implementation
 
-This directory will contain the .NET 10 reference implementation, its solution
-and pinned toolchain configuration, source projects, and tests.
+This directory contains the initial .NET 10 reference implementation scaffold,
+its solution, pinned toolchain configuration, source projects, and tests.
 
 The planned public package boundaries are:
 
@@ -24,3 +24,16 @@ visibility rules, initial file plan, and component diagram are in
 
 The language-neutral specifications, schemas, and conformance vectors remain at
 the repository root.
+
+The current implementation includes the typed operation contract, sequential,
+parallel, conditional, and bounded-loop primitives, adjacent-layer dependency
+injection composition, and architecture tests. The public Service V1 use case,
+CLI contract, and MCP contract remain intentionally unimplemented until their
+governing specifications define them.
+
+Only `Qhapaq.Abstractions` is currently packable. The `Qhapaq`,
+`Qhapaq.Hosting`, and `Qhapaq.Mcp` distribution packages remain disabled until
+their package-assembly composition and consumer smoke tests are implemented.
+
+See the [.NET toolchain guide](../../docs/development/dotnet-toolchain.md) for
+local restore, format, build, and test commands.
