@@ -64,6 +64,9 @@ are intentional later capabilities. Their roadmap is defined in
   obtains credential material without exposing it to the pipeline.
 - **Secret reference:** an opaque instruction to a credential provider, not the
   secret itself.
+- **Connection:** a trusted host binding among a logical resource name,
+  connector, endpoint, credential profile, operation allowlist, and disclosure
+  policy.
 
 ## 5. Operation Sources
 
@@ -189,6 +192,7 @@ A profile contains:
 - Enabled project catalogs, preferably with expected IDs or digests.
 - Enabled precompiled extensions and exact versions or integrity values.
 - Bindings from logical authentication names to credential profiles.
+- Connection bindings for logical resources requested by project catalogs.
 - Network, filesystem, process, and operation allowlists.
 - Execution budgets for duration, concurrency, attempts, iterations, memory,
   and output size.
@@ -335,6 +339,8 @@ The MCP server may:
 - Validate pipelines against the effective registry.
 - Execute allowed pipelines when execution is enabled.
 - Report non-secret profile identity and policy limits.
+- Propose immutable connection setup plans and request an independent trusted
+  local consent flow.
 
 The MCP server must not:
 
@@ -347,7 +353,10 @@ The MCP server must not:
 - Select a different trusted profile after startup.
 
 Administrative CLI commands, if provided, must be separate from model-accessible
-MCP tools and require an explicit local user action.
+MCP tools and require an explicit local user action. An approved local consent
+broker may apply a specific proposed connection plan without giving MCP general
+profile-administration authority. That flow is defined in
+[`0004-ai-assisted-connections.md`](0004-ai-assisted-connections.md).
 
 ## 12. Security Considerations
 

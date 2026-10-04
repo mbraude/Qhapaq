@@ -60,6 +60,9 @@ in
 Deferred but intentional product directions, including remote credential stores
 and gRPC hosting, are tracked in
 [`specs/0003-product-evolution-roadmap.md`](specs/0003-product-evolution-roadmap.md).
+AI-assisted connection onboarding and its local consent boundary are specified
+in
+[`specs/0004-ai-assisted-connections.md`](specs/0004-ai-assisted-connections.md).
 
 ### 1.2 Initial Scope Boundaries
 
@@ -81,6 +84,10 @@ Qhapaq v1 will:
   OpenAPI operations, and explicitly installed precompiled .NET extensions.
 - Keep portable project catalogs separate from trusted user host profiles and
   externally resolved credentials.
+- Let MCP clients propose resource connections while requiring an independent
+  trusted local consent flow to approve and apply configuration changes.
+- Deny disclosure of operation payloads to MCP clients by default, independently
+  from permission to execute an operation.
 
 Qhapaq v1 will not:
 
@@ -124,11 +131,47 @@ These are deferred deliverables, not rejected use cases. V1 contracts must avoid
 embedding local filesystem paths, process identity, or .NET-specific transport
 assumptions into portable pipeline and catalog documents.
 
+### 1.5 Public Project Website
+
+Qhapaq will have a public static website hosted on Azure. The site will advertise
+the project, explain its purpose and capabilities, show representative use
+cases, and direct users to installation, documentation, source, packages, and
+community resources.
+
+The website is a product and documentation surface, not a Qhapaq execution,
+configuration, credential, or control-plane component. Its information
+architecture, visual design, content workflow, accessibility requirements,
+framework, Azure hosting service, domain, analytics, and deployment process will
+be defined in a separate specification before implementation.
+
+### 1.6 Licensing, Commercial Rights, and Brand
+
+Qhapaq is source-available rather than OSI open source. Publicly released source
+is licensed under the PolyForm Internal Use License 1.0.0, which permits internal
+business use and modification but does not permit distribution or sublicensing.
+
+The project owner reserves the right to offer separate commercial licenses for
+distribution, embedding, OEM use, hosted or managed services, support, and other
+uses not granted by the public license. Commercial terms will be documented
+separately and reviewed by qualified legal counsel before they are offered.
+
+The software license does not grant rights to the Qhapaq name, logos, service
+identity, or compatibility marks. A separate trademark and brand-use policy will
+define permitted nominative references and protect official products and hosted
+services.
+
+External contributions require contributor terms that preserve the project
+owner's ability to distribute contributions under the public license and
+separate commercial licenses. The contributor agreement or assignment model
+must be selected with legal review before accepting substantive outside
+contributions.
+
 ## 2. Repository Goals
 
 The repository should be:
 
-- **Open-source forward:** easy to understand, adopt, contribute to, and govern.
+- **Source-available forward:** easy to understand, evaluate, use internally,
+  contribute to, and govern while preserving commercial and hosting rights.
 - **AI forward:** structured so AI coding agents can work safely and consistently.
 - **Specification driven:** important behavior and decisions are documented before
   or alongside implementation.
@@ -208,10 +251,12 @@ Qhapaq/
 |-- CODE_OF_CONDUCT.md
 |-- CONTRIBUTING.md
 |-- LICENSE
+|-- LICENSING.md
 |-- NOTICE
 |-- README.md
 |-- RELEASE.md
 |-- SECURITY.md
+|-- TRADEMARKS.md
 `-- SPEC.md
 ```
 
@@ -227,11 +272,13 @@ Qhapaq/
 | `.gitignore` | Ignores selected for the eventual language, tools, editors, and OS artifacts. |
 | `.editorconfig` | Cross-editor whitespace, encoding, and newline conventions. |
 | `.gitattributes` | Line-ending, diff, linguist, and generated-file behavior. |
-| `LICENSE` | The project's approved open-source license. |
+| `LICENSE` | Canonical PolyForm Internal Use License 1.0.0 terms. |
+| `LICENSING.md` | Plain-language licensing model and commercial-license contact path. |
 | `NOTICE` | Attributions and notices when required by dependencies or the license. |
 | `CODE_OF_CONDUCT.md` | Community participation expectations and enforcement process. |
 | `CHANGELOG.md` | User-visible changes, preferably following Keep a Changelog. |
 | `RELEASE.md` | Versioning, packaging, signing, and release procedures. |
+| `TRADEMARKS.md` | Qhapaq name, logo, compatibility-mark, and brand-use policy. |
 
 ### 4.2 Source and Quality
 
@@ -441,9 +488,14 @@ These conventions should be revisited before the first public release.
       providers.
 - [x] Document remote credential stores and both gRPC hosting models as
       intentional post-v1 evolution paths.
+- [x] Define AI-assisted connection planning with trusted local approval.
+- [x] Separate resource execution permission from MCP payload-disclosure
+      permission.
 - [x] Define the initial `Qhapaq.Abstractions`, `Qhapaq`, `Qhapaq.Hosting`,
       and `Qhapaq.Mcp` package boundaries.
-- [ ] Select an open-source license.
+- [x] Record the future Azure-hosted static project website as a product surface.
+- [x] Select PolyForm Internal Use License 1.0.0 as the public source-available
+      license.
 
 ### After the Technology Decision
 
@@ -457,6 +509,8 @@ These conventions should be revisited before the first public release.
 - [ ] Add local build, formatting, linting, and test commands.
 - [ ] Add `README.md`, contribution guidelines, community health files, and AI
       instructions.
+- [ ] Add commercial-licensing, trademark, and contributor-rights policies
+      after legal review.
 - [ ] Add coding conventions and toolchain guidance under `docs/development/`.
 - [ ] Add only those MCP configurations and skills with defined consumers and
       documented trust boundaries.
@@ -468,7 +522,10 @@ These conventions should be revisited before the first public release.
 - [ ] Add packaging, provenance, signing, and release automation.
 - [ ] Add security reporting and vulnerability response procedures.
 - [ ] Confirm license compatibility and required attributions.
+- [ ] Complete legal review of the public license, commercial terms, trademark
+      policy, and contributor agreement.
 - [ ] Publish generated API reference and user guides.
+- [ ] Specify, create, and publish the static project website on Azure.
 
 ## 9. Open Decisions
 
@@ -477,7 +534,7 @@ These conventions should be revisited before the first public release.
 | D-001 | What problem and use cases will Qhapaq address? | Decided: typed, composable in-process pipelines for code and AI-authored orchestration |
 | D-002 | Which implementation language and runtimes will be supported? | Decided: .NET 10 reference implementation; CLI and MCP remain language-neutral |
 | D-003 | What package and distribution formats will be provided? | Decided: four NuGet packages, self-contained CLI executables, a container image, and canonical JSON |
-| D-004 | Which open-source license will the project use? | Open |
+| D-004 | Which public source license will the project use? | Decided: PolyForm Internal Use License 1.0.0, with separate commercial licensing and trademark policy |
 | D-005 | Which operating systems and architectures will be supported? | Open |
 | D-006 | Which build and documentation systems will be used? | Open |
 | D-007 | Will Qhapaq deploy a service, publish only a library, or do both? | Decided: publish .NET libraries, a portable CLI, and an optional separately hosted MCP server |
@@ -493,6 +550,9 @@ These conventions should be revisited before the first public release.
 | D-017 | Where is configuration stored? | Decided: portable project catalogs plus explicit trusted user profiles and external secret providers |
 | D-018 | What deployment and identity model does v1 target? | Decided: local single-user CLI and MCP, preserving hosted abstractions |
 | D-019 | Which deferred product evolutions must v1 preserve? | Decided: remote credential stores, gRPC Qhapaq hosts, remote gRPC operation providers, and hosted identity/configuration |
+| D-020 | How can AI systems help configure connections safely? | Decided: MCP proposes immutable setup plans; a trusted local broker obtains explicit user approval and applies them |
+| D-021 | May configured internal-resource outputs be returned to AI clients? | Decided: payload disclosure through MCP is denied by default and must be explicitly allowed per connection or operation |
+| D-022 | Will Qhapaq have a public project website? | Partial: an Azure-hosted static overview and discovery site is required; design and implementation decisions remain open |
 
 ## 10. Definition of Repository Readiness
 
