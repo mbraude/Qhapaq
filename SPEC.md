@@ -549,7 +549,7 @@ These conventions should be revisited before the first public release.
       after legal review.
 - [x] Add coding conventions under `docs/development/`.
 - [ ] Add toolchain guidance under `docs/development/`.
-- [ ] Add only those MCP configurations and skills with defined consumers and
+- [x] Add only those MCP configurations and skills with defined consumers and
       documented trust boundaries.
 - [ ] Add required pull request CI, branch protection, and dependency
       automation.
@@ -620,6 +620,7 @@ The repository is ready for implementation when:
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| 0.4 | 2026-10-04 | Recorded the documented, evaluated repository skill surface as complete. |
 | 0.3 | 2026-10-04 | Defined automated CI, edge builds, immutable releases, and website delivery. |
 | 0.2 | 2026-10-04 | Added portable pipeline invocation skills as a v1 product capability. |
 | 0.1 | 2026-10-04 | Established the initial repository vision, layout, and decision backlog. |
