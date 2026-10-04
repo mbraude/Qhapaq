@@ -21,6 +21,39 @@ dotnet_style_qualification_for_field = true:error
 dotnet_style_qualification_for_method = true:error
 dotnet_style_qualification_for_property = true:error
 
+[implementations/dotnet/src/Qhapaq.Abstractions/**/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[implementations/dotnet/src/Qhapaq.Abstractions/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[implementations/dotnet/src/Qhapaq.Service.V*/**/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[implementations/dotnet/src/Qhapaq.Service.V*/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[implementations/dotnet/src/Qhapaq.Business/**/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[implementations/dotnet/src/Qhapaq.Business/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[implementations/dotnet/src/Qhapaq.DAL/**/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[implementations/dotnet/src/Qhapaq.DAL/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[implementations/dotnet/src/Qhapaq.Implementations.*/**/*.cs]
+dotnet_diagnostic.CA2007.severity = none
+
+[implementations/dotnet/src/Qhapaq.Implementations.*/*.cs]
+dotnet_diagnostic.CA2007.severity = none
+
+[implementations/dotnet/tests/**/*.cs]
+dotnet_diagnostic.CA2007.severity = none
+
 [*.{csproj,props,targets,json,jsonc,yaml,yml}]
 indent_style = space
 indent_size = 2

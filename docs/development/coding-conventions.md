@@ -165,6 +165,23 @@ These defaults apply when the .NET 10 projects are created.
 - Propagate `CancellationToken` through every asynchronous composition layer.
 - Put `CancellationToken` last in public parameter lists and provide a default
   only when cancellation is genuinely optional at that boundary.
+- Follow the
+  [.NET `ConfigureAwait` guidance](https://devblogs.microsoft.com/dotnet/configureawait-faq/)
+  according to the owning project:
+  - App-model-agnostic library code in `Qhapaq.Abstractions`,
+    `Qhapaq.Service.V*`, `Qhapaq.Business`, and `Qhapaq.DAL` must use
+    `ConfigureAwait(false)` on every applicable `await`.
+  - Service Implementation code in `Qhapaq.Implementations.*` must use plain
+    `await` and must not use `ConfigureAwait(false)`. These adapters own
+    application and transport context.
+  - Unit and integration tests must use plain `await`. Test frameworks such as
+    xUnit may provide a synchronization context.
+  - A library API that intentionally invokes caller-provided code on the
+    captured context may use `ConfigureAwait(true)` only with a local comment
+    explaining the exception and focused tests for that behavior.
+- Apply the selected `ConfigureAwait` behavior to every applicable `await` in a
+  method, not only its first await. An already-completed awaitable may continue
+  synchronously without changing context.
 - Check cancellation before beginning expensive work or irreversible side
   effects.
 - Never use `.Result`, `.Wait()`, or `GetAwaiter().GetResult()` in asynchronous

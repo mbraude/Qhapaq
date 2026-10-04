@@ -110,7 +110,8 @@ public sealed class LayerDependencyTests
                 ["Qhapaq.Service.V1"] =
                     "Qhapaq.Service.V1.DependencyInjection.ServiceCollectionExtensions",
                 ["Qhapaq.Implementations.Hosting"] =
-                    "Qhapaq.Implementations.Hosting.DependencyInjection.ServiceCollectionExtensions",
+                    "Qhapaq.Implementations.Hosting.DependencyInjection." +
+                    "ServiceCollectionExtensions",
             };
 
         foreach ((string assemblyName, string expectedType) in expectedTypes)
@@ -148,6 +149,26 @@ public sealed class LayerDependencyTests
                     dependencies,
                     dependency => prohibitedTypes.Contains(dependency));
             }
+        }
+    }
+
+    [Fact]
+    public void ServiceImplementationSources_DoNotDisableContextCapture()
+    {
+        string sourceDirectory = Path.Combine(FindSolutionDirectory(), "src");
+        IEnumerable<string> implementationFiles = Directory
+            .EnumerateDirectories(
+                sourceDirectory,
+                "Qhapaq.Implementations.*",
+                SearchOption.TopDirectoryOnly)
+            .SelectMany(static directory =>
+                Directory.EnumerateFiles(directory, "*.cs", SearchOption.AllDirectories));
+
+        foreach (string implementationFile in implementationFiles)
+        {
+            string source = File.ReadAllText(implementationFile);
+
+            Assert.DoesNotContain(".ConfigureAwait(false)", source, StringComparison.Ordinal);
         }
     }
 
