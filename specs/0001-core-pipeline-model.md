@@ -31,8 +31,9 @@ non-durable and cannot resume after process failure.
   schema-validated boundary inputs.
 - Let non-.NET systems use Qhapaq through stable CLI and MCP contracts.
 - Separate safe authoring and validation from privileged execution.
-- Keep the core independent of any particular dependency injection, logging, or
-  MCP hosting implementation.
+- Keep core behavioral contracts independent of dependency-injection,
+  logging, and MCP hosting types; .NET composition uses the framework selected
+  by the implementation architecture.
 
 ## 3. Non-goals
 
@@ -544,22 +545,31 @@ and conformance data.
 
 ## 17. .NET Package Boundaries
 
-The initial package decomposition is:
+The initial public package decomposition is:
 
-- `Qhapaq.Abstractions`: operation contracts and minimal shared types.
-- `Qhapaq`: combinators, registry, document model, JSON parsing and
-  canonicalization, binding, execution plans, execution, and deterministic
-  Mermaid and portable invocation-skill generation.
-- `Qhapaq.Hosting`: integration with .NET hosting and dependency injection.
-- `Qhapaq.Mcp`: separately hosted MCP adapter.
+- `Qhapaq.Abstractions`: public Service and operation-authoring contracts,
+  minimal shared types, and internal cross-layer contracts.
+- `Qhapaq`: distribution package containing the `Qhapaq.Service.V1`,
+  `Qhapaq.Business`, and `Qhapaq.DAL` implementation assemblies.
+- `Qhapaq.Hosting`: integration package containing the
+  `Qhapaq.Implementations.Hosting` assembly.
+- `Qhapaq.Mcp`: separately hosted MCP adapter package containing the
+  `Qhapaq.Implementations.MCP` assembly.
 
 Primitive-operation libraries should need only `Qhapaq.Abstractions`. The main
 `Qhapaq` package provides the complete default authoring and execution
 experience. Hosting and MCP dependencies remain optional.
 
 The `qhapaq` CLI is a separately distributed executable built from the same
-reference implementation. It is not an additional reusable NuGet library
-boundary.
+reference implementation and the `Qhapaq.Implementations.CLI` assembly. It is
+not an additional reusable NuGet library boundary.
+
+Package boundaries and assembly boundaries are intentionally independent. The
+layer-aligned assemblies implement the Service Implementations, versioned
+Service, Business, and DAL boundaries defined in
+[`0006-dotnet-layered-architecture.md`](0006-dotnet-layered-architecture.md).
+The physical layer assemblies do not create additional public NuGet package
+boundaries.
 
 ## 18. Testing Strategy
 

@@ -1,7 +1,7 @@
 # Qhapaq Project Specification
 
 > **Status:** Draft  
-> **Version:** 0.3
+> **Version:** 0.7
 > **Last updated:** 2026-10-04
 
 ## 1. Purpose
@@ -66,6 +66,9 @@ in
 Continuous integration, release publication, and website delivery are specified
 in
 [`specs/0005-build-release-and-website-delivery.md`](specs/0005-build-release-and-website-delivery.md).
+The initial .NET layer boundaries, dependency direction, visibility, service
+versioning, and component plan are specified in
+[`specs/0006-dotnet-layered-architecture.md`](specs/0006-dotnet-layered-architecture.md).
 
 ### 1.2 Initial Scope Boundaries
 
@@ -524,6 +527,8 @@ These conventions should be revisited before the first public release.
       permission.
 - [x] Define the initial `Qhapaq.Abstractions`, `Qhapaq`, `Qhapaq.Hosting`,
       and `Qhapaq.Mcp` package boundaries.
+- [x] Define the initial .NET layered architecture, dependency direction,
+      visibility rules, and component plan.
 - [x] Record the future Azure-hosted static project website as a product surface.
 - [x] Define the event-driven CI, edge, stable-release, and website delivery
       model.
@@ -598,6 +603,8 @@ These conventions should be revisited before the first public release.
 | D-023 | How can AI systems package and repeat a pipeline invocation? | Decided: generate a portable invocation-skill bundle that embeds or exactly references canonical JSON, uses boundary input as its parameter surface, pins identity/version/digest, and delegates all authority to the host |
 | D-024 | What events publish builds and the website? | Decided: pull requests validate and preview; protected `main` pushes publish edge and production website updates; protected Semantic Version tags publish immutable releases |
 | D-025 | What release cadence applies? | Decided: event-driven edge delivery on every successful `main` change, readiness-driven stable releases with at least monthly review, and scheduled assurance without scheduled stable publication |
+| D-026 | How are .NET implementation layers separated and versioned? | Decided: layer-aligned `Qhapaq.Service.V1`, `Qhapaq.Business`, `Qhapaq.DAL`, and `Qhapaq.Implementations.*` assemblies call only the next lower layer through DI contracts from `Qhapaq.Abstractions`; only supported Service and operation-authoring contracts are public, and physical assemblies remain bundled into a smaller NuGet package surface |
+| D-027 | Which dependency-injection framework and composition model does the .NET implementation use? | Decided: Microsoft dependency injection with explicit, layer-owned registration delegated only to the immediately lower layer; behavioral contracts and components remain container-independent |
 
 ## 10. Definition of Repository Readiness
 
@@ -620,6 +627,9 @@ The repository is ready for implementation when:
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| 0.7 | 2026-10-04 | Selected Microsoft dependency injection and adjacent-layer, layer-owned composition. |
+| 0.6 | 2026-10-04 | Assigned layer-aligned assembly and root namespace names while preserving the smaller public NuGet package surface. |
+| 0.5 | 2026-10-04 | Defined the .NET layered architecture, versioned Service boundary, DI direction, visibility rules, and initial component plan. |
 | 0.4 | 2026-10-04 | Recorded the documented, evaluated repository skill surface as complete. |
 | 0.3 | 2026-10-04 | Defined automated CI, edge builds, immutable releases, and website delivery. |
 | 0.2 | 2026-10-04 | Added portable pipeline invocation skills as a v1 product capability. |

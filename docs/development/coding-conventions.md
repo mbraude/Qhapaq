@@ -57,15 +57,50 @@ without weakening unrelated rules.
   in `implementations/dotnet/tests/`.
 - Primitive operation packages depend only on `Qhapaq.Abstractions` unless an
   accepted specification requires more.
-- `Qhapaq` must not depend on hosting or MCP packages.
-- `Qhapaq.Hosting` may integrate with .NET hosting and dependency injection.
-- `Qhapaq.Mcp` remains a separately hosted adapter over shared application
-  services.
+- `Qhapaq.Service.V1`, `Qhapaq.Business`, and `Qhapaq.DAL` must not depend on
+  hosting, CLI, or MCP assemblies.
+- `Qhapaq.Implementations.Hosting` may integrate with .NET hosting and
+  dependency injection.
+- `Qhapaq.Implementations.MCP` remains a separately hosted adapter over shared
+  application services.
 - CLI code may compose implementation packages but is not another reusable
   NuGet package boundary.
 
 Adding or reversing a project dependency is a design change that requires
 review against [SPEC-0001](../../specs/0001-core-pipeline-model.md).
+
+### Layering and dependency direction
+
+The .NET implementation follows the architecture specified by
+[SPEC-0006](../../specs/0006-dotnet-layered-architecture.md):
+
+```text
+Service Implementations -> Service -> Business -> DAL
+```
+
+- Production behavior calls only the next lower layer and only through a
+  constructor-injected abstraction defined in `Qhapaq.Abstractions`.
+- Every production project uses its project name as both `AssemblyName` and
+  `RootNamespace`: `Qhapaq.Service.V1`, `Qhapaq.Business`, `Qhapaq.DAL`, or
+  `Qhapaq.Implementations.<Implementation>`.
+- Service Implementation code must not reference Business or DAL code.
+- Service code must not reference DAL code.
+- Business code must not reference Service or Service Implementation code.
+- DAL code must not reference a higher layer.
+- Composition uses Microsoft dependency injection and follows the same
+  adjacent-layer direction: Hosting delegates to Service V1, Service V1 to
+  Business, and Business to DAL. Each layer registers its own internal
+  implementations.
+- Service contracts use explicit versioned namespaces. Breaking changes add a
+  side-by-side version instead of mutating an existing contract.
+- Only supported Service-boundary and operation-authoring contracts are public.
+  Other cross-layer contracts and concrete implementations remain internal.
+- Architecture tests enforce namespace, visibility, project-reference, and DI
+  resolution rules when the initial projects are scaffolded.
+
+Folders and namespaces must make the owning layer unambiguous. Shared code does
+not bypass a layer: place it in the lowest layer that owns its semantics or
+define a boundary contract when two adjacent layers genuinely collaborate.
 
 ## 4. C# and .NET
 
@@ -143,8 +178,22 @@ These defaults apply when the .NET 10 projects are created.
 
 ### Dependency injection and time
 
+- Use `Microsoft.Extensions.DependencyInjection` for .NET composition, as
+  decided by
+  [ADR-0001](../architecture/decisions/0001-use-microsoft-dependency-injection.md).
 - Use constructor injection for required collaborators.
 - Avoid service-location patterns and hidden ambient mutable state.
+- Keep `IServiceCollection`, `IServiceProvider`, and `IServiceScopeFactory` out
+  of behavioral Service, Business, DAL, and `Qhapaq.Abstractions` contracts.
+- Only executable or hosting boundaries may build or directly access the root
+  service provider.
+- Each layer explicitly registers its own internal concrete types and delegates
+  composition only to the immediately lower layer.
+- Do not call `BuildServiceProvider`, resolve services, or invoke product
+  behavior during registration.
+- Do not use reflection-based assembly scanning for initial Qhapaq service
+  registration.
+- Enable Microsoft DI build and scope validation in development and tests.
 - Inject clocks, randomness, file systems, network clients, or other
   nondeterministic boundaries when behavior must be tested deterministically.
 - Define collaborator lifetimes intentionally; do not let singleton services

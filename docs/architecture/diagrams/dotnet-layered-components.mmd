@@ -1,0 +1,49 @@
+flowchart TB
+    subgraph SI["Service Implementations"]
+        CLI["Qhapaq.Implementations.CLI"]
+        MCP["Qhapaq.Implementations.MCP"]
+        THIRD["Third-party adapter"]
+        HOSTING["Qhapaq.Implementations.Hosting"]
+    end
+
+    subgraph SC["Qhapaq.Service.V1"]
+        SCOMP["Service V1 registration"]
+        API["IPipelineService"]
+        SERVICE["PipelineService"]
+    end
+
+    subgraph BC["Qhapaq.Business"]
+        BCOMP["Business registration"]
+        BUILDER["IPipelineBuilder"]
+        VALIDATOR["IPipelineValidator"]
+        BINDER["IExecutionPlanBinder"]
+        EXECUTOR["IPipelineExecutor"]
+        PROJECTOR["IPipelineProjector"]
+    end
+
+    subgraph DC["Qhapaq.DAL"]
+        DCOMP["DAL registration"]
+        REGISTRY["IOperationRegistry"]
+        STORE["IPipelineDefinitionStore"]
+        CACHE["IExecutionPlanCache"]
+        OPERATION["IOperation<TInput,TOutput>"]
+    end
+
+    CLI --> API
+    MCP --> API
+    THIRD --> API
+    API --> SERVICE
+    SERVICE --> BUILDER
+    SERVICE --> VALIDATOR
+    SERVICE --> BINDER
+    SERVICE --> EXECUTOR
+    SERVICE --> PROJECTOR
+    BUILDER --> REGISTRY
+    VALIDATOR --> REGISTRY
+    BINDER --> REGISTRY
+    BINDER --> CACHE
+    EXECUTOR --> OPERATION
+    PROJECTOR --> STORE
+    HOSTING -. "compose" .-> SCOMP
+    SCOMP -. "compose" .-> BCOMP
+    BCOMP -. "compose" .-> DCOMP

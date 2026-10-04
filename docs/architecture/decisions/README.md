@@ -13,3 +13,9 @@ Files use the form `NNNN-short-title.md` and record:
 
 ADRs do not replace feature specifications. They capture implementation choices
 made within the behavior required by those specifications.
+
+## Accepted Decisions
+
+| Decision | Summary |
+| --- | --- |
+| [ADR-0001](0001-use-microsoft-dependency-injection.md) | Use Microsoft dependency injection with adjacent-layer, layer-owned composition. |

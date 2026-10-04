@@ -14,7 +14,10 @@ conformance vectors, automation, and user-facing documentation are the next
 implementation stages.
 
 The living project specification is [SPEC.md](SPEC.md). Focused specifications
-are indexed in [specs/README.md](specs/README.md).
+are indexed in [specs/README.md](specs/README.md). The proposed initial .NET
+code structure, versioned Service boundary, file plan, and component diagram are
+defined in
+[SPEC-0006](specs/0006-dotnet-layered-architecture.md).
 
 ## Repository map
 
@@ -62,6 +65,14 @@ Qhapaq v1 is expected to provide:
 
 These artifacts do not exist yet. Do not treat the current repository as a
 usable release.
+
+The planned implementation uses four logical layers: Service Implementations,
+versioned Service, Business, and DAL. Calls move down one layer at a time
+through dependency-injected contracts; only the supported Service and
+operation-authoring boundaries are public. The production assemblies and root
+namespaces match their layers: `Qhapaq.Service.V1`, `Qhapaq.Business`,
+`Qhapaq.DAL`, and `Qhapaq.Implementations.*`. These assembly boundaries are
+bundled into the smaller package surface above.
 
 ## Contributing
 
