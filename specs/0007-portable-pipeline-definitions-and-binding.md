@@ -384,6 +384,37 @@ is an execution failure and must not produce a success-shaped partial result.
 language for constructing one schema-valid value from declared inputs and
 public literals. It is represented as JSON syntax rather than executable source.
 
+Every expression is a JSON object with an `op` member whose value is one exact
+operator name. Each operator schema defines its remaining named operands and
+rejects unknown members. Literal values use an explicit `literal` operator
+rather than being confused with expression objects. Operator objects are the
+only executable syntax; strings never contain JSONPath, source code, or another
+expression language.
+
+Declared transform inputs are read with an `input` operator naming exactly one
+key from the transform's `inputs` map. Nested object values are read by
+composing one `property` operator per property name. Canonical expressions do
+not encode access paths as JSONPath strings or another embedded path grammar.
+
+Selecting an optional property produces a type that includes the internal
+`missing` state. `missing` is not JSON `null`, is not a portable value, and
+cannot appear in a transform output. The expression must handle it explicitly
+with an operator such as `coalesce-missing`, a conditional, or
+`require-present`. Selecting a property that is absent at runtime never
+silently produces `null` and does not fail unless the expression explicitly
+requires the property.
+
+`coalesce-missing` evaluates its fallback only when its primary expression is
+missing and does not replace JSON `null`. `coalesce-null` evaluates its fallback
+only when its primary expression is JSON `null` and does not handle missing.
+Their inferred result types remove only the state each operator handles.
+
+`require-present` fails the transform when its input is missing and otherwise
+passes the value through, including JSON `null`. `require-non-null` fails when
+its input is JSON `null`, does not handle missing, and otherwise passes the
+value through. Their inferred result types remove only the state each operator
+checks.
+
 The initial language includes:
 
 - property and array-item selection;
@@ -394,7 +425,8 @@ The initial language includes:
 - conditional expressions;
 - explicit null handling and coalescing;
 - bounded array projection and filtering; and
-- explicit supported parsing and conversion functions.
+- explicit supported parsing and conversion functions; and
+- checked range assertions for explicit numeric or length narrowing.
 
 The normative schema will enumerate every operator, operand shape, and result
 typing rule. Unknown operators are invalid.
@@ -427,6 +459,41 @@ An expression may contain a checked partial operation, such as parsing a date.
 Such an operation must have specified failure behavior. A runtime value failure
 terminates the transform before any downstream operation begins.
 
+`assert-range` is the v1 checked narrowing operation for numeric values and
+bounded string or collection lengths. Its declared bounds must be no wider than
+the statically inferred input bounds. A value within the asserted bounds passes
+through unchanged and receives the narrower result schema. A value outside the
+bounds fails the transform; the binder never inserts this assertion implicitly.
+
+`assert-integer` is the v1 checked narrowing operation from `number` to
+`integer`. An integral input passes through as the same mathematical JSON number
+with an integer result schema. A non-integral input fails the transform. The
+binder never inserts this assertion implicitly.
+
+`parse-number` accepts only the culture-invariant JSON number grammar used by
+the Qhapaq canonical data model. It rejects leading or trailing whitespace,
+digit-group separators, leading plus signs, `NaN`, and infinities. Authors who
+intend to tolerate surrounding whitespace must compose an explicit `trim`
+operator before parsing. A parse failure fails the transform before any
+downstream operation starts.
+
+V1 has no separate canonical `parse-integer` operator. Integer parsing composes
+`parse-number` followed by `assert-integer`, preserving one responsibility and
+one failure rule per operator.
+
+`parse-boolean` accepts exactly the lowercase strings `"true"` and `"false"`.
+It rejects surrounding whitespace, alternate casing, numeric spellings, and
+localized values. Authors who intend to tolerate surrounding whitespace must
+compose `trim` explicitly. A parse failure fails the transform before any
+downstream operation starts.
+
+`stringify` accepts any portable JSON value except the internal `missing` state.
+Strings, including strings constrained by date, time, UUID, URI, or other
+formats, remain unchanged. Numbers and Booleans use their RFC 8785 canonical
+lexical forms, and JSON `null` produces `"null"`. Arrays and objects produce
+their RFC 8785 canonical JSON text. V1 has no separate type-specific
+stringification operators.
+
 ### 8.4 Serialization boundary
 
 Ordinary in-process operation connections continue to use native values.
@@ -448,22 +515,199 @@ not discover serializers or native types during a run.
 Pipeline and operation schemas use JSON Schema Draft 2020-12 under a Qhapaq v1
 profile. The profile must define:
 
-- the supported keywords and formats;
+- the supported keywords and exact format allowlist;
 - object and array closure rules;
 - numeric and string constraints;
 - nullability and union restrictions;
 - local reference packaging;
-- default-value semantics; and
 - the conservative compatibility algorithm.
 
 Remote schema resolution during validation or execution is prohibited.
-References resolve only within the definition or through exact, digest-pinned
-artifacts available to the host.
+The v1 profile permits only fragment-only `$ref` values that resolve within the
+containing document, such as `#/$defs/customer`. External, relative-document,
+and network references are invalid. A future format may introduce separately
+packaged, digest-pinned schema artifacts without changing v1 behavior.
+
+Every Qhapaq-supported `format` is an assertion, not an annotation. A value that
+does not satisfy its declared format is invalid. An unknown or unsupported
+format is also invalid rather than being ignored. The normative schema profile
+and conformance vectors define the closed v1 format allowlist and the validation
+rules for each member so that hosts cannot interpret formats differently.
+
+The v1 format allowlist is:
+
+- `date`;
+- `time`;
+- `date-time`;
+- `duration`;
+- `email`;
+- `hostname`;
+- `ipv4`;
+- `ipv6`;
+- `uri`; and
+- `uuid`.
+
+Their lexical and semantic validation rules follow the corresponding normative
+references used by the JSON Schema Draft 2020-12 format-assertion vocabulary.
+
+Every schema whose effective type includes `object` must declare
+`additionalProperties`. Its value must be `false` or an explicit schema;
+omission and `true` are invalid. This makes object closure intentional while
+still permitting typed dictionary values. Declared properties and additional
+properties are both subject to the conservative compatibility algorithm.
+
+The v1 profile supports homogeneous arrays only. Every schema whose effective
+type includes `array` must declare exactly one `items` schema. Tuple validation
+through `prefixItems` and other tuple-specific behavior is unsupported.
+
+The v1 profile permits either one concrete JSON type or exactly one concrete
+JSON type combined with `null`. General type unions and composition through
+`oneOf` or `anyOf` are unsupported. Optionality and nullability remain distinct:
+an object property is optional only when it is absent from `required`, and it
+accepts `null` only when its declared type explicitly includes `null`.
+
+The closed v1 schema-keyword allowlist is:
+
+- `$defs` and `$ref`;
+- `type`, `const`, and `enum`;
+- `required`, `properties`, and `additionalProperties`;
+- `items`, `minItems`, `maxItems`, and `uniqueItems`;
+- `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum`, and
+  `multipleOf`;
+- `minLength`, `maxLength`, `pattern`, and `format`;
+- `default`; and
+- `title`, `description`, and `examples`.
+
+Unknown or unsupported schema keywords are invalid rather than annotations to
+ignore. The annotation keywords do not affect instance validation or schema
+compatibility, except for the Qhapaq normalization semantics assigned to
+`default`.
+
+The schema profile defines portable maximum complexity limits that participate
+in document validity. Every conforming host must accept schemas within those
+limits when no other validation rule fails. A host may impose stricter limits,
+but it must report those separately as host-bindability or policy failures
+rather than claiming that the portable document is invalid. Limit diagnostics
+must identify the exceeded resource without reproducing protected payload data.
+
+The portable v1 schema limits are:
+
+- at most 1 MiB for the RFC 8785 canonical UTF-8 representation of one schema;
+- at most 10,000 distinct schema objects;
+- at most 64 nested schema-object levels;
+- at most 256 declared properties in one object schema;
+- at most 1,024 values in one `enum`;
+- at most 1,024 Unicode scalar values in one `pattern`; and
+- at most 64 `$ref` dereferences in one resolution chain.
+
+Shared local references count each distinct schema object once toward the object
+limit. Cyclic references are invalid even when a validator could otherwise
+detect and stop the cycle.
+
+The `default` keyword has Qhapaq-specific normalization semantics for operation
+configuration properties. A property listed in its containing object's
+`required` array must be supplied explicitly. A `default` on a required
+property is authoring guidance only and must not be inserted by a validator,
+binder, or runtime.
+
+An omitted, non-required operation configuration property with a `default` is
+normalized to that concrete value. A caller never supplies a sentinel such as
+the string `"default"`. Explicit `null` is not omission and remains subject to
+the property's schema. The default value must itself satisfy the property
+schema.
+
+Normalization materializes optional defaults into the canonical pipeline
+definition before it is hashed, persisted, reviewed, or bound. Implementations
+must not defer default selection until execution. Defaults are normative
+operation-contract content, are covered by the contract digest, and cannot
+change for an existing operation ID and exact contract version. Changing an
+optional executable default therefore requires a new operation contract
+version.
 
 Compatibility validation is conservative. A connection is accepted only when
 the validator can prove that every successful upstream value conforms to the
 downstream input schema. An unsupported or indeterminate comparison is rejected
 rather than treated as compatible.
+
+V1 uses one deterministic structural subtype algorithm over the closed Qhapaq
+schema profile. An upstream schema is connection-compatible with a downstream
+schema only when that algorithm proves that the set of values admitted upstream
+is a subset of the set admitted downstream. Schema equality is sufficient but
+not required. Hosts must not add implementation-specific compatibility cases;
+the same normalized schema pair must produce the same result on every
+conforming host.
+
+For `pattern`, compatibility is provable only when the downstream schema has no
+pattern or both schemas contain the same pattern string after JSON string
+decoding. V1 does not attempt regular-language inclusion analysis. Different
+patterns are indeterminate and therefore incompatible even when a human could
+show that one language contains the other.
+
+For `format`, compatibility is provable only when the downstream schema has no
+format or both schemas declare the same format. V1 defines no subtype
+relationships between different formats.
+
+`const` and `enum` constraints are compared as sets of JSON values. They are
+compatible only when every literal value admitted by the upstream schema is
+also admitted by the downstream schema. JSON value equality for this comparison
+uses the canonical JSON data model, including mathematical equality for JSON
+numbers rather than source-text equality.
+
+Numeric ranges and string or array length ranges use exact mathematical set
+containment, including inclusive and exclusive endpoints. A wider upstream
+range is incompatible with a narrower downstream range. Authors may use an
+explicit checked `assert-range` transform to narrow the schema; a binder must
+not insert an implicit runtime range check or alter the value by clamping it.
+
+The portable v1 numeric domain is the set of finite IEEE 754 binary64 values
+accepted by RFC 8785 canonicalization. `NaN`, positive infinity, negative
+infinity, and negative zero as a semantically distinct value are unsupported.
+The `integer` type is restricted to values from `-9007199254740991` through
+`9007199254740991` so every integer is represented exactly across conforming
+implementations.
+
+`integer` is a structural subtype of `number`, so an integer output may connect
+directly to a numeric input when its remaining constraints are compatible. A
+general numeric output is not compatible with an integer input unless `const`
+or `enum` analysis proves that every admitted value is integral. Otherwise the
+pipeline requires an explicit checked `assert-integer` transform.
+
+For `multipleOf`, compatibility is provable when the downstream schema omits
+the keyword or the upstream divisor is an exact positive integer multiple of
+the downstream divisor. Implementations must compare the exact mathematical
+values represented by the JSON numbers and must not use binary floating-point
+rounding to decide divisibility.
+
+For objects, every property required downstream must also be required upstream.
+Every property value the upstream schema may emit must be structurally
+compatible with the schema that the downstream applies to that property.
+An upstream property not named downstream is compatible only when the
+downstream `additionalProperties` schema accepts it. If the upstream permits
+additional properties, its additional-property schema must be compatible with
+the downstream additional-property schema and with every downstream named
+property that an additional upstream property could match. A downstream
+`additionalProperties: false` rejects any upstream schema that may emit an
+undeclared downstream property. These rules apply recursively.
+
+For homogeneous arrays, the upstream `items` schema must be structurally
+compatible with the downstream `items` schema. The upstream length interval
+must be contained within the downstream interval. When the downstream requires
+`uniqueItems: true`, the upstream must also require uniqueness; an upstream
+uniqueness requirement remains compatible with a downstream schema that does
+not require it.
+
+The `pattern` keyword uses a Qhapaq-defined portable regular-expression subset,
+not a host runtime's native regex dialect. The subset excludes backreferences,
+lookahead, lookbehind, conditionals, recursion, atomic groups, and executable or
+engine-specific extensions. Validation must use bounded evaluation and reject a
+pattern outside the portable grammar before matching instance data. The
+normative schema profile publishes the grammar and cross-language conformance
+vectors.
+
+Within that subset, `\d`, `\w`, and `\s` and their negations have fixed ASCII
+meanings independent of culture and host runtime. Literal Unicode characters
+are permitted. Unicode-category and Unicode-property escapes are unsupported in
+v1.
 
 At minimum:
 
@@ -1176,8 +1420,8 @@ an exact pipeline reference.
 
 ## 23. Open Questions
 
-1. Which precise JSON Schema Draft 2020-12 keywords and formats belong to the v1
-   Qhapaq profile?
+1. What exact grammar defines the portable `pattern` subset, and which precise
+   validation algorithms implement the closed v1 format allowlist?
 2. What is the complete `qhapaq.mapping/v1` operator set and complexity budget?
 3. Which capability, side-effect, idempotency, and structured-failure
    vocabularies are normative?
