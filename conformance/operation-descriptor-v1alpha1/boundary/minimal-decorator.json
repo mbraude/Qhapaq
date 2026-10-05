@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schemas.qhapaq.dev/operation-descriptor/v1alpha1/schema.json",
+  "format": "qhapaq.operation-descriptor/v1alpha1",
+  "id": "qhapaq.example.decorate",
+  "version": "1.0.0-alpha.1",
+  "contractDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "compositionRole": "decorator",
+  "schemas": {
+    "input": {
+      "type": "object"
+    },
+    "output": {
+      "type": "object"
+    },
+    "configuration": {
+      "type": "object"
+    }
+  },
+  "failures": [
+    {
+      "code": "example.failure",
+      "description": "Synthetic failure used by the boundary vector.",
+      "retryable": false
+    }
+  ],
+  "capabilities": [
+    "example"
+  ],
+  "sideEffects": [],
+  "idempotency": "preserves-inner",
+  "decorator": {
+    "preservesInputOutput": true
+  },
+  "documentation": {
+    "displayName": "Example decorator",
+    "description": "Exercises the required decorator metadata.",
+    "usage": {
+      "whenToUse": [
+        "Use to validate the decorator branch of the descriptor schema."
+      ],
+      "whenNotToUse": []
+    }
+  }
+}

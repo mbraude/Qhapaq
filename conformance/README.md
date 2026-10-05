@@ -15,5 +15,12 @@ Each suite must contain valid, invalid, and behavioral cases with versioned
 expected results. Tests must not depend on .NET implementation details or
 network access unless a suite explicitly defines that boundary.
 
+The initial
+[`operation-descriptor-v1alpha1/`](operation-descriptor-v1alpha1/) vectors cover
+structural JSON Schema behavior only. Their placeholder digest values satisfy
+the schema shape but are not contract-digest golden values. Canonicalization,
+digest, cross-document identity, native binding, and policy vectors will be
+added with the corresponding normative algorithms.
+
 The normative conformance model is described in
 [SPEC-0001](../specs/0001-core-pipeline-model.md).

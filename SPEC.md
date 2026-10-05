@@ -1,7 +1,7 @@
 # Qhapaq Project Specification
 
 > **Status:** Draft  
-> **Version:** 0.8
+> **Version:** 0.10
 > **Last updated:** 2026-10-04
 
 ## 1. Purpose
@@ -612,8 +612,9 @@ These conventions should be revisited before the first public release.
 | D-026 | How are .NET implementation layers separated and versioned? | Decided: layer-aligned `Qhapaq.Service.V1`, `Qhapaq.Business`, `Qhapaq.DAL`, and `Qhapaq.Implementations.*` assemblies call only the next lower layer through DI contracts from `Qhapaq.Abstractions`; only supported Service and operation-authoring contracts are public, and physical assemblies remain bundled into a smaller NuGet package surface |
 | D-027 | Which dependency-injection framework and composition model does the .NET implementation use? | Decided: Microsoft dependency injection with explicit, layer-owned registration delegated only to the immediately lower layer; behavioral contracts and components remain container-independent |
 | D-028 | How can transforms and final results consume multiple earlier outputs? | Decided: each run uses a private immutable execution frame; transforms explicitly bind dominating node outputs and boundary input, and final output may be an explicit mapping projection |
-| D-029 | How do code-authored operations declare AI-discoverable metadata? | Decided: `IOperation` remains execution-only; registry-visible .NET operations use an adjacent static descriptor declaration and optional marker attribute with explicit, reflection-free registration and generated portable manifests |
+| D-029 | How do code-authored operations declare AI-discoverable metadata? | Decided: `IOperation` remains execution-only; each registry-visible .NET operation has same-directory, basename-matched authoritative portable descriptor JSON, and a Roslyn incremental generator validates it and emits the static declaration, explicit reflection-free registration, and embedded canonical manifest |
 | D-030 | How are operation compatibility and implementation provenance separated? | Decided: pipelines pin immutable exact operation contract versions and digests; trusted hosts independently pin and bind implementation identities, and compatible versions are never substituted implicitly |
+| D-031 | How do descriptor schemas evolve without coupling each schema to one generator release? | Decided: descriptor formats, generator packages, generated registration contracts, manifest envelopes, and Service/CLI/MCP contracts are versioned independently; generators and hosts publish supported-format matrices and may support multiple exact descriptor versions side by side |
 
 ## 10. Definition of Repository Readiness
 
@@ -636,6 +637,8 @@ The repository is ready for implementation when:
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| 0.10 | 2026-10-04 | Defined operation/descriptor file co-location, the initial `v1alpha1` descriptor schema, and independent compatibility rules for schemas, generators, manifests, registration, and metadata surfaces. |
+| 0.9 | 2026-10-04 | Defined authoritative operation descriptor JSON and deterministic Roslyn generation of static declarations, explicit registrations, and embedded canonical manifests. |
 | 0.8 | 2026-10-04 | Defined portable pipeline JSON, explicit execution-frame dataflow, constrained transforms, static operation descriptors, contract versioning, validation, and plan binding. |
 | 0.7 | 2026-10-04 | Selected Microsoft dependency injection and adjacent-layer, layer-owned composition. |
 | 0.6 | 2026-10-04 | Assigned layer-aligned assembly and root namespace names while preserving the smaller public NuGet package surface. |

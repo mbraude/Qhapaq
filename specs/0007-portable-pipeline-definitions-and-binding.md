@@ -22,10 +22,11 @@ execution frame whose named output slots let later transforms and the final
 pipeline projection combine values from earlier operations.
 
 Operation contracts are portable, versioned, and immutable. Code-authored .NET
-operations keep their complete descriptor adjacent to the implementation through
-a static declaration contract. A marker attribute may identify declared
-operations to build-time tooling, but runtime assembly scanning and
-attribute-only descriptors are not the registration model.
+operations keep an authoritative portable descriptor JSON document adjacent to
+the implementation. A Roslyn incremental generator validates that document and
+emits the static declaration, explicit registration, and embedded canonical
+manifest. Runtime assembly scanning and attribute-only descriptors are not the
+registration model.
 
 ## 2. Goals
 
@@ -555,22 +556,69 @@ change the portable descriptor model.
 gain descriptor instance methods or a general-purpose execution-context
 parameter.
 
-Registry-visible code-authored operations additionally provide their descriptor
-through a static declaration contract. The operation class should keep that
-declaration adjacent to its execution behavior. A marker attribute such as
-`QhapaqOperationAttribute` may identify the class to analyzers and source
-generators, but the attribute does not encode the complete descriptor.
+### 12.1 Authoritative descriptor source
+
+Every registry-visible code-authored .NET operation has one checked-in portable
+descriptor JSON document adjacent to its implementation. That document is the
+authoritative source for the complete portable descriptor, including its
+normative contract and non-normative documentation.
+
+The initial descriptor format is
+`qhapaq.operation-descriptor/v1alpha1`, defined by
+[`../schemas/operation-descriptor-v1alpha1.schema.json`](../schemas/operation-descriptor-v1alpha1.schema.json).
+It is a pre-release format that may be replaced by another pre-release version
+before immutable `v1` is published. Validators resolve the checked-in schema
+offline by its stable `$id`; validation never requires network access.
+
+The descriptor document:
+
+- conforms to the exact versioned operation-descriptor schema;
+- contains no CLR type names, implementation factories, credentials, resolved
+  secrets, or host-specific availability state;
+- declares its stable operation ID, exact contract version, contract digest,
+  schemas, failures, capabilities, effects, idempotency, role, and
+  documentation;
+- is included as an explicit build input rather than found through filesystem
+  enumeration; and
+- is packaged with source when source packages are produced.
+
+The implementation and descriptor use exact, case-sensitive basename matching
+and reside in the same physical source directory:
+
+```text
+HttpOperation.cs
+HttpOperation.descriptor.json
+```
+
+An operation cannot obtain its descriptor from an orthogonal descriptor tree,
+a parent directory, a linked file outside its source directory, or recursive
+filesystem discovery. The generator rejects a missing descriptor, more than one
+matching descriptor, basename or case mismatch, reuse by another operation, or
+an association outside the operation's physical directory.
+
+The contract digest excludes its own field and is computed from the canonical
+normative descriptor portion defined in Section 13. A supplied digest must
+match the computed value. The generator never silently replaces a missing or
+incorrect digest.
+
+C# declaration code is a generated projection of this JSON source. Authors do
+not maintain a second hand-written descriptor property or duplicate descriptor
+fields in attributes.
+
+### 12.2 Operation marker and authoring shape
+
+A registry-visible operation uses a marker attribute or an equivalent explicit
+compiler input to associate the implementation class with exactly one descriptor
+document. The marker may carry the descriptor build-input identity or path, but
+it does not carry portable contract fields.
 
 The intended authoring shape is conceptually:
 
 ```csharp
-[QhapaqOperation]
-public sealed class GetCustomerOperation :
-    IOperation<GetCustomerInput, GetCustomerOutput>,
-    IDeclaredOperation<GetCustomerInput, GetCustomerOutput>
+[QhapaqOperation("GetCustomerOperation.descriptor.json")]
+public sealed partial class GetCustomerOperation :
+    IOperation<GetCustomerInput, GetCustomerOutput>
 {
-    public static OperationDescriptor Descriptor { get; } = CreateDescriptor();
-
     public Task<GetCustomerOutput> ExecuteAsync(
         GetCustomerInput input,
         CancellationToken cancellationToken = default)
@@ -580,19 +628,143 @@ public sealed class GetCustomerOperation :
 }
 ```
 
-The exact interface, generic constraints, attribute shape, and descriptor
-builder API remain implementation API design details. They must preserve these
-requirements:
+The exact attribute name, constructor shape, generated type names, and namespace
+layout remain implementation API details. Registry-visible implementation
+classes must be compatible with partial source generation. Internal
+combinators, test delegates, and non-catalog operations need not declare
+portable descriptors and are not included in the generated manifest.
 
-- descriptor discovery does not instantiate the operation;
-- registration is explicit rather than reflection-based assembly scanning;
-- source generators or analyzers validate declarations at build time;
-- generated portable manifests are projections of the declaration;
-- runtime registry construction verifies the manifest, declaration, native
-  generic types, and contract digest;
-- trimming and Native AOT do not depend on unbounded reflection; and
-- internal combinators, test delegates, and non-catalog operations need not
-  declare portable descriptors.
+### 12.3 Build-time discovery and validation
+
+The .NET operation-authoring package supplies a Roslyn incremental generator.
+Each compilation explicitly references the generator as build tooling rather
+than as a runtime dependency.
+
+During compilation, the generator:
+
+1. Uses semantic symbol analysis to find operation classes carrying the marker.
+2. Resolves the associated descriptor only from declared compiler build inputs.
+3. Selects the validator by the descriptor's exact `format` value and rejects an
+   unknown or unsupported version.
+4. Parses and validates the descriptor against the exact offline schema without
+   loading the operation assembly, constructing the operation, executing project
+   code, accessing the network, or resolving credentials.
+5. Verifies that the class is a supported concrete partial declaration and
+   implements exactly one compatible `IOperation<TInput, TOutput>` contract.
+6. Validates canonicalization, contract digest, composition role, and every
+   other compiler-verifiable declaration rule.
+7. Rejects duplicate operation ID and contract-version pairs within the
+   compilation.
+8. Emits deterministic source only when the required inputs are valid.
+
+Generator diagnostics are build diagnostics. Missing or ambiguous descriptor
+inputs, invalid JSON or schemas, digest mismatches, unsupported class shapes,
+operation/declaration generic mismatches, and duplicate identities are errors.
+Diagnostics identify source locations and stable diagnostic codes without
+including operation payloads, credentials, or protected host configuration.
+
+Incremental caching is an optimization only. Changing an operation declaration,
+descriptor document, descriptor schema, or generator version must invalidate all
+affected generated outputs.
+
+### 12.4 Generated declaration and registration
+
+For each valid operation, the generator emits a partial declaration that
+implements the static descriptor-declaration contract and exposes the descriptor
+represented by the authoritative JSON. The generated implementation must not
+instantiate the operation.
+
+Conceptually, generated source includes:
+
+```csharp
+partial class GetCustomerOperation :
+    IDeclaredOperation<GetCustomerInput, GetCustomerOutput>
+{
+    public static OperationDescriptor Descriptor =>
+        GeneratedOperationDescriptors.GetCustomer;
+}
+```
+
+The generator also emits an explicit registration table containing closed
+generic references:
+
+```csharp
+internal static class GeneratedOperationRegistration
+{
+    internal static void Register(OperationRegistryBuilder builder)
+    {
+        builder.Add<
+            GetCustomerOperation,
+            GetCustomerInput,
+            GetCustomerOutput>();
+    }
+}
+```
+
+Generated registration is ordinary compiled code. Runtime registration invokes
+this table directly; it does not enumerate assemblies, types, attributes, or
+resources to discover operations.
+
+Generated sources are compiler outputs and are not checked into the repository.
+Their ordering, identifiers, canonical descriptor bytes, and package manifest
+bytes must be deterministic and independent of absolute paths, machine state,
+culture, and filesystem enumeration order.
+
+### 12.5 Generated portable manifest
+
+The generator produces one canonical portable operation manifest for its
+compilation. The manifest contains the complete generated descriptors in stable
+operation-ID and contract-version order. It does not contain CLR type names or
+implementation factories.
+
+The canonical manifest bytes are embedded into the compiled operation assembly
+as deterministic data reachable through its explicit generated registration
+entry point. Packaging may also expose the identical bytes as a package
+artifact. An embedded and packaged copy must be byte-for-byte equal.
+
+The manifest is a projection of the checked-in descriptor documents. It never
+becomes an independent authoring source, and editing generated output is not a
+supported workflow.
+
+### 12.6 Referenced packages and extensions
+
+A generator processes the source compilation and explicit descriptor build
+inputs to which it is attached. It does not discover operations by scanning
+referenced assemblies.
+
+Each trusted operation or extension package therefore ships its own generated
+manifest and explicit registration entry point. A host includes a package only
+through trusted host configuration and calls that entry point explicitly.
+Combining built-in, extension, and OpenAPI-backed descriptors occurs during
+effective-registry construction, where cross-package identity and digest
+conflicts are rejected.
+
+### 12.7 Runtime verification
+
+Generated output improves correctness and reachability but is not an authority
+grant. Effective-registry construction must still:
+
+- validate the embedded canonical manifest and recompute every contract digest;
+- verify agreement among the manifest, generated static declaration, registered
+  native generic types, and implementation identity;
+- reject duplicate ID and contract-version pairs or conflicting digests across
+  all enabled sources;
+- apply trusted host configuration, implementation-integrity checks, connection
+  availability, and active policy; and
+- produce immutable registry entries before any operation can execute.
+
+Source generation does not grant execution permission or descriptor-disclosure
+permission. CLI and MCP projections consume the same policy-filtered application
+services backed by the effective registry; they do not read generated assembly
+metadata directly.
+
+### 12.8 Trimming, AOT, and security
+
+Closed generic references in generated registration preserve required operation
+types for trimming and Native AOT without unbounded reflection. Generated code
+must not use descriptor values as source text, type names, member names, or
+instructions. Descriptor text and examples remain untrusted metadata even
+though their containing package is trusted.
 
 OpenAPI-backed operations and future non-.NET providers produce the same
 portable descriptors without using this .NET authoring pattern.
@@ -667,6 +839,66 @@ Compatibility does not permit substitution. A pipeline requesting version
 `2.1.0` binds only to the exact `2.1.0` contract, even when `2.2.0` is classified
 as backward compatible. Compatibility information supports authoring,
 migration, and review.
+
+### 13.4 Descriptor, generator, manifest, and surface versions
+
+Descriptor schema versions, generator package versions, generated registration
+contract versions, manifest-envelope versions, and Service, CLI, or MCP contract
+versions are independent:
+
+| Axis | Example identity | Compatibility rule |
+| --- | --- | --- |
+| Descriptor document | `qhapaq.operation-descriptor/v1alpha1` | A breaking descriptor-shape or semantic change uses a new format value and schema. |
+| Generator package | `Qhapaq.Operation.Generators` package version | One release may support multiple descriptor formats through version-specific validators. |
+| Generated registration contract | Versioned .NET authoring-runtime API | Generated code declares the exact runtime contract it requires; incompatible API changes are side-by-side or major-version changes. |
+| Portable manifest envelope | `qhapaq.operation-manifest/v1alpha1` | Envelope changes are versioned independently from contained descriptor formats. |
+| Service, CLI, and MCP surfaces | Their own versioned contracts | Transport evolution does not rewrite or implicitly upgrade descriptor documents. |
+
+A generator release publishes a compatibility matrix listing every descriptor
+format, manifest envelope, and registration-contract version it accepts or
+emits. Generator and schema versions are not one-to-one.
+
+For each supported descriptor format, the generator uses a format-specific
+parser and validator and then maps valid content into a common internal
+generation model. Normalization must preserve every normative field and the
+exact original format identity. The generator must not reinterpret an unknown
+field, silently downgrade a newer format, or treat a newer format as an older
+one.
+
+A compilation may contain descriptors from multiple formats only when the
+selected generator explicitly supports all of them and the selected manifest
+envelope can preserve each exact descriptor. The generated manifest records the
+format of every contained descriptor.
+
+Adding support for a new descriptor format is a backward-compatible generator
+feature when existing generated output remains compatible. Removing support for
+a previously supported published format is a breaking generator change.
+Projects pin a generator package version and fail the build when a descriptor
+format falls outside its published support matrix.
+
+Generated registration code targets a versioned authoring-runtime contract.
+Package dependency constraints must prevent compiling generated code against an
+incompatible runtime contract. A breaking registration API does not require a
+new descriptor schema when descriptor semantics are unchanged.
+
+Effective-registry construction independently declares the descriptor formats,
+manifest envelopes, and registration-contract versions supported by that host.
+It rejects an unsupported combination before making any operation available.
+A package that compiled successfully with a newer generator is therefore not
+assumed to be loadable by an older host.
+
+Business and Service layers expose a stable versioned summary model for common
+catalog fields and may also return the exact versioned portable descriptor when
+policy permits. CLI and MCP adapters project those Service contracts; they do
+not bind directly to generator or manifest internals. Metadata that cannot be
+represented compatibly requires an additive versioned projection or a new
+Service, CLI, or MCP contract rather than silent omission or reinterpretation.
+
+The pre-release sequence may introduce `v1alpha2`, `v1beta1`, and similar
+formats without mutating an earlier checked-in schema. Once
+`qhapaq.operation-descriptor/v1` is published, its schema and semantics are
+immutable. A breaking post-v1 change publishes `v2`; supported generators and
+hosts may continue to accept `v1` and `v2` side by side.
 
 ## 14. Validation and Plan Binding
 
@@ -845,10 +1077,23 @@ The language-neutral conformance suite includes:
 
 The .NET reference implementation additionally tests:
 
-- static descriptor declarations without operation construction;
-- analyzer or source-generator diagnostics;
-- generated manifest reproducibility;
-- explicit reflection-free registration;
+- descriptor JSON as the sole authoritative descriptor source;
+- exact same-directory and basename association between an operation and its
+  descriptor;
+- structural validation against every supported offline descriptor schema;
+- static descriptor declarations without operation construction or project-code
+  execution during generation;
+- required generator diagnostics and invalid-build-input rejection;
+- generated source and canonical manifest reproducibility across machines,
+  cultures, paths, and input enumeration orders;
+- byte equality between embedded and packaged manifests;
+- explicit reflection-free registration of built-in and extension operations;
+- rejection of referenced assemblies that lack an explicitly enabled generated
+  registration entry point;
+- generator support-matrix behavior for supported, mixed, and unknown descriptor
+  formats;
+- registration-contract and manifest-envelope compatibility rejection;
+- runtime revalidation of generated manifests and contract digests;
 - generic native type and schema agreement;
 - trimming and Native AOT compatibility; and
 - OpenAPI and code-authored operations producing equivalent portable
@@ -860,7 +1105,9 @@ Implementation proceeds in this order:
 
 1. Publish the normative pipeline, mapping, descriptor, and diagnostic schemas.
 2. Publish conformance vectors and canonical examples.
-3. Implement descriptor declaration and effective-registry validation.
+3. Publish the .NET descriptor-authoring schema, incremental generator,
+   compatibility matrix, diagnostics, generated-manifest format, and
+   effective-registry validation.
 4. Implement document parsing and non-executing validation.
 5. Implement transforms and execution-frame dataflow.
 6. Implement immutable plan binding and cache invalidation.
@@ -934,6 +1181,7 @@ an exact pipeline reference.
 2. What is the complete `qhapaq.mapping/v1` operator set and complexity budget?
 3. Which capability, side-effect, idempotency, and structured-failure
    vocabularies are normative?
-4. What are the exact public .NET static declaration, attribute, analyzer, and
-   descriptor-builder APIs?
+4. What are the exact public .NET declaration-contract and marker-attribute type
+   names, generated API names, stable generator diagnostic codes, and initial
+   generator compatibility matrix?
 5. What are the exact CLI commands and MCP tool request and response schemas?

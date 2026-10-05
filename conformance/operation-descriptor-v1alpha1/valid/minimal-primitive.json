@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schemas.qhapaq.dev/operation-descriptor/v1alpha1/schema.json",
+  "format": "qhapaq.operation-descriptor/v1alpha1",
+  "id": "qhapaq.example.echo",
+  "version": "1.0.0",
+  "contractDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "compositionRole": "primitive",
+  "schemas": {
+    "input": {
+      "type": "object",
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  "failures": [],
+  "capabilities": [],
+  "sideEffects": [],
+  "idempotency": "idempotent",
+  "documentation": {
+    "displayName": "Echo",
+    "description": "Returns a portable value without external side effects.",
+    "usage": {
+      "whenToUse": [
+        "Use in structural descriptor conformance examples."
+      ],
+      "whenNotToUse": [
+        "Do not treat this example as an available host operation."
+      ]
+    },
+    "examples": []
+  }
+}

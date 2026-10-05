@@ -97,6 +97,9 @@ Service Implementations -> Service -> Business -> DAL
   Other cross-layer contracts and concrete implementations remain internal.
 - Architecture tests enforce namespace, visibility, project-reference, and DI
   resolution rules when the initial projects are scaffolded.
+- A registry-visible operation and its authoritative descriptor use
+  `<OperationTypeName>.cs` and `<OperationTypeName>.descriptor.json` with exact
+  case-sensitive basename matching in the same physical source directory.
 
 Folders and namespaces must make the owning layer unambiguous. Shared code does
 not bypass a layer: place it in the lowest layer that owns its semantics or

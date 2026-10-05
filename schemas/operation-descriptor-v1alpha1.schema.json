@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.qhapaq.dev/operation-descriptor/v1alpha1/schema.json",
+  "title": "Qhapaq Operation Descriptor v1alpha1",
+  "description": "Initial structural schema for a portable Qhapaq operation descriptor.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "format",
+    "id",
+    "version",
+    "contractDigest",
+    "compositionRole",
+    "schemas",
+    "failures",
+    "capabilities",
+    "sideEffects",
+    "idempotency",
+    "documentation"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://schemas.qhapaq.dev/operation-descriptor/v1alpha1/schema.json"
+    },
+    "format": {
+      "const": "qhapaq.operation-descriptor/v1alpha1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "contractDigest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "compositionRole": {
+      "enum": [
+        "primitive",
+        "decorator"
+      ]
+    },
+    "schemas": {
+      "type": "object",
+      "required": [
+        "input",
+        "output",
+        "configuration"
+      ],
+      "properties": {
+        "input": {
+          "$ref": "#/$defs/embeddedSchema"
+        },
+        "output": {
+          "$ref": "#/$defs/embeddedSchema"
+        },
+        "configuration": {
+          "$ref": "#/$defs/embeddedSchema"
+        }
+      },
+      "additionalProperties": false
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/failure"
+      }
+    },
+    "capabilities": {
+      "$ref": "#/$defs/identifierSet"
+    },
+    "sideEffects": {
+      "$ref": "#/$defs/identifierSet"
+    },
+    "idempotency": {
+      "$ref": "#/$defs/identifier"
+    },
+    "decorator": {
+      "$ref": "#/$defs/decorator"
+    },
+    "documentation": {
+      "$ref": "#/$defs/documentation"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "compositionRole": {
+            "const": "decorator"
+          }
+        },
+        "required": [
+          "compositionRole"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decorator": {
+            "$ref": "#/$defs/decorator"
+          }
+        },
+        "required": [
+          "decorator"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "decorator"
+          ]
+        }
+      }
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+    },
+    "identifierSet": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/identifier"
+      },
+      "uniqueItems": true
+    },
+    "embeddedSchema": {
+      "type": "object"
+    },
+    "decorator": {
+      "type": "object",
+      "required": [
+        "preservesInputOutput"
+      ],
+      "properties": {
+        "preservesInputOutput": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "failure": {
+      "type": "object",
+      "required": [
+        "code",
+        "description",
+        "retryable"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/identifier"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "documentation": {
+      "type": "object",
+      "required": [
+        "displayName",
+        "description",
+        "usage"
+      ],
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "usage": {
+          "type": "object",
+          "required": [
+            "whenToUse",
+            "whenNotToUse"
+          ],
+          "properties": {
+            "whenToUse": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "whenNotToUse": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/example"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "example": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input": true,
+        "configuration": true,
+        "output": true
+      },
+      "additionalProperties": false
+    }
+  }
+}
