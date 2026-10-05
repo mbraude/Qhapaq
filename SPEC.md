@@ -1,7 +1,7 @@
 # Qhapaq Project Specification
 
 > **Status:** Draft  
-> **Version:** 0.7
+> **Version:** 0.8
 > **Last updated:** 2026-10-04
 
 ## 1. Purpose
@@ -69,6 +69,10 @@ in
 The initial .NET layer boundaries, dependency direction, visibility, service
 versioning, and component plan are specified in
 [`specs/0006-dotnet-layered-architecture.md`](specs/0006-dotnet-layered-architecture.md).
+The canonical pipeline document, execution-frame dataflow, transform language,
+operation-contract versioning, descriptor declaration, validation, and
+definition-to-plan binding semantics are specified in
+[`specs/0007-portable-pipeline-definitions-and-binding.md`](specs/0007-portable-pipeline-definitions-and-binding.md).
 
 ### 1.2 Initial Scope Boundaries
 
@@ -542,6 +546,8 @@ These conventions should be revisited before the first public release.
       conventions of the selected ecosystem.
 - [ ] Define the normative CLI contract and conformance levels.
 - [ ] Add language-neutral schemas and initial conformance vectors.
+- [x] Specify the canonical pipeline document, transform and dataflow model,
+      operation-contract versioning, and definition-to-plan binding lifecycle.
 - [ ] Define the portable pipeline invocation-skill bundle schema and generate
       it through the normative CLI and MCP surfaces.
 - [ ] Define the initial authentication-provider set and protected token-cache
@@ -605,6 +611,9 @@ These conventions should be revisited before the first public release.
 | D-025 | What release cadence applies? | Decided: event-driven edge delivery on every successful `main` change, readiness-driven stable releases with at least monthly review, and scheduled assurance without scheduled stable publication |
 | D-026 | How are .NET implementation layers separated and versioned? | Decided: layer-aligned `Qhapaq.Service.V1`, `Qhapaq.Business`, `Qhapaq.DAL`, and `Qhapaq.Implementations.*` assemblies call only the next lower layer through DI contracts from `Qhapaq.Abstractions`; only supported Service and operation-authoring contracts are public, and physical assemblies remain bundled into a smaller NuGet package surface |
 | D-027 | Which dependency-injection framework and composition model does the .NET implementation use? | Decided: Microsoft dependency injection with explicit, layer-owned registration delegated only to the immediately lower layer; behavioral contracts and components remain container-independent |
+| D-028 | How can transforms and final results consume multiple earlier outputs? | Decided: each run uses a private immutable execution frame; transforms explicitly bind dominating node outputs and boundary input, and final output may be an explicit mapping projection |
+| D-029 | How do code-authored operations declare AI-discoverable metadata? | Decided: `IOperation` remains execution-only; registry-visible .NET operations use an adjacent static descriptor declaration and optional marker attribute with explicit, reflection-free registration and generated portable manifests |
+| D-030 | How are operation compatibility and implementation provenance separated? | Decided: pipelines pin immutable exact operation contract versions and digests; trusted hosts independently pin and bind implementation identities, and compatible versions are never substituted implicitly |
 
 ## 10. Definition of Repository Readiness
 
@@ -627,6 +636,7 @@ The repository is ready for implementation when:
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| 0.8 | 2026-10-04 | Defined portable pipeline JSON, explicit execution-frame dataflow, constrained transforms, static operation descriptors, contract versioning, validation, and plan binding. |
 | 0.7 | 2026-10-04 | Selected Microsoft dependency injection and adjacent-layer, layer-owned composition. |
 | 0.6 | 2026-10-04 | Assigned layer-aligned assembly and root namespace names while preserving the smaller public NuGet package surface. |
 | 0.5 | 2026-10-04 | Defined the .NET layered architecture, versioned Service boundary, DI direction, visibility rules, and initial component plan. |

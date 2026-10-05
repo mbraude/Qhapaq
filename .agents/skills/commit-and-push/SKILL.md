@@ -8,6 +8,13 @@ description: Review every working-tree change since HEAD, generate a representat
 Use this skill only in a Git repository when the user intends to include every
 tracked and untracked working-tree change in one commit and push it to `origin`.
 
+## Arguments
+
+- `skip-build-and-test` (optional boolean, default: `false`): When `true`, do
+  not invoke the repository's `build-and-test` skill. Honor this argument only
+  when the user explicitly supplies it; do not infer it from context or prior
+  validation.
+
 ## Preconditions
 
 1. Read and follow the repository's contributor and agent instructions.
@@ -44,10 +51,14 @@ staging. If a file cannot be reviewed, stop and identify it.
 
 ### 2. Validate
 
-Invoke the repository's `build-and-test` skill and require it to complete
-successfully. Then run any additional documented checks needed to cover changes
-outside its .NET build and unit-test scope. Do not invent commands when the
-repository does not define them.
+Unless `skip-build-and-test=true`, invoke the repository's `build-and-test`
+skill and require it to complete successfully. When
+`skip-build-and-test=true`, skip that invocation and record that the build and
+unit tests were not run.
+
+Run any additional documented checks needed to cover changes outside the .NET
+build and unit-test scope. Do not invent commands when the repository does not
+define them.
 
 If `build-and-test` or another required check fails, stop and report the
 failure; do not create or push the commit.
@@ -115,7 +126,8 @@ Report:
 
 - the commit hash and final subject;
 - the pushed remote branch;
-- validation commands and their results; and
+- validation commands and their results, or an explicit statement that build
+  and unit-test validation was skipped because `skip-build-and-test=true`; and
 - any warnings that remain relevant.
 
 Do not report success unless both the commit and push completed.

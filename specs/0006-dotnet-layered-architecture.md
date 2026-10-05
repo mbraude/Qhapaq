@@ -135,7 +135,7 @@ All cross-layer interfaces and boundary object types are defined in
 | Contract category | Visibility | Consumers |
 | --- | --- | --- |
 | Versioned Service interfaces, requests, results, and structured errors | `public` | Built-in and third-party Service Implementations |
-| Operation-authoring contracts and essential operation value types | `public` | Primitive operation and decorator authors |
+| Operation execution and static descriptor-authoring contracts and essential operation value types | `public` | Primitive operation and decorator authors |
 | Service-to-Business contracts and values | `internal` | Qhapaq implementation assemblies and tests |
 | Business-to-DAL contracts and values | `internal` | Qhapaq implementation assemblies and tests |
 | Concrete Service, Business, and DAL types | `internal` | Owning-layer registration and tests |
@@ -249,7 +249,8 @@ implementations/dotnet/
 |   |-- Qhapaq.Abstractions/
 |   |   |-- Qhapaq.Abstractions.csproj
 |   |   |-- Operations/
-|   |   |   `-- IOperation.cs
+|   |   |   |-- IOperation.cs
+|   |   |   `-- Declarations/
 |   |   |-- Service/V1/
 |   |   |   |-- IPipelineService.cs
 |   |   |   |-- Requests/
@@ -321,6 +322,14 @@ protocol specifications created before implementation.
 | DAL | `IPipelineDefinitionStore` | Persist and retrieve canonical definitions |
 | DAL | `IExecutionPlanCache` | Cache derived bound plans without making them portable |
 | DAL | `IOperation<TInput, TOutput>` | Execute a primitive or type-preserving decorated operation |
+
+The declaration contracts planned under `Operations/Declarations/` let
+registry-visible code-authored operations expose a static portable descriptor
+without construction. A marker attribute may support analyzers and source
+generators, but registration remains explicit and reflection-free. Exact API
+shapes are governed by
+[`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md)
+and remain to be designed before implementation.
 
 ## 10. Component Diagram
 

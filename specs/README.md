@@ -11,6 +11,7 @@ implementation.
 | [SPEC-0004](0004-ai-assisted-connections.md) | AI-assisted connection planning, consent, execution, and disclosure. |
 | [SPEC-0005](0005-build-release-and-website-delivery.md) | CI, edge builds, releases, provenance, and website delivery. |
 | [SPEC-0006](0006-dotnet-layered-architecture.md) | .NET layers, dependency direction, visibility, service versioning, and initial component plan. |
+| [SPEC-0007](0007-portable-pipeline-definitions-and-binding.md) | Canonical pipeline JSON, execution-frame dataflow, transforms, operation contracts, validation, and plan binding. |
 
 New substantial features use the next stable numeric identifier and include
 status, goals, non-goals, design, security, testing, rollout, alternatives, and

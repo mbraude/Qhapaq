@@ -86,6 +86,10 @@ parameter.
 Operations may receive collaborators such as loggers, clients, clocks, or caches
 through normal construction and dependency injection. Runtime tracing should use
 standard .NET diagnostics facilities rather than ambient Qhapaq service access.
+Registry-visible code-authored operations declare portable metadata through a
+separate static declaration contract; internal operations need not do so. The
+portable descriptor and .NET authoring pattern are defined in
+[`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
 
 ## 5. Composition Algebra
 
@@ -227,6 +231,11 @@ is unavailable, its exact requested version is unavailable, connected types are
 incompatible, configuration is invalid, the structure is invalid, or host
 policy rejects a capability.
 
+Each run maintains a private execution frame containing the boundary input and
+immutable named node outputs. Transforms explicitly bind only the dominating
+outputs they consume. The frame is ephemeral engine state, not a general
+operation context, persistent run history, or model-accessible payload store.
+
 ## 7. Canonical JSON Model
 
 Every document must declare:
@@ -242,15 +251,19 @@ Every document must declare:
 The model is an expression tree whose structural forms include:
 
 - Primitive operation reference.
+- Side-effect-free transform.
 - Sequence.
 - Named parallel branches.
 - Decorator wrapping one inner expression.
 - Conditional with a predicate and two branches.
 - Bounded loop with a condition, body, and maximum iteration count.
 
-The normative JSON Schema and canonicalization rules remain to be defined.
-Canonicalization must make semantically relevant ordering explicit so hashes,
-signatures, caches, and reviews are deterministic.
+Every node has a stable document-local ID. Transforms and the optional final
+output projection may combine explicitly bound boundary input and earlier node
+outputs when those outputs dominate the consumer. The normative document model,
+execution-frame scope rules, transform language, schema profile,
+canonicalization, and plan-binding lifecycle are defined in
+[`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
 
 Pipeline documents must not contain:
 
@@ -268,15 +281,17 @@ A host-controlled registry is the only mechanism by which a declarative
 operation reference becomes executable code. A registry descriptor includes:
 
 - Stable operation or decorator identifier.
-- Exact implementation version.
+- Exact immutable contract version and contract digest.
 - Human-readable name and description.
 - Portable input, output, and configuration JSON Schemas.
 - Declared capabilities and side-effect characteristics.
 - Documentation and examples intended for humans and AI systems.
 
 An implementation binding additionally associates the portable descriptor with
-native input and output types and factory information held by the host. Those
-details are not supplied by the pipeline document.
+native input and output types, implementation identity, integrity information,
+and factory information held by the host. Those details are not supplied by the
+pipeline document. Pipelines pin exact operation contracts; the trusted host
+selects exact implementation artifacts.
 
 Operation IDs are portable names, not implementation type names. A host decides
 which descriptors and implementations to register. Portable binding requires
@@ -286,8 +301,15 @@ assignability.
 Values remain native runtime values between in-process operations; the .NET
 reference implementation uses strongly typed CLR objects. Serialization occurs
 at CLI, MCP, pipeline, and persistence boundaries and in explicit serialization
-operations. Qhapaq does not automatically reshape or convert mismatched
-intermediate values; a pipeline must reference an explicit mapping operation.
+or transform nodes. Qhapaq does not automatically reshape or convert mismatched
+intermediate values; a pipeline must use an explicit transform or registered
+mapping operation.
+
+Published operation ID and contract-version pairs are immutable. Compatible
+newer versions support authoring and migration analysis but are never silently
+substituted for an exact pipeline reference. Descriptor declaration, digest, and
+compatibility rules are defined in
+[`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
 
 The v1 reference host can populate its registry from built-in operations,
 declarative OpenAPI connectors, and explicitly installed precompiled .NET
@@ -583,8 +605,10 @@ The implementation requires:
 - Cancellation and multi-failure tests for parallel execution.
 - Attempt, timeout, and decorator-ordering tests.
 - Conditional branch and loop-boundary tests.
-- JSON Schema conformance and canonicalization golden tests.
+- Execution-frame dominance, transform, final-projection, JSON Schema
+  conformance, and canonicalization golden tests.
 - Definition-to-plan binding tests for every rejection condition.
+- Exact operation-contract version, digest, and compatibility-diff tests.
 - Registry allowlist and policy tests.
 - Mermaid golden tests.
 - MCP tests proving execution is unavailable or rejected when policy disallows
@@ -659,16 +683,12 @@ version, and canonical digest and fail closed on mismatch.
 
 ## 20. Open Questions
 
-1. What JSON canonicalization scheme and JSON Schema draft will be normative?
-2. How are schema references packaged and resolved without network-dependent
-   validation?
-3. Which operation capability vocabulary and side-effect classifications are
+1. Which operation capability vocabulary and side-effect classifications are
    required in v1?
-4. What policy model governs MCP and local-host execution?
-5. Which retry, timeout, cache, and concurrency decorators ship in the initial
+2. What policy model governs MCP and local-host execution?
+3. Which retry, timeout, cache, and concurrency decorators ship in the initial
    package?
-6. What exception hierarchy and structured MCP error envelope are public API?
-7. What operating systems and architectures are supported and tested?
-8. Which open-source license will be used?
-9. What exact CLI commands, exit statuses, and structured error schema are
+4. What exception hierarchy and structured MCP error envelope are public API?
+5. What operating systems and architectures are supported and tested?
+6. What exact CLI commands, exit statuses, and structured error schema are
    normative?

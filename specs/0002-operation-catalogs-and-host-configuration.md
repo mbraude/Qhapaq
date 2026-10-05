@@ -53,8 +53,9 @@ are intentional later capabilities. Their roadmap is defined in
 
 ## 4. Terminology
 
-- **Operation descriptor:** portable metadata for one operation, including its
-  stable ID, version, schemas, capabilities, and side-effect classification.
+- **Operation descriptor:** portable normative contract and documentation
+  metadata for one operation, including its stable ID, exact contract version,
+  contract digest, schemas, capabilities, and side-effect classification.
 - **Catalog:** a collection of operation descriptors and declarative connector
   registrations.
 - **Extension:** trusted, precompiled implementation code and its manifest.
@@ -112,7 +113,8 @@ A precompiled extension contains:
 
 - One or more assemblies targeting the supported Qhapaq extension contract.
 - A versioned extension manifest.
-- Operation and decorator descriptors.
+- Operation and decorator descriptors with exact immutable contract versions
+  and digests.
 - Exact package and implementation versions.
 - Declared capabilities and external dependencies.
 - Integrity information for installed artifacts.
@@ -129,6 +131,13 @@ improve reliability and provenance but do not make untrusted code safe.
 The MCP surface must not install, update, enable, or discover arbitrary
 filesystem extensions. It may report descriptors for extensions already enabled
 by the host.
+
+Code-authored .NET operations use the static declaration and generated-manifest
+model defined in
+[`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
+Registration remains explicit and does not scan assemblies reflectively.
+OpenAPI-backed and code-authored operations produce the same portable descriptor
+shape.
 
 ## 6. Portable Project Catalog
 
@@ -317,7 +326,8 @@ At startup, the host:
 2. Resolves and validates enabled catalog paths and expected identities.
 3. Validates OpenAPI documents, integrity, selected operations, and schemas.
 4. Loads explicitly enabled extensions and validates manifests and integrity.
-5. Rejects duplicate operation ID and version pairs.
+5. Rejects duplicate operation ID and contract-version pairs and rejects
+   conflicting contract digests.
 6. Binds logical authentication requirements to configured providers.
 7. Applies capability and operation allowlists.
 8. Produces an immutable effective operation registry.
