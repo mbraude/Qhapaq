@@ -4,7 +4,7 @@
 >
 > **Target:** Qhapaq v1
 >
-> **Last updated:** 2026-10-04
+> **Last updated:** 2026-10-05
 
 ## 1. Summary
 
@@ -146,7 +146,14 @@ Every definition contains:
 Unknown properties are rejected unless the normative pipeline JSON Schema
 explicitly permits them.
 
-Illustrative shape:
+The example assumes that the exact resolved contract for
+`contoso.customers.get` version `1.2.0` guarantees a required string output
+property named `id`, and that the contract for `contoso.pricing.calculate`
+version `2.0.0` guarantees a required numeric output property named `total`.
+The pipeline input schema above guarantees the required string property
+`requestedBy`.
+
+Illustrative pipeline shape using the canonical mapping-expression syntax:
 
 ```json
 {
@@ -224,15 +231,31 @@ Illustrative shape:
           "additionalProperties": false
         },
         "expression": {
-          "object": {
+          "op": "object",
+          "fields": {
             "customerId": {
-              "select": "$inputs.customer.id"
+              "op": "property",
+              "value": {
+                "op": "input",
+                "name": "customer"
+              },
+              "name": "id"
             },
             "total": {
-              "select": "$inputs.pricing.total"
+              "op": "property",
+              "value": {
+                "op": "input",
+                "name": "pricing"
+              },
+              "name": "total"
             },
             "requestedBy": {
-              "select": "$inputs.request.requestedBy"
+              "op": "property",
+              "value": {
+                "op": "input",
+                "name": "request"
+              },
+              "name": "requestedBy"
             }
           }
         }
@@ -260,12 +283,23 @@ Illustrative shape:
       }
     },
     "expression": {
-      "object": {
+      "op": "object",
+      "fields": {
         "customerId": {
-          "select": "$inputs.customer.id"
+          "op": "property",
+          "value": {
+            "op": "input",
+            "name": "customer"
+          },
+          "name": "id"
         },
         "orderId": {
-          "select": "$inputs.order.id"
+          "op": "property",
+          "value": {
+            "op": "input",
+            "name": "order"
+          },
+          "name": "id"
         }
       }
     }
@@ -273,8 +307,8 @@ Illustrative shape:
 }
 ```
 
-The normative JSON Schema may refine property names and factoring before v1 is
-published, but it must preserve the semantics in this specification.
+The normative pipeline JSON Schema must encode these exact property names and
+the closed structural shapes in Section 6.3.
 
 ### 6.2 Node identities
 
@@ -288,6 +322,23 @@ Every node has a non-empty document-local `id`. Node IDs:
 
 Changing a node ID changes the canonical definition because bindings and
 diagnostics may reference it.
+
+Every node is a JSON object with required `id` and `kind` members plus only the
+members defined for that exact node kind. Node and supporting-record member
+names are case-sensitive. Unknown members are invalid.
+
+The normative pipeline schema defines the node type as a closed recursive
+discriminated union over the exact v1 `kind` values. Each union member fixes
+`kind` to one value, requires that kind's operands, recursively validates its
+inline structural children as nodes, and rejects members belonging to another
+kind. Structural composition is an inline expression tree; structural children
+cannot be replaced by node-ID references. Node-ID references are permitted only
+where this specification explicitly defines a dataflow source.
+
+Node IDs are unique across the complete definition, including every inline
+child of the root, rather than only within one sequence, branch, conditional,
+decorator, or loop. Duplicate JSON member names are rejected before the node
+union is evaluated.
 
 ### 6.3 Structural node kinds
 
@@ -311,6 +362,344 @@ Decorator order is explicit and semantically significant. Parallel branch names
 are stable members of the parallel result. Conditionals and loops follow the
 composition semantics in
 [`0001-core-pipeline-model.md`](0001-core-pipeline-model.md).
+
+#### 6.3.1 Operation
+
+An `operation` node is a leaf with this exact shape:
+
+```json
+{
+  "id": "get-customer",
+  "kind": "operation",
+  "operation": {
+    "id": "contoso.customers.get",
+    "version": "1.2.0"
+  },
+  "configuration": {
+    "includeHistory": false
+  }
+}
+```
+
+`operation` is a closed exact contract reference containing only required `id`
+and `version` members. The referenced descriptor must have the `primitive`
+composition role. The same exact-reference shape is used by `decorate` nodes
+for decorator contracts. The containing member identifies the required
+composition role.
+
+Every v1 operation and decorator configuration schema is an object schema.
+`configuration` is optional in an operation node. Omission is normalized to an
+empty object before configuration defaults are materialized, and the normalized
+configuration is validated and included in canonicalization. An explicitly
+supplied configuration must be an object. Unknown operation-node,
+exact-reference, and configuration members are rejected according to their
+respective closed schemas.
+
+#### 6.3.2 Transform
+
+A `transform` node has this exact shape:
+
+```json
+{
+  "id": "create-order-input",
+  "kind": "transform",
+  "language": "qhapaq.mapping/v1",
+  "inputs": {
+    "customer": {
+      "source": "node",
+      "node": "get-customer"
+    },
+    "request": {
+      "source": "pipeline-input"
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["customerId"],
+    "properties": {
+      "customerId": { "type": "string" }
+    },
+    "additionalProperties": false
+  },
+  "expression": {
+    "op": "object",
+    "fields": {
+      "customerId": {
+        "op": "property",
+        "value": {
+          "op": "input",
+          "name": "customer"
+        },
+        "name": "id"
+      }
+    }
+  }
+}
+```
+
+`language`, `inputs`, `outputSchema`, and `expression` are required.
+`language` is exactly `qhapaq.mapping/v1`. `inputs` is a closed map whose keys
+match `^[a-z][A-Za-z0-9]*$`; an input-free transform explicitly uses an empty
+map. Each value in `inputs` is exactly one member of this closed source union:
+
+```json
+{ "source": "pipeline-input" }
+```
+
+```json
+{ "source": "node", "node": "get-customer" }
+```
+
+A node source contains only `source` and `node`, and a pipeline-input source
+contains only `source`. A node source must identify an accessible node that
+dominates the transform. `outputSchema` is an inline schema conforming to the
+Qhapaq v1 schema profile. `expression` is one canonical
+`qhapaq.mapping/v1` operator object. Its `input` operators may name only keys
+from the containing `inputs` map.
+
+Because transforms have no implicit data sources, a transform with an empty
+`inputs` map can produce only a deterministic value derived from public
+literals. The inferred successful expression result must conform to
+`outputSchema`, and the internal `missing` state cannot escape as output.
+Unknown transform-node and source members are invalid.
+
+#### 6.3.3 Sequence
+
+A `sequence` node has this exact shape:
+
+```json
+{
+  "id": "order-flow",
+  "kind": "sequence",
+  "steps": [
+    {
+      "id": "create-order-input",
+      "kind": "transform",
+      "language": "qhapaq.mapping/v1",
+      "inputs": {},
+      "outputSchema": {
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": false
+      },
+      "expression": {
+        "op": "object",
+        "fields": {}
+      }
+    },
+    {
+      "id": "create-order",
+      "kind": "operation",
+      "operation": {
+        "id": "contoso.orders.create",
+        "version": "3.1.0"
+      }
+    }
+  ]
+}
+```
+
+`steps` is required and contains at least one inline node. Array order is
+semantic execution order. The first step receives the sequence input. Each
+later step begins only after its preceding step succeeds and receives that
+step's output under the composition semantics of its node kind. Every adjacent
+connection must be schema-compatible; the binder does not insert conversions.
+A transform step continues to read only its explicitly declared sources.
+
+A one-step sequence is valid and has the same input, output, failure, and
+cancellation behavior as its single step. The sequence output is its final
+step's output. An empty sequence is invalid and has no implicit identity or
+pass-through behavior. Unknown sequence-node members are invalid.
+
+#### 6.3.4 Parallel
+
+A `parallel` node has this exact shape:
+
+```json
+{
+  "id": "load-order-data",
+  "kind": "parallel",
+  "branches": {
+    "customer": {
+      "id": "load-customer",
+      "kind": "operation",
+      "operation": {
+        "id": "contoso.customers.get",
+        "version": "1.2.0"
+      }
+    },
+    "pricing": {
+      "id": "load-pricing",
+      "kind": "operation",
+      "operation": {
+        "id": "contoso.pricing.calculate",
+        "version": "2.0.0"
+      }
+    }
+  }
+}
+```
+
+`branches` is required and is a closed map containing at least two entries.
+Each key matches `^[a-z][A-Za-z0-9]*$` and is the stable branch name and
+parallel-result member name. Each value is one inline node. Every branch
+receives the same parallel-node input and may execute concurrently. A branch
+cannot access a sibling branch's outputs.
+
+Branch-map member order is not semantic and does not determine start,
+completion, or result order. Deterministic projections, diagnostics, branch
+summaries, and aggregate-failure reporting order branches by ordinal branch
+name. Reordering members without changing their names or values does not change
+the canonical definition. Unknown parallel-node members are invalid.
+
+The parallel node succeeds only when every branch succeeds and produces an
+object whose members are the named branch outputs. If any branch fails, the
+runtime signals cancellation to the remaining branches, observes every branch,
+and reports every non-sibling-cancellation failure in deterministic branch-name
+order rather than producing a partial result.
+
+#### 6.3.5 Decorate
+
+A `decorate` node has this exact shape:
+
+```json
+{
+  "id": "retry-create-order",
+  "kind": "decorate",
+  "decorator": {
+    "id": "qhapaq.retry",
+    "version": "1.0.0"
+  },
+  "configuration": {
+    "maxAttempts": 3
+  },
+  "inner": {
+    "id": "create-order",
+    "kind": "operation",
+    "operation": {
+      "id": "contoso.orders.create",
+      "version": "3.1.0"
+    }
+  }
+}
+```
+
+`decorator` and `inner` are required. `decorator` uses the closed exact
+contract-reference shape defined for operation nodes, and the referenced
+descriptor must have the `decorator` composition role. `inner` is exactly one
+inline node. The decorator must preserve the inner node's input and output
+contracts.
+
+`configuration` is optional and follows the same object-only omission,
+normalization, default-materialization, validation, and canonicalization rules
+as operation configuration. Multiple decorators are represented only by
+nesting `decorate` nodes. Each nested decorator is a node with its own globally
+unique node ID. Nesting order is semantic: the outer `decorate` node wraps its
+`inner` node after the complete inner node, including any nested decorator, is
+bound. Unknown decorate-node members are invalid.
+
+#### 6.3.6 Conditional
+
+A `conditional` node has this exact shape:
+
+```json
+{
+  "id": "choose-fulfillment",
+  "kind": "conditional",
+  "condition": {
+    "id": "requires-shipping",
+    "kind": "operation",
+    "operation": {
+      "id": "contoso.orders.requires-shipping",
+      "version": "1.0.0"
+    }
+  },
+  "whenTrue": {
+    "id": "ship-order",
+    "kind": "operation",
+    "operation": {
+      "id": "contoso.orders.ship",
+      "version": "1.0.0"
+    }
+  },
+  "whenFalse": {
+    "id": "complete-digital-order",
+    "kind": "operation",
+    "operation": {
+      "id": "contoso.orders.complete-digital",
+      "version": "1.0.0"
+    }
+  }
+}
+```
+
+`condition`, `whenTrue`, and `whenFalse` are required inline nodes.
+`condition` may be any structural node whose output schema is exactly a
+required, non-null Boolean or a schema statically proven to admit only Boolean
+values. A transform condition may explicitly bind accessible dominating node
+outputs under the ordinary transform source and scope rules.
+
+The condition receives the conditional-node input and executes exactly once.
+Only the selected branch executes, and it receives the original
+conditional-node input rather than the condition output. Both branches must
+accept that input and must produce values compatible with one common
+conditional output contract. Branch-local outputs do not escape directly;
+downstream consumers reference the conditional node's common output. Unknown
+conditional-node members are invalid.
+
+#### 6.3.7 Bounded loop
+
+A `loop` node has this exact shape:
+
+```json
+{
+  "id": "process-pages",
+  "kind": "loop",
+  "maxIterations": 100,
+  "condition": {
+    "id": "has-more-pages",
+    "kind": "operation",
+    "operation": {
+      "id": "contoso.pages.has-more",
+      "version": "1.0.0"
+    }
+  },
+  "body": {
+    "id": "process-next-page",
+    "kind": "operation",
+    "operation": {
+      "id": "contoso.pages.process-next",
+      "version": "1.0.0"
+    }
+  }
+}
+```
+
+`maxIterations`, `condition`, and `body` are required. `maxIterations` is a
+positive JSON integer no greater than `9007199254740991`, the maximum portable
+integer in the Qhapaq JSON data model. Each host profile advertises the maximum
+iteration request that it can bind or permit. A pipeline requesting a larger
+value remains document-valid but is host-unbindable or policy-ineligible; a
+host limit does not change portable document validity.
+
+`condition` and `body` may each be any inline structural node. Both receive the
+current loop state. The condition output must be exactly a required, non-null
+Boolean or a schema statically proven to admit only Boolean values. The body
+must accept the loop-state schema and produce a value compatible with that same
+schema.
+
+The condition evaluates before each iteration. If it is false initially, the
+body does not execute and the input state is the successful loop output. After
+each successful body execution, its output becomes the state for the next
+condition evaluation. If the condition remains true after exactly
+`maxIterations` successful body executions, the loop fails with its declared
+limit rather than returning a partial result.
+
+Each iteration has an iteration-local frame. Child outputs do not escape an
+iteration, and only the final loop state becomes the loop-node output. Unknown
+loop-node members are invalid. Arbitrary graph cycles and unbounded loops are
+invalid.
 
 ## 7. Execution Frame and Dataflow
 
@@ -390,6 +779,52 @@ rejects unknown members. Literal values use an explicit `literal` operator
 rather than being confused with expression objects. Operator objects are the
 only executable syntax; strings never contain JSONPath, source code, or another
 expression language.
+
+The canonical foundational operator shapes are:
+
+```json
+{ "op": "input", "name": "customer" }
+```
+
+```json
+{
+  "op": "property",
+  "value": { "op": "input", "name": "customer" },
+  "name": "id"
+}
+```
+
+```json
+{ "op": "literal", "value": { "source": "web", "priority": 1 } }
+```
+
+```json
+{
+  "op": "object",
+  "fields": {
+    "customerId": {
+      "op": "property",
+      "value": { "op": "input", "name": "customer" },
+      "name": "id"
+    }
+  }
+}
+```
+
+`input.name` is one exact key from the containing transform's `inputs` map.
+`property.value` is any mapping expression, and `property.name` is one literal
+JSON object member name rather than a path. `object.fields` maps each result
+member name to one mapping expression. `literal.value` is the only operand in
+which an arbitrary JSON value is interpreted as data rather than as an
+expression. Operator and operand names are case-sensitive.
+
+The versioned mapping-expression schema is a closed discriminated union over
+the allowed `op` values. It validates each operator's required named operands,
+recursively validates expression-valued operands, and rejects unknown members.
+It does not enumerate child operators according to the result type required by
+a parent. The mapping type checker separately infers child result schemas and
+validates context-dependent requirements, such as whether `property.value`
+produces an object and whether that object's schema permits `property.name`.
 
 Declared transform inputs are read with an `input` operator naming exactly one
 key from the transform's `inputs` map. Nested object values are read by
@@ -726,12 +1161,61 @@ algorithm before implementation of portable pipeline binding is complete.
 Without an explicit `output` projection, the root expression's output must be
 compatible with `schemas.output` and becomes the pipeline result.
 
-An explicit output projection:
+An explicit output projection is a closed boundary-specific mapping record with
+this exact shape:
+
+```json
+{
+  "language": "qhapaq.mapping/v1",
+  "inputs": {
+    "customer": {
+      "source": "node",
+      "node": "get-customer"
+    },
+    "order": {
+      "source": "node",
+      "node": "create-order"
+    }
+  },
+  "expression": {
+    "op": "object",
+    "fields": {
+      "customerId": {
+        "op": "property",
+        "value": {
+          "op": "input",
+          "name": "customer"
+        },
+        "name": "id"
+      },
+      "orderId": {
+        "op": "property",
+        "value": {
+          "op": "input",
+          "name": "order"
+        },
+        "name": "id"
+      }
+    }
+  }
+}
+```
+
+`language`, `inputs`, and `expression` are required. `language` is exactly
+`qhapaq.mapping/v1`. `inputs` is explicit, may be empty, uses the same
+lower-camel alias grammar and closed source union as a transform node, and may
+bind only the boundary input or a node output that dominates successful
+completion of the root. `expression` follows the canonical mapping syntax and
+may read only those declared inputs. Unknown output-projection members are
+invalid.
+
+The output projection has no `id`, `kind`, or `outputSchema`. It is not a
+structural node, does not create an externally addressable frame slot, and uses
+the pipeline's `schemas.output` as its required result schema. Returning one
+declared input expression unchanged is the canonical way to select a raw
+eligible node output or the raw boundary input. An explicit output projection:
 
 - runs only after the root completes successfully;
-- may bind the boundary input and any node output that dominates completion of
-  the root;
-- uses `qhapaq.mapping/v1`;
 - must produce a value conforming to `schemas.output`; and
 - cannot cause external side effects.
 
@@ -1345,18 +1829,307 @@ The .NET reference implementation additionally tests:
 
 ## 21. Rollout and Migration
 
-Implementation proceeds in this order:
+Implementation proceeds through the following phases. The checkboxes are the
+persistent implementation checklist for this specification. A phase may be
+delivered through multiple changes, but an item must not be marked complete
+until its persistent artifact and the validation named by that item exist.
+Completing an implementation item does not make an unresolved portable behavior
+normative; the applicable specification, schema, and conformance vector must be
+completed first.
 
-1. Publish the normative pipeline, mapping, descriptor, and diagnostic schemas.
-2. Publish conformance vectors and canonical examples.
-3. Publish the .NET descriptor-authoring schema, incremental generator,
-   compatibility matrix, diagnostics, generated-manifest format, and
-   effective-registry validation.
-4. Implement document parsing and non-executing validation.
-5. Implement transforms and execution-frame dataflow.
-6. Implement immutable plan binding and cache invalidation.
-7. Add Mermaid, CLI, and MCP authoring projections.
-8. Enable policy-gated execution only after the complete validation path exists.
+### Phase 0: Close required normative decisions
+
+This phase resolves the language decisions on which all later artifacts depend.
+It does not require unrelated CLI, MCP, or implementation details to be decided
+early.
+
+- [x] Replace illustrative transform syntax with the canonical
+  `qhapaq.mapping/v1` operator-object syntax.
+- [x] Define the exact JSON shape and closure rules for every v1 structural node
+  kind.
+  - [x] Define the shared node envelope, recursive discriminated union, node-ID
+    scope, and common closure rules.
+  - [x] Define the `operation` node.
+  - [x] Define the `transform` node.
+  - [x] Define the `sequence` node.
+  - [x] Define the `parallel` node and named branch records.
+  - [x] Define the `decorate` node.
+  - [x] Define the `conditional` node.
+  - [x] Define the bounded `loop` node.
+  - [x] Define shared exact contract references, configuration values,
+    transform input sources, and the final output projection.
+- [ ] Define the complete `qhapaq.mapping/v1` operator set, operand shapes,
+  evaluation order, inferred result types, `missing` and `null` behavior, and
+  runtime failure behavior.
+- [ ] Define portable mapping limits, including expression depth, operator
+  count, collection processing, string and output size, and evaluation budget.
+- [ ] Define the portable regular-expression grammar and exact algorithms for
+  the closed format allowlist.
+- [ ] Define the normative capability, side-effect, idempotency, and structured
+  failure vocabularies.
+- [ ] Define the public .NET marker and static declaration contracts, manifest
+  envelope, generator diagnostic-code policy, and initial compatibility matrix.
+- [ ] Decide the smallest versioned Service, CLI, and MCP contracts required by
+  the first authoring and execution slices; explicitly defer the remainder.
+
+**Completion gate:** no open question in Section 23 blocks the normative
+schemas, conformance vectors, descriptor generator, or first Service vertical
+slice.
+
+### Phase 1: Publish language-neutral schemas and vectors
+
+This phase turns the portable decisions into implementation-independent
+artifacts.
+
+- [ ] Publish the exact pipeline-document schema.
+- [ ] Publish the exact mapping-expression schema or exact embedded mapping
+  definitions in the pipeline schema.
+- [ ] Publish the closed Qhapaq JSON Schema profile.
+- [ ] Publish the versioned structured-diagnostic schema.
+- [ ] Publish the portable operation-manifest envelope schema.
+- [ ] Tighten the operation-descriptor schema so embedded input, output, and
+  configuration schemas conform to the Qhapaq schema profile.
+- [ ] Add valid and invalid pipeline-document vectors.
+- [ ] Add duplicate-member, canonicalization, and definition-digest vectors.
+- [ ] Add schema-profile and conservative compatibility vectors.
+- [ ] Add mapping parsing, type-inference, evaluation, and failure vectors.
+- [ ] Add scope, dominance, and inaccessible-branch vectors.
+- [ ] Add structured-diagnostic golden files.
+- [ ] Add contract-digest and manifest golden vectors.
+- [ ] Add execution-semantic vectors for every structural node kind.
+
+**Depends on:** Phase 0 decisions required by each artifact.
+
+**Completion gate:** every published portable rule needed by binding and
+execution has a versioned schema or conformance vector, and those artifacts do
+not depend on .NET implementation details.
+
+### Phase 2: Implement .NET descriptor authoring and generation
+
+This phase provides deterministic, build-time declaration for code-authored
+.NET operations.
+
+- [ ] Add the supported public descriptor identity and operation-authoring value
+  types to `Qhapaq.Abstractions`.
+- [ ] Add the public marker and static declared-operation contracts.
+- [ ] Add a dedicated Roslyn incremental-generator project.
+- [ ] Accept descriptor documents only through explicit compiler build inputs.
+- [ ] Enforce exact, case-sensitive, same-directory basename association.
+- [ ] Validate descriptors against their exact offline schemas.
+- [ ] Recompute and verify canonical contract digests.
+- [ ] Verify one compatible `IOperation<TInput, TOutput>` implementation
+  contract without constructing the operation or executing project code.
+- [ ] Emit deterministic static declarations and reflection-free closed-generic
+  registration.
+- [ ] Emit the canonical portable manifest and expose identical embedded and
+  packaged bytes.
+- [ ] Emit stable, location-aware, payload-safe generator diagnostics.
+- [ ] Test reproducibility across paths, cultures, machines, and input
+  enumeration order.
+
+**Depends on:** the applicable Phase 0 authoring decisions and Phase 1
+descriptor, manifest, digest, and diagnostic artifacts.
+
+**Completion gate:** a clean consumer project can author, validate, generate,
+register, and package an operation using only supported contracts and explicit
+build inputs.
+
+### Phase 3: Implement the effective registry and native bindings
+
+This phase creates the only path from a portable operation reference to trusted
+executable code.
+
+- [ ] Implement immutable registry entries and exact ID, version, and digest
+  lookup.
+- [ ] Record implementation identity, integrity, and native input and output
+  bindings separately from portable contract identity.
+- [ ] Ingest generated registration and manifests without assembly scanning.
+- [ ] Revalidate manifests and contract digests at runtime.
+- [ ] Reject duplicate identities and conflicting digests across enabled
+  sources.
+- [ ] Verify agreement among descriptors, static declarations, generic native
+  types, implementation identity, and registration-contract versions.
+- [ ] Report the specified availability states without disclosing protected
+  host configuration.
+- [ ] Expose an immutable registry generation identity for plan-cache
+  invalidation.
+- [ ] Add registry, native-binding, unsupported-version, and conflict tests.
+
+**Depends on:** Phase 2 registration and manifest contracts.
+
+**Completion gate:** exact portable identities resolve deterministically to
+trusted native bindings, and invalid or ambiguous registrations are unavailable
+before pipeline binding.
+
+### Phase 4: Implement parsing and portable validation
+
+This phase produces inert definitions and document-validity conclusions without
+executing or binding operations.
+
+- [ ] Reject malformed JSON and duplicate object member names.
+- [ ] Parse immutable definition models without activating types, loading
+  extensions, resolving credentials, or accessing external resources.
+- [ ] Select and validate the exact offline pipeline-format schema.
+- [ ] Validate node identities, structural rules, bounded control flow, scopes,
+  and dominance.
+- [ ] Normalize optional operation-configuration defaults before hashing or
+  persistence.
+- [ ] Implement RFC 8785 canonicalization and definition digests.
+- [ ] Produce bounded, versioned, payload-safe structured diagnostics.
+- [ ] Add tests proving invalid definitions cannot reach registry binding or
+  begin side effects.
+
+**Depends on:** the applicable Phase 1 pipeline, schema-profile,
+canonicalization, and diagnostic artifacts.
+
+**Completion gate:** the implementation passes the parsing, structural,
+canonicalization, and diagnostic conformance vectors while remaining independent
+of an active operation registry.
+
+### Phase 5: Implement the schema and mapping engines
+
+This phase supplies portable instance validation, conservative compatibility,
+and deterministic transform behavior.
+
+- [ ] Implement the closed Draft 2020-12 Qhapaq schema profile.
+- [ ] Implement fragment-only local reference resolution, cycle detection, and
+  portable schema-complexity limits.
+- [ ] Implement exact supported-format assertions and bounded portable-pattern
+  validation.
+- [ ] Implement portable instance validation.
+- [ ] Implement deterministic structural-subtype compatibility, including exact
+  numeric constraint comparison.
+- [ ] Parse mapping expressions into immutable expression models.
+- [ ] Implement static type inference with distinct `missing` and JSON `null`
+  states.
+- [ ] Implement every specified mapping operator and checked failure behavior.
+- [ ] Enforce expression, collection, memory, and output budgets.
+- [ ] Add tests for parsing, inference, compatibility, deterministic evaluation,
+  narrowing, conversion, and budget failures.
+
+**Depends on:** the applicable Phase 0 mapping and schema decisions and Phase 1
+schema and mapping vectors.
+
+**Completion gate:** the implementation passes the complete schema-profile,
+compatibility, mapping, and transform-failure conformance suites.
+
+### Phase 6: Implement immutable plan binding
+
+This phase converts a valid definition into disposable, host-specific derived
+state without beginning execution.
+
+- [ ] Resolve every operation and decorator by exact portable identity.
+- [ ] Validate normalized operation and decorator configuration.
+- [ ] Propagate schemas through every structural node.
+- [ ] Validate transform sources, dominance, inferred result schemas, and output
+  schemas.
+- [ ] Prove every operation connection schema-compatible.
+- [ ] Verify all implementation-native input and output bindings.
+- [ ] Pre-bind portable projectors, native materializers, mapping evaluators,
+  and implementation factories.
+- [ ] Compute slot consumers, last-consumer information, and resource budgets.
+- [ ] Aggregate capabilities, side effects, idempotency, and required
+  connections.
+- [ ] Evaluate bind-time host policy and connection availability.
+- [ ] Produce an immutable plan containing exact contract and implementation
+  identities.
+- [ ] Implement plan-cache keys and invalidation for every input listed in
+  Section 19.
+- [ ] Add rejection tests proving a partially validated or partially bound plan
+  cannot execute.
+
+**Depends on:** Phases 3 through 5 and the applicable host-policy contracts.
+
+**Completion gate:** every validation stage in Section 14 completes before a
+plan is returned, and every specified invalidation input prevents reuse of a
+stale plan.
+
+### Phase 7: Implement the execution frame and runner
+
+This phase executes one non-durable invocation of a completely bound plan.
+
+- [ ] Validate boundary input and reevaluate invocation-specific execution and
+  disclosure permissions before side effects.
+- [ ] Implement the private, per-run immutable execution frame and write-once
+  node-output slots.
+- [ ] Execute sequence, named parallel branches, decorators, conditionals, and
+  bounded loops with their specified failure and cancellation semantics.
+- [ ] Implement iteration-local loop frames and expose only the final loop
+  result.
+- [ ] Execute transform serialization boundaries using only pre-bound
+  projectors, evaluators, validators, and materializers.
+- [ ] Release frame slots after their final planned consumer when safe.
+- [ ] Execute and validate the final output projection.
+- [ ] Enforce frame, transform, collection, loop, parallelism, and output
+  budgets.
+- [ ] Prevent frame persistence, automatic payload logging, and external frame
+  inspection.
+- [ ] Reuse existing typed composition primitives where their behavior matches
+  the bound-plan semantics.
+- [ ] Add execution, cancellation, aggregate-failure, budget, privacy, and
+  no-partial-success tests.
+
+**Depends on:** Phase 6 and invocation-time policy evaluation.
+
+**Completion gate:** all execution conformance vectors pass, and tests prove
+that no operation begins before complete validation, binding, and permission
+evaluation.
+
+### Phase 8: Add Service and authoring projections
+
+This phase exposes shared use cases without allowing adapters to bypass Business
+rules.
+
+- [ ] Add the smallest versioned public Service contracts to
+  `Qhapaq.Abstractions`.
+- [ ] Implement Service coordination in `Qhapaq.Service.V1`.
+- [ ] Expose policy-filtered descriptor listing and exact descriptor retrieval.
+- [ ] Expose non-executing validation with all four conclusions from Section 14.
+- [ ] Expose resolved dataflow, contract, effect, capability, and prerequisite
+  explanation.
+- [ ] Implement deterministic Mermaid projection and golden tests.
+- [ ] Expose conservative operation-contract comparison.
+- [ ] Add CLI authoring and validation adapters over Service V1.
+- [ ] Add MCP authoring and validation adapters over Service V1.
+- [ ] Prove that CLI and MCP adapters cannot access Business, DAL, generator, or
+  manifest internals directly.
+
+**Depends on:** the applicable Phase 0 Service, CLI, and MCP decisions and
+Phases 3 through 7 for the use cases each projection exposes.
+
+**Completion gate:** CLI, MCP, and third-party adapters can consume the same
+versioned Service behavior without duplicating validation, policy, binding, or
+projection rules.
+
+### Phase 9: Enable policy-gated execution
+
+This phase enables execution through supported public entry points only after
+the full safety and conformance path is present.
+
+- [ ] Expose execution as a separate Service operation from validation and
+  authoring.
+- [ ] Add CLI execution mapping with the normative request, result, diagnostic,
+  and exit-status behavior.
+- [ ] Add MCP execution mapping with independent execution and payload-disclosure
+  decisions.
+- [ ] Prove authoring tools cannot install extensions, mutate trusted profiles,
+  resolve credentials, execute operations, or grant authority.
+- [ ] Pass all language-neutral parsing, validation, visualization, execution,
+  and host conformance suites claimed by the implementation.
+- [ ] Pass generator determinism, manifest byte-equality, registry validation,
+  native-binding, cache-invalidation, and architecture tests.
+- [ ] Pass security tests proving definitions cannot load code, access
+  credentials, escape transform scope, expose frame data, or start side effects
+  before complete validation.
+- [ ] Verify trimming and Native AOT behavior for the supported publication
+  targets.
+- [ ] Document the enabled conformance capabilities and any deliberately
+  unavailable optional surfaces.
+
+**Depends on:** Phases 0 through 8 for every enabled execution surface.
+
+**Completion gate:** policy-gated execution is enabled only when the complete
+parse-to-permission path and all claimed conformance suites pass.
 
 No compatibility migration is required because no portable pipeline format has
 yet been released. Illustrative pre-v1 documents are not accepted as an implicit
