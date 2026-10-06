@@ -607,6 +607,20 @@ A `conditional` node has this exact shape:
 {
   "id": "choose-fulfillment",
   "kind": "conditional",
+  "outputSchema": {
+    "type": "object",
+    "required": ["fulfillmentId", "fulfillmentType"],
+    "properties": {
+      "fulfillmentId": {
+        "type": "string"
+      },
+      "fulfillmentType": {
+        "type": "string",
+        "enum": ["physical", "digital"]
+      }
+    },
+    "additionalProperties": false
+  },
   "condition": {
     "id": "requires-shipping",
     "kind": "operation",
@@ -634,7 +648,10 @@ A `conditional` node has this exact shape:
 }
 ```
 
-`condition`, `whenTrue`, and `whenFalse` are required inline nodes.
+`outputSchema`, `condition`, `whenTrue`, and `whenFalse` are required.
+`outputSchema` is an inline schema conforming to the Qhapaq v1 schema profile
+and is the conditional node's declared output contract. `condition`,
+`whenTrue`, and `whenFalse` are inline nodes.
 `condition` may be any structural node whose output schema is exactly a
 required, non-null Boolean or a schema statically proven to admit only Boolean
 values. A transform condition may explicitly bind accessible dominating node
@@ -643,10 +660,41 @@ outputs under the ordinary transform source and scope rules.
 The condition receives the conditional-node input and executes exactly once.
 Only the selected branch executes, and it receives the original
 conditional-node input rather than the condition output. Both branches must
-accept that input and must produce values compatible with one common
-conditional output contract. Branch-local outputs do not escape directly;
-downstream consumers reference the conditional node's common output. Unknown
-conditional-node members are invalid.
+accept that input.
+
+During schema propagation, the binder derives the complete output schema of
+each branch according to its outer node kind. A sequence contributes its final
+step's output schema, and a parallel contributes its closed object schema of
+named branch outputs. The binder must independently prove, using the
+deterministic structural-subtype compatibility algorithm, that every successful
+value admitted by each derived branch output schema conforms to
+`outputSchema`:
+
+```text
+whenTrue.output  subset-of  conditional.outputSchema
+whenFalse.output subset-of  conditional.outputSchema
+```
+
+Schema equality is sufficient but not required. An unsupported or
+indeterminate comparison is incompatible. The binder must not infer, synthesize,
+widen, or choose a common output schema from the two branches. Authors must
+declare the intended contract and, when a branch's natural result has a
+different shape, use an explicit transform within that branch to normalize its
+outer result before the conditional boundary. For example, a branch that
+performs parallel work can use a sequence whose parallel step is followed by a
+normalizing transform.
+
+Failure of either branch proof is a document-validation error associated with
+the conditional and the incompatible branch. Validation must report the
+declared `outputSchema` as the expected schema and the derived branch output
+schema as the actual schema. No operation may begin for a definition that fails
+this proof.
+
+The conditional node's propagated output schema is exactly its declared
+`outputSchema`. Only the selected branch executes at runtime, and its successful
+result becomes the conditional result under that contract. Branch-local outputs
+do not escape directly; downstream consumers reference the conditional node's
+output. Unknown conditional-node members are invalid.
 
 #### 6.3.7 Bounded loop
 
@@ -742,9 +790,10 @@ A node after a parallel join may reference the completed result of every named
 branch. A node inside one parallel branch cannot reference a sibling branch.
 
 Branch-local conditional outputs do not escape directly. The conditional
-produces one common output contract, and downstream consumers reference that
-conditional output. Both branches must produce values compatible with that
-contract.
+produces the contract declared by its `outputSchema`, and downstream consumers
+reference that conditional output. Both branches must be statically proven
+compatible with that contract before execution. The binder does not derive a
+common contract from the branch schemas.
 
 Each loop iteration has an iteration-local frame. The loop body may read the
 current loop state, the pipeline input, and values defined in dominating outer
@@ -1637,7 +1686,9 @@ Validation occurs in these ordered stages:
 3. Validate node identities, structural rules, scopes, and bounded control flow.
 4. Resolve every exact operation and decorator contract.
 5. Validate operation and decorator configuration.
-6. Propagate schemas through structural nodes.
+6. Propagate schemas through structural nodes, including proving both
+   conditional branch outputs compatible with each conditional's declared
+   `outputSchema`.
 7. Validate transform sources, dominance, expressions, and output schemas.
 8. Prove every operation connection schema-compatible.
 9. Verify implementation-native input and output bindings.
@@ -1790,7 +1841,9 @@ The language-neutral conformance suite includes:
 - valid and invalid pipeline-document vectors;
 - canonicalization and duplicate-member tests;
 - node-ID, scope, dominance, and inaccessible-branch tests;
-- sequence, parallel, decorator, conditional, and bounded-loop vectors;
+- sequence, parallel, decorator, conditional, and bounded-loop vectors,
+  including conditional branch convergence and incompatible-branch
+  diagnostics;
 - transform parsing, type inference, nullability, conversion, and failure tests;
 - explicit multi-output and final-output projection tests;
 - conservative schema-compatibility vectors;
