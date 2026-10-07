@@ -1996,9 +1996,9 @@ The `pattern` keyword uses a Qhapaq-defined portable regular-expression subset,
 not a host runtime's native regex dialect. The subset excludes backreferences,
 lookahead, lookbehind, conditionals, recursion, atomic groups, and executable or
 engine-specific extensions. Validation must use bounded evaluation and reject a
-pattern outside the portable grammar before matching instance data. The
-normative schema profile publishes the grammar and cross-language conformance
-vectors.
+pattern outside the portable grammar before matching instance data. Sections
+9.3 and 9.5 define the grammar, matching algorithm, limits, and required
+cross-language conformance coverage.
 
 Within that subset, `\d`, `\w`, and `\s` and their negations have fixed ASCII
 meanings independent of culture and host runtime. Literal Unicode characters
@@ -2014,8 +2014,319 @@ At minimum:
 - array-item schemas are compatible; and
 - additional-property behavior is respected.
 
-The normative schemas and conformance vectors will define the exact profile and
-algorithm before implementation of portable pipeline binding is complete.
+### 9.3 Portable regular-expression grammar and matching
+
+A portable pattern is decoded from its JSON string before it is parsed. Parsing
+and matching operate on Unicode scalar values, not UTF-8 bytes, UTF-16 code
+units, grapheme clusters, or locale-dependent characters. An unpaired surrogate
+cannot occur in a valid decoded JSON string. No Unicode normalization, case
+folding, or locale-sensitive comparison is performed.
+
+The following grammar is normative. Grammar literals are shown in quotes,
+juxtaposition means concatenation, `*` on a grammar production means zero or
+more grammar occurrences, and bracketed grammar terms are optional. These
+grammar metacharacters are notation and are not pattern syntax.
+
+```text
+pattern          = alternation
+alternation      = concatenation *("|" concatenation)
+concatenation    = *piece
+piece            = assertion / quantified-atom [quantifier]
+assertion        = "^" / "$"
+quantified-atom  = literal / "." / escape / class / group
+group            = "(" alternation ")"
+quantifier       = "?" / "*" / "+" / counted
+counted          = "{" count "}"
+                 / "{" count "," "}"
+                 / "{" count "," count "}"
+count            = "0" / nonzero-digit *digit
+class            = "[" ["^"] class-items "]"
+class-items      = class-item *class-item
+class-item       = class-atom ["-" class-atom]
+class-atom       = class-literal / scalar-escape / shorthand
+escape           = scalar-escape / shorthand / escaped-metacharacter
+scalar-escape    = "\n" / "\r" / "\t" / "\v" / "\f"
+                 / "\u{" 1*6hex-digit "}"
+shorthand        = "\d" / "\D" / "\w" / "\W" / "\s" / "\S"
+digit            = "0" / nonzero-digit
+nonzero-digit    = "1" / "2" / "3" / "4" / "5"
+                 / "6" / "7" / "8" / "9"
+hex-digit        = digit / "A" / "B" / "C" / "D" / "E" / "F"
+                 / "a" / "b" / "c" / "d" / "e" / "f"
+```
+
+In the grammar, `n*m` means from `n` through `m` occurrences. The `\u{...}`
+body's numeric value must be at most `10FFFF` hexadecimal and must not be in the
+surrogate range `D800` through `DFFF`.
+
+A `literal` is one scalar other than `\`, `|`, `(`, `)`, `[`, `]`, `{`, `}`,
+`*`, `+`, `?`, `.`, `^`, `$`, a C0 control from `U+0000` through `U+001F`, or
+`U+007F`. An `escaped-metacharacter` is `\` followed by one of those printable
+ASCII pattern metacharacters or `-`. A `class-literal` is any permitted literal
+other than `-`, plus a pattern metacharacter that has no special meaning inside
+a class; `\`, `]`, `^`, and `-` must be escaped when used as class members.
+Unknown escapes and unescaped controls are invalid.
+
+Parentheses group only; v1 has no observable captures. Empty groups,
+concatenations, and alternation branches are valid and match the empty string.
+An assertion cannot be quantified. An atom can have at most one quantifier, so
+lazy, possessive, or adjacent quantifiers are invalid.
+
+Every `count` is interpreted as an unsigned decimal integer without a leading
+zero unless it is exactly `0`. Each count must be at most 1,024. In a bounded
+range, the second count must be greater than or equal to the first. `{m,}` has
+no fixed repetition maximum; its compiled loop remains subject to the matching
+algorithm and state limit below.
+
+Class items are unioned. A range is valid only when both endpoints denote one
+scalar, the first endpoint's scalar value is no greater than the second's, and
+neither endpoint is a shorthand class. A leading class `^` complements the
+union over the complete set of Unicode scalar values. An empty class is
+invalid.
+
+The fixed shorthand sets are:
+
+| Escape | Scalar set |
+| --- | --- |
+| `\d` | `U+0030` through `U+0039` |
+| `\w` | ASCII `A`-`Z`, `a`-`z`, `0`-`9`, and `_` |
+| `\s` | `U+0009`, `U+000A`, `U+000B`, `U+000C`, `U+000D`, and `U+0020` |
+
+`\D`, `\W`, and `\S` are the complements of those sets over Unicode scalar
+values. `.` matches every Unicode scalar, including line terminators. `^`
+matches only absolute input position zero, and `$` matches only the absolute
+position after the final scalar. There is no multiline, dot-all, ignore-case,
+or other flag syntax.
+
+Pattern matching is an unanchored search. A pattern succeeds if it accepts any
+contiguous scalar subsequence, including an empty subsequence. Authors use `^`
+and `$` when they require the whole instance string to match.
+
+After parsing, a validator compiles the abstract syntax tree to a Thompson
+epsilon-NFA. The normative machine has exactly five state forms:
+`consume(set, out)`, `split(out1, out2)`, `jump(out)`,
+`assert-start(out)` or `assert-end(out)`, and `accept`. Every state counts as
+one compiled state. An `out` is either a state reference or a dangling reference
+that compilation later patches.
+
+Compilation recursively returns one start reference and an ordered list of
+dangling exits:
+
+1. A literal, dot, or class creates one `consume` state with one dangling exit.
+   An assertion creates the corresponding assertion state with one dangling
+   exit. An empty concatenation creates one `jump` state with one dangling exit.
+   Grouping returns its child's fragment without adding a state.
+2. Concatenation compiles each child from left to right, patches every exit of
+   one child to the next child's start, and returns the first start and final
+   exits.
+3. Alternation compiles branches from left to right and combines them with
+   left-associated `split` states. Each split's first output selects the
+   accumulated left fragment and its second selects the next branch. The
+   alternation exits are the branch exits in source order; no join state is
+   added.
+4. `A?` creates a `split` whose first output is `A` and whose second output is a
+   new dangling exit. The result exits are `A`'s exits followed by the split's
+   dangling exit. `A*` creates a `split` whose first output is `A` and whose
+   second output is dangling, patches every exit of `A` back to the split, and
+   returns the split as its start. `A+` returns `A` as its start, creates a
+   `split` whose first output refers back to `A` and whose second output is
+   dangling, and patches every exit of `A` to that split.
+5. `{m}` compiles and concatenates exactly `m` fresh copies of its atom.
+   `{m,n}` concatenates `m` fresh required copies followed by `n - m` fresh
+   `?` copies. `{m,}` concatenates `m` fresh required copies followed by one
+   fresh `*` copy. A sequence of zero copies is the empty-concatenation
+   fragment.
+6. Compilation creates one `accept` state and patches every final dangling exit
+   to it.
+
+A compiled pattern must contain no more than 4,096 states under this normative
+unshared construction. Exceeding that limit is a document-validity failure.
+Implementations may share equivalent immutable fragments internally only when
+doing so does not accept a pattern whose normative construction exceeds the
+limit.
+
+For an input containing `N` scalars and an NFA containing `S` states, matching
+uses this state-set simulation:
+
+1. Number input positions from zero through `N`. Start with an empty active
+   state set.
+2. At each position `p`, add the epsilon closure of the NFA start state at `p`
+   to the active set. During closure, `^` advances only when `p` is zero and
+   `$` advances only when `p` is `N`.
+3. If the accepting state is active, return `true`.
+4. If `p` is less than `N`, follow every active consuming transition whose set
+   contains scalar `p`, form the epsilon closure of the resulting states at
+   position `p + 1`, deduplicate by state identity, and use that set as the
+   active set for the next position.
+5. If position `N` completes without activating the accepting state, return
+   `false`.
+
+Each state-position pair is visited at most once after deduplication. Matching
+therefore permits at most `(N + 1) x S` distinct state-position visits and uses
+at most `S` active states. A conforming implementation may use a different
+internal representation only when it produces the same Boolean result, rejects
+the same patterns under the normative construction limits, and does not exceed
+those time and space bounds. A host runtime regular-expression engine is not a
+conforming substitute unless those properties are independently enforced.
+
+### 9.4 Closed v1 format algorithms
+
+Every format algorithm validates the entire decoded string. Formats are
+case-sensitive except where a rule below explicitly permits either case.
+Formats perform no trimming, Unicode normalization, DNS lookup, URI
+dereferencing, clock lookup, or other external access. A `format` and any other
+string constraint in the same effective schema are conjunctive.
+
+The temporal formats use these shared rules:
+
+- `date` has exactly the form `YYYY-MM-DD`. The year is from `0001` through
+  `9999`. Month and day are two digits and must identify a date in the
+  proleptic Gregorian calendar. A year is a leap year when it is divisible by
+  4 and is not divisible by 100 unless it is also divisible by 400.
+- `time` has the form `HH:MM:SS`, optionally followed by `.` and one or more
+  ASCII digits, and then either `Z`, `z`, or an offset of the form `+HH:MM` or
+  `-HH:MM`. Hour is `00` through `23`, minute is `00` through `59`, and a
+  numeric offset uses an hour from `00` through `23` and a minute from `00`
+  through `59`. `24:00:00` and an omitted offset are invalid. `-00:00` remains
+  valid with the meaning assigned by RFC 3339.
+- A normal time second is `00` through `59`. Second `60` is valid only when
+  subtracting the declared offset makes the time `23:59:60` UTC. For `time`
+  alone, that establishes a syntactically possible leap-second time without
+  consulting a date or a mutable leap-second table.
+- `date-time` is one valid `date`, followed by `T` or `t`, followed by one valid
+  `time`. When its second is `60`, offset conversion must additionally produce
+  a UTC date from `0001-01-01` through `9999-12-31` on June 30 or December 31.
+  Date arithmetic for that conversion uses the proleptic Gregorian calendar
+  and may cross a local date boundary.
+
+These rules are the v1 frozen RFC 3339 profile. They do not consult the
+historical leap-second table, because updating such a table would otherwise
+change validation of an unchanged document.
+
+`duration` accepts exactly this ASCII grammar, corresponding to the RFC 3339
+Appendix A `duration` production:
+
+```text
+duration       = "P" (week-form / date-time-form / time-form)
+week-form      = digits "W"
+date-time-form = date-parts [time-parts]
+time-form      = time-parts
+date-parts     = digits "D"
+               / digits "M" [digits "D"]
+               / digits "Y" [digits "M" [digits "D"]]
+time-parts     = "T" (digits "S"
+               / digits "M" [digits "S"]
+               / digits "H" [digits "M" [digits "S"]])
+digits         = 1*ASCII-DIGIT
+```
+
+Components cannot skip an intermediate component: for example, `P1Y2D` and
+`PT1H2S` are invalid. A week form cannot be combined with another component.
+Signs, whitespace, fractions, lowercase unit letters, alternative ISO 8601
+forms, and a bare `P` or `PT` are invalid. Digit sequences are validated
+lexically as arbitrary-precision non-negative integers; validation must not
+overflow a host numeric type.
+
+`hostname` accepts only ASCII and is valid when all of these conditions hold:
+
+1. Its length is from 1 through 253 characters, with no trailing dot.
+2. Splitting on `.` produces labels from 1 through 63 characters.
+3. Every label starts and ends with an ASCII letter or digit.
+4. Every other label character is an ASCII letter, digit, or `-`.
+
+Letter case does not affect hostname validity. Internationalized names must be
+supplied in an already-valid ASCII representation; v1 performs no IDNA
+conversion.
+
+`ipv4` contains exactly four decimal octets separated by `.`. Each octet is
+`0` or a digit from `1` through `9` followed by at most two digits, and its
+mathematical value must be from 0 through 255. A multi-digit octet cannot start
+with zero.
+
+`ipv6` implements the RFC 4291 text forms with this exact procedure:
+
+1. Reject brackets, a prefix length, a scope or zone identifier, whitespace,
+   more than one `::`, an empty component outside `::`, and any character other
+   than an ASCII hexadecimal digit, `.`, or `:`.
+2. A final embedded IPv4 address is permitted and is validated by the v1
+   `ipv4` algorithm. It counts as two 16-bit groups and cannot occur elsewhere.
+3. Every other explicit group contains from one through four hexadecimal
+   digits, compared case-insensitively.
+4. Without `::`, there must be exactly eight groups after counting an embedded
+   IPv4 address as two. With `::`, the explicit groups must total fewer than
+   eight and `::` supplies exactly enough zero groups to reach eight.
+
+`email` accepts only an RFC 5321-style ASCII mailbox under this closed profile:
+
+1. The entire mailbox is at most 254 characters. The local part is at most 64
+   characters and is followed by one unquoted `@` and a domain.
+2. An unquoted local part is one or more dot-separated non-empty atoms. An atom
+   contains only ASCII letters, digits, or
+   `!#$%&'*+-/=?^_`{|}~`.
+3. A quoted local part starts and ends with `"`. Between them, an unescaped
+   character is ASCII `U+0020` through `U+007E` other than `"` or `\`; `\` must
+   escape exactly one ASCII character from `U+0020` through `U+007E`.
+4. The domain is either a valid v1 `hostname`, `[IPv4]` where `IPv4` satisfies
+   the v1 algorithm, or `[IPv6:IPv6]` where the tag is compared
+   case-insensitively and the value satisfies the v1 `ipv6` algorithm.
+
+Comments, display names, source routes, whitespace outside a quoted local part,
+SMTPUTF8, obsolete forms, and general address-literal tags are invalid.
+
+`uri` accepts exactly the complete RFC 3986 `URI` production, not
+`relative-ref` or IRI syntax. Validation uses the RFC 3986 ABNF over ASCII
+characters with these requirements:
+
+1. A scheme is required. Percent-encoded triplets contain exactly two ASCII
+   hexadecimal digits. A raw non-ASCII character, malformed triplet,
+   backslash, control, or whitespace is invalid.
+2. Authority, user-information, host, port, path, query, and fragment are
+   accepted only where the selected RFC 3986 production permits them. An empty
+   port remains valid because the RFC `port` production is zero or more digits.
+3. Host parsing applies the RFC alternatives in order: IP literal, v1 `ipv4`,
+   then registered name. A bracketed IPv6 host uses the v1 `ipv6` algorithm;
+   RFC 3986 `IPvFuture` remains valid under its exact ABNF. Brackets are invalid
+   around any other host.
+4. Validation performs no case normalization, percent-decoding, dot-segment
+   removal, default-port insertion, DNS validation, or scheme-specific checks.
+
+`uuid` contains exactly 36 ASCII characters in five hexadecimal fields of
+length 8, 4, 4, 4, and 12 separated by hyphens. Hexadecimal digits are compared
+case-insensitively. All bit patterns, including the nil UUID and unassigned
+version or variant values, are valid. Braces, whitespace, compact text, and a
+`urn:uuid:` prefix are invalid. This is the textual shape referenced by RFC
+4122; v1 does not infer additional version semantics.
+
+### 9.5 Pattern and format conformance requirements
+
+The language-neutral conformance suite must include, at minimum:
+
+- every grammar production, escape, shorthand, anchor, empty alternative, and
+  quantifier boundary;
+- invalid escapes, scalar escapes, ranges, counts, adjacent quantifiers,
+  unsupported constructs, and patterns immediately below and above the
+  4,096-state construction limit;
+- unanchored, anchored, empty-string, line-terminator, non-BMP scalar, negated
+  class, and ASCII-versus-Unicode shorthand cases;
+- adversarial nested alternation and repetition cases that demonstrate the
+  state-set bound without catastrophic backtracking;
+- a valid, invalid, minimum, maximum, and immediately out-of-range case for
+  each numeric or length boundary in every format;
+- Gregorian leap-year, offset-crossing, fractional-second, possible
+  leap-second, and impossible leap-second cases;
+- every duration component form and invalid component ordering or mixture;
+- hostname label and total-length boundaries, email local-part and total-length
+  boundaries, quoted local parts, and each permitted and rejected domain form;
+- compressed, uncompressed, embedded-IPv4, overfull, underfull, and malformed
+  IP literals;
+- URI grammar branches, malformed percent escapes, IPvFuture, relative
+  references, raw non-ASCII characters, and values that are syntactically valid
+  but would fail a scheme-specific policy; and
+- UUID case, field boundaries, nil and unassigned bit patterns, and rejected
+  wrappers.
+
+Expected results must be independent of operating system, architecture,
+culture, time zone, DNS, network access, and host parsing libraries.
 
 ## 10. Pipeline Output
 
@@ -2687,6 +2998,8 @@ The language-neutral conformance suite includes:
   language, expression, canonical representation, and semantics;
 - explicit multi-output and final-output projection tests;
 - conservative schema-compatibility vectors;
+- portable-pattern grammar, construction-limit, bounded-evaluation, and
+  closed-format validation vectors required by Section 9.5;
 - exact-version and contract-digest conflict tests;
 - operation-contract compatibility-diff vectors;
 - structured diagnostic golden files;
@@ -2764,7 +3077,7 @@ early.
   pipeline-format compatibility, and normative schema dispatch.
 - [x] Define portable mapping limits, including expression depth, operator
   count, collection processing, string and output size, and evaluation budget.
-- [ ] Define the portable regular-expression grammar and exact algorithms for
+- [x] Define the portable regular-expression grammar and exact algorithms for
   the closed format allowlist.
 - [ ] Define the normative capability, side-effect, idempotency, and structured
   failure vocabularies.
@@ -3084,6 +3397,28 @@ This simplifies dynamic composition but discards native type safety and adds
 serialization overhead. Qhapaq serializes only at declared boundaries such as
 transforms, CLI, MCP, and persistence.
 
+### Host-runtime regular-expression engines
+
+Delegating portable `pattern` evaluation directly to each host runtime's
+built-in regular-expression engine would reduce implementation work, but those
+engines differ in accepted grammar, Unicode unit, character classes, anchors,
+empty-match behavior, and resistance to pathological backtracking. The same
+pipeline could therefore be accepted, rejected, or evaluated differently across
+.NET, Java, JavaScript, Go, Rust, and other hosts.
+
+Qhapaq instead standardizes one small regular language and bounded NFA
+algorithm. Each independent conforming implementation must provide those
+semantics once in its shared schema engine; operations and pipelines reuse that
+engine. An implementation may adapt an existing parser or automata library only
+when it first enforces the closed grammar and proves the exact results,
+normative construction limit, and evaluation bounds through the
+language-neutral conformance vectors. A host's general-purpose regex engine is
+not implicitly conforming merely because it accepts similar syntax.
+
+This deliberately accepts contained implementation and maintenance cost in
+exchange for deterministic portability, denial-of-service resistance, and no
+silent expansion of the portable grammar when a host runtime evolves.
+
 ### Complete descriptors encoded as .NET attributes
 
 Attributes are suitable markers but cannot cleanly represent nested schemas,
@@ -3106,11 +3441,9 @@ an exact pipeline reference.
 
 ## 23. Open Questions
 
-1. What exact grammar defines the portable `pattern` subset, and which precise
-   validation algorithms implement the closed v1 format allowlist?
-2. Which capability, side-effect, idempotency, and structured-failure
+1. Which capability, side-effect, idempotency, and structured-failure
    vocabularies are normative?
-3. What are the exact public .NET declaration-contract and marker-attribute type
+2. What are the exact public .NET declaration-contract and marker-attribute type
    names, generated API names, stable generator diagnostic codes, and initial
    generator compatibility matrix?
-4. What are the exact CLI commands and MCP tool request and response schemas?
+3. What are the exact CLI commands and MCP tool request and response schemas?
