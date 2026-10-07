@@ -1,8 +1,8 @@
 # Qhapaq Project Specification
 
 > **Status:** Draft  
-> **Version:** 0.10
-> **Last updated:** 2026-10-04
+> **Version:** 0.11
+> **Last updated:** 2026-10-06
 
 ## 1. Purpose
 
@@ -41,9 +41,9 @@ Operations compose without losing this abstraction. Sequential composition feeds
 one operation's output into the next. Parallel composition gives two operations
 the same input and combines their outputs. Decorators preserve an operation's
 input and output types while adding behavior such as retries, caching, batching,
-timeouts, logging, or metrics. Conditional and bounded-loop combinators provide
-controlled flow without turning the initial release into a durable workflow
-engine.
+timeouts, logging, or metrics. Conditional, bounded-loop, and bounded
+collection-execution combinators provide controlled flow without turning the
+initial release into a durable workflow engine.
 
 The .NET 10 reference implementation executes strongly typed CLR values
 in-process. JSON is used at pipeline, persistence, CLI, and MCP boundaries, not
@@ -82,8 +82,8 @@ Qhapaq v1 will:
 - Provide a language-neutral CLI contract and separately distributed executable
   for supported operating systems and architectures.
 - Support code-defined and canonical JSON-defined pipelines.
-- Support sequential, parallel, decorated, conditional, and bounded-loop
-  composition.
+- Support sequential, parallel, decorated, conditional, bounded-loop, and
+  bounded collection composition.
 - Persist pipeline definitions and cache bound execution plans.
 - Generate Mermaid flowcharts from validated definitions.
 - Expose authoring, discovery, validation, visualization, and policy-gated
@@ -615,6 +615,7 @@ These conventions should be revisited before the first public release.
 | D-029 | How do code-authored operations declare AI-discoverable metadata? | Decided: `IOperation` remains execution-only; each registry-visible .NET operation has same-directory, basename-matched authoritative portable descriptor JSON, and a Roslyn incremental generator validates it and emits the static declaration, explicit reflection-free registration, and embedded canonical manifest |
 | D-030 | How are operation compatibility and implementation provenance separated? | Decided: pipelines pin immutable exact operation contract versions and digests; trusted hosts independently pin and bind implementation identities, and compatible versions are never substituted implicitly |
 | D-031 | How do descriptor schemas evolve without coupling each schema to one generator release? | Decided: descriptor formats, generator packages, generated registration contracts, manifest envelopes, and Service/CLI/MCP contracts are versioned independently; generators and hosts publish supported-format matrices and may support multiple exact descriptor versions side by side |
+| D-032 | How does v1 execute bounded collections? | Decided: a `forEach` structural node supports explicit item and contiguous-chunk modes, bounded input cardinality and concurrency, one ordered aggregate output per body invocation, invocation-local frames, fail-fast cancellation with ordered aggregate failures, and shared run-level resource budgets |
 
 ## 10. Definition of Repository Readiness
 
@@ -637,6 +638,7 @@ The repository is ready for implementation when:
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| 0.11 | 2026-10-06 | Defined bounded item-mode and chunk-mode collection execution, ordered aggregation, concurrency, failure, cancellation, scope, and resource-budget semantics. |
 | 0.10 | 2026-10-04 | Defined operation/descriptor file co-location, the initial `v1alpha1` descriptor schema, and independent compatibility rules for schemas, generators, manifests, registration, and metadata surfaces. |
 | 0.9 | 2026-10-04 | Defined authoritative operation descriptor JSON and deterministic Roslyn generation of static declarations, explicit registrations, and embedded canonical manifests. |
 | 0.8 | 2026-10-04 | Defined portable pipeline JSON, explicit execution-frame dataflow, constrained transforms, static operation descriptors, contract versioning, validation, and plan binding. |

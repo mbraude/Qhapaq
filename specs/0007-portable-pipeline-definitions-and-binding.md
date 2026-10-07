@@ -144,6 +144,7 @@ Every definition contains:
 - a stable pipeline `id`;
 - an exact pipeline `version`;
 - an optional non-normative `metadata` object;
+- an optional normative `mappingLimits` object;
 - `schemas.input` and `schemas.output`;
 - one `root` composition expression; and
 - an optional explicit `output` projection.
@@ -355,7 +356,8 @@ The v1 language supports:
 - named `parallel` branches;
 - `decorate`;
 - `conditional`; and
-- bounded `loop`.
+- bounded `loop`; and
+- bounded `forEach`.
 
 Combinators and transforms are language constructs, not catalog operations.
 Registry descriptors use `primitive` or `decorator` as their composition role.
@@ -364,8 +366,8 @@ An operation reference always contains an operation ID and exact contract
 version. Version ranges, aliases, and unspecified latest versions are invalid.
 
 Decorator order is explicit and semantically significant. Parallel branch names
-are stable members of the parallel result. Conditionals and loops follow the
-composition semantics in
+are stable members of the parallel result. Conditionals, loops, and bounded
+collection execution follow the composition semantics in
 [`0001-core-pipeline-model.md`](0001-core-pipeline-model.md).
 
 #### 6.3.1 Operation
@@ -452,13 +454,20 @@ map. Each value in `inputs` is exactly one member of this closed source union:
 ```
 
 ```json
+{ "source": "current-input" }
+```
+
+```json
 { "source": "node", "node": "get-customer" }
 ```
 
-A node source contains only `source` and `node`, and a pipeline-input source
-contains only `source`. A node source must identify an accessible node that
-dominates the transform. `outputSchema` is an inline schema conforming to the
-Qhapaq v1 schema profile. `expression` is one canonical
+A node source contains only `source` and `node`; pipeline-input and
+current-input sources contain only `source`. `current-input` is the value
+received by the transform through its enclosing composition edge. At the root
+it is the boundary input. Within a `forEach` body it is the current item or
+chunk. A node source must identify an accessible node that dominates the
+transform. `outputSchema` is an inline schema conforming to the Qhapaq v1
+schema profile. `expression` is one canonical
 `qhapaq.mapping/v1` operator object. Its `input` operators may name only keys
 from the containing `inputs` map.
 
@@ -754,6 +763,126 @@ iteration, and only the final loop state becomes the loop-node output. Unknown
 loop-node members are invalid. Arbitrary graph cycles and unbounded loops are
 invalid.
 
+#### 6.3.8 Bounded collection execution
+
+A `forEach` node in chunk mode has this exact shape:
+
+```json
+{
+  "id": "price-order-lines",
+  "kind": "forEach",
+  "inputMode": "chunk",
+  "maxItems": 10000,
+  "chunkSize": 100,
+  "maxConcurrency": 4,
+  "body": {
+    "id": "price-order-line-chunk",
+    "kind": "operation",
+    "operation": {
+      "id": "contoso.pricing.price-line-chunk",
+      "version": "1.0.0"
+    }
+  }
+}
+```
+
+`inputMode`, `maxItems`, `maxConcurrency`, and `body` are required.
+`inputMode` is exactly `item` or `chunk`. `maxItems` and `maxConcurrency` are
+positive JSON integers no greater than `9007199254740991`. `body` is exactly
+one inline node.
+
+When `inputMode` is `item`, `chunkSize` is prohibited. The body executes once
+for each input-array item and receives that item. When `inputMode` is `chunk`,
+`chunkSize` is required and is a positive JSON integer no greater than
+`9007199254740991`. The runtime partitions the input array into consecutive,
+non-overlapping chunks of at most `chunkSize` items without reordering them.
+The body executes once for each non-empty chunk and receives that chunk as an
+array. An empty input executes no body invocation in either mode.
+
+The `forEach` input contract is the propagated upstream homogeneous-array
+schema with its `maxItems` additionally constrained to this node's `maxItems`.
+The upstream schema must have effective type `array`, must declare `items`, and
+must have a finite maximum cardinality no greater than the node's `maxItems`;
+otherwise the connection is incompatible. In item mode, the body must accept
+the upstream `items` schema. In chunk mode, the body must accept an array with
+the same `items` schema, `minItems` equal to one, and `maxItems` equal to the
+declared `chunkSize`. The binder does not insert conversions.
+
+The binder derives the body output schema according to its outer node kind.
+The `forEach` output schema is a homogeneous array whose `items` is that
+derived body output schema. In item mode its minimum and maximum cardinalities
+equal the input schema's minimum and maximum cardinalities. In chunk mode they
+are `ceiling(input.minItems / chunkSize)` and
+`ceiling(input.maxItems / chunkSize)`, respectively. An omitted input
+`minItems` is zero for this calculation. These bounds describe successful
+outputs; runtime cardinality validation remains required.
+
+`maxItems` is an invocation-time upper bound on input cardinality. The runtime
+must determine and validate the complete input-array cardinality against
+`maxItems` before any body invocation begins. Exceeding `maxItems` is an
+execution-budget failure and starts no body invocation. In item mode, a valid
+input of length `n` causes exactly `n` body invocations and produces exactly
+`n` output items. In chunk mode, it causes exactly
+`ceiling(n / chunkSize)` body invocations and produces that many output items.
+Each output item is the complete output of one body invocation. V1 never
+flattens, merges, filters, or omits body outputs implicitly.
+
+Body invocations may execute concurrently, but no more than
+`maxConcurrency` invocations of this node may be active at once. A host may
+execute fewer, including one at a time, without changing portable semantics.
+Completion order is not semantic. The successful output array is ordered by
+source item index in item mode and by ascending source chunk start index in
+chunk mode, regardless of start or completion order.
+
+This ordered array is a logical result contract, not a required insertion
+algorithm or intermediate storage layout. Because the work count is known
+before body execution, an implementation may preallocate indexed result slots,
+retain indexed completion records, assemble ordered segments, or use another
+bounded representation that produces the same observable array. Aggregation
+need not copy a body output solely to place it in the result. Intermediate
+storage is not observable, may remain segmented through compatible native
+bindings or serialization, and must still obey memory and output budgets. The
+complete aggregate becomes available to downstream nodes only after every body
+invocation succeeds.
+
+Each body invocation has an invocation-local frame. Its inline node IDs remain
+globally unique definition identities, while runtime occurrences are
+distinguished by their zero-based work index. A body may read its
+`current-input`, the boundary pipeline input, and values from dominating outer
+scopes. It cannot read another body invocation's outputs. Body-local outputs do
+not escape individually; only the ordered `forEach` result becomes the node
+output.
+
+On the first observed non-cancellation body failure, the runtime stops starting
+new body invocations, signals cancellation to every active sibling invocation,
+and observes every invocation that started. It reports every non-cancellation
+failure from started invocations in ascending work-index order and produces no
+partial result. Cancellation caused only by a sibling failure is not an
+additional failure. If invocation cancellation is requested, the runtime stops
+starting work, signals every active invocation, observes them, and reports
+cancellation when no started invocation reports a non-cancellation failure.
+Cancellation does not guarantee that an active invocation or its side effects
+stop immediately. V1 provides no retry, rollback, compensation, or
+partial-success semantics for this node; those require explicit operations or
+decorators.
+
+The binder computes the node's maximum body-invocation count as `maxItems` in
+item mode and `ceiling(maxItems / chunkSize)` in chunk mode. It includes that
+bound, `maxConcurrency`, nested structural bounds, repeated capabilities, and
+possible repeated side effects in plan budgets and policy evaluation. Each
+body invocation uses the ordinary limits of its nested nodes and mapping sites,
+while all invocations share the run's aggregate duration, parallelism, memory,
+frame, operation-count, and output budgets. Nested `forEach` nodes do not
+receive fresh aggregate host budgets. Input chunks, in-flight results, and the
+ordered aggregate count toward host memory and output-size budgets. Exhausting
+any aggregate host budget fails the node and produces no partial result.
+
+Host profiles advertise the largest `maxItems` and `chunkSize` requests they
+can bind. A larger request remains document-valid but is host-unbindable or
+policy-ineligible. `maxConcurrency` is a local ceiling rather than a guaranteed
+degree of parallelism; the host's lower run-wide parallelism limit remains in
+force. Unknown `forEach` members and invalid member combinations are invalid.
+
 ## 7. Execution Frame and Dataflow
 
 ### 7.1 Immutable slots
@@ -764,9 +893,11 @@ Each run has a private execution frame containing:
 - one immutable output slot for every successfully completed node whose value is
   still required.
 
-A node writes its output slot at most once. A consumer cannot mutate a stored
-value through the execution-frame contract. The frame is engine state, not a
-general operation context and not an externally inspectable result store.
+A runtime node occurrence writes its output slot at most once. Loop iterations
+and `forEach` body invocations create distinct local occurrences of their
+inline nodes and therefore distinct local slots. A consumer cannot mutate a
+stored value through the execution-frame contract. The frame is engine state,
+not a general operation context and not an externally inspectable result store.
 
 The engine must not automatically log, serialize, persist, or disclose frame
 values. Payload-disclosure policy applies independently from execution
@@ -777,14 +908,16 @@ permission.
 A transform declares a map of local input names to sources. A source is either:
 
 - `pipeline-input`; or
+- `current-input`; or
 - the output of a named node that dominates the transform.
 
 The mapping expression reads only its declared `$inputs` values and literals.
 It cannot enumerate the execution frame or access an undeclared node.
 
-The immediately preceding sequence output may be supported as authoring
-shorthand, but canonical JSON must represent or deterministically normalize it
-to an explicit source.
+`current-input` is the value the transform receives from its enclosing
+composition edge. The immediately preceding sequence output may be supported as
+authoring shorthand for this source, but canonical JSON must represent or
+deterministically normalize it to an explicit `current-input` source.
 
 ### 7.3 Dominance and scope
 
@@ -803,8 +936,13 @@ common contract from the branch schemas.
 Each loop iteration has an iteration-local frame. The loop body may read the
 current loop state, the pipeline input, and values defined in dominating outer
 scopes. Only the final loop result escapes. Retaining per-iteration outputs
-requires an explicit bounded collection construct or operation; the engine does
-not retain iteration history implicitly.
+requires an explicit `forEach` node or operation; the engine does not retain
+iteration history implicitly.
+
+Each `forEach` body invocation has an invocation-local frame. The body may read
+its current item or chunk, the pipeline input, and values defined in dominating
+outer scopes. Work items cannot read one another's outputs. Only the ordered
+aggregate result escapes.
 
 References to nodes that may not execute, have not completed, are in an
 inaccessible branch, or occur later in the dataflow are invalid before
@@ -1230,7 +1368,131 @@ contract failure, not as ordinary mapping input failure. Cancellation remains
 cancellation, and an unexpected implementation exception remains a host fault;
 neither is relabeled as a mapping failure.
 
-### 8.10 Future-version candidates
+### 8.10 Portable complexity and evaluation limits
+
+`qhapaq.mapping/v1` defines fixed structural ceilings, portable runtime
+defaults, and deterministic accounting rules. Structural ceilings bound
+validation of an untrusted definition. Runtime limits bound each independent
+mapping-site evaluation. Trusted host policy separately bounds aggregate work,
+memory, duration, concurrency, and output across a complete run.
+
+Expression depth is the number of operator objects on one path from the root
+operator through expression-valued operands. The root operator has depth one,
+and each child operator reached through an expression-valued operand increases
+the depth by one. All branches, including unselected `if` branches,
+short-circuitable operands, coalescing fallbacks, and `map` and `filter` bodies,
+participate in static depth validation. JSON containers nested within
+`literal.value` are data and do not increase expression depth. No v1 expression
+may exceed 256 operator levels. This ceiling is fixed and cannot be raised by a
+pipeline or host.
+
+Operator count is the number of operator objects syntactically present in one
+mapping site. Every branch and operand is counted, while a `map` or `filter`
+body is counted once regardless of how many times it may run. JSON values
+nested within `literal.value` are not operators. The default maximum is 4,096
+operators per mapping site. A pipeline may request another effective maximum,
+but no v1 mapping site may contain more than 65,536 operators. The fixed
+65,536-operator ceiling cannot be raised by a pipeline or host.
+
+`mappingLimits`, when present, is a closed top-level object whose members are
+positive integers in the portable safe-integer domain. Its optional members
+are:
+
+| Member | V1 default | Meaning |
+| --- | ---: | --- |
+| `maxOperators` | 4,096 | Syntactic operators permitted in each mapping site; never greater than 65,536 |
+| `maxCollectionElements` | 100,000 | Elements permitted in each array processed or produced by a mapping |
+| `maxCollectionVisits` | 1,000,000 | Cumulative `map` and `filter` element visits in one evaluation |
+| `maxStringScalars` | 1,000,000 | Unicode scalar values permitted in each string |
+| `maxStringUtf8Bytes` | 4,194,304 | UTF-8 bytes permitted in each decoded string value |
+| `maxValueUtf8Bytes` | 67,108,864 | RFC 8785 canonical UTF-8 bytes permitted in each produced composite value and final result |
+| `maxEvaluationWork` | 10,000,000 | Abstract work units permitted in one evaluation |
+
+An omitted `mappingLimits` object or omitted member uses the corresponding v1
+default. An explicitly supplied value may be lower or higher than the default,
+subject to the fixed operator ceiling and trusted host policy. The effective
+values apply independently to every mapping site in the definition. They are
+normative pipeline content and participate in canonicalization and the
+definition digest.
+
+Every conforming evaluator supports the v1 defaults. A pipeline value above a
+default is an explicit host-capacity requirement, not permission it grants
+itself. Before any operation starts, the binder must verify that the active
+trusted host policy can provide every explicit limit exactly as written. If it
+cannot, host bindability fails. A host must not silently clamp a requested
+limit. Host policy may permit greater capacity, but doing so does not raise the
+effective limits of a pipeline that omitted them or requested lower values.
+
+The runtime collection rules are:
+
+- An array that becomes the source of `map` or `filter` must not contain more
+  than `maxCollectionElements` elements.
+- Every array produced by `literal`, `array`, `map`, or `filter`, and every
+  array returned as the final mapping result, must not contain more than
+  `maxCollectionElements` elements. The rule applies recursively to arrays in
+  produced literal and composite values.
+- Immediately before a `map` body or `filter` predicate begins for an element,
+  one collection visit is debited from the evaluation's shared
+  `maxCollectionVisits` budget. Filtered-out elements count. Unevaluated
+  elements do not.
+- Nested collection operators share the same visit budget. No nested operator,
+  branch, or collection element receives a fresh budget.
+
+String length is the number of Unicode scalar values. String byte size is the
+number of bytes in the UTF-8 encoding of the decoded scalar sequence, without
+Unicode normalization. A string that becomes an operator result, occurs
+recursively in a produced literal or composite value, or occurs in the final
+mapping result must satisfy both `maxStringScalars` and
+`maxStringUtf8Bytes`.
+
+Value size is the number of bytes in the RFC 8785 canonical UTF-8
+representation. Every composite value created by `literal`, `object`, `array`,
+`map`, or `filter`, and the final mapping result, must satisfy
+`maxValueUtf8Bytes`. Implementations may calculate size incrementally without
+materializing canonical JSON, but must produce the same byte count and must
+stop construction before exceeding the effective limit. A mapping may select a
+bounded portion of a larger input; input frame values that are not produced as
+mapping results remain subject to separate host frame-memory and aggregate
+output budgets.
+
+Portable evaluation work uses one abstract work unit for each:
+
+- operator invocation, charged before that operator begins;
+- array element or object member examined or emitted by an operator, charged
+  before that element or member is processed; and
+- Unicode scalar value examined or emitted by a string-processing operator,
+  charged before that scalar is processed.
+
+Repeated evaluation of a `map` body or `filter` predicate charges every
+operator invocation again. Composite construction, `deep-equal`, `stringify`,
+and other traversals charge each member, element, or string scalar they
+actually examine or emit under these rules. An item that is both examined and
+emitted incurs both charges. Operators, operands, branches, elements, members,
+and scalars skipped by the abstract evaluation order consume no work. Counters
+use exact non-negative integer arithmetic; an implementation must treat
+counter overflow as exhaustion rather than wrap the counter.
+
+All portable runtime limits are debited immediately before the corresponding
+work. The first debit or produced value that would exceed an effective limit
+terminates the mapping before that work occurs. This failure follows the
+abstract evaluation order in Section 8.6 and is a mapping runtime failure under
+Section 8.9.
+
+Expression depth above 256, operator count above 65,536, or operator count
+above the effective `maxOperators` is a portable document-validity failure.
+Runtime values are not required to be statically provable within the remaining
+limits. When actual evaluation exceeds an accepted collection, string, value,
+or work limit, the result is a mapping runtime failure. A diagnostic identifies
+the mapping site and exceeded resource without reproducing protected payload
+data.
+
+Collection, string, value-size, and work overrides have no additional v1 hard
+ceiling beyond the portable safe-integer domain. They remain finite and are
+subject to explicit host approval. Hosts may also enforce independent
+aggregate run limits. Exhausting an aggregate host limit is an execution-budget
+failure and must not be relabeled as exhaustion of a portable mapping limit.
+
+### 8.11 Future-version candidates
 
 The following capabilities are intentionally outside v1 and are recorded as
 non-normative candidates rather than commitments:
@@ -1249,7 +1511,7 @@ A future mapping-language version may select, rename, split, or omit these
 candidates. This list grants no forward-compatibility interpretation to v1
 hosts.
 
-### 8.11 Language-version selection
+### 8.12 Language-version selection
 
 Every mapping site contains a required `language` member that selects one exact
 mapping-language version for that site. Language selection is local: there is no
@@ -1601,12 +1863,13 @@ this exact shape:
 ```
 
 `language`, `inputs`, and `expression` are required. `language` is exactly
-`qhapaq.mapping/v1`. `inputs` is explicit, may be empty, uses the same
-lower-camel alias grammar and closed source union as a transform node, and may
-bind only the boundary input or a node output that dominates successful
-completion of the root. `expression` follows the canonical mapping syntax and
-may read only those declared inputs. Unknown output-projection members are
-invalid.
+`qhapaq.mapping/v1`. `inputs` is explicit, may be empty, and uses the same
+lower-camel alias grammar as a transform node. Its closed source union contains
+only `pipeline-input` and `node` sources; `current-input` is invalid because the
+projection has no enclosing composition edge. A node source must dominate
+successful completion of the root. `expression` follows the canonical mapping
+syntax and may read only those declared inputs. Unknown output-projection
+members are invalid.
 
 The output projection has no `id`, `kind`, or `outputSchema`. It is not a
 structural node, does not create an externally addressable frame slot, and uses
@@ -2145,6 +2408,7 @@ Mermaid is generated from the validated definition and shows:
 - decorator nesting;
 - conditional branches;
 - loop boundaries and maximum iterations; and
+- `forEach` mode, cardinality, chunk-size, and concurrency bounds; and
 - transform nodes with concise input and output summaries.
 
 Mermaid is explanatory output and cannot be edited as an executable source.
@@ -2206,6 +2470,9 @@ The language-neutral conformance suite includes:
 - sequence, parallel, decorator, conditional, and bounded-loop vectors,
   including conditional branch convergence and incompatible-branch
   diagnostics;
+- item-mode and chunk-mode `forEach` vectors covering empty input, cardinality,
+  ordered aggregation, concurrency ceilings, nested scopes, failure,
+  cancellation, and aggregate budgets;
 - transform parsing, type inference, nullability, conversion, and failure tests;
 - mixed mapping-language-version pipelines, including independent transform and
   output-projection versions;
@@ -2277,6 +2544,10 @@ early.
   - [x] Define the `decorate` node.
   - [x] Define the `conditional` node.
   - [x] Define the bounded `loop` node.
+  - [x] Define a bounded collection-execution node that chunks an input
+    collection and applies an arbitrary inline node to each item or chunk,
+    including cardinality, ordering, aggregation, concurrency, failure,
+    cancellation, and resource-budget semantics.
   - [x] Define shared exact contract references, configuration values,
     transform input sources, and the final output projection.
 - [x] Define the complete `qhapaq.mapping/v1` operator set, operand shapes,
@@ -2284,7 +2555,7 @@ early.
   runtime failure behavior.
 - [x] Define per-site mapping-language selection, mixed-version composition,
   pipeline-format compatibility, and normative schema dispatch.
-- [ ] Define portable mapping limits, including expression depth, operator
+- [x] Define portable mapping limits, including expression depth, operator
   count, collection processing, string and output size, and evaluation budget.
 - [ ] Define the portable regular-expression grammar and exact algorithms for
   the closed format allowlist.
@@ -2447,13 +2718,15 @@ state without beginning execution.
 - [ ] Resolve every operation and decorator by exact portable identity.
 - [ ] Validate normalized operation and decorator configuration.
 - [ ] Propagate schemas through every structural node.
-- [ ] Validate transform sources, dominance, inferred result schemas, and output
-  schemas.
+- [ ] Validate transform sources, including `current-input`, dominance,
+  inferred result schemas, and output schemas.
 - [ ] Prove every operation connection schema-compatible.
 - [ ] Verify all implementation-native input and output bindings.
 - [ ] Pre-bind portable projectors, native materializers, mapping evaluators,
   and implementation factories.
 - [ ] Compute slot consumers, last-consumer information, and resource budgets.
+- [ ] Compute `forEach` item or chunk body schemas, maximum invocation counts,
+  ordered aggregation, and nested resource bounds.
 - [ ] Aggregate capabilities, side effects, idempotency, and required
   connections.
 - [ ] Evaluate bind-time host policy and connection availability.
@@ -2478,10 +2751,13 @@ This phase executes one non-durable invocation of a completely bound plan.
   disclosure permissions before side effects.
 - [ ] Implement the private, per-run immutable execution frame and write-once
   node-output slots.
-- [ ] Execute sequence, named parallel branches, decorators, conditionals, and
-  bounded loops with their specified failure and cancellation semantics.
+- [ ] Execute sequence, named parallel branches, decorators, conditionals,
+  bounded loops, and item-mode and chunk-mode `forEach` nodes with their
+  specified failure and cancellation semantics.
 - [ ] Implement iteration-local loop frames and expose only the final loop
   result.
+- [ ] Implement invocation-local `forEach` frames and expose only the ordered
+  aggregate result.
 - [ ] Execute transform serialization boundaries using only pre-bound
   projectors, evaluators, validators, and materializers.
 - [ ] Release frame slots after their final planned consumer when safe.
@@ -2621,11 +2897,9 @@ an exact pipeline reference.
 
 1. What exact grammar defines the portable `pattern` subset, and which precise
    validation algorithms implement the closed v1 format allowlist?
-2. What exact portable complexity and evaluation budget applies to
-   `qhapaq.mapping/v1`?
-3. Which capability, side-effect, idempotency, and structured-failure
+2. Which capability, side-effect, idempotency, and structured-failure
    vocabularies are normative?
-4. What are the exact public .NET declaration-contract and marker-attribute type
+3. What are the exact public .NET declaration-contract and marker-attribute type
    names, generated API names, stable generator diagnostic codes, and initial
    generator compatibility matrix?
-5. What are the exact CLI commands and MCP tool request and response schemas?
+4. What are the exact CLI commands and MCP tool request and response schemas?

@@ -2,7 +2,7 @@
 
 > **Status:** Draft  
 > **Target:** Qhapaq v1  
-> **Last updated:** 2026-10-04
+> **Last updated:** 2026-10-06
 
 ## 1. Summary
 
@@ -23,7 +23,8 @@ non-durable and cannot resume after process failure.
 - Make small operation implementations easy to author, test, and reuse.
 - Preserve native type safety throughout an implementation's in-process
   execution.
-- Compose operations sequentially, concurrently, conditionally, and iteratively.
+- Compose operations sequentially, concurrently, conditionally, iteratively,
+  and over bounded collections.
 - Add cross-cutting behavior through type-preserving decorators.
 - Give declarative pipelines deterministic validation and binding behavior.
 - Make operations and pipeline shapes discoverable to AI systems.
@@ -204,6 +205,34 @@ limit instead of returning a potentially incomplete result.
 
 Arbitrary graph cycles and unbounded loops are invalid in v1.
 
+### 5.6 Bounded Collection Execution
+
+A bounded collection combinator maps an arbitrary operation over an input
+collection in either item mode or contiguous-chunk mode:
+
+```text
+body: IOperation<TItem, TOutput>
+```
+
+produces:
+
+```text
+IOperation<IReadOnlyList<TItem>, IReadOnlyList<TOutput>>
+```
+
+In chunk mode, the body instead accepts a bounded non-empty collection of
+`TItem`, and the result still contains one `TOutput` per body invocation.
+Every collection node declares maximum input cardinality and concurrency; chunk
+mode also declares maximum chunk size. Results preserve source item or chunk
+order regardless of completion order. Empty input produces empty output.
+
+If a body invocation fails, the combinator stops scheduling work, signals
+cancellation to active sibling invocations, observes all started work, reports
+non-cancellation failures in source order, and returns no partial output.
+Cancellation, side effects, and aggregate resource limits follow the exact
+portable semantics in
+[`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
+
 ## 6. Pipeline Representations and Lifecycle
 
 A pipeline has three representations:
@@ -257,6 +286,7 @@ The model is an expression tree whose structural forms include:
 - Decorator wrapping one inner expression.
 - Conditional with a predicate and two branches.
 - Bounded loop with a condition, body, and maximum iteration count.
+- Bounded collection execution in item or contiguous-chunk mode.
 
 Every node has a stable document-local ID. Transforms and the optional final
 output projection may combine explicitly bound boundary input and earlier node
@@ -325,6 +355,8 @@ extensions. Catalog and host configuration semantics are defined in
 - Qhapaq emits diagnostics but does not silently convert failures to default
   outputs.
 - Concurrent branches do not imply transactional isolation or rollback.
+- Concurrent collection items or chunks do not imply transactional isolation or
+  rollback.
 - Hosts may impose budgets for duration, attempts, iterations, concurrency,
   memory, output size, or operation capabilities.
 - Definition validation does not prove that side-effecting execution is safe.
@@ -343,6 +375,7 @@ Visualization is deterministic for a given canonical definition and shows:
 - Decorator nesting.
 - Conditional branches.
 - Loop boundaries and maximum iteration counts.
+- Collection mode, cardinality, chunk-size, and concurrency bounds.
 
 Mermaid is an explanatory projection. Editing generated Mermaid does not modify
 or define a pipeline.
