@@ -3476,11 +3476,24 @@ Completing an implementation item does not make an unresolved portable behavior
 normative; the applicable specification, schema, and conformance vector must be
 completed first.
 
+The phase numbers retain the existing checklist identities. Lettered milestones
+make previously implicit prerequisites and smaller delivery gates explicit.
+The listed order is the default implementation sequence, but the stated
+dependencies govern independent work: artifact families in Phase 1 and inert
+parsing in Phase 4 may progress without waiting for unrelated generator or host
+work. No intermediate milestone enables execution or permits a partial v1
+execution-conformance claim.
+
+This section governs the definition-to-execution path, not every v1 product
+deliverable. The companion milestones below identify required integration and
+release work owned by other specifications.
+
 ### Phase 0: Close required normative decisions
 
 This phase resolves the language decisions on which all later artifacts depend.
-It does not require unrelated CLI, MCP, or implementation details to be decided
-early.
+It does not require unrelated CLI, MCP, authentication, connector, or release
+details to be decided early. The Phase 0A organization checkpoint precedes
+scaffolding the remaining public .NET APIs.
 
 - [x] Replace illustrative transform syntax with the canonical
   `qhapaq.mapping/v1` operator-object syntax.
@@ -3516,29 +3529,96 @@ early.
   failure vocabularies.
 - [ ] Define the public .NET marker and static declaration contracts, manifest
   envelope, generator diagnostic-code policy, and initial compatibility matrix.
-- [ ] Decide the smallest versioned Service, CLI, and MCP contracts required by
-  the first authoring and execution slices; explicitly defer the remainder.
+- [ ] Specify policy-filtered exact descriptor retrieval as the first
+  non-executing Service V1 and CLI vertical slice, including public request,
+  result, structured-error, and diagnostic mappings.
+- [ ] Decide the smallest additional versioned Service, CLI, and MCP contracts
+  required by the subsequent authoring and execution slices; explicitly defer
+  the remainder.
+- [ ] Define how non-executing responses distinguish document validity, host
+  bindability, policy eligibility, and invocation-specific execution permission,
+  including conclusions unavailable to an early slice.
 
 **Completion gate:** no open question in Section 23 blocks the normative
 schemas, conformance vectors, descriptor generator, or first Service vertical
 slice.
 
+### Phase 0A: Establish .NET organization and reuse boundaries
+
+This checkpoint refines, rather than replaces, the assembly, layer, visibility,
+and dependency rules in
+[`0006-dotnet-layered-architecture.md`](0006-dotnet-layered-architecture.md)
+and the
+[coding conventions](../docs/development/coding-conventions.md).
+It records decisions before the generator, definition models, registry, and
+Service APIs expand the implementation.
+
+- [ ] Document feature-folder and namespace conventions within each established
+  assembly, including folder-to-namespace mapping and canonical naming.
+- [ ] Assign ownership and visibility for definition, schema, expression,
+  descriptor, plan, failure, and Service-boundary models; distinguish private
+  implementation models from internal cross-layer and public contracts.
+- [ ] Document representative node and expression type relationships, including
+  where composition or a shared abstraction is warranted, without designing
+  speculative class hierarchies.
+- [ ] Assign ownership and reuse boundaries for canonicalization, digest
+  computation, schema and descriptor validation, vocabulary validation, and
+  diagnostic construction.
+- [ ] Record how build-time generator tooling and runtime components reuse
+  portable algorithms without runtime hosting dependencies or layer bypasses;
+  record any required project or package boundary change before implementation.
+- [ ] Define conformance-vector loading, golden-file maintenance, and
+  package-consumer test conventions.
+- [ ] Document DI lifetime and ownership rules for registry snapshots, cached
+  plans, per-run state, and credential-related collaborators.
+- [ ] Extend the existing architecture tests to enforce the decided namespace,
+  visibility, dependency, and composition rules as applicable.
+
+Decisions belong in SPEC-0006 or an ADR when architectural, and in the coding
+conventions when ordinary engineering policy. Add concrete types and folders
+only with behavior and tests; this checkpoint does not create empty placeholders
+or require every future class to be named.
+
+**Depends on:** the established SPEC-0006 architecture and the representative
+use cases needed to evaluate ownership; unrelated Phase 0 decisions need not be
+complete.
+
+**Completion gate:** a persistent ownership and dependency map, representative
+type relationships, and architecture tests cover the organization needed by the
+first implementation slices.
+
 ### Phase 1: Publish language-neutral schemas and vectors
 
 This phase turns the portable decisions into implementation-independent
-artifacts.
+artifacts. Publish each artifact family with its expected results before its
+dependent implementation milestone is considered complete; unrelated execution
+vectors need not block descriptor tooling.
 
+- [ ] Define a versioned conformance-vector envelope, expected-result
+  conventions, capability grouping, and golden-file regeneration procedure.
+- [ ] Add reusable conformance test tooling that consumes the shared vectors
+  without duplicating portable cases in .NET-specific fixtures.
 - [ ] Publish the exact pipeline-document schema.
 - [ ] Publish the exact versioned mapping-expression definitions embedded in
   each self-contained pipeline-format schema bundle.
 - [ ] Publish the closed Qhapaq JSON Schema profile.
 - [ ] Publish the versioned structured-diagnostic schema.
+- [ ] Publish the runtime structured-failure envelope and caught-failure
+  projection schemas, separately from validation diagnostics.
 - [ ] Publish the portable operation-manifest envelope schema.
-- [ ] Tighten the operation-descriptor schema so embedded input, output, and
-  configuration schemas conform to the Qhapaq schema profile.
+- [ ] Publish the next operation-descriptor format and schema covering the
+  embedded schema profile, closed idempotency objects, normative failure
+  dispositions, separately stored failure descriptions, and vocabulary rules.
+- [ ] Preserve the earlier checked-in descriptor schema and vectors; publish
+  the descriptor, manifest, and registration compatibility matrix required by
+  Section 13.4 rather than mutating an earlier format.
 - [ ] Add valid and invalid pipeline-document vectors.
 - [ ] Add duplicate-member, canonicalization, and definition-digest vectors.
+- [ ] Add exact-contract configuration-default normalization vectors,
+  distinguishing omission, explicit null, and required properties.
 - [ ] Add schema-profile and conservative compatibility vectors.
+- [ ] Add portable-pattern and closed-format boundary and adversarial vectors
+  required by Section 9.5.
 - [ ] Add mapping parsing, type-inference, evaluation, and failure vectors.
 - [ ] Add mixed-version mapping, unsupported-language bindability, and
   patch-preservation vectors when a pipeline format permits multiple mapping
@@ -3546,13 +3626,52 @@ artifacts.
 - [ ] Add scope, dominance, and inaccessible-branch vectors.
 - [ ] Add structured-diagnostic golden files.
 - [ ] Add contract-digest and manifest golden vectors.
+- [ ] Add capability, side-effect, idempotency, declared-failure,
+  decorator-preservation, and unsafe-retry vectors.
+- [ ] Add runtime failure, caught-failure projection, aggregate disposition,
+  effect-outcome, and bounded recovery-causality vectors.
+- [ ] Add conservative operation-contract comparison vectors.
 - [ ] Add execution-semantic vectors for every structural node kind.
 
 **Depends on:** Phase 0 decisions required by each artifact.
 
 **Completion gate:** every published portable rule needed by binding and
 execution has a versioned schema or conformance vector, and those artifacts do
-not depend on .NET implementation details.
+not depend on .NET implementation details. The test tooling reports the exact
+artifact versions and capabilities exercised.
+
+### Phase 1A: Implement shared portable validation foundations
+
+This milestone implements the common prerequisites used by descriptor
+generation, registry verification, definition processing, and mapping engines.
+It does not introduce a parallel runtime or bypass the Phase 0A ownership rules.
+
+- [ ] Implement strict JSON reading with malformed-input and duplicate-member
+  rejection.
+- [ ] Implement RFC 8785 canonicalization and shared digest primitives with
+  numeric-domain, Unicode, culture, ordering, and path-independence tests.
+- [ ] Implement exact offline document-schema selection and validation;
+  distinguish outer document-schema machinery from the closed profile allowed
+  in embedded operation and pipeline schemas.
+- [ ] Implement validation of the closed Draft 2020-12 Qhapaq embedded schema
+  profile, fragment-only local reference resolution, cycle rejection, and
+  portable schema-complexity limits.
+- [ ] Implement the specified bounded portable-pattern algorithms and closed
+  supported-format assertions.
+- [ ] Implement shared descriptor and vocabulary validation, including
+  canonical normative contract-digest computation and verification.
+- [ ] Implement bounded, location-aware, payload-safe diagnostic construction
+  usable by build tooling and runtime adapters without conflating their
+  diagnostic envelopes.
+- [ ] Pass the applicable Phase 1 parsing, canonicalization, schema-profile,
+  pattern, format, descriptor, vocabulary, digest, and diagnostic vectors.
+
+**Depends on:** Phase 0A reuse and ownership decisions and the applicable Phase 1
+artifacts.
+
+**Completion gate:** generator and runtime consumers can reuse the same tested
+portable semantics through the documented dependency boundaries, without
+network access, operation construction, or project-code execution.
 
 ### Phase 2: Implement .NET descriptor authoring and generation
 
@@ -3576,18 +3695,25 @@ This phase provides deterministic, build-time declaration for code-authored
 - [ ] Emit stable, location-aware, payload-safe generator diagnostics.
 - [ ] Test reproducibility across paths, cultures, machines, and input
   enumeration order.
+- [ ] Add clean package-consumer tests for explicit descriptor inputs, generated
+  registration, and embedded/package manifest byte equality.
+- [ ] Exercise a minimal generated operation and closed-generic registration
+  path in trimming and Native AOT smoke tests for the intended supported targets;
+  resolve publication constraints before expanding the generator API.
 
-**Depends on:** the applicable Phase 0 authoring decisions and Phase 1
-descriptor, manifest, digest, and diagnostic artifacts.
+**Depends on:** the applicable Phase 0 authoring decisions, Phase 0A, Phase 1
+descriptor, manifest, digest, and diagnostic artifacts, and the corresponding
+Phase 1A foundations.
 
 **Completion gate:** a clean consumer project can author, validate, generate,
 register, and package an operation using only supported contracts and explicit
 build inputs.
 
-### Phase 3: Implement the effective registry and native bindings
+### Phase 3: Implement registry core and native bindings
 
-This phase creates the only path from a portable operation reference to trusted
-executable code.
+This phase creates the exact-resolution and native-binding core used by the
+effective registry. Trusted source selection and host policy are completed in
+Phase 3A; registry-core tests alone do not establish a conforming host.
 
 - [ ] Implement immutable registry entries and exact ID, version, and digest
   lookup.
@@ -3604,17 +3730,94 @@ executable code.
 - [ ] Expose an immutable registry generation identity for plan-cache
   invalidation.
 - [ ] Add registry, native-binding, unsupported-version, and conflict tests.
+- [ ] Test the generated-registration-to-native-binding path from a clean
+  consumer, including the supported trimming and Native AOT configuration.
 
-**Depends on:** Phase 2 registration and manifest contracts.
+**Depends on:** Phase 2 registration and manifest contracts and Phase 1A runtime
+manifest, descriptor, and digest validation.
 
 **Completion gate:** exact portable identities resolve deterministically to
-trusted native bindings, and invalid or ambiguous registrations are unavailable
-before pipeline binding.
+explicitly registered native bindings, and invalid or ambiguous registrations
+are unavailable before pipeline binding.
+
+### Phase 3A: Establish trusted host configuration and policy
+
+This milestone supplies the host prerequisites otherwise assumed by registry
+construction, plan binding, and invocation. Its governing requirements are in
+[SPEC-0002](0002-operation-catalogs-and-host-configuration.md)
+and
+[`0004-ai-assisted-connections.md`](0004-ai-assisted-connections.md).
+
+- [ ] Specify and publish the exact host-profile, enabled-source, connection,
+  and policy contracts and vectors needed by the initial supported host slice.
+- [ ] Decide the initial authentication-provider set, protected state/token-cache
+  behavior, extension packaging/integrity rules, and reload or restart boundary
+  before implementing the corresponding capability; defer unsupported providers
+  and sources explicitly.
+- [ ] Validate explicitly selected trusted profiles and reject workspace trust
+  elevation, unknown fields, invalid configuration, and invocation restrictions
+  that would broaden policy.
+- [ ] Build the effective registry only from explicitly enabled sources with
+  required identity and integrity verification; fail startup or explicit reload
+  rather than silently omit invalid sources or bindings.
+- [ ] Implement descriptor-disclosure filtering and bind-time capability,
+  side-effect, unsafe-retry, resource-scope, and connection-availability policy.
+- [ ] Implement invocation-specific execution and independent payload-disclosure
+  evaluation, including default-denied MCP payload disclosure.
+- [ ] Implement logical connection and asynchronous credential-provider
+  boundaries with destination/scope restrictions, cancellation, and redaction
+  for the enabled provider set.
+- [ ] Preserve immutable registry, connection, and policy snapshots across each
+  run and invalidate affected plans at the specified configuration boundary.
+- [ ] Test fail-closed startup, profile selection, integrity rejection, policy
+  separation, credential non-disclosure, and snapshot/invalidation behavior.
+
+The first host slice may use a small reviewed, effect-free operation source.
+Test policy stubs are not a substitute for the trusted host implementation.
+OpenAPI import, extension administration, and consent-broker delivery remain
+explicit companion milestones; each must complete before its capability is
+advertised or enabled.
+
+**Depends on:** Phase 3 for effective registry construction, applicable Phase 1A
+validation foundations, and the exact host contracts and vectors specified for
+each enabled capability. Host-contract decisions can proceed independently of
+registry implementation.
+
+**Completion gate:** the supported host slice constructs a fail-closed immutable
+effective registry and provides tested bind-time and invocation-time policy,
+connection, credential, and disclosure boundaries.
+
+### Phase 3B: Deliver the first non-executing Service and CLI slice
+
+This milestone exercises the established layer boundaries before the full
+binding and execution implementation exists, following the rollout in
+SPEC-0006.
+
+- [ ] Add the Phase 0 exact-descriptor-retrieval Service V1 request, result, and
+  structured-error contracts to `Qhapaq.Abstractions`.
+- [ ] Implement the Service, Business, and DAL collaboration for policy-filtered
+  exact descriptor retrieval through constructor-injected adjacent-layer ports.
+- [ ] Add the CLI request/result/diagnostic mapping over Service V1.
+- [ ] Test exact-version lookup, unavailable/conflicting contracts, descriptor
+  disclosure denial, cancellation, and safe diagnostics through the public
+  Service boundary and CLI.
+- [ ] Add a clean third-party Service consumer test and prove adapters cannot
+  access Business, DAL, generator, or manifest internals directly.
+- [ ] Prove the slice cannot execute operations, resolve credentials, install
+  extensions, mutate profiles, or grant execution authority.
+
+**Depends on:** the applicable Phase 0 Service and CLI contracts, Phase 0A,
+Phase 3, and Phase 3A descriptor-disclosure and trusted source selection.
+
+**Completion gate:** one real non-executing use case works end to end through
+CLI and the public Service boundary without duplicating domain or policy rules.
 
 ### Phase 4: Implement parsing and portable validation
 
-This phase produces inert definitions and document-validity conclusions without
-executing or binding operations.
+This phase produces inert definitions and structural document-validity
+diagnostics without executing or binding operations. It may proceed in parallel
+with Phases 2 through 3B once its own prerequisites exist. It does not claim
+complete semantic validity or infer omitted operation-configuration defaults.
 
 - [ ] Reject malformed JSON and duplicate object member names.
 - [ ] Parse immutable definition models without activating types, loading
@@ -3622,51 +3825,104 @@ executing or binding operations.
 - [ ] Select and validate the exact offline pipeline-format schema.
 - [ ] Validate node identities, structural rules, bounded control flow, scopes,
   and dominance.
-- [ ] Normalize optional operation-configuration defaults before hashing or
-  persistence.
-- [ ] Implement RFC 8785 canonicalization and definition digests.
 - [ ] Produce bounded, versioned, payload-safe structured diagnostics.
 - [ ] Add tests proving invalid definitions cannot reach registry binding or
   begin side effects.
+- [ ] Keep raw parsed definitions distinct from contract-normalized canonical
+  definitions; do not publish a pre-normalization digest as the canonical
+  definition identity.
 
 **Depends on:** the applicable Phase 1 pipeline, schema-profile,
-canonicalization, and diagnostic artifacts.
+scope, and diagnostic artifacts, Phase 0A model ownership, and the corresponding
+Phase 1A parsing and document-validation foundations.
 
 **Completion gate:** the implementation passes the parsing, structural,
-canonicalization, and diagnostic conformance vectors while remaining independent
-of an active operation registry.
+scope, and diagnostic conformance vectors while remaining independent of an
+active operation registry. Contract-informed normalization and definition
+digests are completed in Phase 6A.
 
 ### Phase 5: Implement the schema and mapping engines
 
 This phase supplies portable instance validation, conservative compatibility,
-and deterministic transform behavior.
+and deterministic transform behavior using the Phase 1A foundations. Its
+milestones may be delivered separately but do not relax the complete binding or
+execution gates.
 
-- [ ] Implement the closed Draft 2020-12 Qhapaq schema profile.
-- [ ] Implement fragment-only local reference resolution, cycle detection, and
-  portable schema-complexity limits.
-- [ ] Implement exact supported-format assertions and bounded portable-pattern
-  validation.
+#### Phase 5A: Instance validation and schema compatibility
+
 - [ ] Implement portable instance validation.
 - [ ] Implement deterministic structural-subtype compatibility, including exact
   numeric constraint comparison.
+- [ ] Pass instance-validation, compatibility, narrowing-boundary, and
+  indeterminate-comparison rejection vectors using the shared pattern and
+  format algorithms.
+
+**Depends on:** applicable Phase 1 schema and compatibility vectors and Phase 1A
+schema-profile foundations.
+
+**Completion gate:** instance validation and conservative compatibility produce
+the specified portable results without host-specific acceptance cases.
+
+#### Phase 5B: Mapping parsing and static inference
+
 - [ ] Parse mapping expressions into immutable expression models.
+- [ ] Resolve each site's exact permitted mapping-language version without
+  implicitly migrating another site.
 - [ ] Implement static type inference with distinct `missing` and JSON `null`
   states.
+- [ ] Pass parsing, inference, source-schema, narrowing, and language-version
+  vectors, including unsupported-language host-bindability diagnostics.
+
+**Depends on:** applicable Phase 1 mapping vectors, Phase 0A expression-model
+ownership, and Phase 5A schema compatibility.
+
+**Completion gate:** each supported mapping site has a typed expression model
+with exact language identity and the specified static rejection behavior.
+
+#### Phase 5C: Mapping evaluation and budgets
+
 - [ ] Implement every specified mapping operator and checked failure behavior.
 - [ ] Enforce expression, collection, memory, and output budgets.
-- [ ] Add tests for parsing, inference, compatibility, deterministic evaluation,
-  narrowing, conversion, and budget failures.
+- [ ] Pass deterministic evaluation, conversion, portable-limit boundary,
+  runtime-failure, and budget vectors.
 
-**Depends on:** the applicable Phase 0 mapping and schema decisions and Phase 1
-schema and mapping vectors.
+**Depends on:** Phase 5B, Phase 5A instance validation, and the applicable Phase 1
+evaluation and failure artifacts.
 
-**Completion gate:** the implementation passes the complete schema-profile,
+**Completion gate:** the implementation passes the complete instance-validation,
 compatibility, mapping, and transform-failure conformance suites.
 
-### Phase 6: Implement immutable plan binding
+### Phase 6: Normalize exact contracts and bind immutable plans
 
 This phase converts a valid definition into disposable, host-specific derived
 state without beginning execution.
+
+#### Phase 6A: Contract-informed normalization and definition identity
+
+- [ ] Resolve exact operation and decorator descriptors and their configuration
+  schemas before selecting executable defaults.
+- [ ] Normalize omitted optional configuration defaults, preserving explicit
+  null and requiring explicit values for required properties.
+- [ ] Validate the normalized configuration and materialize defaults into the
+  canonical definition before hashing, persistence, review, or plan binding.
+- [ ] Compute canonical definition bytes and digests using Phase 1A primitives.
+- [ ] Test exact-contract default selection, unavailable/conflicting
+  descriptors, omission/null distinctions, canonicalization, and definition
+  digests without constructing operations or resolving credentials.
+
+Normalization requires exact contract metadata, not an activated implementation.
+An offline descriptor source may provide that metadata when the governing
+contract permits it; it must preserve exact identity and digest verification.
+
+**Depends on:** Phase 4, Phase 5A, applicable Phase 1 normalization and digest
+vectors, and a verified exact descriptor source, supplied by Phase 3 for the
+reference host.
+
+**Completion gate:** canonical definitions contain all applicable executable
+configuration defaults and have reproducible identities independent of
+execution-time implementation construction.
+
+#### Phase 6B: Complete binding and cache invalidation
 
 - [ ] Resolve every operation and decorator by exact portable identity.
 - [ ] Validate normalized operation and decorator configuration.
@@ -3692,7 +3948,7 @@ state without beginning execution.
 - [ ] Add rejection tests proving a partially validated or partially bound plan
   cannot execute.
 
-**Depends on:** Phases 3 through 5 and the applicable host-policy contracts.
+**Depends on:** Phases 3 and 3A, Phase 4, Phases 5A through 5C, and Phase 6A.
 
 **Completion gate:** every validation stage in Section 14 completes before a
 plan is returned, and every specified invalidation input prevents reuse of a
@@ -3702,33 +3958,94 @@ stale plan.
 
 This phase executes one non-durable invocation of a completely bound plan.
 
+#### Phase 7A: Execution frame and primitive/sequence execution
+
 - [ ] Validate boundary input and reevaluate invocation-specific execution and
   disclosure permissions before side effects.
 - [ ] Implement the private, per-run immutable execution frame and write-once
   node-output slots.
-- [ ] Execute sequence, named parallel branches, decorators, conditionals,
-  `tryCatch` recovery, bounded loops, and item-mode and chunk-mode `forEach`
-  nodes with their specified failure and cancellation semantics.
-- [ ] Implement lexical caught-failure projections without exposing raw
-  exceptions, partial try outputs, or undeclared frame state.
-- [ ] Implement iteration-local loop frames and expose only the final loop
-  result.
-- [ ] Implement invocation-local `forEach` frames and expose only the ordered
-  aggregate result.
+- [ ] Execute primitive operations and sequences with native input/output
+  validation, structured failures, and cancellation.
+- [ ] Prevent frame persistence, automatic payload logging, and external frame
+  inspection from the first runner slice.
+- [ ] Test that denied permission, invalid boundary input, and incomplete plans
+  prevent every operation from starting.
+
+**Depends on:** Phase 6B and Phase 3A invocation-time policy evaluation.
+
+**Completion gate:** primitive and sequence runs obey the complete pre-execution
+safety path and private frame/failure contracts.
+
+#### Phase 7B: Transforms and final output
+
 - [ ] Execute transform serialization boundaries using only pre-bound
   projectors, evaluators, validators, and materializers.
 - [ ] Release frame slots after their final planned consumer when safe.
 - [ ] Execute and validate the final output projection.
+- [ ] Test transform and final-output failures, slot lifetime, and serialization
+  boundaries without implicit conversion or payload disclosure.
+
+**Depends on:** Phase 7A and Phase 6B pre-bound mapping and materialization.
+
+**Completion gate:** transform and final-output vectors pass without exposing
+undeclared frame state.
+
+#### Phase 7C: Parallel and conditional execution
+
+- [ ] Execute named parallel branches and conditionals with the specified
+  branch, join, failure, cancellation, and convergence semantics.
+- [ ] Observe every started task and preserve singleton failures and aggregate
+  outcomes as specified.
+- [ ] Test concurrency ceilings, cancellation races, multiple failures, and
+  inaccessible branch outputs.
+
+**Depends on:** Phase 7B.
+
+**Completion gate:** concurrent and conditional vectors pass without lost
+failures, partial-success results, or branch-scope escapes.
+
+#### Phase 7D: Decorators and recovery
+
+- [ ] Execute decorators with specified ordering, attempt bounds, failure
+  contracts, and idempotency/unsafe-retry policy.
+- [ ] Execute `tryCatch` with the specified catchability and recovery semantics.
+- [ ] Implement lexical caught-failure projections without exposing raw
+  exceptions, partial try outputs, or undeclared frame state.
+- [ ] Test nested recovery, cancellation exclusions, retained side effects,
+  recovery failure, and bounded causal trees.
+
+**Depends on:** Phase 7C and the exact registered decorator contracts required
+by the enabled slice.
+
+**Completion gate:** decorator and recovery vectors pass without weakening
+policy or implying transactional rollback.
+
+#### Phase 7E: Bounded loops and collections
+
+- [ ] Execute bounded loops and item-mode and chunk-mode `forEach` nodes.
+- [ ] Implement iteration-local loop frames and expose only the final loop
+  result.
+- [ ] Implement invocation-local `forEach` frames and expose only the ordered
+  aggregate result.
+- [ ] Test empty input, cardinality, ordering, chunk boundaries, nested scopes,
+  concurrency, failure, cancellation, and invocation bounds.
+
+**Depends on:** Phase 7D.
+
+**Completion gate:** loop and collection vectors pass with specified isolation,
+aggregation, and bounded execution.
+
+#### Phase 7F: Integrated budgets, failures, and privacy
+
 - [ ] Enforce frame, transform, collection, loop, parallelism, and output
-  budgets.
-- [ ] Prevent frame persistence, automatic payload logging, and external frame
-  inspection.
+  budgets across nested compositions, including duration, operation, attempt,
+  and iteration limits.
 - [ ] Reuse existing typed composition primitives where their behavior matches
   the bound-plan semantics.
 - [ ] Add execution, cancellation, aggregate-failure, budget, privacy, and
-  no-partial-success tests.
+  no-partial-success tests across the complete runner.
 
-**Depends on:** Phase 6 and invocation-time policy evaluation.
+**Depends on:** Phases 7A through 7E and the applicable Phase 1 execution vectors.
 
 **Completion gate:** all execution conformance vectors pass, and tests prove
 that no operation begins before complete validation, binding, and permission
@@ -3737,12 +4054,16 @@ evaluation.
 ### Phase 8: Add Service and authoring projections
 
 This phase exposes shared use cases without allowing adapters to bypass Business
-rules.
+rules. It extends Phase 3B incrementally as each non-executing use case becomes
+available; it does not wait for Phase 7 unless a use case genuinely needs runner
+behavior.
 
-- [ ] Add the smallest versioned public Service contracts to
-  `Qhapaq.Abstractions`.
-- [ ] Implement Service coordination in `Qhapaq.Service.V1`.
-- [ ] Expose policy-filtered descriptor listing and exact descriptor retrieval.
+- [ ] Add the remaining reviewed versioned public authoring Service contracts
+  to `Qhapaq.Abstractions` and coordination to `Qhapaq.Service.V1`.
+- [ ] Extend exact descriptor retrieval with policy-filtered descriptor listing.
+- [ ] Expose the available parsing/structural-validation conclusions after
+  Phase 4; report unavailable conclusions explicitly and do not imply complete
+  semantic validity, canonical identity, or execution approval.
 - [ ] Expose non-executing validation with all four conclusions from Section 14.
 - [ ] Expose resolved dataflow, contract, effect, capability, and prerequisite
   explanation.
@@ -3754,7 +4075,11 @@ rules.
   manifest internals directly.
 
 **Depends on:** the applicable Phase 0 Service, CLI, and MCP decisions and
-Phases 3 through 7 for the use cases each projection exposes.
+Phase 3B. Descriptor listing depends on Phases 3 and 3A; parsing/structural
+validation depends on Phase 4; full validation and resolved plan explanation
+depend on Phase 6B. Contract comparison depends on Phase 5A and the exact
+descriptor sources. Mermaid depends on the validated definition and any schema
+analysis required by its promised summaries, not on execution.
 
 **Completion gate:** CLI, MCP, and third-party adapters can consume the same
 versioned Service behavior without duplicating validation, policy, binding, or
@@ -3789,6 +4114,57 @@ the full safety and conformance path is present.
 
 **Completion gate:** policy-gated execution is enabled only when the complete
 parse-to-permission path and all claimed conformance suites pass.
+
+### Companion milestones and delivery boundaries
+
+These milestones are tracked here to prevent the core rollout from being
+mistaken for complete v1 delivery. Their exact contracts and acceptance tests
+remain owned by the linked specifications. Complete each prerequisite before
+enabling or advertising its dependent capability; optional conformance claims
+do not silently remove requirements from the product's v1 scope.
+
+- [ ] Implement canonical definition persistence and exact ID/version/digest
+  resolution after Phase 6A, following
+  [SPEC-0001](0001-core-pipeline-model.md) and
+  [SPEC-0006](0006-dotnet-layered-architecture.md); do not persist execution
+  frames or treat cached plans as portable definitions.
+- [ ] Specify the invocation-skill bundle schema and vectors, then implement
+  snapshot generation and the required CLI/MCP mappings under
+  [SPEC-0001 Section 13](0001-core-pipeline-model.md#13-portable-pipeline-invocation-skills).
+  Generation depends on exact contract validation, canonical definition
+  identity, and host/disclosure policy; execution uses Phase 9 rather than a
+  separate authority path. Optional reference mode additionally depends on
+  exact persisted-definition resolution.
+- [ ] Specify and implement supported OpenAPI import, generic HTTP execution,
+  and installed-extension packaging/administration under
+  [SPEC-0002](0002-operation-catalogs-and-host-configuration.md).
+  Integrate each source with Phases 3 and 3A and test integrity, exact identity,
+  destination/authentication restrictions, and equivalent portable descriptors
+  before enabling it.
+- [ ] Specify and implement trusted connection planning, independent local
+  consent, authentication, sanitized status/testing, revocation, and the
+  approved reload/restart flow under
+  [SPEC-0004](0004-ai-assisted-connections.md).
+  This depends on Phase 3A host boundaries and the enabled connector/provider
+  contracts; MCP authoring or generic tool approval never substitutes for
+  trusted local consent.
+- [ ] Add shared local/CI scripts and blocking build, architecture, schema,
+  conformance, and clean-consumer checks as the relevant artifacts appear under
+  [SPEC-0005](0005-build-release-and-website-delivery.md).
+  Build automation supports the early implementation milestones rather than
+  waiting for Phase 9.
+- [ ] Complete package composition, supported-target decisions, self-contained
+  CLI/container verification, release-shaped builds, and clean installation
+  tests before advertising those distributions under SPEC-0005.
+- [ ] Complete website delivery and public-release legal, support, security,
+  compatibility, and publication gates under
+  [SPEC-0005](0005-build-release-and-website-delivery.md) and the
+  [root artifact plan](../SPEC.md#8-initial-artifact-plan).
+  Website work is independent of the core engine, not a prerequisite for plan
+  binding.
+- [ ] Verify that the v1 seams preserve the explicitly deferred capabilities in
+  [SPEC-0003](0003-product-evolution-roadmap.md), without pulling remote
+  providers, gRPC, multi-tenancy, or durable execution into this rollout.
 
 No compatibility migration is required because no portable pipeline format has
 yet been released. Illustrative pre-v1 documents are not accepted as an implicit
