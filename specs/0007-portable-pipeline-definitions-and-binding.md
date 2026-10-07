@@ -89,6 +89,9 @@ This specification does not:
 - **Mapping site:** a transform node, final output projection, or future
   explicitly specified record that contains one mapping expression and selects
   its exact mapping-language version locally.
+- **Caught-failure projection:** a fixed, non-sensitive portable value made
+  available as an explicit transform source only within the recovery subtree of
+  a `tryCatch` node.
 - **Dominates:** a node dominates another node when every valid control-flow path
   to the latter necessarily completes the former successfully.
 - **Contract digest:** a digest of the canonical normative portion of an
@@ -355,7 +358,8 @@ The v1 language supports:
 - `sequence`;
 - named `parallel` branches;
 - `decorate`;
-- `conditional`; and
+- `conditional`;
+- `tryCatch`;
 - bounded `loop`; and
 - bounded `forEach`.
 
@@ -461,13 +465,21 @@ map. Each value in `inputs` is exactly one member of this closed source union:
 { "source": "node", "node": "get-customer" }
 ```
 
-A node source contains only `source` and `node`; pipeline-input and
-current-input sources contain only `source`. `current-input` is the value
-received by the transform through its enclosing composition edge. At the root
-it is the boundary input. Within a `forEach` body it is the current item or
-chunk. A node source must identify an accessible node that dominates the
-transform. `outputSchema` is an inline schema conforming to the Qhapaq v1
-schema profile. `expression` is one canonical
+Within the `catch` subtree of a `tryCatch`, the union additionally permits:
+
+```json
+{ "source": "caught-failure" }
+```
+
+A node source contains only `source` and `node`; pipeline-input,
+current-input, and caught-failure sources contain only `source`.
+`current-input` is the value received by the transform through its enclosing
+composition edge. At the root it is the boundary input. Within a `forEach`
+body it is the current item or chunk. At the root of a `tryCatch` catch subtree
+it is the original `tryCatch` input. A node source must identify an accessible
+node that dominates the transform. A caught-failure source is valid only in
+the lexical scope defined in Section 6.3.7. `outputSchema` is an inline schema
+conforming to the Qhapaq v1 schema profile. `expression` is one canonical
 `qhapaq.mapping/v1` operator object. Its `input` operators may name only keys
 from the containing `inputs` map.
 
@@ -710,7 +722,186 @@ result becomes the conditional result under that contract. Branch-local outputs
 do not escape directly; downstream consumers reference the conditional node's
 output. Unknown conditional-node members are invalid.
 
-#### 6.3.7 Bounded loop
+#### 6.3.7 Try/catch recovery
+
+A `tryCatch` node has this exact shape:
+
+```json
+{
+  "id": "reserve-or-backorder",
+  "kind": "tryCatch",
+  "outputSchema": {
+    "type": "object",
+    "required": ["orderId", "status"],
+    "properties": {
+      "orderId": { "type": "string" },
+      "status": {
+        "type": "string",
+        "enum": ["reserved", "backordered"]
+      },
+      "failureCode": { "type": "string" }
+    },
+    "additionalProperties": false
+  },
+  "try": {
+    "id": "reserve-inventory",
+    "kind": "operation",
+    "operation": {
+      "id": "contoso.inventory.reserve",
+      "version": "1.0.0"
+    }
+  },
+  "catch": {
+    "id": "create-backorder-input",
+    "kind": "transform",
+    "language": "qhapaq.mapping/v1",
+    "inputs": {
+      "request": { "source": "current-input" },
+      "failure": { "source": "caught-failure" }
+    },
+    "outputSchema": {
+      "type": "object",
+      "required": ["orderId", "status", "failureCode"],
+      "properties": {
+        "orderId": { "type": "string" },
+        "status": {
+          "type": "string",
+          "const": "backordered"
+        },
+        "failureCode": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "expression": {
+      "op": "object",
+      "fields": {
+        "orderId": {
+          "op": "property",
+          "value": { "op": "input", "name": "request" },
+          "name": "orderId"
+        },
+        "status": {
+          "op": "literal",
+          "value": "backordered"
+        },
+        "failureCode": {
+          "op": "property",
+          "value": { "op": "input", "name": "failure" },
+          "name": "code"
+        }
+      }
+    }
+  }
+}
+```
+
+`outputSchema`, `try`, and `catch` are required. `outputSchema` is an inline
+schema conforming to the Qhapaq v1 schema profile and is the `tryCatch` node's
+declared output contract. `try` and `catch` are inline nodes. Both must accept
+the original `tryCatch` input. The root of the selected subtree receives that
+input through its ordinary composition edge; `tryCatch` does not wrap or
+replace it with a failure-context object.
+
+The binder derives the complete output schema of each child according to its
+outer node kind and independently proves:
+
+```text
+try.output   subset-of tryCatch.outputSchema
+catch.output subset-of tryCatch.outputSchema
+```
+
+The proof, diagnostics, normalization requirements, and prohibition on
+inferring or widening a common schema are the same as for conditional branches.
+The `tryCatch` node's propagated output schema is exactly its declared
+`outputSchema`.
+
+The `try` child executes exactly once. If it succeeds, its result becomes the
+`tryCatch` result and `catch` does not execute. If it terminates with a catchable
+failure, the `catch` child executes exactly once with the original `tryCatch`
+input. If `catch` succeeds, its result becomes the successful `tryCatch` result.
+If `catch` fails or is cancelled, that terminal outcome becomes the
+`tryCatch` outcome. The runtime must observe and retain the causal relationship
+to the original try failure for bounded, payload-safe diagnostics; it must not
+silently discard, relabel, or expose raw exception data from that failure.
+
+Catchable failures are declared operation failures, mapping runtime failures,
+decorator failures after the decorator has completed its own handling, bounded
+structural-control failures, and aggregate failures produced by nodes in the
+`try` subtree. Invocation cancellation, policy or authorization denial,
+exhaustion of a run-wide host budget, implementation contract violations, and
+unexpected host or implementation faults are not catchable. A non-catchable
+outcome never starts `catch` and propagates unchanged. If invocation
+cancellation is requested after a catchable try failure but before `catch`
+starts, `catch` does not start and the invocation reports cancellation.
+
+Within the complete lexical `catch` subtree, a transform may explicitly bind:
+
+```json
+{ "source": "caught-failure" }
+```
+
+This source is invalid everywhere else. It resolves to the nearest lexically
+enclosing active `tryCatch`; nested catch scopes shadow outer caught failures.
+It is not an addressable node output, cannot be selected by node ID, and does
+not make partially completed try-child outputs accessible. Try-local and
+catch-local outputs do not escape directly; only the `tryCatch` result does.
+
+The caught-failure projection has this fixed successful-value schema:
+
+```json
+{
+  "type": "object",
+  "required": ["format", "category", "code", "sourceNodeId"],
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "qhapaq.failure/v1"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["operation", "mapping", "control", "aggregate"]
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "sourceNodeId": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}
+```
+
+`category` classifies the originating portable failure: `operation` for a
+failure declared by an operation contract, `mapping` for a mapping runtime
+failure, `control` for a decorator or bounded structural-control failure, and
+`aggregate` when a structural node reports multiple failures. `code` is the
+stable machine-readable code of the caught failure; an aggregate uses the
+reserved aggregate-failure code defined by the structured-failure vocabulary
+rather than selecting one child failure. `sourceNodeId` identifies the node
+that reported the caught failure or aggregate. The projection does not contain
+an operation input or output, exception type, stack trace, arbitrary exception
+message, connector response body, credential, resolved configuration, nested
+failure details, or operation-specific failure payload.
+
+A failure remains a control signal rather than a mapping value while it is
+being raised. An enclosing `tryCatch` creates the caught-failure projection
+only after catching that signal. Consequently, a mapping expression still
+cannot catch its own failure; a transform in the catch subtree may only read
+the already-created projection through an explicitly declared input source.
+
+Validation and policy evaluation include both children before execution.
+Capabilities, connections, possible side effects, and idempotency effects are
+the union of both children. Worst-case resource and operation-count planning
+must permit the `try` child followed by the `catch` child rather than treating
+them as mutually exclusive successful alternatives. A caught failure does not
+roll back, compensate, or imply transactional isolation for side effects that
+the `try` subtree already produced. Unknown `tryCatch` members are invalid.
+
+#### 6.3.8 Bounded loop
 
 A `loop` node has this exact shape:
 
@@ -763,7 +954,7 @@ iteration, and only the final loop state becomes the loop-node output. Unknown
 loop-node members are invalid. Arbitrary graph cycles and unbounded loops are
 invalid.
 
-#### 6.3.8 Bounded collection execution
+#### 6.3.9 Bounded collection execution
 
 A `forEach` node in chunk mode has this exact shape:
 
@@ -909,7 +1100,9 @@ A transform declares a map of local input names to sources. A source is either:
 
 - `pipeline-input`; or
 - `current-input`; or
-- the output of a named node that dominates the transform.
+- the output of a named node that dominates the transform; or
+- `caught-failure` when the transform is lexically within a `tryCatch` catch
+  subtree.
 
 The mapping expression reads only its declared `$inputs` values and literals.
 It cannot enumerate the execution frame or access an undeclared node.
@@ -932,6 +1125,13 @@ produces the contract declared by its `outputSchema`, and downstream consumers
 reference that conditional output. Both branches must be statically proven
 compatible with that contract before execution. The binder does not derive a
 common contract from the branch schemas.
+
+Try-local and catch-local outputs do not escape directly. A catch subtree
+cannot reference a partially completed node in its sibling try subtree. The
+`tryCatch` produces the contract declared by its `outputSchema`, and downstream
+consumers reference only that output. A caught failure is available only
+through an explicit `caught-failure` transform source in the lexical catch
+scope; it is not a frame slot or a generally addressable node output.
 
 Each loop iteration has an iteration-local frame. The loop body may read the
 current loop state, the pipeline input, and values defined in dominating outer
@@ -1922,8 +2122,8 @@ Portable descriptors use:
 
 A decorator descriptor declares that its input and output contracts are
 preserved from its inner operation and provides a configuration schema.
-Structural sequence, parallel, conditional, loop, and transform forms are not
-registry descriptors.
+Structural sequence, parallel, conditional, try/catch recovery, loop, and
+transform forms are not registry descriptors.
 
 ### 11.3 Availability
 
@@ -2303,8 +2503,8 @@ Validation occurs in these ordered stages:
 5. Resolve every exact operation and decorator contract.
 6. Validate operation and decorator configuration.
 7. Propagate schemas through structural nodes, including proving both
-   conditional branch outputs compatible with each conditional's declared
-   `outputSchema`.
+   conditional branch outputs and both `tryCatch` child outputs compatible with
+   their containing node's declared `outputSchema`.
 8. Validate transform sources, dominance, each expression under its selected
    language version, and output schemas.
 9. Prove every operation connection schema-compatible.
@@ -2407,6 +2607,7 @@ Mermaid is generated from the validated definition and shows:
 - parallel branches and joins;
 - decorator nesting;
 - conditional branches;
+- `tryCatch` attempt and recovery boundaries;
 - loop boundaries and maximum iterations; and
 - `forEach` mode, cardinality, chunk-size, and concurrency bounds; and
 - transform nodes with concise input and output summaries.
@@ -2422,6 +2623,9 @@ Mermaid is explanatory output and cannot be edited as an executable source.
 - Require exact versions and reject conflicting contract digests.
 - Keep credentials, secret references, and resolved secrets outside definitions,
   transforms, frames exposed to transforms, diagnostics, and generated views.
+- Expose caught failures to transforms only through the fixed, non-sensitive
+  `qhapaq.failure/v1` projection; never project raw exceptions, stack traces,
+  arbitrary messages, operation payloads, or connector response bodies.
 - Do not expose an execution frame through MCP or persist it as run history.
 - Apply resource budgets to transforms, collections, loops, parallelism, frame
   storage, and output size.
@@ -2467,9 +2671,10 @@ The language-neutral conformance suite includes:
 - valid and invalid pipeline-document vectors;
 - canonicalization and duplicate-member tests;
 - node-ID, scope, dominance, and inaccessible-branch tests;
-- sequence, parallel, decorator, conditional, and bounded-loop vectors,
-  including conditional branch convergence and incompatible-branch
-  diagnostics;
+- sequence, parallel, decorator, conditional, `tryCatch`, and bounded-loop
+  vectors, including branch convergence, incompatible-child diagnostics,
+  catchability exclusions, nested caught-failure scope, recovery failure,
+  cancellation races, retained side effects, and payload-safe projections;
 - item-mode and chunk-mode `forEach` vectors covering empty input, cardinality,
   ordered aggregation, concurrency ceilings, nested scopes, failure,
   cancellation, and aggregate budgets;
@@ -2543,6 +2748,8 @@ early.
   - [x] Define the `parallel` node and named branch records.
   - [x] Define the `decorate` node.
   - [x] Define the `conditional` node.
+  - [x] Define the `tryCatch` node, catchability boundary, caught-failure
+    projection, and lexical source scope.
   - [x] Define the bounded `loop` node.
   - [x] Define a bounded collection-execution node that chunks an input
     collection and applies an arbitrary inline node to each item or chunk,
@@ -2718,8 +2925,8 @@ state without beginning execution.
 - [ ] Resolve every operation and decorator by exact portable identity.
 - [ ] Validate normalized operation and decorator configuration.
 - [ ] Propagate schemas through every structural node.
-- [ ] Validate transform sources, including `current-input`, dominance,
-  inferred result schemas, and output schemas.
+- [ ] Validate transform sources, including `current-input`, `caught-failure`,
+  lexical catch scope, dominance, inferred result schemas, and output schemas.
 - [ ] Prove every operation connection schema-compatible.
 - [ ] Verify all implementation-native input and output bindings.
 - [ ] Pre-bind portable projectors, native materializers, mapping evaluators,
@@ -2727,6 +2934,8 @@ state without beginning execution.
 - [ ] Compute slot consumers, last-consumer information, and resource budgets.
 - [ ] Compute `forEach` item or chunk body schemas, maximum invocation counts,
   ordered aggregation, and nested resource bounds.
+- [ ] Compute `tryCatch` unioned effects and capabilities and worst-case
+  attempt-then-recovery resource bounds.
 - [ ] Aggregate capabilities, side effects, idempotency, and required
   connections.
 - [ ] Evaluate bind-time host policy and connection availability.
@@ -2752,8 +2961,10 @@ This phase executes one non-durable invocation of a completely bound plan.
 - [ ] Implement the private, per-run immutable execution frame and write-once
   node-output slots.
 - [ ] Execute sequence, named parallel branches, decorators, conditionals,
-  bounded loops, and item-mode and chunk-mode `forEach` nodes with their
-  specified failure and cancellation semantics.
+  `tryCatch` recovery, bounded loops, and item-mode and chunk-mode `forEach`
+  nodes with their specified failure and cancellation semantics.
+- [ ] Implement lexical caught-failure projections without exposing raw
+  exceptions, partial try outputs, or undeclared frame state.
 - [ ] Implement iteration-local loop frames and expose only the final loop
   result.
 - [ ] Implement invocation-local `forEach` frames and expose only the ordered

@@ -23,8 +23,8 @@ non-durable and cannot resume after process failure.
 - Make small operation implementations easy to author, test, and reuse.
 - Preserve native type safety throughout an implementation's in-process
   execution.
-- Compose operations sequentially, concurrently, conditionally, iteratively,
-  and over bounded collections.
+- Compose operations sequentially, concurrently, conditionally, with explicit
+  failure recovery, iteratively, and over bounded collections.
 - Add cross-cutting behavior through type-preserving decorators.
 - Give declarative pipelines deterministic validation and binding behavior.
 - Make operations and pipeline shapes discoverable to AI systems.
@@ -185,7 +185,32 @@ The predicate runs once for each invocation. Only the selected branch executes,
 and it receives the original input. Both branches must have compatible document
 output schemas and implementation-native output types.
 
-### 5.5 Bounded Loops
+### 5.5 Try/Catch Recovery
+
+Try/catch recovery combines:
+
+```text
+try:   IOperation<A, B>
+catch: IOperation<A, B>
+```
+
+and produces `IOperation<A, B>`.
+
+The try operation executes once. Its success bypasses recovery. A catchable
+failure executes the catch operation once with the original input. Declarative
+catch subtrees may explicitly bind the fixed, non-sensitive caught-failure
+projection defined by
+[`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md);
+the projection is not an ambient exception object or a replacement for the
+catch operation's ordinary input.
+
+Cancellation, policy denial, exhausted run-wide host budgets, implementation
+contract violations, and unexpected host or implementation faults are not
+catchable. Recovery does not roll back or compensate for side effects already
+produced by the try operation. Both successful paths must have compatible
+document output schemas and implementation-native output types.
+
+### 5.6 Bounded Loops
 
 A bounded while-loop combines:
 
@@ -205,7 +230,7 @@ limit instead of returning a potentially incomplete result.
 
 Arbitrary graph cycles and unbounded loops are invalid in v1.
 
-### 5.6 Bounded Collection Execution
+### 5.7 Bounded Collection Execution
 
 A bounded collection combinator maps an arbitrary operation over an input
 collection in either item mode or contiguous-chunk mode:
@@ -285,6 +310,7 @@ The model is an expression tree whose structural forms include:
 - Named parallel branches.
 - Decorator wrapping one inner expression.
 - Conditional with a predicate and two branches.
+- Try/catch recovery with an attempt and recovery branch.
 - Bounded loop with a condition, body, and maximum iteration count.
 - Bounded collection execution in item or contiguous-chunk mode.
 
@@ -374,6 +400,7 @@ Visualization is deterministic for a given canonical definition and shows:
 - Sequential and parallel relationships.
 - Decorator nesting.
 - Conditional branches.
+- Try/catch attempt and recovery boundaries.
 - Loop boundaries and maximum iteration counts.
 - Collection mode, cardinality, chunk-size, and concurrency bounds.
 
@@ -637,7 +664,7 @@ The implementation requires:
 - Algebra and type-compatibility unit tests for every combinator.
 - Cancellation and multi-failure tests for parallel execution.
 - Attempt, timeout, and decorator-ordering tests.
-- Conditional branch and loop-boundary tests.
+- Conditional branch, try/catch recovery, and loop-boundary tests.
 - Execution-frame dominance, transform, final-projection, JSON Schema
   conformance, and canonicalization golden tests.
 - Definition-to-plan binding tests for every rejection condition.
