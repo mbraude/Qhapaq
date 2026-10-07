@@ -4,7 +4,7 @@
 >
 > **Target:** Qhapaq v1
 >
-> **Last updated:** 2026-10-05
+> **Last updated:** 2026-10-06
 
 ## 1. Summary
 
@@ -35,6 +35,8 @@ registration model.
   execution.
 - Let transforms combine explicitly selected earlier outputs, boundary input,
   and public literals without arbitrary generated code.
+- Permit a pipeline format to compose mapping sites that use different exact
+  mapping-language versions without implicitly migrating untouched sites.
 - Preserve native values between ordinary in-process operations while making
   transforms explicit serialization boundaries.
 - Make data dependencies visible to humans, AI systems, validators, and Mermaid
@@ -84,6 +86,9 @@ This specification does not:
   immutable named node-output slots.
 - **Transform:** a side-effect-free structural node expressed in the versioned
   Qhapaq mapping language.
+- **Mapping site:** a transform node, final output projection, or future
+  explicitly specified record that contains one mapping expression and selects
+  its exact mapping-language version locally.
 - **Dominates:** a node dominates another node when every valid control-flow path
   to the latter necessarily completes the former successfully.
 - **Contract digest:** a digest of the canonical normative portion of an
@@ -1244,10 +1249,104 @@ A future mapping-language version may select, rename, split, or omit these
 candidates. This list grants no forward-compatibility interpretation to v1
 hosts.
 
+### 8.11 Language-version selection
+
+Every mapping site contains a required `language` member that selects one exact
+mapping-language version for that site. Language selection is local: there is no
+pipeline-wide default, inheritance, version range, alias, or unspecified latest
+version. Changing a pipeline format, another mapping site, or a host default
+must not reinterpret an untouched mapping expression.
+
+A pipeline format may permit more than one mapping-language version. Such a
+pipeline may contain mapping sites that select different permitted versions,
+including an older final output projection after a newer transform. Each site
+is parsed, validated, type-checked, budgeted, compiled, and evaluated according
+to its selected version. Mapping-language versions do not invoke or embed one
+another; they compose only through portable values checked against the declared
+Qhapaq schemas at node boundaries.
+
+The exact pipeline-format schema defines the closed set of mapping-language
+versions permitted at each kind of mapping site. `qhapaq.pipeline/v1` permits
+only `qhapaq.mapping/v1`, as required by Sections 6.3.2 and 10. A later pipeline
+format may permit `qhapaq.mapping/v1`, `qhapaq.mapping/v2`, or both without
+altering the meaning or validity rules of `qhapaq.pipeline/v1`.
+
+Patching or migrating one mapping site must preserve the `language` and
+expression of every untouched site. Changing a site's `language` requires
+validating its complete expression under the newly selected version and
+produces a new canonical definition and definition digest. Canonicalization
+preserves every exact `language` value and never performs language migration.
+
 ## 9. Schema Profile and Compatibility
 
-Pipeline and operation schemas use JSON Schema Draft 2020-12 under a Qhapaq v1
-profile. The profile must define:
+### 9.1 Normative document-schema composition
+
+The JSON Schema that validates a pipeline document is distinct from the Qhapaq
+schema values embedded in that document for operation data, configuration, and
+pipeline inputs and outputs. The normative pipeline-document schema may use
+JSON Schema Draft 2020-12 composition keywords needed to define the closed
+document grammar even when those keywords are not permitted in embedded Qhapaq
+schema values.
+
+Each published pipeline-format schema is an immutable, self-contained schema
+bundle. It contains a version-specific definition for every mapping-language
+version that the pipeline format permits. At each mapping site, the schema uses
+a closed `oneOf` whose branches are distinguished by a `language` property with
+one exact `const` value. Each branch validates the complete closed mapping-site
+shape and references only the matching version's expression definition. For
+example, a future pipeline format that permits two versions has the logical
+shape:
+
+```json
+{
+  "$defs": {
+    "mappingSite": {
+      "oneOf": [
+        { "$ref": "#/$defs/mappingSiteV1" },
+        { "$ref": "#/$defs/mappingSiteV2" }
+      ]
+    },
+    "mappingSiteV1": {
+      "type": "object",
+      "required": ["language", "inputs", "expression"],
+      "properties": {
+        "language": { "const": "qhapaq.mapping/v1" },
+        "inputs": { "$ref": "#/$defs/mappingInputs" },
+        "expression": { "$ref": "#/$defs/mappingExpressionV1" }
+      },
+      "additionalProperties": false
+    },
+    "mappingSiteV2": {
+      "type": "object",
+      "required": ["language", "inputs", "expression"],
+      "properties": {
+        "language": { "const": "qhapaq.mapping/v2" },
+        "inputs": { "$ref": "#/$defs/mappingInputs" },
+        "expression": { "$ref": "#/$defs/mappingExpressionV2" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
+```
+
+The illustrative `mappingSite` above shows the version-dispatch pattern rather
+than the complete transform-node or output-projection schema. The normative
+schema defines separate complete closed branches for those records because
+their required members differ.
+
+The set of branches is fixed when a pipeline-format schema is published. A host
+must not add a newly installed or newly implemented mapping language to an
+older format's schema. Consequently, adding `qhapaq.mapping/v2` does not change
+the accepted instances of `qhapaq.pipeline/v1`; a later pipeline format must
+explicitly include the v2 branch. Schema artifacts may be maintained as
+separate source modules, but the published validation bundle uses only bundled
+resources and requires no file-system or network resolution.
+
+### 9.2 Embedded schema profile
+
+Schema values embedded in pipeline definitions and operation descriptors use
+JSON Schema Draft 2020-12 under a Qhapaq v1 profile. The profile must define:
 
 - the supported keywords and exact format allowlist;
 - object and array closure rules;
@@ -1935,23 +2034,27 @@ Validation occurs in these ordered stages:
 1. Parse JSON and reject duplicate object member names.
 2. Validate the pipeline document against its exact format schema.
 3. Validate node identities, structural rules, scopes, and bounded control flow.
-4. Resolve every exact operation and decorator contract.
-5. Validate operation and decorator configuration.
-6. Propagate schemas through structural nodes, including proving both
+4. Resolve each mapping site's exact language implementation and report a
+   host-bindability failure when the active host does not support a permitted
+   language version.
+5. Resolve every exact operation and decorator contract.
+6. Validate operation and decorator configuration.
+7. Propagate schemas through structural nodes, including proving both
    conditional branch outputs compatible with each conditional's declared
    `outputSchema`.
-7. Validate transform sources, dominance, expressions, and output schemas.
-8. Prove every operation connection schema-compatible.
-9. Verify implementation-native input and output bindings.
-10. Aggregate capabilities, side effects, idempotency, and resource budgets.
-11. Evaluate active host policy and required connection availability.
-12. Construct the immutable execution plan.
+8. Validate transform sources, dominance, each expression under its selected
+   language version, and output schemas.
+9. Prove every operation connection schema-compatible.
+10. Verify implementation-native input and output bindings.
+11. Aggregate capabilities, side effects, idempotency, and resource budgets.
+12. Evaluate active host policy and required connection availability.
+13. Construct the immutable execution plan.
 
 Validation reports four distinct conclusions:
 
 - **document validity:** the definition conforms to the portable language;
-- **host bindability:** the active host has matching trusted implementations and
-  native bindings;
+- **host bindability:** the active host has matching mapping-language
+  implementations, trusted operation implementations, and native bindings;
 - **policy eligibility:** current policy would permit the planned capabilities
   and side effects; and
 - **execution permission:** evaluated again for a specific invocation.
@@ -2072,9 +2175,17 @@ Pipeline format versions are independent from pipeline versions, operation
 contract versions, implementation versions, Service API versions, and package
 versions.
 
-Unknown format versions, node kinds, transform-language versions, mapping
-operators, or normative schema keywords are rejected. A host must not silently
-reinterpret a newer definition as v1.
+Each pipeline format defines a closed compatibility matrix of mapping-site kinds
+and permitted exact mapping-language versions. Supporting a newer mapping
+language does not add it to an older pipeline format. A format may permit
+multiple mapping-language versions in one definition, and modifying one mapping
+site does not require migrating other sites.
+
+An unknown format version, node kind, transform-language version, mapping
+operator, or normative schema keyword is a document-validity failure. A mapping
+language that is known and permitted by the exact pipeline format but not
+implemented by the active host is instead a host-bindability failure. A host
+must not silently reinterpret a newer definition or mapping expression as v1.
 
 Additive documentation metadata may evolve without changing execution semantics.
 Any change that alters canonical execution meaning requires a new pipeline
@@ -2096,6 +2207,12 @@ The language-neutral conformance suite includes:
   including conditional branch convergence and incompatible-branch
   diagnostics;
 - transform parsing, type inference, nullability, conversion, and failure tests;
+- mixed mapping-language-version pipelines, including independent transform and
+  output-projection versions;
+- rejection of mapping languages not permitted by the exact pipeline format,
+  and bindability diagnostics for permitted languages unsupported by the host;
+- patch and migration tests proving untouched mapping sites retain their exact
+  language, expression, canonical representation, and semantics;
 - explicit multi-output and final-output projection tests;
 - conservative schema-compatibility vectors;
 - exact-version and contract-digest conflict tests;
@@ -2165,6 +2282,8 @@ early.
 - [x] Define the complete `qhapaq.mapping/v1` operator set, operand shapes,
   evaluation order, inferred result types, `missing` and `null` behavior, and
   runtime failure behavior.
+- [x] Define per-site mapping-language selection, mixed-version composition,
+  pipeline-format compatibility, and normative schema dispatch.
 - [ ] Define portable mapping limits, including expression depth, operator
   count, collection processing, string and output size, and evaluation budget.
 - [ ] Define the portable regular-expression grammar and exact algorithms for
@@ -2186,8 +2305,8 @@ This phase turns the portable decisions into implementation-independent
 artifacts.
 
 - [ ] Publish the exact pipeline-document schema.
-- [ ] Publish the exact mapping-expression schema or exact embedded mapping
-  definitions in the pipeline schema.
+- [ ] Publish the exact versioned mapping-expression definitions embedded in
+  each self-contained pipeline-format schema bundle.
 - [ ] Publish the closed Qhapaq JSON Schema profile.
 - [ ] Publish the versioned structured-diagnostic schema.
 - [ ] Publish the portable operation-manifest envelope schema.
@@ -2197,6 +2316,9 @@ artifacts.
 - [ ] Add duplicate-member, canonicalization, and definition-digest vectors.
 - [ ] Add schema-profile and conservative compatibility vectors.
 - [ ] Add mapping parsing, type-inference, evaluation, and failure vectors.
+- [ ] Add mixed-version mapping, unsupported-language bindability, and
+  patch-preservation vectors when a pipeline format permits multiple mapping
+  versions.
 - [ ] Add scope, dominance, and inaccessible-branch vectors.
 - [ ] Add structured-diagnostic golden files.
 - [ ] Add contract-digest and manifest golden vectors.
