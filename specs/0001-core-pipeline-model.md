@@ -743,12 +743,14 @@ version, and canonical digest and fail closed on mismatch.
 
 ## 20. Open Questions
 
-1. Which operation capability vocabulary and side-effect classifications are
-   required in v1?
-2. What policy model governs MCP and local-host execution?
-3. Which retry, timeout, cache, and concurrency decorators ship in the initial
+The normative capability, side-effect, idempotency, and structured-failure
+vocabularies are defined in
+[`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
+
+1. What policy model governs MCP and local-host execution?
+2. Which retry, timeout, cache, and concurrency decorators ship in the initial
    package?
-4. What exception hierarchy and structured MCP error envelope are public API?
-5. What operating systems and architectures are supported and tested?
-6. What exact CLI commands, exit statuses, and structured error schema are
+3. What exception hierarchy and structured MCP error envelope are public API?
+4. What operating systems and architectures are supported and tested?
+5. What exact CLI commands, exit statuses, and structured error schema are
    normative?

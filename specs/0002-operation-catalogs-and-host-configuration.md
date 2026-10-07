@@ -2,7 +2,7 @@
 
 > **Status:** Draft  
 > **Target:** Qhapaq v1  
-> **Last updated:** 2026-10-04
+> **Last updated:** 2026-10-06
 
 ## 1. Summary
 
@@ -403,12 +403,15 @@ profile-administration authority. That flow is defined in
 
 ## 14. Open Questions
 
+The normative capability, side-effect, idempotency, and structured-failure
+vocabularies are defined in
+[`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
+
 1. Which authentication and secret-reference providers are required for v1?
 2. Which OpenAPI versions, schema features, and authentication schemes are
    supported?
 3. How are extensions packaged, installed, updated, and removed?
 4. Are extension signatures required in addition to exact versions and hashes?
-5. What capability and side-effect vocabulary is normative?
-6. What controlled reload mechanism, if any, is supported by CLI and MCP hosts?
-7. Which state and token-cache protections are required on each supported
+5. What controlled reload mechanism, if any, is supported by CLI and MCP hosts?
+6. Which state and token-cache protections are required on each supported
    operating system?

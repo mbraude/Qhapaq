@@ -851,7 +851,14 @@ The caught-failure projection has this fixed successful-value schema:
 ```json
 {
   "type": "object",
-  "required": ["format", "category", "code", "sourceNodeId"],
+  "required": [
+    "format",
+    "category",
+    "code",
+    "sourceNodeId",
+    "retryDisposition",
+    "effectOutcome"
+  ],
   "properties": {
     "format": {
       "type": "string",
@@ -869,6 +876,22 @@ The caught-failure projection has this fixed successful-value schema:
     "sourceNodeId": {
       "type": "string",
       "minLength": 1
+    },
+    "retryDisposition": {
+      "type": "string",
+      "enum": [
+        "qhapaq.retry.transient",
+        "qhapaq.retry.permanent",
+        "qhapaq.retry.unknown"
+      ]
+    },
+    "effectOutcome": {
+      "type": "string",
+      "enum": [
+        "qhapaq.effect-outcome.none",
+        "qhapaq.effect-outcome.occurred",
+        "qhapaq.effect-outcome.unknown"
+      ]
     }
   },
   "additionalProperties": false
@@ -882,10 +905,12 @@ failure, `control` for a decorator or bounded structural-control failure, and
 stable machine-readable code of the caught failure; an aggregate uses the
 reserved aggregate-failure code defined by the structured-failure vocabulary
 rather than selecting one child failure. `sourceNodeId` identifies the node
-that reported the caught failure or aggregate. The projection does not contain
-an operation input or output, exception type, stack trace, arbitrary exception
-message, connector response body, credential, resolved configuration, nested
-failure details, or operation-specific failure payload.
+that reported the caught failure or aggregate. `retryDisposition` and
+`effectOutcome` have the exact meanings defined in Section 15.2. The projection
+does not contain an operation input or output, exception type, stack trace,
+arbitrary exception message, connector response body, credential, resolved
+configuration, nested aggregate causes, recovery causality, or
+operation-specific failure payload.
 
 A failure remains a control signal rather than a mapping value while it is
 being raised. An enclosing `tryCatch` creates the caught-failure projection
@@ -894,12 +919,13 @@ cannot catch its own failure; a transform in the catch subtree may only read
 the already-created projection through an explicitly declared input source.
 
 Validation and policy evaluation include both children before execution.
-Capabilities, connections, possible side effects, and idempotency effects are
-the union of both children. Worst-case resource and operation-count planning
-must permit the `try` child followed by the `catch` child rather than treating
-them as mutually exclusive successful alternatives. A caught failure does not
-roll back, compensate, or imply transactional isolation for side effects that
-the `try` subtree already produced. Unknown `tryCatch` members are invalid.
+Capabilities, connections, and possible side effects are the union of both
+children; idempotency uses the risk-summary precedence in Section 11.7.
+Worst-case resource and operation-count planning must permit the `try` child
+followed by the `catch` child rather than treating them as mutually exclusive
+successful alternatives. A caught failure does not roll back, compensate, or
+imply transactional isolation for side effects that the `try` subtree already
+produced. Unknown `tryCatch` members are invalid.
 
 #### 6.3.8 Bounded loop
 
@@ -1556,11 +1582,11 @@ The first mapping failure terminates the transform immediately. No remaining
 operand, collection element, downstream node, or native materializer starts.
 Failures are not values and cannot be caught by a mapping expression.
 
-A mapping failure identifies the transform node, operator, and expression JSON
-Pointer without reproducing operand values. It may include bounded,
-non-sensitive details such as a violated assertion bound. The structured
-failure vocabulary defines the exact stable codes and enclosing run-failure
-envelope.
+A mapping failure's protected host diagnostic identifies the transform node,
+operator, and expression JSON Pointer without reproducing operand values. That
+diagnostic may include bounded, non-sensitive context such as a violated
+assertion bound. The portable runtime failure contains only the exact stable
+code and closed envelope defined in Section 15.2.
 
 Runtime values are validated at portable boundaries. A value that violates a
 schema the binder had already proven is reported as a host or implementation
@@ -2448,6 +2474,253 @@ The effective registry reports whether an exact descriptor is:
 Explanations must not reveal credentials, secret references, sensitive
 filesystem locations, or other protected host configuration.
 
+### 11.4 Vocabulary identifiers and governance
+
+Capability, side-effect, idempotency, retry-disposition, effect-outcome, and
+failure-code values use case-sensitive lowercase ASCII identifiers. An
+identifier:
+
+- is at most 256 characters;
+- consists of dot-separated labels;
+- uses labels that start with an ASCII lowercase letter, continue with ASCII
+  lowercase letters or digits, and may contain single `-` separators followed
+  by another ASCII lowercase letter or digit;
+- contains no empty label, leading or trailing `.`, consecutive `-`, or
+  normalization-equivalent spelling; and
+- is compared exactly without case folding or Unicode normalization.
+
+The `qhapaq.` namespace is reserved for this specification and other Qhapaq
+standards. An extension identifier uses a reverse-DNS namespace with at least
+three labels, such as `com.contoso.accelerator.use`. Possession or syntax of a
+name does not grant authority.
+
+The operation-descriptor format freezes the core capability, side-effect, and
+idempotency vocabularies it references. `qhapaq.failure/v1` independently
+freezes the failure categories, retry dispositions, effect outcomes, reserved
+platform codes, and structured-failure projection rules.
+
+An otherwise valid descriptor may reference a syntactically valid namespaced
+extension capability or side effect. A host that does not explicitly support
+the exact extension term reports the descriptor as host-unbindable. Policy
+cannot convert an unknown semantic term into a supported one merely by allowing
+its identifier. Unknown `qhapaq.` terms are invalid for the exact descriptor
+format.
+
+Arrays representing semantic sets are canonical author input rather than
+normalization requests. `capabilities` and `sideEffects` must be unique and in
+ascending Unicode code-point order. Failure declarations must have unique codes
+and be in ascending code order. An unsorted or duplicate-bearing array is
+invalid; a validator must not reorder it before contract-digest computation.
+
+### 11.5 Capability vocabulary
+
+A capability is a parameter-free declaration of authority or a host facility
+that an operation or decorator may exercise on at least one valid execution
+path. It is not a declaration that the facility is used on every invocation and
+is not a resource locator, side effect, connection, budget, or data-sensitivity
+label.
+
+The closed Qhapaq v1 core capability vocabulary is:
+
+| Capability | Meaning |
+| --- | --- |
+| `qhapaq.credential.use` | Use a host-bound credential through a trusted credential provider or authenticated client without exposing credential material as a pipeline value. |
+| `qhapaq.environment.read` | Read an explicitly identified environment variable subject to host policy. |
+| `qhapaq.filesystem.read` | Read filesystem content or metadata. |
+| `qhapaq.filesystem.write` | Create, modify, rename, or delete filesystem content or metadata. |
+| `qhapaq.ipc.connect` | Connect to a declared local interprocess endpoint such as a named pipe or Unix-domain socket. |
+| `qhapaq.network.connect` | Initiate an outbound network connection, including a loopback TCP or HTTP connection. |
+| `qhapaq.process.execute` | Start or invoke an external process. |
+
+Destinations, paths, variable names, executable identities, logical resources,
+connections, and credential bindings are separate typed requirements evaluated
+by binding and policy. They must not be encoded into capability strings.
+Environment access identifies the requested variable explicitly and remains
+subject to a host allowlist. `qhapaq.credential.use` permits trusted
+implementation or provider code to apply, obtain, or refresh authentication
+material as required by an SDK, but the material never becomes an operation
+input, node output, transform value, failure payload, or pipeline result.
+
+V1 defines no core capability for clock access, randomness, ambient arbitrary
+host services, raw credential reads, inbound network listeners, or inbound IPC
+listeners. A future determinism or sensitive-value contract may add the
+appropriate independently enforceable metadata. V1 operations may connect to
+declared services but do not create listeners.
+
+Capabilities are orthogonal. No capability implies another, including
+`qhapaq.process.execute`; an operation declares every authority that it or a
+started child process may exercise. A plan aggregates a deduplicated set union
+over every potentially executable node, including mutually exclusive branches,
+recovery subtrees, decorators, and bounded repeated bodies. Invocation-count
+and repetition bounds remain separate plan-budget facts and do not create
+duplicate capability entries.
+
+### 11.6 Side-effect vocabulary
+
+A side effect is a possible intended contract-level mutation outside the
+pipeline's value graph. Authority to access a facility and the consequence of
+using it remain separate: a read-only network operation declares
+`qhapaq.network.connect` and an empty `sideEffects` set.
+
+The closed Qhapaq v1 core side-effect vocabulary is:
+
+| Side effect | Meaning |
+| --- | --- |
+| `qhapaq.communication.emit` | Emit a message, event, notification, or other communication whose delivery is an intended external consequence. |
+| `qhapaq.external-action.trigger` | Request an externally meaningful action, such as a charge, deployment, workflow transition, or actuator command, that is not adequately described only as stored-data mutation or communication. |
+| `qhapaq.external-state.mutate` | Create, change, append to, rename, or delete durable or externally observable state. |
+
+Terms are broad consequence classes rather than protocol or CRUD verbs. An
+operation declares every class that its intended behavior may produce on any
+valid path, including a path that later fails. Incidental provider logging,
+transport bookkeeping, or caching that is not part of the operation contract
+does not add a portable side-effect class. More specialized semantics require a
+supported reverse-DNS extension term.
+
+An empty `sideEffects` array is the sole representation of a guarantee that the
+operation produces no core or extension-defined external mutation. There is no
+`none` term. A plan aggregates a deduplicated set union over every potentially
+executable node, including alternate and recovery paths. Repetition bounds are
+reported separately. A decorator may add its own possible effects but cannot
+remove an inner node's effects, even when some paths avoid invoking the inner
+node.
+
+### 11.7 Idempotency vocabulary
+
+Idempotency concerns effects, not output determinism. Repeating an equivalent
+invocation is idempotent when it produces no additional externally observable
+effect beyond the first invocation. Outputs may differ because external state
+changed. Mapping expressions remain deterministic under Section 8; operation
+output determinism is a separate, currently undefined property.
+
+Two operation invocations are equivalent for this guarantee only when they
+have the same:
+
+- exact operation contract;
+- canonical input value;
+- effective configuration; and
+- logical connection binding.
+
+Credential rotation inside the same logical connection does not create a
+different invocation. Implementation package identity is not part of the
+portable equivalence relation because every conforming implementation of the
+exact contract must provide the same declared guarantee.
+
+`idempotency` is always a closed object. Its required `classification` is one
+of:
+
+| Classification | Meaning |
+| --- | --- |
+| `qhapaq.idempotent` | Every equivalent repeat satisfies the effect-idempotency guarantee. |
+| `qhapaq.conditional` | The guarantee holds only when the declared idempotency-key and deduplication-window condition is satisfied. |
+| `qhapaq.non-idempotent` | An equivalent repeat may produce an additional effect and is known not to carry an idempotency guarantee. |
+| `qhapaq.unknown` | The contract supplies no idempotency guarantee. |
+
+For every classification other than `qhapaq.conditional`, `classification` is
+the object's only member. A conditional object additionally requires:
+
+```json
+{
+  "classification": "qhapaq.conditional",
+  "keyPointer": "/idempotencyKey",
+  "minimumWindowMilliseconds": 86400000
+}
+```
+
+`keyPointer` is an RFC 6901 JSON Pointer into the operation input schema. It
+must resolve to a required, present, non-null string with `minLength` of at
+least one. The runtime value at that pointer is the caller-supplied key, and
+every equivalent retry must reuse it unchanged.
+`minimumWindowMilliseconds` is a positive JSON safe integer declaring the
+minimum interval for which the implementation guarantees deduplication of
+equivalent invocations carrying the same key. A retry is conditionally
+idempotent only when its complete configured retry horizon does not exceed that
+window.
+
+An empty `sideEffects` set requires `qhapaq.idempotent`, regardless of whether
+the operation's output can vary. Decorators use the same four classifications
+for their own effects. V1 decorators cannot strengthen an inner node's
+idempotency guarantee.
+
+A plan computes an idempotency risk summary with this conservative precedence:
+
+1. any `qhapaq.non-idempotent` component produces `qhapaq.non-idempotent`;
+2. otherwise, any `qhapaq.unknown` component produces `qhapaq.unknown`;
+3. otherwise, any `qhapaq.conditional` component produces
+   `qhapaq.conditional` and retains every distinct key and window requirement;
+4. otherwise the summary is `qhapaq.idempotent`.
+
+This summary does not claim that rerunning the complete pipeline is idempotent.
+A rerun may read changed external state and therefore supply a different input
+to a later operation. Whole-run idempotency requires a future analysis that can
+prove stable repeated operation inputs.
+
+An operation-level retry decorator holds the retried invocation input,
+configuration, and connection constant. Retrying a
+`qhapaq.non-idempotent`, `qhapaq.unknown`, or unsatisfied
+`qhapaq.conditional` invocation remains document-valid and may be
+host-bindable, but it is policy-ineligible by default. Trusted host policy must
+explicitly permit that unsafe retry before execution; the pipeline document
+cannot grant the permission. A denial occurs before any operation starts and is
+not catchable.
+
+### 11.8 Declared operation failures
+
+Every operation and decorator failure that may be reported as a catchable
+`operation` or `control` failure is exhaustively declared by its exact
+descriptor. Each normative declaration is a closed object containing:
+
+```json
+{
+  "code": "contoso.payments.charge.timeout",
+  "retryDisposition": "qhapaq.retry.transient",
+  "effectOutcome": "qhapaq.effect-outcome.unknown"
+}
+```
+
+`code` begins with the descriptor's exact operation ID followed by `.` and a
+stable local suffix. Codes are unique within the descriptor and sorted as
+required by Section 11.4. Renaming a code changes the contract. An
+implementation that emits an undeclared code, a malformed envelope, or
+dispositions different from the declaration produces a non-catchable
+implementation contract violation rather than an operation failure.
+
+`retryDisposition` is one of:
+
+- `qhapaq.retry.transient`: repeating the same equivalent invocation may
+  succeed after the condition changes;
+- `qhapaq.retry.permanent`: repeating the same equivalent invocation is not
+  expected to succeed without changing the request or contract; or
+- `qhapaq.retry.unknown`: the contract makes no retry-success claim.
+
+`effectOutcome` is one of:
+
+- `qhapaq.effect-outcome.none`: the failed attempt guarantees that none of its
+  declared effects occurred;
+- `qhapaq.effect-outcome.occurred`: the failed attempt guarantees that at least
+  one declared effect occurred; or
+- `qhapaq.effect-outcome.unknown`: at least one declared effect may have
+  occurred, but the outcome is not known.
+
+The two dimensions are independent. A transient timeout with unknown effect
+outcome is not safely retryable merely because its cause may clear. Automatic
+retry is safe only when the retry disposition permits it and either the failure
+guarantees no effect or the operation's idempotency condition is satisfied.
+Other retries require explicit unsafe-retry policy.
+
+Failure descriptions are non-normative untrusted text stored under
+`documentation.failureDescriptions`, keyed by exact failure code. Every
+declared code has one non-empty description and the map contains no undeclared
+code. Descriptions are excluded from the contract digest and never appear in a
+runtime failure value or caught-failure projection. Human-facing adapters may
+render them beside a stable code; pipeline logic cannot inspect or branch on
+the text.
+
+V1 portable failures contain no operation-specific details payload. Provider
+response bodies, validation data, external request identifiers, exceptions,
+and other implementation details remain protected host diagnostics subject to
+separate disclosure policy.
+
 ## 12. .NET Operation Declarations
 
 This section is specific to the .NET reference implementation and does not
@@ -2729,6 +3002,19 @@ A minor version may describe a demonstrably backward-compatible addition, such
 as accepting an optional input or adding an output where the prior contract
 explicitly permits additive properties.
 
+Vocabulary compatibility is classified conservatively:
+
+- adding a capability or side effect is breaking; removing one is a compatible
+  strengthening;
+- weakening idempotency, changing a conditional key location, or shortening
+  its guaranteed minimum window is breaking; strengthening idempotency or
+  lengthening the window is compatible;
+- adding or renaming a possible failure code is breaking; removing a possible
+  failure code is a compatible strengthening;
+- changing either disposition of an existing failure code is breaking; and
+- changing a non-normative failure description is compatible and does not
+  change the contract digest.
+
 A patch version does not change the normative portable contract. Compatible
 implementation fixes and performance changes normally advance the implementation
 version while continuing to implement the same exact operation contract.
@@ -2820,7 +3106,8 @@ Validation occurs in these ordered stages:
    language version, and output schemas.
 9. Prove every operation connection schema-compatible.
 10. Verify implementation-native input and output bindings.
-11. Aggregate capabilities, side effects, idempotency, and resource budgets.
+11. Aggregate capabilities and side effects, compute the idempotency risk
+    summary, and aggregate resource budgets.
 12. Evaluate active host policy and required connection availability.
 13. Construct the immutable execution plan.
 
@@ -2837,7 +3124,9 @@ Document validity does not grant execution or payload-disclosure permission.
 Changes to the effective registry, host profile, policy, connections, or
 implementation integrity invalidate affected cached plans.
 
-## 15. Structured Diagnostics
+## 15. Structured Diagnostics and Failures
+
+### 15.1 Validation diagnostics
 
 Validation diagnostics are versioned machine-readable values containing:
 
@@ -2873,6 +3162,141 @@ Example:
 
 Diagnostics must not contain operation payloads, credentials, resolved secrets,
 or protected host configuration by default.
+
+### 15.2 Runtime structured-failure envelope
+
+Every runtime failure and terminal non-catchable execution outcome uses the
+versioned `qhapaq.failure/v1` envelope. Its closed base contains exactly:
+
+- `format`, whose value is `qhapaq.failure/v1`;
+- `category`;
+- `code`;
+- `retryDisposition`;
+- `effectOutcome`; and
+- `sourceNodeId` when one specific node originated the failure.
+
+`sourceNodeId` is required for every catchable failure and every other
+node-originated failure. It is omitted when cancellation, policy, a run-wide
+budget, or a host fault has no honest single source node. It is never filled
+with the pipeline root merely to satisfy a shape.
+
+The closed category vocabulary is:
+
+| Category | Catchable | Meaning |
+| --- | --- | --- |
+| `operation` | yes | A failure exhaustively declared by a primitive operation descriptor. |
+| `mapping` | yes | A deterministic mapping runtime failure. |
+| `control` | yes | A declared decorator failure or bounded structural-control failure. |
+| `aggregate` | yes | Two or more non-cancellation failures observed by one structural node. |
+| `cancellation` | no | Invocation cancellation. |
+| `policy` | no | Authorization or trusted policy denied execution. |
+| `budget` | no | A run-wide host execution budget was exhausted. |
+| `implementation` | no | A registered implementation violated its exact contract. |
+| `host` | no | Execution infrastructure was unavailable or failed unexpectedly. |
+
+Catchability is determined only by this category table. Individual codes cannot
+override it, and the envelope has no `catchable` field. Validation and binding
+diagnostics remain Section 15.1 diagnostics rather than runtime failures.
+
+The reserved mapping codes are:
+
+| Code | Retry disposition | Effect outcome |
+| --- | --- | --- |
+| `qhapaq.mapping.required-value-missing` | permanent | none |
+| `qhapaq.mapping.non-null-value-required` | permanent | none |
+| `qhapaq.mapping.invalid-number-text` | permanent | none |
+| `qhapaq.mapping.invalid-boolean-text` | permanent | none |
+| `qhapaq.mapping.integer-required` | permanent | none |
+| `qhapaq.mapping.number-range-assertion-failed` | permanent | none |
+| `qhapaq.mapping.length-assertion-failed` | permanent | none |
+| `qhapaq.mapping.format-assertion-failed` | permanent | none |
+| `qhapaq.mapping.division-by-zero` | permanent | none |
+| `qhapaq.mapping.non-finite-number-result` | permanent | none |
+| `qhapaq.mapping.portable-integer-range-exceeded` | permanent | none |
+| `qhapaq.mapping.collection-element-limit-exceeded` | permanent | none |
+| `qhapaq.mapping.collection-visit-limit-exceeded` | permanent | none |
+| `qhapaq.mapping.string-scalar-limit-exceeded` | permanent | none |
+| `qhapaq.mapping.string-byte-limit-exceeded` | permanent | none |
+| `qhapaq.mapping.value-byte-limit-exceeded` | permanent | none |
+| `qhapaq.mapping.evaluation-work-limit-exceeded` | permanent | none |
+
+The table uses the suffixes `permanent` and `none` for
+`qhapaq.retry.permanent` and `qhapaq.effect-outcome.none`, respectively.
+Mapping codes are assigned by distinct portable failure cause and are shared by
+operators with the same cause.
+
+The only structural-language control code is
+`qhapaq.control.loop-limit-exceeded`. It is permanent for the same loop input.
+Its effect outcome is derived from all work started before exhaustion.
+Decorator control codes are exhaustively declared by the exact decorator
+descriptor and use that descriptor's operation-ID prefix.
+
+When `parallel` or `forEach` observes one non-cancellation child failure, it
+propagates that failure unchanged. When it observes two or more, it reports
+category `aggregate` and code `qhapaq.aggregate.multiple-failures`.
+Aggregate retry disposition is permanent if any cause is permanent, otherwise
+unknown if any cause is unknown, and otherwise transient. Aggregate effect
+outcome is occurred if any started work reports an occurred outcome, otherwise
+unknown if any started effectful work has an unknown outcome, and otherwise
+none. Successful work with a non-empty declared side-effect set contributes an
+unknown outcome because a `may produce` declaration does not prove whether an
+effect occurred.
+
+The reserved non-catchable platform codes are:
+
+| Category | Codes |
+| --- | --- |
+| `cancellation` | `qhapaq.cancellation.requested` |
+| `policy` | `qhapaq.policy.authorization-denied`, `qhapaq.policy.operation-denied`, `qhapaq.policy.capability-denied`, `qhapaq.policy.side-effect-denied`, `qhapaq.policy.resource-scope-denied`, `qhapaq.policy.unsafe-retry-denied`, `qhapaq.policy.execution-denied` |
+| `budget` | `qhapaq.budget.duration-exceeded`, `qhapaq.budget.operation-count-exceeded`, `qhapaq.budget.attempt-count-exceeded`, `qhapaq.budget.iteration-count-exceeded`, `qhapaq.budget.memory-exceeded`, `qhapaq.budget.frame-size-exceeded`, `qhapaq.budget.output-size-exceeded` |
+| `implementation` | `qhapaq.implementation.undeclared-failure`, `qhapaq.implementation.failure-contract-violation`, `qhapaq.implementation.output-contract-violation`, `qhapaq.implementation.input-materialization-failed`, `qhapaq.implementation.output-materialization-failed` |
+| `host` | `qhapaq.host.execution-unavailable`, `qhapaq.host.unexpected-fault` |
+
+Policy failures are permanent under the active policy and have effect outcome
+none because eligibility is decided before execution. Host execution
+unavailability is transient and has effect outcome none. An unexpected host
+fault has unknown retry and effect outcomes. Input materialization failure has
+effect outcome none because operation invocation has not begun. Other
+implementation failures after invocation have unknown effect outcome.
+
+Cancellation, budget, loop-limit, aggregate, and other structural outcomes
+derive their effect outcome from all started work, not only from failure causes.
+The outcome is none only when all started work is effect-free or known not to
+have applied effects; it is occurred when an observed outcome proves that an
+effect occurred; otherwise it is unknown. This derivation never assumes that a
+successful operation with a `may produce` side effect actually produced it.
+
+The base envelope contains no human message, timestamp, correlation identifier,
+exception data, or arbitrary details. Human-facing adapters resolve declared
+operation descriptions or Qhapaq platform-code documentation separately.
+
+### 15.3 Aggregate and recovery causality
+
+The external execution result extends every aggregate failure with a closed
+recursive `causes` array, a `totalLeafFailureCount` positive JSON safe integer,
+and a `causesTruncated` Boolean. Causes follow the node's existing deterministic
+order: ordinal branch name for `parallel` and ascending work index for
+`forEach`. Nested aggregates preserve their causal grouping.
+
+The complete returned failure graph, including the root, aggregate causes, and
+recovery causality, contains at most 256 failure nodes and at most 32 cause
+levels. Projection uses deterministic depth-first preorder. Each aggregate's
+`totalLeafFailureCount` counts every observed leaf failure in its complete
+subtree. `causesTruncated` is true exactly when the returned subtree omits at
+least one failure because of either bound. Protected host diagnostics may
+retain more information but must preserve the same causal ordering.
+
+When a `tryCatch` recovery subtree fails, the external execution result extends
+the terminal recovery failure with a closed `causedBy` value containing the
+original try failure. When projection omits a recovery cause because of a graph
+bound, `causedByTruncated` is true on the result whose cause was omitted;
+otherwise that member is absent. Nested recovery uses the same graph bounds
+and deterministic projection. Recovery failure is not relabeled as an
+aggregate.
+
+The `caught-failure` mapping source always receives only the closed base
+projection in Section 6.3.7. It never receives `causes`, `causedBy`, aggregate
+leaf counts, truncation metadata, descriptions, or protected diagnostics.
 
 ## 16. AI and MCP Authoring Surface
 
@@ -3002,6 +3426,15 @@ The language-neutral conformance suite includes:
   closed-format validation vectors required by Section 9.5;
 - exact-version and contract-digest conflict tests;
 - operation-contract compatibility-diff vectors;
+- capability and side-effect vocabulary, namespace, canonical-order,
+  unsupported-extension, aggregation, and decorator-preservation vectors;
+- idempotency-object, conditional-key, deduplication-window, risk-summary, and
+  unsafe-retry policy vectors;
+- declared-failure exhaustiveness, code-prefix, disposition, documentation, and
+  contract-violation vectors;
+- runtime failure-category, catchability, platform-code, effect-outcome,
+  singleton propagation, aggregate disposition, bounded causal-tree, and
+  recovery-causality vectors;
 - structured diagnostic golden files;
 - Mermaid golden files;
 - registry and native-binding rejection tests;
@@ -3079,7 +3512,7 @@ early.
   count, collection processing, string and output size, and evaluation budget.
 - [x] Define the portable regular-expression grammar and exact algorithms for
   the closed format allowlist.
-- [ ] Define the normative capability, side-effect, idempotency, and structured
+- [x] Define the normative capability, side-effect, idempotency, and structured
   failure vocabularies.
 - [ ] Define the public .NET marker and static declaration contracts, manifest
   envelope, generator diagnostic-code policy, and initial compatibility matrix.
@@ -3441,9 +3874,7 @@ an exact pipeline reference.
 
 ## 23. Open Questions
 
-1. Which capability, side-effect, idempotency, and structured-failure
-   vocabularies are normative?
-2. What are the exact public .NET declaration-contract and marker-attribute type
+1. What are the exact public .NET declaration-contract and marker-attribute type
    names, generated API names, stable generator diagnostic codes, and initial
    generator compatibility matrix?
-3. What are the exact CLI commands and MCP tool request and response schemas?
+2. What are the exact CLI commands and MCP tool request and response schemas?
