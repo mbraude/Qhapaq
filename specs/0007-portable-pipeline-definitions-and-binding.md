@@ -899,21 +899,10 @@ its input is JSON `null`, does not handle missing, and otherwise passes the
 value through. Their inferred result types remove only the state each operator
 checks.
 
-The initial language includes:
-
-- property and array-item selection;
-- object and array construction;
-- JSON literals;
-- Boolean and numeric expressions;
-- string concatenation and supported formatting;
-- conditional expressions;
-- explicit null handling and coalescing;
-- bounded array projection and filtering; and
-- explicit supported parsing and conversion functions; and
-- checked range assertions for explicit numeric or length narrowing.
-
-The normative schema will enumerate every operator, operand shape, and result
-typing rule. Unknown operators are invalid.
+Sections 8.5 through 8.10 define the complete v1 operator set, operand shapes,
+evaluation order, result typing, value-state behavior, runtime failure behavior,
+and explicitly deferred capabilities. The normative schema must enumerate
+exactly those operators and shapes. Unknown operators are invalid.
 
 ### 8.2 Prohibited capabilities
 
@@ -939,15 +928,16 @@ outputs without an explicit operation such as coalescing, conditional handling,
 or a checked assertion. There are no implicit string, number, Boolean, enum,
 date, or identifier conversions.
 
-An expression may contain a checked partial operation, such as parsing a date.
+An expression may contain a checked partial operation, such as parsing a number.
 Such an operation must have specified failure behavior. A runtime value failure
 terminates the transform before any downstream operation begins.
 
-`assert-range` is the v1 checked narrowing operation for numeric values and
-bounded string or collection lengths. Its declared bounds must be no wider than
-the statically inferred input bounds. A value within the asserted bounds passes
-through unchanged and receives the narrower result schema. A value outside the
-bounds fails the transform; the binder never inserts this assertion implicitly.
+`assert-number-range` is the v1 checked narrowing operation for numeric values.
+`assert-length` is the corresponding operation for string and array lengths.
+Their declared bounds must be no wider than the statically inferred input
+bounds. A value within the asserted bounds passes through unchanged and
+receives the narrower result schema. A value outside the bounds fails the
+transform; the binder never inserts either assertion implicitly.
 
 `assert-integer` is the v1 checked narrowing operation from `number` to
 `integer`. An integral input passes through as the same mathematical JSON number
@@ -978,6 +968,10 @@ lexical forms, and JSON `null` produces `"null"`. Arrays and objects produce
 their RFC 8785 canonical JSON text. V1 has no separate type-specific
 stringification operators.
 
+`trim` removes only the four JSON whitespace characters U+0009, U+000A,
+U+000D, and U+0020 from the beginning and end of a string. It is not
+locale-sensitive and does not remove any other Unicode whitespace.
+
 ### 8.4 Serialization boundary
 
 Ordinary in-process operation connections continue to use native values.
@@ -993,6 +987,262 @@ A transform is an explicit portable-value boundary:
 
 The plan binder pre-binds these projections and materializers. A transform must
 not discover serializers or native types during a run.
+
+### 8.5 Closed operator set and operand shapes
+
+In this section, `expression` means one recursively valid
+`qhapaq.mapping/v1` operator object. `identifier` uses the transform-input alias
+grammar `^[a-z][A-Za-z0-9]*$`. Every operator object requires its listed members
+and rejects members not listed as required or optional.
+
+| Operators | Required operands | Optional operands |
+| --- | --- | --- |
+| `literal` | `value`: any JSON value | none |
+| `input`, `variable` | `name`: identifier | none |
+| `property` | `value`: expression; `name`: string | none |
+| `item` | `value`: expression; `index`: expression | none |
+| `object` | `fields`: map from member names to expressions | none |
+| `array` | `items`: ordered expression array | none |
+| `length` | `value`: expression | none |
+| `is-missing`, `is-null`, `require-present`, `require-non-null`, `not`, `negate`, `trim`, `stringify`, `parse-number`, `parse-boolean`, `assert-integer` | `value`: expression | none |
+| `coalesce-missing`, `coalesce-null` | `value`: expression; `fallback`: expression | none |
+| `if` | `condition`: expression; `then`: expression; `else`: expression | none |
+| `and`, `or`, `add`, `multiply`, `concat` | `values`: ordered array of at least two expressions | none |
+| `equal`, `not-equal`, `deep-equal`, `less-than`, `less-than-or-equal`, `greater-than`, `greater-than-or-equal`, `subtract`, `divide`, `remainder` | `left`: expression; `right`: expression | none |
+| `map` | `value`: expression; `itemName`: identifier; `expression`: expression | `indexName`: identifier |
+| `filter` | `value`: expression; `itemName`: identifier; `predicate`: expression | `indexName`: identifier |
+| `assert-number-range` | `value`: expression and at least one bound | `minimum` or `exclusiveMinimum`; `maximum` or `exclusiveMaximum` |
+| `assert-length` | `value`: expression and at least one bound | `minimum`; `maximum` |
+| `assert-format` | `value`: expression; `format`: allowed format name | none |
+
+`property.name`, assertion bounds, and `assert-format.format` are literal
+operands rather than expressions. Numeric-range bounds are finite JSON numbers.
+At most one inclusive or exclusive bound may be supplied for each side.
+Length bounds are non-negative integer literals. The lower bound must not
+exceed the upper bound, accounting for exclusive numeric endpoints.
+
+An empty `object.fields` map and an empty `array.items` array are valid.
+`property.name` names one member and never contains a path. `item.index` must
+infer as a required, non-null integer expression.
+
+`map` and `filter` evaluate only arrays. `itemName` is required and names the
+current element. `indexName`, when present, names its zero-based index.
+`variable` may name only a collection variable in active lexical scope.
+`itemName` and `indexName` must differ from each other, from every transform
+input alias, and from every active outer collection-variable name. Shadowing is
+invalid. A collection variable is in scope only within the containing
+`expression` or `predicate`, including nested expressions.
+
+`length` and `assert-length` accept only strings and arrays. String length is
+the number of Unicode scalar values; array length is the number of elements.
+Object member counts are unsupported.
+
+`equal` and `not-equal` accept scalar JSON values only. Numeric operands use
+mathematical numeric equality without conversion to another JSON type; all
+other operands must have the same scalar type, and no string, Boolean, or null
+coercion occurs. `deep-equal` requires two arrays or two objects of the same
+composite kind and recursively compares their complete contents. Array order is
+significant; object member order is not. Deep inequality composes `not` with
+`deep-equal`.
+
+The four ordered comparison operators accept numeric operands only. They do not
+define string collation, temporal ordering, or composite ordering.
+
+`property.value` must infer as an object. `item.value` must infer as an array.
+`if.condition`, every `and` and `or` value, and `not.value` must infer as
+Boolean. Numeric arithmetic operands must infer as `integer` or `number`.
+`concat` values and `trim.value` must infer as strings. `parse-number` and
+`parse-boolean` accept strings. `assert-integer` accepts a number;
+`assert-number-range` accepts an integer or number; `assert-length` accepts a
+string or array; and `assert-format` accepts a string. These requirements are
+in addition to the presence and nullability requirements in Section 8.7.
+
+### 8.6 Evaluation order
+
+The abstract evaluation order is deterministic and sequential:
+
+1. `left` is evaluated before `right`.
+2. Expression arrays are evaluated from index zero upward.
+3. `property` evaluates `value` first. `item` evaluates `value` before `index`.
+4. `object.fields` are evaluated in RFC 8785 member-name order.
+5. `add` and `multiply` are left folds in listed order. Implementations must not
+   regroup operands.
+6. `if` evaluates `condition` and only the selected branch.
+7. `and` stops at the first false operand. `or` stops at the first true operand.
+8. A coalescing operator evaluates `fallback` only when its specifically
+   handled state occurs.
+9. `map` and `filter` evaluate their source once, then process elements from
+   index zero upward. `map` evaluates one expression per element. `filter`
+   evaluates one predicate per element and preserves the relative order of
+   retained elements.
+
+The first runtime failure in this order terminates the transform. Unevaluated
+operands and elements cannot fail and consume no evaluation budget. An
+implementation may evaluate internally in another order or in parallel only
+when the observable result, selected first failure, and budget consumption are
+identical to the abstract order.
+
+### 8.7 Static result inference
+
+An inferred expression type consists of one normalized Qhapaq v1 schema and a
+separate `mayBeMissing` Boolean. JSON `null` remains part of the schema type.
+`missing` is never encoded as a schema type or keyword.
+
+When an operator combines alternatives, the type checker derives the least
+representable common super-schema under the closed v1 profile. It combines
+nullability; promotes `integer` and `number` to `number`; widens numeric and
+length intervals only enough to cover both alternatives; retains `format`,
+`pattern`, and uniqueness constraints only when both alternatives guarantee
+the same constraint; intersects required object members and recursively joins
+the effective schemas of properties that either alternative may emit; and
+recursively joins array item schemas. Equal `const` values remain `const`.
+Different finite `const` or `enum` sets combine as their set union when the
+result remains within the enum limit. Other constraints are retained only when
+the schema-profile compatibility rules prove that they admit both
+alternatives.
+
+If alternatives have different concrete types other than `integer` and
+`number`, or any recursive join has no representation in the v1 profile, the
+expression is invalid. In particular, a constructed array cannot mix unrelated
+element types. Inferred schemas omit documentation annotations.
+
+The operator-specific inference rules are:
+
+- `literal` infers the exact value as a `const`. `input` infers its declared
+  source schema. An item `variable` infers the source array's item schema; an
+  index variable infers a non-negative integer schema bounded by the source
+  array's maximum when one is known.
+- `property` infers the effective named-property or additional-property schema
+  and sets `mayBeMissing` when the member is not required. Selecting a member
+  forbidden by the input schema is invalid.
+- `item` infers the array item schema. It sets `mayBeMissing` unless the inferred
+  index bounds and source `minItems` prove that every possible index exists.
+- `object` produces a closed object schema with every field required. `array`
+  joins its item schemas and has its exact constructed length. A field or item
+  expression that may be missing is invalid.
+- `length` returns a non-negative integer with bounds derived from the source
+  string or array.
+- Presence and null tests return required, non-null Boolean values.
+  Coalescing removes only its handled state from the primary and joins the
+  remaining primary type with the fallback. Requirement operators remove only
+  their checked state from successful results.
+- `if` joins its branch types after guard refinement. Boolean operators return
+  required, non-null Boolean values.
+- Equality, ordered comparison, and `deep-equal` return required, non-null
+  Boolean values.
+- Numeric operators use interval arithmetic. `add`, `multiply`, `subtract`, and
+  `negate` preserve `integer` when all applicable operands are integers;
+  otherwise they infer `number`. `divide` and `remainder` infer `number`.
+- `concat` returns a string with summed length bounds. `trim` returns a string
+  with minimum length zero and a maximum no greater than the source maximum.
+- `map` returns an array whose item schema is the mapped-expression schema and
+  whose length bounds equal the source bounds. Its mapped expression may not
+  produce missing. `filter` preserves the source item schema and maximum
+  length, sets minimum length to zero, and requires a required, non-null Boolean
+  predicate.
+- Parsers return required, non-null `number` or Boolean results on success.
+  `stringify` returns a required, non-null string. Checked assertions intersect
+  the input schema with the asserted constraint and remove no unrelated state.
+  `assert-format` may name only a format in the closed v1 allowlist.
+
+Except for operators expressly defined to inspect, propagate, or handle
+`missing` or JSON `null`, every operand must be statically proven present and
+non-null. Successful-result inference is independent from whether a checked
+partial operator may fail for a runtime value.
+
+Guard-based narrowing applies to exact canonically identical expressions.
+`is-missing` narrows presence, and `is-null` narrows nullability. `not` reverses
+the true and false facts. `and` carries true facts left to right; `or` carries
+false facts left to right. `if` checks its selected branch under the facts
+established by the corresponding condition outcome. Facts from alternatives
+are retained only when every path establishes the same fact.
+
+### 8.8 `missing` and JSON `null`
+
+`missing` is an internal evaluation state introduced only by selection or
+propagation from a selection. It has no literal syntax, cannot enter through a
+declared portable input, cannot be serialized, and never satisfies a schema.
+
+An absent optional property produces `missing`. A negative or out-of-range
+array index also produces `missing`; neither selection fails solely because the
+selected value is absent. A selected JSON `null` remains null.
+
+The state predicates are total and return:
+
+| Operand state | `is-missing` | `is-null` |
+| --- | --- | --- |
+| `missing` | `true` | `false` |
+| JSON `null` | `false` | `true` |
+| any other JSON value | `false` | `false` |
+
+`coalesce-missing` evaluates and returns its fallback only for `missing`; it
+passes JSON `null` through. `coalesce-null` evaluates and returns its fallback
+only for JSON `null`; it propagates `missing`. `require-present` fails for
+`missing` and passes JSON `null`. `require-non-null` fails for JSON `null` and
+propagates `missing`.
+
+Scalar equality may compare JSON `null`, but an equality operand may not be
+missing. `stringify` converts JSON `null` to `"null"` and does not accept
+missing. Constructors and mapped array items may contain null only when their
+inferred schemas permit it, and may never contain missing.
+
+The final transform expression must be statically proven present. It may return
+JSON `null` only when `outputSchema` permits null. No operator silently converts
+missing to null or null to missing.
+
+### 8.9 Runtime failures
+
+A mapping runtime failure is distinct from a static validation error,
+cancellation, and an unexpected host fault. V1 mapping failures are:
+
+- a failed `require-present` or `require-non-null`;
+- text rejected by `parse-number` or `parse-boolean`;
+- a failed integer, numeric-range, length, or format assertion;
+- division or remainder by zero, a non-finite numeric result, or an integer
+  result outside the portable safe-integer domain; and
+- exhaustion of a portable mapping evaluation or size limit.
+
+Numeric arithmetic uses IEEE 754 binary64 round-to-nearest, ties-to-even, with
+one rounding after each operation in the abstract evaluation order. Fused
+operations or reassociation must not change a result. `remainder` uses a
+quotient truncated toward zero. A computed negative zero is normalized to
+zero. A result outside the portable numeric domain fails rather than producing
+`NaN`, infinity, or a clamped value.
+
+The first mapping failure terminates the transform immediately. No remaining
+operand, collection element, downstream node, or native materializer starts.
+Failures are not values and cannot be caught by a mapping expression.
+
+A mapping failure identifies the transform node, operator, and expression JSON
+Pointer without reproducing operand values. It may include bounded,
+non-sensitive details such as a violated assertion bound. The structured
+failure vocabulary defines the exact stable codes and enclosing run-failure
+envelope.
+
+Runtime values are validated at portable boundaries. A value that violates a
+schema the binder had already proven is reported as a host or implementation
+contract failure, not as ordinary mapping input failure. Cancellation remains
+cancellation, and an unexpected implementation exception remains a host fault;
+neither is relabeled as a mapping failure.
+
+### 8.10 Future-version candidates
+
+The following capabilities are intentionally outside v1 and are recorded as
+non-normative candidates rather than commitments:
+
+- bounded regular-expression matching, extraction, and replacement, dependent
+  on the shared portable `pattern` grammar and evaluator;
+- temporal parsing, canonical normalization, formatting, timezone conversion,
+  comparison, and arithmetic, dependent on a dedicated portable temporal model;
+- locale-independent Unicode case conversion, dependent on a pinned Unicode
+  version and mapping algorithm;
+- sorting, reduction, membership and containment helpers, substring and
+  non-regex replacement helpers, Base64 conversion, object merge, and general
+  format templates.
+
+A future mapping-language version may select, rename, split, or omit these
+candidates. This list grants no forward-compatibility interpretation to v1
+hosts.
 
 ## 9. Schema Profile and Compatibility
 
@@ -1138,10 +1388,11 @@ uses the canonical JSON data model, including mathematical equality for JSON
 numbers rather than source-text equality.
 
 Numeric ranges and string or array length ranges use exact mathematical set
-containment, including inclusive and exclusive endpoints. A wider upstream
-range is incompatible with a narrower downstream range. Authors may use an
-explicit checked `assert-range` transform to narrow the schema; a binder must
-not insert an implicit runtime range check or alter the value by clamping it.
+containment, including inclusive and exclusive numeric endpoints. A wider
+upstream range is incompatible with a narrower downstream range. Authors may
+use an explicit checked `assert-number-range` or `assert-length` transform to
+narrow the schema; a binder must not insert an implicit runtime range check or
+alter the value by clamping it.
 
 The portable v1 numeric domain is the set of finite IEEE 754 binary64 values
 accepted by RFC 8785 canonicalization. `NaN`, positive infinity, negative
@@ -1911,7 +2162,7 @@ early.
   - [x] Define the bounded `loop` node.
   - [x] Define shared exact contract references, configuration values,
     transform input sources, and the final output projection.
-- [ ] Define the complete `qhapaq.mapping/v1` operator set, operand shapes,
+- [x] Define the complete `qhapaq.mapping/v1` operator set, operand shapes,
   evaluation order, inferred result types, `missing` and `null` behavior, and
   runtime failure behavior.
 - [ ] Define portable mapping limits, including expression depth, operator
@@ -2248,7 +2499,8 @@ an exact pipeline reference.
 
 1. What exact grammar defines the portable `pattern` subset, and which precise
    validation algorithms implement the closed v1 format allowlist?
-2. What is the complete `qhapaq.mapping/v1` operator set and complexity budget?
+2. What exact portable complexity and evaluation budget applies to
+   `qhapaq.mapping/v1`?
 3. Which capability, side-effect, idempotency, and structured-failure
    vocabularies are normative?
 4. What are the exact public .NET declaration-contract and marker-attribute type
