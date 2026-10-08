@@ -4,7 +4,7 @@
 >
 > **Target:** Qhapaq v1
 >
-> **Last updated:** 2026-10-06
+> **Last updated:** 2026-10-07
 
 ## 1. Summary
 
@@ -1268,10 +1268,13 @@ its input is JSON `null`, does not handle missing, and otherwise passes the
 value through. Their inferred result types remove only the state each operator
 checks.
 
-Sections 8.5 through 8.10 define the complete v1 operator set, operand shapes,
-evaluation order, result typing, value-state behavior, runtime failure behavior,
-and explicitly deferred capabilities. The normative schema must enumerate
-exactly those operators and shapes. Unknown operators are invalid.
+Sections 8.5 through 8.11 define the v1 operators whose semantics have been
+closed to date, including their operand shapes, evaluation order, result typing,
+value-state behavior, runtime failure behavior, and required conformance
+coverage. Section 8.12 records the remaining Phase 0 checkpoints in the
+explicitly reopened v1 operator set. The
+normative schema must enumerate exactly the operators and shapes selected when
+those checkpoints close. Unknown operators are invalid.
 
 ### 8.2 Prohibited capabilities
 
@@ -1370,6 +1373,8 @@ and rejects members not listed as required or optional.
 | `input`, `variable` | `name`: identifier | none |
 | `property` | `value`: expression; `name`: string | none |
 | `item` | `value`: expression; `index`: expression | none |
+| `last` | `value`: expression | none |
+| `slice` | `value`: expression; `start`: expression | `count`: expression |
 | `object` | `fields`: map from member names to expressions | none |
 | `array` | `items`: ordered expression array | none |
 | `length` | `value`: expression | none |
@@ -1380,27 +1385,59 @@ and rejects members not listed as required or optional.
 | `equal`, `not-equal`, `deep-equal`, `less-than`, `less-than-or-equal`, `greater-than`, `greater-than-or-equal`, `subtract`, `divide`, `remainder` | `left`: expression; `right`: expression | none |
 | `map` | `value`: expression; `itemName`: identifier; `expression`: expression | `indexName`: identifier |
 | `filter` | `value`: expression; `itemName`: identifier; `predicate`: expression | `indexName`: identifier |
+| `sort-by` | `value`: expression; `itemName`: identifier; `key`: expression; `direction`: `"ascending"` or `"descending"` | `indexName`: identifier |
 | `assert-number-range` | `value`: expression and at least one bound | `minimum` or `exclusiveMinimum`; `maximum` or `exclusiveMaximum` |
 | `assert-length` | `value`: expression and at least one bound | `minimum`; `maximum` |
 | `assert-format` | `value`: expression; `format`: allowed format name | none |
 
 `property.name`, assertion bounds, and `assert-format.format` are literal
-operands rather than expressions. Numeric-range bounds are finite JSON numbers.
+operands rather than expressions. `sort-by.direction` is also a literal operand,
+not an expression. Numeric-range bounds are finite JSON numbers.
 At most one inclusive or exclusive bound may be supplied for each side.
 Length bounds are non-negative integer literals. The lower bound must not
 exceed the upper bound, accounting for exclusive numeric endpoints.
 
 An empty `object.fields` map and an empty `array.items` array are valid.
 `property.name` names one member and never contains a path. `item.index` must
-infer as a required, non-null integer expression.
+infer as a required, non-null integer expression. `last.value` and
+`slice.value` must infer as arrays. `slice.start` and `slice.count`, when
+present, must infer as required, non-null integers whose inferred minimum is
+non-negative. A dynamic integer not already proven non-negative must be
+explicitly narrowed before use.
 
-`map` and `filter` evaluate only arrays. `itemName` is required and names the
-current element. `indexName`, when present, names its zero-based index.
+`last` is the only single-item convenience operator. It selects the final array
+element without evaluating its source more than once. V1 has no `first`
+operator; selecting the first item uses `item` with a literal zero index.
+
+`slice` selects a contiguous array window beginning at the zero-based `start`
+index. When `count` is present, it selects at most that many elements. When
+`count` is absent, it selects through the end of the source. A zero count
+returns an empty array. If `start` is greater than or equal to the source
+length, the result is an empty array. If fewer than `count` elements remain,
+the result contains every remaining element and does not fail or produce
+`missing`. V1 has no `take` or `skip` operators: taking `n` items uses `slice`
+with a literal zero `start` and `count` equal to `n`, and skipping `n` items
+uses `slice` with `start` equal to `n` and no `count`.
+
+`map`, `filter`, and `sort-by` evaluate only arrays. `itemName` is required and
+names the current element. `indexName`, when present, names its original
+zero-based source index.
 `variable` may name only a collection variable in active lexical scope.
 `itemName` and `indexName` must differ from each other, from every transform
 input alias, and from every active outer collection-variable name. Shadowing is
 invalid. A collection variable is in scope only within the containing
-`expression` or `predicate`, including nested expressions.
+`expression`, `predicate`, or `key`, including nested expressions. A
+`sort-by` collection variable is not in scope within `value` or after the
+operator completes. V1 exposes no sorted-rank variable.
+
+`sort-by.key` must infer as a required, non-null integer or number. Sorting uses
+the existing portable numeric comparison semantics and permits integer and
+number keys together. Keys that are mathematically equal, including an integer
+and number representation of the same value, compare equal. Ascending order
+places lesser keys first. Descending order reverses only lesser-than and
+greater-than outcomes; it does not reverse equal-key items. Sorting is stable
+in either direction, so items with equal keys retain their relative source
+order.
 
 `length` and `assert-length` accept only strings and arrays. String length is
 the number of Unicode scalar values; array length is the number of elements.
@@ -1432,7 +1469,9 @@ The abstract evaluation order is deterministic and sequential:
 
 1. `left` is evaluated before `right`.
 2. Expression arrays are evaluated from index zero upward.
-3. `property` evaluates `value` first. `item` evaluates `value` before `index`.
+3. `property` and `last` evaluate `value` once. `item` evaluates `value` before
+   `index`. `slice` evaluates `value`, then `start`, then `count` when present;
+   it evaluates each operand exactly once.
 4. `object.fields` are evaluated in RFC 8785 member-name order.
 5. `add` and `multiply` are left folds in listed order. Implementations must not
    regroup operands.
@@ -1444,6 +1483,11 @@ The abstract evaluation order is deterministic and sequential:
    index zero upward. `map` evaluates one expression per element. `filter`
    evaluates one predicate per element and preserves the relative order of
    retained elements.
+10. `sort-by` evaluates its source once. After the source-size and fixed
+    sorting-work checks in Section 8.10, it evaluates each key exactly once in
+    ascending source-index order. All keys must succeed before sorting and
+    result emission begin. It then stably orders the stored items and keys and
+    emits items in result order.
 
 The first runtime failure in this order terminates the transform. Unevaluated
 operands and elements cannot fail and consume no evaluation budget. An
@@ -1486,6 +1530,18 @@ The operator-specific inference rules are:
   forbidden by the input schema is invalid.
 - `item` infers the array item schema. It sets `mayBeMissing` unless the inferred
   index bounds and source `minItems` prove that every possible index exists.
+- `last` infers the array item schema. It sets `mayBeMissing` unless the source
+  `minItems` is at least one.
+- `slice` returns an array with the source item schema and never sets
+  `mayBeMissing`. Let `Smin` and `Smax` be the source length bounds, `Amin` and
+  `Amax` the inferred `start` bounds, and, when present, `Cmin` and `Cmax` the
+  inferred `count` bounds. Its minimum length is
+  `max(0, Smin - Amax)` without `count`, or
+  `min(max(0, Smin - Amax), Cmin)` with `count`. Its maximum length is
+  `max(0, Smax - Amin)`, capped at `Cmax` when `count` is present. When a
+  required source or operand bound is unknown, the corresponding result bound
+  is omitted unless `count` alone supplies the maximum. A source
+  `uniqueItems` guarantee is preserved.
 - `object` produces a closed object schema with every field required. `array`
   joins its item schemas and has its exact constructed length. A field or item
   expression that may be missing is invalid.
@@ -1509,6 +1565,10 @@ The operator-specific inference rules are:
   produce missing. `filter` preserves the source item schema and maximum
   length, sets minimum length to zero, and requires a required, non-null Boolean
   predicate.
+- `sort-by` returns a present array with the source item schema and the same
+  `minItems` and `maxItems` bounds as the source. It preserves a source
+  `uniqueItems` guarantee. Its key must be a required, non-null integer or
+  number. No other order-sensitive constraint is inferred or introduced.
 - Parsers return required, non-null `number` or Boolean results on success.
   `stringify` returns a required, non-null string. Checked assertions intersect
   the input schema with the asserted constraint and remove no unrelated state.
@@ -1534,7 +1594,14 @@ declared portable input, cannot be serialized, and never satisfies a schema.
 
 An absent optional property produces `missing`. A negative or out-of-range
 array index also produces `missing`; neither selection fails solely because the
-selected value is absent. A selected JSON `null` remains null.
+selected value is absent. `last` produces `missing` for an empty array. A
+selected JSON `null` remains null.
+
+`slice` never produces `missing` because of its bounds. It returns a present,
+possibly empty array according to Section 8.5. As with other operators not
+defined to handle value states, the source and bound operands of `last` and
+`slice`, and the source and key of `sort-by`, must be statically proven present
+and non-null.
 
 The state predicates are total and return:
 
@@ -1594,6 +1661,12 @@ contract failure, not as ordinary mapping input failure. Cancellation remains
 cancellation, and an unexpected implementation exception remains a host fault;
 neither is relabeled as a mapping failure.
 
+`sort-by` introduces no separate invalid-key runtime failure. Static validation
+proves that every key is present, non-null, and numeric. Existing failures from
+the source or a key expression and portable limit exhaustion retain their
+ordinary codes and follow the evaluation order in Sections 8.6 and 8.10.
+`sort-by` never returns a partially sorted result.
+
 ### 8.10 Portable complexity and evaluation limits
 
 `qhapaq.mapping/v1` defines fixed structural ceilings, portable runtime
@@ -1651,14 +1724,14 @@ effective limits of a pipeline that omitted them or requested lower values.
 
 The runtime collection rules are:
 
-- An array that becomes the source of `map` or `filter` must not contain more
-  than `maxCollectionElements` elements.
-- Every array produced by `literal`, `array`, `map`, or `filter`, and every
-  array returned as the final mapping result, must not contain more than
-  `maxCollectionElements` elements. The rule applies recursively to arrays in
-  produced literal and composite values.
-- Immediately before a `map` body or `filter` predicate begins for an element,
-  one collection visit is debited from the evaluation's shared
+- An array that becomes the source of `map`, `filter`, or `sort-by` must not
+  contain more than `maxCollectionElements` elements.
+- Every array produced by `literal`, `array`, `map`, `filter`, `slice`, or
+  `sort-by`, and every array returned as the final mapping result, must not
+  contain more than `maxCollectionElements` elements. The rule applies
+  recursively to arrays in produced literal and composite values.
+- Immediately before a `map` body, `filter` predicate, or `sort-by` key begins
+  for an element, one collection visit is debited from the evaluation's shared
   `maxCollectionVisits` budget. Filtered-out elements count. Unevaluated
   elements do not.
 - Nested collection operators share the same visit budget. No nested operator,
@@ -1673,13 +1746,38 @@ mapping result must satisfy both `maxStringScalars` and
 
 Value size is the number of bytes in the RFC 8785 canonical UTF-8
 representation. Every composite value created by `literal`, `object`, `array`,
-`map`, or `filter`, and the final mapping result, must satisfy
+`map`, `filter`, `slice`, or `sort-by`, and the final mapping result, must satisfy
 `maxValueUtf8Bytes`. Implementations may calculate size incrementally without
 materializing canonical JSON, but must produce the same byte count and must
 stop construction before exceeding the effective limit. A mapping may select a
 bounded portion of a larger input; input frame values that are not produced as
 mapping results remain subject to separate host frame-memory and aggregate
 output budgets.
+
+`last` examines one array element when the source is non-empty and none when it
+is empty. `slice` examines and emits each selected element in ascending source
+index order. Elements before `start` and elements after the selected window are
+not examined and incur no element work. The ordinary operator-invocation,
+element-examination, and element-emission charges otherwise apply unchanged.
+
+After `sort-by` evaluates its source and verifies
+`maxCollectionElements`, but before it examines any source element or evaluates
+any key, it debits fixed sorting work. For a source of length `n`, the debit is
+zero when `n` is zero or one. Otherwise it is
+`n * ceil(log2(n))`, where `ceil(log2(n))` is the smallest non-negative integer
+`k` for which `2^k >= n`. The calculation uses exact non-negative integer
+arithmetic and never a floating-point logarithm. Counter overflow or a debit
+greater than the remaining `maxEvaluationWork` is work exhaustion before any
+key begins.
+
+After the fixed debit succeeds, `sort-by` processes source elements in
+ascending index order. Before each key, it debits one element examination and
+one collection visit, then charges the key expression normally. After all keys
+succeed, it emits each item in sorted order and charges one element emission.
+The fixed sorting-work debit covers all internal key comparisons and record
+movement; those internal steps incur no additional examination, emission,
+collection-visit, or per-comparison work charges. Produced-array collection,
+string, and value-size limits still apply.
 
 Portable evaluation work uses one abstract work unit for each:
 
@@ -1690,13 +1788,14 @@ Portable evaluation work uses one abstract work unit for each:
   charged before that scalar is processed.
 
 Repeated evaluation of a `map` body or `filter` predicate charges every
-operator invocation again. Composite construction, `deep-equal`, `stringify`,
-and other traversals charge each member, element, or string scalar they
-actually examine or emit under these rules. An item that is both examined and
-emitted incurs both charges. Operators, operands, branches, elements, members,
-and scalars skipped by the abstract evaluation order consume no work. Counters
-use exact non-negative integer arithmetic; an implementation must treat
-counter overflow as exhaustion rather than wrap the counter.
+operator invocation again, as does repeated evaluation of a `sort-by` key.
+Composite construction, `deep-equal`, `stringify`, and other traversals charge
+each member, element, or string scalar they actually examine or emit under
+these rules. An item that is both examined and emitted incurs both charges.
+Operators, operands, branches, elements, members, and scalars skipped by the
+abstract evaluation order consume no work. Counters use exact non-negative
+integer arithmetic; an implementation must treat counter overflow as
+exhaustion rather than wrap the counter.
 
 All portable runtime limits are debited immediately before the corresponding
 work. The first debit or produced value that would exceed an effective limit
@@ -1718,33 +1817,74 @@ subject to explicit host approval. Hosts may also enforce independent
 aggregate run limits. Exhausting an aggregate host limit is an execution-budget
 failure and must not be relabeled as exhaustion of a portable mapping limit.
 
-### 8.11 Future-version candidates
+### 8.11 `sort-by` conformance requirements
 
-The following capabilities are intentionally outside v1 and are recorded as
-non-normative candidates rather than commitments:
+The normative `qhapaq.mapping/v1` conformance suite must include all of the
+following `sort-by` vector groups:
 
-- array selection and windowing conveniences beyond the existing `item`
-  operator; deterministic sorting and ranking; grouping, counting, and other
-  purpose-built aggregates; and distinct, membership, concatenation,
-  flattening, and predicate-based collection helpers;
+1. Valid structure and inference vectors cover the minimal operand form, the
+   optional `indexName`, both directions, nested lexical scope, and preservation
+   of the source item schema, length bounds, and `uniqueItems`.
+2. Invalid structure and type vectors cover missing and unknown operands,
+   invalid or expression-valued directions, invalid or colliding identifiers,
+   non-array, potentially missing, or nullable sources, potentially missing,
+   nullable, or nonnumeric keys, and out-of-scope variables.
+3. Ordering vectors cover empty and singleton arrays; both directions;
+   negative, fractional, cross-type numerically equal, and duplicate keys;
+   stability in both directions; and keys that use the original source index.
+4. Evaluation and failure-order vectors prove that the source is evaluated
+   once, keys are evaluated once in input order, the first key failure prevents
+   later keys, every key completes before emission, and failed upfront
+   sorting-work debit prevents every key.
+5. Exact-accounting vectors exercise the boundary immediately below and at the
+   required `n * ceil(log2(n))` debit, its zero value for `n <= 1`, source
+   collection-limit rejection before sorting work, one shared collection visit
+   per attempted key, ordinary examination and emission charges,
+   overflow-as-exhaustion, and produced-value limits.
+
+Where the mapping language cannot observe an evaluation count directly,
+paired work-limit or collection-visit-limit boundary vectors must make the
+required count observable without adding side effects.
+
+### 8.12 Reopened v1 capabilities and later-version candidates
+
+The `qhapaq.mapping/v1` operator set is explicitly reopened while this
+specification remains draft and before its schema and conformance artifacts are
+published. The following unresolved Phase 0 capabilities are in v1 scope:
+
+- grouping, counting, and other purpose-built aggregates; and distinct,
+  membership, concatenation, flattening, and predicate-based collection
+  helpers;
 - string slicing, search, containment, splitting, joining, and non-regex
   replacement, with case-insensitive behavior dependent on an explicit,
   portable comparison and Unicode policy;
 - bounded regular-expression matching and extraction, dependent on the shared
   portable `pattern` grammar and evaluator;
+- object shaping and merge; and
+- common numeric helpers, including explicitly specified rounding modes.
+
+The Phase 0 checkpoints in Section 21 decide the exact operators and semantics
+for these capabilities. A checkpoint may reject a candidate operator, but every
+operator it selects is part of `qhapaq.mapping/v1`, not a future mapping-language
+version. The v1 operator set closes again only when all of these checkpoints
+have normative semantics. The corresponding schema and conformance artifacts
+must encode that final set before publication.
+
+The following capabilities remain outside v1 and are non-normative
+later-version candidates:
+
 - temporal parsing, canonical normalization, formatting, timezone conversion,
   comparison, and arithmetic, dependent on a dedicated portable temporal model;
 - locale-independent Unicode case conversion, dependent on a pinned Unicode
   version and mapping algorithm;
-- object shaping and merge, Base64 conversion, and general format templates;
-- common numeric helpers, including explicitly specified rounding modes.
+- Base64 conversion; and
+- general format templates.
 
 A future mapping-language version may select, rename, split, or omit these
-candidates. The Phase 0 checkpoints above define each selected capability
-separately. This list grants no forward-compatibility interpretation to v1
-hosts.
+later-version candidates. This list grants no forward-compatibility
+interpretation to v1 hosts.
 
-### 8.12 Language-version selection
+### 8.13 Language-version selection
 
 Every mapping site contains a required `language` member that selects one exact
 mapping-language version for that site. Language selection is local: there is no
@@ -3421,6 +3561,10 @@ The language-neutral conformance suite includes:
   ordered aggregation, concurrency ceilings, nested scopes, failure,
   cancellation, and aggregate budgets;
 - transform parsing, type inference, nullability, conversion, and failure tests;
+- `last` and `slice` vectors covering empty and non-empty sources, null items,
+  omitted and zero counts, starts at and beyond the source length, truncated
+  windows, non-negative-bound validation, inferred length bounds, single source
+  evaluation, and exact collection-size and work accounting;
 - mixed mapping-language-version pipelines, including independent transform and
   output-projection versions;
 - rejection of mapping languages not permitted by the exact pipeline format,
@@ -3523,9 +3667,10 @@ scaffolding the remaining public .NET APIs.
     cancellation, and resource-budget semantics.
   - [x] Define shared exact contract references, configuration values,
     transform input sources, and the final output projection.
-- [x] Define the complete `qhapaq.mapping/v1` operator set, operand shapes,
-  evaluation order, inferred result types, `missing` and `null` behavior, and
-  runtime failure behavior.
+- [ ] Complete the explicitly reopened `qhapaq.mapping/v1` operator set,
+  operand shapes, evaluation order, inferred result types, `missing` and `null`
+  behavior, and runtime failure behavior. The foundational set is defined; this
+  item closes after the remaining v1 mapping-capability checkpoints below.
 - [x] Define per-site mapping-language selection, mixed-version composition,
   pipeline-format compatibility, and normative schema dispatch.
 - [x] Define portable mapping limits, including expression depth, operator
@@ -3534,23 +3679,16 @@ scaffolding the remaining public .NET APIs.
   the closed format allowlist.
 - [x] Define the normative capability, side-effect, idempotency, and structured
   failure vocabularies.
-- [ ] Define future array selection and windowing capabilities, including
-  whether convenience forms such as first, last, take, skip, or slice add value
-  beyond the existing `item` operator and the exact bounds and missing-value
-  semantics.
-- [ ] Define deterministic array ordering and ranking capabilities. The
-  candidate `sort-by` takes a source `value`, `itemName`, `key`, and explicit
-  ascending or descending `direction`, with optional `indexName` for the
-  original zero-based index. The key must be statically present, non-null, and
-  numeric, ordered by the existing portable numeric comparison semantics;
-  each key is evaluated exactly once in input order. Sorting is stable in
-  either direction, preserving input order for equal keys. Its result retains
-  the source item schema and array length bounds. Its fixed sorting-work debit
-  is `n × ceil(log2(n))` units for an input of `n` elements, zero when `n` is
-  zero or one, in addition to key-expression evaluation. Debit this amount
-  immediately after evaluating the source and before evaluating keys. Define
-  its remaining operand validation, runtime failure behavior, and conformance
-  vectors.
+- [x] Define array selection and windowing capabilities. V1 adds `last` and
+  `slice`; it retains `item` with literal index zero instead of adding `first`,
+  and expresses take and skip through `slice`. Define their exact bounds,
+  typing, evaluation, resource-accounting, and missing-value semantics.
+- [ ] Publish and validate the normative conformance vectors for deterministic
+  array ordering and ranking. Sections 8.5 through 8.11 define the closed
+  `sort-by` operands, lexical scope, static typing, stable numeric ordering,
+  evaluation and failure order, result inference, exact resource accounting,
+  and required vector groups. This item remains open until those persistent
+  vectors and their validation exist.
 - [ ] Define array grouping and aggregation capabilities, including the result
   shape and ordering of `group-by`, whether `count-by` and other purpose-built
   aggregates are supported, key equality, and cardinality and work limits.
@@ -3575,7 +3713,7 @@ scaffolding the remaining public .NET APIs.
 - [ ] Define common numeric helper capabilities, including supported
   absolute/minimum/maximum/clamp and rounding operations, numeric-domain
   behavior, and exact rounding modes.
-- [ ] For every selected future mapping capability, define its closed operand
+- [ ] For every selected v1 mapping capability, define its closed operand
   shape, static result typing, missing/null and runtime-failure behavior,
   deterministic evaluation order, portable resource accounting, and
   conformance-vector requirements.
@@ -3601,10 +3739,15 @@ remain to be specified.
 These are independently closable Phase 0 checkpoints: completing one does not
 depend on completing the others. Each checkpoint records requirements and
 produces the normative semantics and conformance vectors for its selected
-capabilities before their implementation. They do not add operators to
-`qhapaq.mapping/v1`, delay its artifacts, or commit to supporting every listed
-candidate. Any selected capabilities must be assigned an exact future mapping
-language version without changing the meaning of existing versions.
+capabilities before their implementation. This specification explicitly
+reopens `qhapaq.mapping/v1` while it remains draft and unimplemented. The
+completed array selection and windowing checkpoint and every operator selected
+by the remaining mapping-capability checkpoints are part of v1. A candidate
+rejected by its checkpoint is omitted rather than deferred implicitly. The v1
+operator set must not be declared complete or its schema and conformance
+artifacts published until all these checkpoints close. After publication, any
+additional capability requires an exact future mapping-language version and
+must not change the meaning of v1.
 
 - [ ] Define the public .NET marker and static declaration contracts, manifest
   envelope, generator diagnostic-code policy, and initial compatibility matrix.
