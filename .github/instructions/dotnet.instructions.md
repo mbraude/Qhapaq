@@ -20,3 +20,7 @@ Follow [AGENTS.md](../../AGENTS.md) and the
 - Add focused unit or integration tests with every behavioral change.
 - Update public API documentation and compatibility expectations when changing
   a public surface.
+- Implement only behavior described by a specification requirement. Add
+  `spec: <requirement-id>@<fingerprint>` references at the type, member, or
+  block level and in verifying tests, following the
+  [specification traceability conventions](../../docs/development/coding-conventions.md#3-specification-traceability).

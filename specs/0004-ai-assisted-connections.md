@@ -51,7 +51,7 @@ This specification does not:
 
 ## 4. Connection Model
 
-A connection binds:
+**[R-0004-001]** A connection binds:
 
 ```text
 logical resource name
@@ -64,17 +64,17 @@ logical resource name
 + MCP payload-disclosure policy
 ```
 
-The logical resource name is portable. The remaining binding is trusted host
+**[R-0004-002]** The logical resource name is portable. The remaining binding is trusted host
 configuration and may differ by user, machine, environment, or tenant.
 
-An operation descriptor references a logical connection requirement rather than
+**[R-0004-003]** An operation descriptor references a logical connection requirement rather than
 embedding a token, connection string, tenant-specific credential, or machine
 path. Binding a pipeline fails before execution when the active host does not
 provide a compatible connection.
 
 ## 5. Connector Model
 
-A connector is built-in or supplied by an explicitly installed extension. Its
+**[R-0004-004]** A connector is built-in or supplied by an explicitly installed extension. Its
 descriptor declares:
 
 - Stable connector ID and exact version.
@@ -88,46 +88,46 @@ descriptor declares:
 - Whether operations accept constrained templates or arbitrary queries.
 - Connection-test behavior that does not leak sensitive records.
 
-The descriptor is informational and does not grant access. The active host
+**[R-0004-005]** The descriptor is informational and does not grant access. The active host
 profile and local consent decision constrain every declared capability.
 
 ## 6. Example Connector Families
 
 ### 6.1 Microsoft SharePoint
 
-A SharePoint connector may use Microsoft Graph or an explicitly supported
+**[R-0004-006]** A SharePoint connector may use Microsoft Graph or an explicitly supported
 SharePoint API. A connection plan identifies the tenant, site or resource,
 connector operations, Microsoft Entra authentication mode, and exact delegated
 or application permissions.
 
-Delegated authentication requires the local user to complete an interactive
+**[R-0004-007]** Delegated authentication requires the local user to complete an interactive
 flow. Application permissions commonly require separate tenant-administrator
 consent and must not be presented as ordinary user consent.
 
 ### 6.2 Azure Data Explorer / Kusto
 
-A Kusto connector identifies the cluster and database separately from its Entra
+**[R-0004-008]** A Kusto connector identifies the cluster and database separately from its Entra
 credential profile. Host policy restricts cluster destinations and allowed
 operations.
 
-Connectors should prefer parameterized, schema-aware operations or reviewed
+**[R-0004-009]** Connectors should prefer parameterized, schema-aware operations or reviewed
 query templates. Exposing unrestricted query text is a separate privileged
 capability.
 
 ### 6.3 SQL Databases
 
-A SQL connector identifies the server, database, transport requirements, and
+**[R-0004-010]** A SQL connector identifies the server, database, transport requirements, and
 credential profile. Supported authentication can include Entra identity,
 integrated identity where available, certificates, or secret-backed database
 credentials.
 
-Database operations use parameters rather than string interpolation. Arbitrary
+**[R-0004-011]** Database operations use parameters rather than string interpolation. Arbitrary
 SQL execution, schema mutation, and administrative commands are separately
 classified capabilities and are disabled unless explicitly allowed.
 
 ### 6.4 External APIs
 
-An OpenAPI connector identifies explicitly selected operations, approved server
+**[R-0004-012]** An OpenAPI connector identifies explicitly selected operations, approved server
 origins, and an OAuth or secret-backed credential profile. Importing an API
 description does not approve its destinations, redirects, or requested scopes.
 
@@ -152,7 +152,7 @@ A portable project catalog can declare a connection requirement:
 }
 ```
 
-This is a request, not a grant. The trusted user host profile binds the logical
+**[R-0004-013]** This is a request, not a grant. The trusted user host profile binds the logical
 name to an approved resource:
 
 ```json
@@ -180,13 +180,13 @@ name to an approved resource:
 }
 ```
 
-The normative schemas may refine these illustrative property names. Host policy
+**[R-0004-014]** The normative schemas may refine these illustrative property names. Host policy
 may grant fewer operations or scopes than the project requests, never more
 without a separate explicit local action.
 
 ## 8. MCP Setup Surface
 
-The MCP server may expose tools equivalent to:
+**[R-0004-015]** The MCP server may expose tools equivalent to:
 
 - `connections.listConnectorTypes`: list installed connector descriptors.
 - `connections.plan`: create a setup plan without changing trusted state.
@@ -198,16 +198,16 @@ The MCP server may expose tools equivalent to:
 
 Names are illustrative until the MCP contract is specified.
 
-The MCP response can include required configuration fields, scopes, connector
+**[R-0004-016]** The MCP response can include required configuration fields, scopes, connector
 installation status, administrative prerequisites, and a sanitized outcome. It
 must not include credential material or protected token-cache state.
 
-MCP cannot directly edit a host profile. Requesting consent does not imply that
+**[R-0004-017]** MCP cannot directly edit a host profile. Requesting consent does not imply that
 the user approved, authenticated, or completed setup.
 
 ## 9. Immutable Connection Plans
 
-A setup plan contains:
+**[R-0004-018]** A setup plan contains:
 
 - Unique plan ID.
 - Creation and expiration timestamps.
@@ -224,13 +224,13 @@ A setup plan contains:
 - Human-readable risk and administrator-consent information.
 - A canonical digest covering every security-relevant field.
 
-Plans are short-lived and single-use. Any material change creates a new plan and
+**[R-0004-019]** Plans are short-lived and single-use. Any material change creates a new plan and
 requires new consent. The broker does not accept model-authored display text as
 the authoritative description of security-sensitive fields.
 
 ## 10. Trusted Local Consent Broker
 
-The consent broker is a local Qhapaq-controlled user interface or process
+**[R-0004-020]** The consent broker is a local Qhapaq-controlled user interface or process
 boundary independent of the conversational model. It:
 
 1. Receives a setup plan from the running Qhapaq host.
@@ -244,19 +244,19 @@ boundary independent of the conversational model. It:
 8. Records a non-secret local audit event.
 9. Returns only a sanitized result to the MCP host.
 
-Reducing a permission produces a new effective plan and validation pass.
+**[R-0004-021]** Reducing a permission produces a new effective plan and validation pass.
 Increasing or redirecting any permission requires a new consent interaction.
 
-Generic MCP tool-call approval is not a substitute for this broker because MCP
+**[R-0004-022]** Generic MCP tool-call approval is not a substitute for this broker because MCP
 clients differ in confirmation behavior and may not display the complete
 security context.
 
 ## 11. Authentication Flow
 
-Connector authentication is delegated to a credential provider selected by the
+**[R-0004-023]** Connector authentication is delegated to a credential provider selected by the
 trusted plan and host profile.
 
-For interactive Microsoft Entra or OAuth authentication:
+**[R-0004-024]** For interactive Microsoft Entra or OAuth authentication:
 
 - The broker opens or directs a trusted local browser or device flow.
 - Login and consent occur directly with the identity provider.
@@ -266,51 +266,51 @@ For interactive Microsoft Entra or OAuth authentication:
   nonce, and applicable proof mechanisms.
 - The protected token cache belongs to the credential provider.
 
-For secret-backed authentication:
+**[R-0004-025]** For secret-backed authentication:
 
 - The broker writes or selects a secret through a configured secret-reference
   provider.
 - The host profile stores only an opaque reference.
 - Connection testing retrieves the secret directly into the transport adapter.
 
-For managed or workload identity:
+**[R-0004-026]** For managed or workload identity:
 
 - The broker verifies that the active hosting environment supports the identity.
 - The profile stores resource and provider configuration, not a credential.
 
-Authentication success does not override Qhapaq operation, network, or
+**[R-0004-027]** Authentication success does not override Qhapaq operation, network, or
 disclosure policy.
 
 ## 12. Execution and Disclosure Are Separate
 
-Every connection has at least two independent permissions:
+**[R-0004-028]** Every connection has at least two independent permissions:
 
 1. **Execution permission:** whether a pipeline operation may access the
    resource.
 2. **Disclosure permission:** whether operation payloads may cross a host
    boundary such as an MCP response.
 
-MCP payload disclosure is denied by default. An allowed operation may still:
+**[R-0004-029]** MCP payload disclosure is denied by default. An allowed operation may still:
 
 - Feed its output to later local pipeline operations.
 - Write to an explicitly approved local or remote sink.
 - Return non-sensitive status and aggregate metadata.
 
-It may not return records, documents, query results, or other payloads to the MCP
+**[R-0004-030]** It may not return records, documents, query results, or other payloads to the MCP
 client unless the active host policy explicitly allows disclosure for that
 connection or operation.
 
-Disclosure approval identifies the destination class and may impose field
+**[R-0004-031]** Disclosure approval identifies the destination class and may impose field
 redaction, row limits, byte limits, content classification, or summarization.
 Allowing MCP disclosure does not automatically allow another network sink.
 
-Pipeline validation must account for source and sink policy where possible.
+**[R-0004-032]** Pipeline validation must account for source and sink policy where possible.
 Qhapaq must not claim complete information-flow control when an extension can
 perform undeclared side effects.
 
 ## 13. Connection State and Reload
 
-A connection has a sanitized state such as:
+**[R-0004-033]** A connection has a sanitized state such as:
 
 - `requested`
 - `awaiting-user-consent`
@@ -322,22 +322,22 @@ A connection has a sanitized state such as:
 - `revoked`
 - `invalid`
 
-State responses include actionable non-secret diagnostics. They do not reveal
+**[R-0004-034]** State responses include actionable non-secret diagnostics. They do not reveal
 whether a particular secret reference exists when that would disclose sensitive
 configuration.
 
-After approval, the host atomically rebuilds its effective registry or requests
+**[R-0004-035]** After approval, the host atomically rebuilds its effective registry or requests
 an explicit restart according to host policy. Pipelines already running retain
 the immutable connection and policy snapshot with which they began unless a
 credential is revoked.
 
 ## 14. Integration with MCP Clients
 
-Any MCP client that can start or connect to the Qhapaq MCP server can use this
+**[R-0004-036]** Any MCP client that can start or connect to the Qhapaq MCP server can use this
 flow, including AI development environments and desktop assistants. Integration
 does not require client-specific access to credentials.
 
-The client sees:
+**[R-0004-037]** The client sees:
 
 - Connector capabilities and configuration questions.
 - The immutable setup-plan summary.
@@ -345,14 +345,14 @@ The client sees:
 - Sanitized connection status.
 - Available operation descriptors after approval.
 
-The trusted broker, not Claude, GitHub Copilot, or another model, sees and
+**[R-0004-038]** The trusted broker, not Claude, GitHub Copilot, or another model, sees and
 handles authentication artifacts. A client-specific installer may help register
 the Qhapaq MCP server, but the Qhapaq security model cannot depend solely on that
 client's tool-confirmation UI.
 
 ## 15. Audit and Revocation
 
-Local audit records should include:
+**[R-0004-039]** Local audit records should include:
 
 - Plan digest and profile identity.
 - Connector, resource, operations, and scopes.
@@ -362,14 +362,16 @@ Local audit records should include:
 - Profile reload or restart result.
 - Revocation and credential-cache clearing.
 
-Audit records exclude tokens, secrets, authorization codes, device codes,
+**[R-0004-040]** Audit records exclude tokens, secrets, authorization codes, device codes,
 passwords, private keys, and returned resource payloads.
 
-Users can disable or remove a connection, clear its credential cache, and revoke
+**[R-0004-041]** Users can disable or remove a connection, clear its credential cache, and revoke
 provider-side consent through documented local administrative commands. Removal
 causes dependent pipelines to fail binding before execution.
 
 ## 16. Security Considerations
+
+**[R-0004-042]**
 
 - Treat model-generated endpoints, tenant IDs, scopes, query text, and
   descriptions as untrusted.
@@ -389,6 +391,8 @@ causes dependent pipelines to fail binding before execution.
 - Make revocation and cache clearing available without editing pipeline files.
 
 ## 17. Testing Strategy
+
+**[R-0004-043]**
 
 - Plan canonicalization, digest, expiration, and single-use tests.
 - Tests proving modified plans require new consent.

@@ -20,3 +20,4 @@ made within the behavior required by those specifications.
 | --- | --- |
 | [ADR-0001](0001-use-microsoft-dependency-injection.md) | Use Microsoft dependency injection with adjacent-layer, layer-owned composition. |
 | [ADR-0002](0002-use-xunit-v3-for-dotnet-tests.md) | Use xUnit v3 for .NET architecture, unit, and integration tests. |
+| [ADR-0003](0003-enforce-specification-traceability.md) | Require stable requirement identifiers, fingerprinted source references, and mechanical traceability checks. |

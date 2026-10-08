@@ -101,13 +101,13 @@ This specification does not:
 
 ## 5. Representations and Lifecycle
 
-A pipeline has three executable-lifecycle representations:
+**[R-0007-001]** A pipeline has three executable-lifecycle representations:
 
 1. The portable pipeline definition.
 2. A derived immutable execution plan.
 3. One non-durable run of that plan.
 
-The host must treat pipeline JSON as inert input. Deserialization produces only
+**[R-0007-002]** The host must treat pipeline JSON as inert input. Deserialization produces only
 a definition model and must not:
 
 - activate a type named by the document;
@@ -117,7 +117,7 @@ a definition model and must not:
 - construct an operation implementation; or
 - begin a side effect.
 
-The lifecycle is:
+**[R-0007-003]** The lifecycle is:
 
 ```text
 parse
@@ -132,7 +132,7 @@ parse
   -> execution
 ```
 
-Every stage before execution must complete successfully before any operation
+**[R-0007-004]** Every stage before execution must complete successfully before any operation
 starts. Plan binding may precompute serializers, native materializers,
 expression accessors, last-consumer information, and implementation factories.
 An execution plan is host-specific derived state and is not a portable artifact.
@@ -141,7 +141,7 @@ An execution plan is host-specific derived state and is not a portable artifact.
 
 ### 6.1 Required top-level members
 
-Every definition contains:
+**[R-0007-005]** Every definition contains:
 
 - `format`, with the exact value `qhapaq.pipeline/v1`;
 - a stable pipeline `id`;
@@ -321,7 +321,7 @@ the closed structural shapes in Section 6.3.
 
 ### 6.2 Node identities
 
-Every node has a non-empty document-local `id`. Node IDs:
+**[R-0007-006]** Every node has a non-empty document-local `id`. Node IDs:
 
 - are unique across the complete definition;
 - are stable diagnostic and visualization anchors;
@@ -332,11 +332,11 @@ Every node has a non-empty document-local `id`. Node IDs:
 Changing a node ID changes the canonical definition because bindings and
 diagnostics may reference it.
 
-Every node is a JSON object with required `id` and `kind` members plus only the
+**[R-0007-007]** Every node is a JSON object with required `id` and `kind` members plus only the
 members defined for that exact node kind. Node and supporting-record member
 names are case-sensitive. Unknown members are invalid.
 
-The normative pipeline schema defines the node type as a closed recursive
+**[R-0007-008]** The normative pipeline schema defines the node type as a closed recursive
 discriminated union over the exact v1 `kind` values. Each union member fixes
 `kind` to one value, requires that kind's operands, recursively validates its
 inline structural children as nodes, and rejects members belonging to another
@@ -344,14 +344,14 @@ kind. Structural composition is an inline expression tree; structural children
 cannot be replaced by node-ID references. Node-ID references are permitted only
 where this specification explicitly defines a dataflow source.
 
-Node IDs are unique across the complete definition, including every inline
+**[R-0007-009]** Node IDs are unique across the complete definition, including every inline
 child of the root, rather than only within one sequence, branch, conditional,
 decorator, or loop. Duplicate JSON member names are rejected before the node
 union is evaluated.
 
 ### 6.3 Structural node kinds
 
-The v1 language supports:
+**[R-0007-010]** The v1 language supports:
 
 - `operation`;
 - `transform`;
@@ -366,17 +366,17 @@ The v1 language supports:
 Combinators and transforms are language constructs, not catalog operations.
 Registry descriptors use `primitive` or `decorator` as their composition role.
 
-An operation reference always contains an operation ID and exact contract
+**[R-0007-011]** An operation reference always contains an operation ID and exact contract
 version. Version ranges, aliases, and unspecified latest versions are invalid.
 
-Decorator order is explicit and semantically significant. Parallel branch names
+**[R-0007-012]** Decorator order is explicit and semantically significant. Parallel branch names
 are stable members of the parallel result. Conditionals, loops, and bounded
 collection execution follow the composition semantics in
 [`0001-core-pipeline-model.md`](0001-core-pipeline-model.md).
 
 #### 6.3.1 Operation
 
-An `operation` node is a leaf with this exact shape:
+**[R-0007-013]** An `operation` node is a leaf with this exact shape:
 
 ```json
 {
@@ -398,7 +398,7 @@ composition role. The same exact-reference shape is used by `decorate` nodes
 for decorator contracts. The containing member identifies the required
 composition role.
 
-Every v1 operation and decorator configuration schema is an object schema.
+**[R-0007-014]** Every v1 operation and decorator configuration schema is an object schema.
 `configuration` is optional in an operation node. Omission is normalized to an
 empty object before configuration defaults are materialized, and the normalized
 configuration is validated and included in canonicalization. An explicitly
@@ -408,7 +408,7 @@ respective closed schemas.
 
 #### 6.3.2 Transform
 
-A `transform` node has this exact shape:
+**[R-0007-015]** A `transform` node has this exact shape:
 
 ```json
 {
@@ -483,7 +483,7 @@ conforming to the Qhapaq v1 schema profile. `expression` is one canonical
 `qhapaq.mapping/v1` operator object. Its `input` operators may name only keys
 from the containing `inputs` map.
 
-Because transforms have no implicit data sources, a transform with an empty
+**[R-0007-016]** Because transforms have no implicit data sources, a transform with an empty
 `inputs` map can produce only a deterministic value derived from public
 literals. The inferred successful expression result must conform to
 `outputSchema`, and the internal `missing` state cannot escape as output.
@@ -491,7 +491,7 @@ Unknown transform-node and source members are invalid.
 
 #### 6.3.3 Sequence
 
-A `sequence` node has this exact shape:
+**[R-0007-017]** A `sequence` node has this exact shape:
 
 ```json
 {
@@ -533,14 +533,14 @@ step's output under the composition semantics of its node kind. Every adjacent
 connection must be schema-compatible; the binder does not insert conversions.
 A transform step continues to read only its explicitly declared sources.
 
-A one-step sequence is valid and has the same input, output, failure, and
+**[R-0007-018]** A one-step sequence is valid and has the same input, output, failure, and
 cancellation behavior as its single step. The sequence output is its final
 step's output. An empty sequence is invalid and has no implicit identity or
 pass-through behavior. Unknown sequence-node members are invalid.
 
 #### 6.3.4 Parallel
 
-A `parallel` node has this exact shape:
+**[R-0007-019]** A `parallel` node has this exact shape:
 
 ```json
 {
@@ -573,13 +573,13 @@ parallel-result member name. Each value is one inline node. Every branch
 receives the same parallel-node input and may execute concurrently. A branch
 cannot access a sibling branch's outputs.
 
-Branch-map member order is not semantic and does not determine start,
+**[R-0007-020]** Branch-map member order is not semantic and does not determine start,
 completion, or result order. Deterministic projections, diagnostics, branch
 summaries, and aggregate-failure reporting order branches by ordinal branch
 name. Reordering members without changing their names or values does not change
 the canonical definition. Unknown parallel-node members are invalid.
 
-The parallel node succeeds only when every branch succeeds and produces an
+**[R-0007-021]** The parallel node succeeds only when every branch succeeds and produces an
 object whose members are the named branch outputs. If any branch fails, the
 runtime signals cancellation to the remaining branches, observes every branch,
 and reports every non-sibling-cancellation failure in deterministic branch-name
@@ -587,7 +587,7 @@ order rather than producing a partial result.
 
 #### 6.3.5 Decorate
 
-A `decorate` node has this exact shape:
+**[R-0007-022]** A `decorate` node has this exact shape:
 
 ```json
 {
@@ -617,7 +617,7 @@ descriptor must have the `decorator` composition role. `inner` is exactly one
 inline node. The decorator must preserve the inner node's input and output
 contracts.
 
-`configuration` is optional and follows the same object-only omission,
+**[R-0007-023]** `configuration` is optional and follows the same object-only omission,
 normalization, default-materialization, validation, and canonicalization rules
 as operation configuration. Multiple decorators are represented only by
 nesting `decorate` nodes. Each nested decorator is a node with its own globally
@@ -627,7 +627,7 @@ bound. Unknown decorate-node members are invalid.
 
 #### 6.3.6 Conditional
 
-A `conditional` node has this exact shape:
+**[R-0007-024]** A `conditional` node has this exact shape:
 
 ```json
 {
@@ -683,12 +683,12 @@ required, non-null Boolean or a schema statically proven to admit only Boolean
 values. A transform condition may explicitly bind accessible dominating node
 outputs under the ordinary transform source and scope rules.
 
-The condition receives the conditional-node input and executes exactly once.
+**[R-0007-025]** The condition receives the conditional-node input and executes exactly once.
 Only the selected branch executes, and it receives the original
 conditional-node input rather than the condition output. Both branches must
 accept that input.
 
-During schema propagation, the binder derives the complete output schema of
+**[R-0007-026]** During schema propagation, the binder derives the complete output schema of
 each branch according to its outer node kind. A sequence contributes its final
 step's output schema, and a parallel contributes its closed object schema of
 named branch outputs. The binder must independently prove, using the
@@ -701,7 +701,7 @@ whenTrue.output  subset-of  conditional.outputSchema
 whenFalse.output subset-of  conditional.outputSchema
 ```
 
-Schema equality is sufficient but not required. An unsupported or
+**[R-0007-027]** Schema equality is sufficient but not required. An unsupported or
 indeterminate comparison is incompatible. The binder must not infer, synthesize,
 widen, or choose a common output schema from the two branches. Authors must
 declare the intended contract and, when a branch's natural result has a
@@ -710,13 +710,13 @@ outer result before the conditional boundary. For example, a branch that
 performs parallel work can use a sequence whose parallel step is followed by a
 normalizing transform.
 
-Failure of either branch proof is a document-validation error associated with
+**[R-0007-028]** Failure of either branch proof is a document-validation error associated with
 the conditional and the incompatible branch. Validation must report the
 declared `outputSchema` as the expected schema and the derived branch output
 schema as the actual schema. No operation may begin for a definition that fails
 this proof.
 
-The conditional node's propagated output schema is exactly its declared
+**[R-0007-029]** The conditional node's propagated output schema is exactly its declared
 `outputSchema`. Only the selected branch executes at runtime, and its successful
 result becomes the conditional result under that contract. Branch-local outputs
 do not escape directly; downstream consumers reference the conditional node's
@@ -724,7 +724,7 @@ output. Unknown conditional-node members are invalid.
 
 #### 6.3.7 Try/catch recovery
 
-A `tryCatch` node has this exact shape:
+**[R-0007-030]** A `tryCatch` node has this exact shape:
 
 ```json
 {
@@ -802,7 +802,7 @@ the original `tryCatch` input. The root of the selected subtree receives that
 input through its ordinary composition edge; `tryCatch` does not wrap or
 replace it with a failure-context object.
 
-The binder derives the complete output schema of each child according to its
+**[R-0007-031]** The binder derives the complete output schema of each child according to its
 outer node kind and independently proves:
 
 ```text
@@ -815,7 +815,7 @@ inferring or widening a common schema are the same as for conditional branches.
 The `tryCatch` node's propagated output schema is exactly its declared
 `outputSchema`.
 
-The `try` child executes exactly once. If it succeeds, its result becomes the
+**[R-0007-032]** The `try` child executes exactly once. If it succeeds, its result becomes the
 `tryCatch` result and `catch` does not execute. If it terminates with a catchable
 failure, the `catch` child executes exactly once with the original `tryCatch`
 input. If `catch` succeeds, its result becomes the successful `tryCatch` result.
@@ -824,7 +824,7 @@ If `catch` fails or is cancelled, that terminal outcome becomes the
 to the original try failure for bounded, payload-safe diagnostics; it must not
 silently discard, relabel, or expose raw exception data from that failure.
 
-Catchable failures are declared operation failures, mapping runtime failures,
+**[R-0007-033]** Catchable failures are declared operation failures, mapping runtime failures,
 decorator failures after the decorator has completed its own handling, bounded
 structural-control failures, and aggregate failures produced by nodes in the
 `try` subtree. Invocation cancellation, policy or authorization denial,
@@ -834,7 +834,7 @@ outcome never starts `catch` and propagates unchanged. If invocation
 cancellation is requested after a catchable try failure but before `catch`
 starts, `catch` does not start and the invocation reports cancellation.
 
-Within the complete lexical `catch` subtree, a transform may explicitly bind:
+**[R-0007-034]** Within the complete lexical `catch` subtree, a transform may explicitly bind:
 
 ```json
 { "source": "caught-failure" }
@@ -846,7 +846,7 @@ It is not an addressable node output, cannot be selected by node ID, and does
 not make partially completed try-child outputs accessible. Try-local and
 catch-local outputs do not escape directly; only the `tryCatch` result does.
 
-The caught-failure projection has this fixed successful-value schema:
+**[R-0007-035]** The caught-failure projection has this fixed successful-value schema:
 
 ```json
 {
@@ -912,13 +912,13 @@ arbitrary exception message, connector response body, credential, resolved
 configuration, nested aggregate causes, recovery causality, or
 operation-specific failure payload.
 
-A failure remains a control signal rather than a mapping value while it is
+**[R-0007-036]** A failure remains a control signal rather than a mapping value while it is
 being raised. An enclosing `tryCatch` creates the caught-failure projection
 only after catching that signal. Consequently, a mapping expression still
 cannot catch its own failure; a transform in the catch subtree may only read
 the already-created projection through an explicitly declared input source.
 
-Validation and policy evaluation include both children before execution.
+**[R-0007-037]** Validation and policy evaluation include both children before execution.
 Capabilities, connections, and possible side effects are the union of both
 children; idempotency uses the risk-summary precedence in Section 11.7.
 Worst-case resource and operation-count planning must permit the `try` child
@@ -929,7 +929,7 @@ produced. Unknown `tryCatch` members are invalid.
 
 #### 6.3.8 Bounded loop
 
-A `loop` node has this exact shape:
+**[R-0007-038]** A `loop` node has this exact shape:
 
 ```json
 {
@@ -962,27 +962,27 @@ iteration request that it can bind or permit. A pipeline requesting a larger
 value remains document-valid but is host-unbindable or policy-ineligible; a
 host limit does not change portable document validity.
 
-`condition` and `body` may each be any inline structural node. Both receive the
+**[R-0007-039]** `condition` and `body` may each be any inline structural node. Both receive the
 current loop state. The condition output must be exactly a required, non-null
 Boolean or a schema statically proven to admit only Boolean values. The body
 must accept the loop-state schema and produce a value compatible with that same
 schema.
 
-The condition evaluates before each iteration. If it is false initially, the
+**[R-0007-040]** The condition evaluates before each iteration. If it is false initially, the
 body does not execute and the input state is the successful loop output. After
 each successful body execution, its output becomes the state for the next
 condition evaluation. If the condition remains true after exactly
 `maxIterations` successful body executions, the loop fails with its declared
 limit rather than returning a partial result.
 
-Each iteration has an iteration-local frame. Child outputs do not escape an
+**[R-0007-041]** Each iteration has an iteration-local frame. Child outputs do not escape an
 iteration, and only the final loop state becomes the loop-node output. Unknown
 loop-node members are invalid. Arbitrary graph cycles and unbounded loops are
 invalid.
 
 #### 6.3.9 Bounded collection execution
 
-A `forEach` node in chunk mode has this exact shape:
+**[R-0007-042]** A `forEach` node in chunk mode has this exact shape:
 
 ```json
 {
@@ -1008,7 +1008,7 @@ A `forEach` node in chunk mode has this exact shape:
 positive JSON integers no greater than `9007199254740991`. `body` is exactly
 one inline node.
 
-When `inputMode` is `item`, `chunkSize` is prohibited. The body executes once
+**[R-0007-043]** When `inputMode` is `item`, `chunkSize` is prohibited. The body executes once
 for each input-array item and receives that item. When `inputMode` is `chunk`,
 `chunkSize` is required and is a positive JSON integer no greater than
 `9007199254740991`. The runtime partitions the input array into consecutive,
@@ -1016,7 +1016,7 @@ non-overlapping chunks of at most `chunkSize` items without reordering them.
 The body executes once for each non-empty chunk and receives that chunk as an
 array. An empty input executes no body invocation in either mode.
 
-The `forEach` input contract is the propagated upstream homogeneous-array
+**[R-0007-044]** The `forEach` input contract is the propagated upstream homogeneous-array
 schema with its `maxItems` additionally constrained to this node's `maxItems`.
 The upstream schema must have effective type `array`, must declare `items`, and
 must have a finite maximum cardinality no greater than the node's `maxItems`;
@@ -1025,7 +1025,7 @@ the upstream `items` schema. In chunk mode, the body must accept an array with
 the same `items` schema, `minItems` equal to one, and `maxItems` equal to the
 declared `chunkSize`. The binder does not insert conversions.
 
-The binder derives the body output schema according to its outer node kind.
+**[R-0007-045]** The binder derives the body output schema according to its outer node kind.
 The `forEach` output schema is a homogeneous array whose `items` is that
 derived body output schema. In item mode its minimum and maximum cardinalities
 equal the input schema's minimum and maximum cardinalities. In chunk mode they
@@ -1034,7 +1034,7 @@ are `ceiling(input.minItems / chunkSize)` and
 `minItems` is zero for this calculation. These bounds describe successful
 outputs; runtime cardinality validation remains required.
 
-`maxItems` is an invocation-time upper bound on input cardinality. The runtime
+**[R-0007-046]** `maxItems` is an invocation-time upper bound on input cardinality. The runtime
 must determine and validate the complete input-array cardinality against
 `maxItems` before any body invocation begins. Exceeding `maxItems` is an
 execution-budget failure and starts no body invocation. In item mode, a valid
@@ -1044,14 +1044,14 @@ input of length `n` causes exactly `n` body invocations and produces exactly
 Each output item is the complete output of one body invocation. V1 never
 flattens, merges, filters, or omits body outputs implicitly.
 
-Body invocations may execute concurrently, but no more than
+**[R-0007-047]** Body invocations may execute concurrently, but no more than
 `maxConcurrency` invocations of this node may be active at once. A host may
 execute fewer, including one at a time, without changing portable semantics.
 Completion order is not semantic. The successful output array is ordered by
 source item index in item mode and by ascending source chunk start index in
 chunk mode, regardless of start or completion order.
 
-This ordered array is a logical result contract, not a required insertion
+**[R-0007-048]** This ordered array is a logical result contract, not a required insertion
 algorithm or intermediate storage layout. Because the work count is known
 before body execution, an implementation may preallocate indexed result slots,
 retain indexed completion records, assemble ordered segments, or use another
@@ -1062,7 +1062,7 @@ bindings or serialization, and must still obey memory and output budgets. The
 complete aggregate becomes available to downstream nodes only after every body
 invocation succeeds.
 
-Each body invocation has an invocation-local frame. Its inline node IDs remain
+**[R-0007-049]** Each body invocation has an invocation-local frame. Its inline node IDs remain
 globally unique definition identities, while runtime occurrences are
 distinguished by their zero-based work index. A body may read its
 `current-input`, the boundary pipeline input, and values from dominating outer
@@ -1070,7 +1070,7 @@ scopes. It cannot read another body invocation's outputs. Body-local outputs do
 not escape individually; only the ordered `forEach` result becomes the node
 output.
 
-On the first observed non-cancellation body failure, the runtime stops starting
+**[R-0007-050]** On the first observed non-cancellation body failure, the runtime stops starting
 new body invocations, signals cancellation to every active sibling invocation,
 and observes every invocation that started. It reports every non-cancellation
 failure from started invocations in ascending work-index order and produces no
@@ -1083,7 +1083,7 @@ stop immediately. V1 provides no retry, rollback, compensation, or
 partial-success semantics for this node; those require explicit operations or
 decorators.
 
-The binder computes the node's maximum body-invocation count as `maxItems` in
+**[R-0007-051]** The binder computes the node's maximum body-invocation count as `maxItems` in
 item mode and `ceiling(maxItems / chunkSize)` in chunk mode. It includes that
 bound, `maxConcurrency`, nested structural bounds, repeated capabilities, and
 possible repeated side effects in plan budgets and policy evaluation. Each
@@ -1094,7 +1094,7 @@ receive fresh aggregate host budgets. Input chunks, in-flight results, and the
 ordered aggregate count toward host memory and output-size budgets. Exhausting
 any aggregate host budget fails the node and produces no partial result.
 
-Host profiles advertise the largest `maxItems` and `chunkSize` requests they
+**[R-0007-052]** Host profiles advertise the largest `maxItems` and `chunkSize` requests they
 can bind. A larger request remains document-valid but is host-unbindable or
 policy-ineligible. `maxConcurrency` is a local ceiling rather than a guaranteed
 degree of parallelism; the host's lower run-wide parallelism limit remains in
@@ -1104,7 +1104,7 @@ force. Unknown `forEach` members and invalid member combinations are invalid.
 
 ### 7.1 Immutable slots
 
-Each run has a private execution frame containing:
+**[R-0007-053]** Each run has a private execution frame containing:
 
 - the validated boundary input; and
 - one immutable output slot for every successfully completed node whose value is
@@ -1122,7 +1122,7 @@ permission.
 
 ### 7.2 Explicit transform inputs
 
-A transform declares a map of local input names to sources. A source is either:
+**[R-0007-054]** A transform declares a map of local input names to sources. A source is either:
 
 - `pipeline-input`; or
 - `current-input`; or
@@ -1140,7 +1140,7 @@ deterministically normalize it to an explicit `current-input` source.
 
 ### 7.3 Dominance and scope
 
-Sequential nodes may reference earlier nodes in the same enclosing sequence
+**[R-0007-055]** Sequential nodes may reference earlier nodes in the same enclosing sequence
 when those nodes dominate the consumer.
 
 A node after a parallel join may reference the completed result of every named
@@ -1176,7 +1176,7 @@ execution.
 
 ### 7.4 Lifetime and budgets
 
-The execution plan computes the consumers of each slot. An implementation may
+**[R-0007-056]** The execution plan computes the consumers of each slot. An implementation may
 release a slot after its final consumer completes, subject to native object
 lifetime requirements.
 
@@ -1187,7 +1187,7 @@ is an execution failure and must not produce a success-shaped partial result.
 
 ### 8.1 Purpose
 
-`qhapaq.mapping/v1` is a portable, deterministic, side-effect-free expression
+**[R-0007-057]** `qhapaq.mapping/v1` is a portable, deterministic, side-effect-free expression
 language for constructing one schema-valid value from declared inputs and
 public literals. It is represented as JSON syntax rather than executable source.
 
@@ -1229,14 +1229,14 @@ The canonical foundational operator shapes are:
 }
 ```
 
-`input.name` is one exact key from the containing transform's `inputs` map.
+**[R-0007-058]** `input.name` is one exact key from the containing transform's `inputs` map.
 `property.value` is any mapping expression, and `property.name` is one literal
 JSON object member name rather than a path. `object.fields` maps each result
 member name to one mapping expression. `literal.value` is the only operand in
 which an arbitrary JSON value is interpreted as data rather than as an
 expression. Operator and operand names are case-sensitive.
 
-The versioned mapping-expression schema is a closed discriminated union over
+**[R-0007-059]** The versioned mapping-expression schema is a closed discriminated union over
 the allowed `op` values. It validates each operator's required named operands,
 recursively validates expression-valued operands, and rejects unknown members.
 It does not enumerate child operators according to the result type required by
@@ -1244,12 +1244,12 @@ a parent. The mapping type checker separately infers child result schemas and
 validates context-dependent requirements, such as whether `property.value`
 produces an object and whether that object's schema permits `property.name`.
 
-Declared transform inputs are read with an `input` operator naming exactly one
+**[R-0007-060]** Declared transform inputs are read with an `input` operator naming exactly one
 key from the transform's `inputs` map. Nested object values are read by
 composing one `property` operator per property name. Canonical expressions do
 not encode access paths as JSONPath strings or another embedded path grammar.
 
-Selecting an optional property produces a type that includes the internal
+**[R-0007-061]** Selecting an optional property produces a type that includes the internal
 `missing` state. `missing` is not JSON `null`, is not a portable value, and
 cannot appear in a transform output. The expression must handle it explicitly
 with an operator such as `coalesce-missing`, a conditional, or
@@ -1257,18 +1257,18 @@ with an operator such as `coalesce-missing`, a conditional, or
 silently produces `null` and does not fail unless the expression explicitly
 requires the property.
 
-`coalesce-missing` evaluates its fallback only when its primary expression is
+**[R-0007-062]** `coalesce-missing` evaluates its fallback only when its primary expression is
 missing and does not replace JSON `null`. `coalesce-null` evaluates its fallback
 only when its primary expression is JSON `null` and does not handle missing.
 Their inferred result types remove only the state each operator handles.
 
-`require-present` fails the transform when its input is missing and otherwise
+**[R-0007-063]** `require-present` fails the transform when its input is missing and otherwise
 passes the value through, including JSON `null`. `require-non-null` fails when
 its input is JSON `null`, does not handle missing, and otherwise passes the
 value through. Their inferred result types remove only the state each operator
 checks.
 
-Sections 8.5 through 8.11 define the v1 operators whose semantics have been
+**[R-0007-064]** Sections 8.5 through 8.11 and 8.14 define the v1 operators whose semantics have been
 closed to date, including their operand shapes, evaluation order, result typing,
 value-state behavior, runtime failure behavior, and required conformance
 coverage. Section 8.12 records the remaining Phase 0 checkpoints in the
@@ -1278,7 +1278,7 @@ those checkpoints close. Unknown operators are invalid.
 
 ### 8.2 Prohibited capabilities
 
-A transform cannot:
+**[R-0007-065]** A transform cannot:
 
 - perform network, filesystem, process, or credential access;
 - access environment variables or host services;
@@ -1291,7 +1291,7 @@ A transform cannot:
 
 ### 8.3 Type checking
 
-Every transform declares an output schema. The validator derives an expression
+**[R-0007-066]** Every transform declares an output schema. The validator derives an expression
 result schema from its declared input schemas and proves that every successful
 result conforms to the declared output schema.
 
@@ -1304,7 +1304,7 @@ An expression may contain a checked partial operation, such as parsing a number.
 Such an operation must have specified failure behavior. A runtime value failure
 terminates the transform before any downstream operation begins.
 
-`assert-number-range` is the v1 checked narrowing operation for numeric values.
+**[R-0007-067]** `assert-number-range` is the v1 checked narrowing operation for numeric values.
 `assert-length` is the corresponding operation for string and array lengths.
 Their declared bounds must be no wider than the statically inferred input
 bounds. A value within the asserted bounds passes through unchanged and
@@ -1316,7 +1316,7 @@ transform; the binder never inserts either assertion implicitly.
 with an integer result schema. A non-integral input fails the transform. The
 binder never inserts this assertion implicitly.
 
-`parse-number` accepts only the culture-invariant JSON number grammar used by
+**[R-0007-068]** `parse-number` accepts only the culture-invariant JSON number grammar used by
 the Qhapaq canonical data model. It rejects leading or trailing whitespace,
 digit-group separators, leading plus signs, `NaN`, and infinities. Authors who
 intend to tolerate surrounding whitespace must compose an explicit `trim`
@@ -1327,13 +1327,13 @@ V1 has no separate canonical `parse-integer` operator. Integer parsing composes
 `parse-number` followed by `assert-integer`, preserving one responsibility and
 one failure rule per operator.
 
-`parse-boolean` accepts exactly the lowercase strings `"true"` and `"false"`.
+**[R-0007-069]** `parse-boolean` accepts exactly the lowercase strings `"true"` and `"false"`.
 It rejects surrounding whitespace, alternate casing, numeric spellings, and
 localized values. Authors who intend to tolerate surrounding whitespace must
 compose `trim` explicitly. A parse failure fails the transform before any
 downstream operation starts.
 
-`stringify` accepts any portable JSON value except the internal `missing` state.
+**[R-0007-070]** `stringify` accepts any portable JSON value except the internal `missing` state.
 Strings, including strings constrained by date, time, UUID, URI, or other
 formats, remain unchanged. Numbers and Booleans use their RFC 8785 canonical
 lexical forms, and JSON `null` produces `"null"`. Arrays and objects produce
@@ -1346,7 +1346,7 @@ locale-sensitive and does not remove any other Unicode whitespace.
 
 ### 8.4 Serialization boundary
 
-Ordinary in-process operation connections continue to use native values.
+**[R-0007-071]** Ordinary in-process operation connections continue to use native values.
 A transform is an explicit portable-value boundary:
 
 1. Each bound native input is projected using the resolved operation contract's
@@ -1362,7 +1362,7 @@ not discover serializers or native types during a run.
 
 ### 8.5 Closed operator set and operand shapes
 
-In this section, `expression` means one recursively valid
+**[R-0007-072]** In this section, `expression` means one recursively valid
 `qhapaq.mapping/v1` operator object. `identifier` uses the transform-input alias
 grammar `^[a-z][A-Za-z0-9]*$`. Every operator object requires its listed members
 and rejects members not listed as required or optional.
@@ -1375,6 +1375,10 @@ and rejects members not listed as required or optional.
 | `item` | `value`: expression; `index`: expression | none |
 | `last` | `value`: expression | none |
 | `slice` | `value`: expression; `start`: expression | `count`: expression |
+| `slice-string` | `value`: expression; `start`: expression | `count`: expression |
+| `index-of`, `last-index-of`, `contains-string`, `starts-with`, `ends-with` | `value`: expression; `search`: expression | none |
+| `split`, `join` | `value`: expression; `separator`: expression | none |
+| `replace` | `value`: expression; `search`: expression; `replacement`: expression | none |
 | `object` | `fields`: map from member names to expressions | none |
 | `array` | `items`: ordered expression array | none |
 | `length` | `value`: expression | none |
@@ -1396,14 +1400,14 @@ and rejects members not listed as required or optional.
 | `assert-length` | `value`: expression and at least one bound | `minimum`; `maximum` |
 | `assert-format` | `value`: expression; `format`: allowed format name | none |
 
-`property.name`, assertion bounds, and `assert-format.format` are literal
+**[R-0007-073]** `property.name`, assertion bounds, and `assert-format.format` are literal
 operands rather than expressions. `sort-by.direction` is also a literal operand,
 not an expression. Numeric-range bounds are finite JSON numbers.
 At most one inclusive or exclusive bound may be supplied for each side.
 Length bounds are non-negative integer literals. The lower bound must not
 exceed the upper bound, accounting for exclusive numeric endpoints.
 
-An empty `object.fields` map and an empty `array.items` array are valid.
+**[R-0007-074]** An empty `object.fields` map and an empty `array.items` array are valid.
 `property.name` names one member and never contains a path. `item.index` must
 infer as a required, non-null integer expression. `last.value` and
 `slice.value` must infer as arrays. `slice.start` and `slice.count`, when
@@ -1411,11 +1415,11 @@ present, must infer as required, non-null integers whose inferred minimum is
 non-negative. A dynamic integer not already proven non-negative must be
 explicitly narrowed before use.
 
-`last` is the only single-item convenience operator. It selects the final array
+**[R-0007-075]** `last` is the only single-item convenience operator. It selects the final array
 element without evaluating its source more than once. V1 has no `first`
 operator; selecting the first item uses `item` with a literal zero index.
 
-`slice` selects a contiguous array window beginning at the zero-based `start`
+**[R-0007-076]** `slice` selects a contiguous array window beginning at the zero-based `start`
 index. When `count` is present, it selects at most that many elements. When
 `count` is absent, it selects through the end of the source. A zero count
 returns an empty array. If `start` is greater than or equal to the source
@@ -1425,7 +1429,63 @@ the result contains every remaining element and does not fail or produce
 with a literal zero `start` and `count` equal to `n`, and skipping `n` items
 uses `slice` with `start` equal to `n` and no `count`.
 
-`map`, `filter`, `distinct`, `distinct-by`, `contains-item`, `concat-arrays`,
+**[R-0007-077]** The string helpers use decoded Unicode scalar sequences. Positions and counts
+are zero-based scalar indices and scalar lengths, never UTF-8 bytes, UTF-16
+code units, or grapheme clusters. Comparison is exact and case-sensitive,
+without Unicode normalization, case folding, or locale-sensitive collation.
+Canonical JSON escaping does not affect comparison. These operators have no
+comparison-mode operand at this checkpoint; the separate case-insensitive
+checkpoint in Section 21 remains open.
+
+**[R-0007-078]** `slice-string` accepts a string `value` and required, non-null integer `start`
+and optional `count` expressions whose inferred minima are non-negative.
+Unproven dynamic bounds require explicit narrowing, just as for array `slice`.
+It selects at most `count` scalars beginning at `start`, or through the end
+when `count` is omitted. Zero count or a start at or beyond the source length
+returns `""`; an oversized count selects only the remaining scalars. It never
+uses negative or end-relative indices, fails for an unavailable window, or
+produces `missing` because of bounds. There is no separate `substring`
+operator, and `slice` remains array-only.
+
+**[R-0007-079]** `index-of`, `last-index-of`, `contains-string`, `starts-with`, and `ends-with`
+accept string `value` and `search` operands. `index-of` returns the smallest
+starting scalar index of a matching contiguous sequence; `last-index-of`
+returns the greatest. Overlapping occurrences are eligible for both positional
+searches. Both return the integer `-1` when no match exists. An empty search
+matches every boundary: `index-of` returns zero and `last-index-of` returns
+the source scalar length. `contains-string` returns whether any match exists;
+`starts-with` and `ends-with` require a match at the beginning and end,
+respectively. All three return `true` for an empty search, including an empty
+source. V1 adds no search-window operands; windows compose `slice-string`
+and a search, whose result index is relative to the selected window.
+
+**[R-0007-080]** `split` accepts string `value` and `separator` operands. The separator must
+be statically proven to contain at least one scalar; an unconstrained dynamic
+separator requires `assert-length` with `minimum` one. It finds matches from
+left to right, resuming after the complete matched separator, so matches do
+not overlap. The result contains the intervening substrings in source order,
+including every leading, trailing, and adjacent-separator empty field. No
+match returns one field containing the source, and an empty source returns
+`[""]`. It performs no implicit trimming or empty-field removal and has no
+empty-separator tokenization mode.
+
+**[R-0007-081]** `join.value` must infer as an array of required, non-null strings, and
+`join.separator` must infer as a string. It emits items in array order with
+the separator exactly once between adjacent items. An empty array returns
+`""`, a singleton returns its item unchanged, and an empty separator is
+valid. Scalar conversion and null handling must be explicit before joining.
+The existing string `concat` operator remains supported unchanged.
+
+**[R-0007-082]** `replace` accepts string `value`, `search`, and `replacement` operands. The
+search must be statically proven nonempty, using explicit length narrowing
+when needed. It replaces every left-to-right, non-overlapping occurrence in
+the original source; matching resumes after the matched search sequence and
+never examines inserted replacement text for new matches. An empty replacement
+deletes matches, and an absent match leaves the source text unchanged.
+Replacement text is literal data with no capture, substitution, escape, or
+regex interpretation. V1 has no replace-first operator or first/all mode.
+
+**[R-0007-083]** `map`, `filter`, `distinct`, `distinct-by`, `contains-item`, `concat-arrays`,
 `flatten`, `any`, `all`, `sort-by`, `group-by`, and `count-by` evaluate only
 arrays in their collection-valued operands. `itemName` is required where listed
 and names the current element. `indexName`, when present, names its original
@@ -1439,20 +1499,20 @@ invalid. A collection variable is in scope only within the containing
 variable is not in scope within `value` or after the operator completes. V1
 exposes no retained-result rank, sorted-rank, or group variable.
 
-`distinct.value` must infer as an array whose items are strings, integers,
+**[R-0007-084]** `distinct.value` must infer as an array whose items are strings, integers,
 numbers, Booleans, or JSON `null`; an item schema may permit `null` together
 with one of those scalar types. It removes duplicate values using exactly the
 `equal` semantics defined below and retains the first occurrence of each value
 in source order. An empty source produces an empty array.
 
-`distinct-by` accepts any array item schema. Its `key` must infer as the same
+**[R-0007-085]** `distinct-by` accepts any array item schema. Its `key` must infer as the same
 present scalar-or-null domain permitted for `group-by` and `count-by` keys.
 Keys compare using exactly the same equality rules. The operator retains the
 first source item for each distinct key, in the order in which those keys first
 occur. It evaluates a key for every source item before emitting any retained
 item. An empty source produces an empty array.
 
-`contains-item.item` must infer as a present scalar or JSON `null` value
+**[R-0007-086]** `contains-item.item` must infer as a present scalar or JSON `null` value
 comparable with the source item schema under `equal`: non-null types must be
 the same scalar type or both numeric, and either schema may additionally
 permit `null`. Array and object items are invalid. `contains-item` returns
@@ -1460,24 +1520,24 @@ permit `null`. Array and object items are invalid. `contains-item` returns
 source therefore returns `false`. Composite membership composes `any` with
 `deep-equal`.
 
-Every `concat-arrays.values` expression must infer as an array. The item
+**[R-0007-087]** Every `concat-arrays.values` expression must infer as an array. The item
 schemas must have a common super-schema representable by the inference rules
 in Section 8.7. The result contains every item from the first array in source
 order, followed by every item from each later array in operand order.
 
-`flatten.value` must infer as an array whose items are non-null arrays. It
+**[R-0007-088]** `flatten.value` must infer as an array whose items are non-null arrays. It
 removes exactly one array level: inner arrays are visited in outer source order
 and each inner array's items retain their order. Empty outer or inner arrays
 contribute no result items. V1 has no recursive or author-selected-depth
 flattening operator.
 
-`any.predicate` and `all.predicate` must infer as required, non-null Booleans.
+**[R-0007-089]** `any.predicate` and `all.predicate` must infer as required, non-null Booleans.
 `any` returns `true` at the first true predicate and returns `false` when no
 predicate is true. `all` returns `false` at the first false predicate and
 returns `true` when no predicate is false. Consequently, `any` is `false` and
 `all` is `true` for an empty source.
 
-`sort-by.key` must infer as a required, non-null integer or number. Sorting uses
+**[R-0007-090]** `sort-by.key` must infer as a required, non-null integer or number. Sorting uses
 the existing portable numeric comparison semantics and permits integer and
 number keys together. Keys that are mathematically equal, including an integer
 and number representation of the same value, compare equal. Ascending order
@@ -1486,7 +1546,7 @@ greater-than outcomes; it does not reverse equal-key items. Sorting is stable
 in either direction, so items with equal keys retain their relative source
 order.
 
-`group-by` partitions its source into groups of items with equal keys.
+**[R-0007-091]** `group-by` partitions its source into groups of items with equal keys.
 `count-by` uses the same partition but reports only each group's size.
 `group-by.key` and `count-by.key` must infer as a present string, integer,
 number, Boolean, or JSON `null` value; a key schema may permit `null` together
@@ -1497,7 +1557,7 @@ locale-sensitive collation; numbers use mathematical equality; Booleans compare
 by value; and `null` equals only `null`. Values of different scalar kinds are
 never equal.
 
-Groups appear in the order in which their key first occurs in the source.
+**[R-0007-092]** Groups appear in the order in which their key first occurs in the source.
 `group-by` returns one closed record `{ "key": k, "items": [...] }` per group,
 where `items` contains every source item with key `k` in source order.
 `count-by` returns one closed record `{ "key": k, "count": c }` per group,
@@ -1508,14 +1568,14 @@ The most-common-key query composes `count-by`, `sort-by` on `count` in
 descending order, and `item` with index zero; ties select the key that first
 occurs in the source.
 
-V1 grouping provides no array reductions such as sum, minimum, maximum, or
+**[R-0007-093]** V1 grouping provides no array reductions such as sum, minimum, maximum, or
 average. Those are decided by the numeric-helper checkpoint in Section 21.
 
-`length` and `assert-length` accept only strings and arrays. String length is
+**[R-0007-094]** `length` and `assert-length` accept only strings and arrays. String length is
 the number of Unicode scalar values; array length is the number of elements.
 Object member counts are unsupported.
 
-`equal` and `not-equal` accept scalar JSON values only. Numeric operands use
+**[R-0007-095]** `equal` and `not-equal` accept scalar JSON values only. Numeric operands use
 mathematical numeric equality without conversion to another JSON type; all
 other operands must have the same scalar type, and no string, Boolean, or null
 coercion occurs. `deep-equal` requires two arrays or two objects of the same
@@ -1523,10 +1583,10 @@ composite kind and recursively compares their complete contents. Array order is
 significant; object member order is not. Deep inequality composes `not` with
 `deep-equal`.
 
-The four ordered comparison operators accept numeric operands only. They do not
+**[R-0007-096]** The four ordered comparison operators accept numeric operands only. They do not
 define string collation, temporal ordering, or composite ordering.
 
-`property.value` must infer as an object. `item.value` must infer as an array.
+**[R-0007-097]** `property.value` must infer as an object. `item.value` must infer as an array.
 `if.condition`, every `and` and `or` value, and `not.value` must infer as
 Boolean. Numeric arithmetic operands must infer as `integer` or `number`.
 `concat` values and `trim.value` must infer as strings. `parse-number` and
@@ -1537,7 +1597,7 @@ in addition to the presence and nullability requirements in Section 8.7.
 
 ### 8.6 Evaluation order
 
-The abstract evaluation order is deterministic and sequential:
+**[R-0007-098]** The abstract evaluation order is deterministic and sequential:
 
 1. `left` is evaluated before `right`.
 2. Expression arrays are evaluated from index zero upward.
@@ -1585,8 +1645,16 @@ The abstract evaluation order is deterministic and sequential:
     each key exactly once in ascending source-index order. All keys must
     succeed before grouping and result emission begin. They then emit group
     records in first-occurrence order.
+18. `slice-string` evaluates `value`, then `start`, then `count` when present.
+    Search and prefix/suffix operators evaluate `value` then `search`.
+    `split` and `join` evaluate `value` then `separator`. `replace` evaluates
+    `value`, then `search`, then `replacement`. Each operand is evaluated
+    exactly once, with its consumed-value checks immediately after evaluation.
+    After all operands pass, matching-work checks precede matching and output
+    preflight as specified in Section 8.10. Every output preflight completes
+    before emission; `join` preflight examines items in source order.
 
-The first runtime failure in this order terminates the transform. Unevaluated
+**[R-0007-099]** The first runtime failure in this order terminates the transform. Unevaluated
 operands and elements cannot fail and consume no evaluation budget. An
 implementation may evaluate internally in another order or in parallel only
 when the observable result, selected first failure, and budget consumption are
@@ -1594,11 +1662,11 @@ identical to the abstract order.
 
 ### 8.7 Static result inference
 
-An inferred expression type consists of one normalized Qhapaq v1 schema and a
+**[R-0007-100]** An inferred expression type consists of one normalized Qhapaq v1 schema and a
 separate `mayBeMissing` Boolean. JSON `null` remains part of the schema type.
 `missing` is never encoded as a schema type or keyword.
 
-When an operator combines alternatives, the type checker derives the least
+**[R-0007-101]** When an operator combines alternatives, the type checker derives the least
 representable common super-schema under the closed v1 profile. It combines
 nullability; promotes `integer` and `number` to `number`; widens numeric and
 length intervals only enough to cover both alternatives; retains `format`,
@@ -1611,12 +1679,12 @@ result remains within the enum limit. Other constraints are retained only when
 the schema-profile compatibility rules prove that they admit both
 alternatives.
 
-If alternatives have different concrete types other than `integer` and
+**[R-0007-102]** If alternatives have different concrete types other than `integer` and
 `number`, or any recursive join has no representation in the v1 profile, the
 expression is invalid. In particular, a constructed array cannot mix unrelated
 element types. Inferred schemas omit documentation annotations.
 
-The operator-specific inference rules are:
+**[R-0007-103]** The operator-specific inference rules are:
 
 - `literal` infers the exact value as a `const`. `input` infers its declared
   source schema. An item `variable` infers the source array's item schema; an
@@ -1657,6 +1725,33 @@ The operator-specific inference rules are:
   otherwise they infer `number`. `divide` and `remainder` infer `number`.
 - `concat` returns a string with summed length bounds. `trim` returns a string
   with minimum length zero and a maximum no greater than the source maximum.
+- `slice-string` returns a required, non-null string. Its `minLength` and
+  `maxLength` use exactly the `slice` window formulas above with source string
+  scalar-length bounds instead of array-length bounds.
+- `index-of` and `last-index-of` return required, non-null integers with
+  minimum `-1` and maximum the source `maxLength` when known.
+  `contains-string`, `starts-with`, and `ends-with` return required, non-null
+  Booleans.
+- `split` returns a required, non-null array with `minItems` one and
+  `maxItems` the source `maxLength` plus one when known. Its items are
+  non-null strings with `minLength` zero and `maxLength` the source maximum
+  when known. It does not infer `uniqueItems`.
+- For `join`, let `Nmin` and `Nmax` be source-array length bounds, `Lmin` and
+  `Lmax` its item scalar-length bounds, and `Dmin` and `Dmax` separator
+  scalar-length bounds. The required, non-null result string has minimum
+  `Nmin * Lmin + max(0, Nmin - 1) * Dmin` and maximum
+  `Nmax * Lmax + max(0, Nmax - 1) * Dmax` when the corresponding bounds
+  are known. Unknown minima use zero; an unknown maximum omits the result
+  maximum.
+- `replace` returns a required, non-null string with minimum length zero.
+  When source maximum `Smax` and replacement maximum `Rmax` are known,
+  its maximum is `Smax * max(1, Rmax)`, a conservative bound because the
+  search consumes at least one scalar per match.
+- The new string-helper bounds use exact non-negative integer arithmetic.
+  A derived bound outside the schema profile's portable safe-integer domain
+  is omitted rather than wrapped or clamped. Text results retain no source
+  `format`, `pattern`, `const`, or `enum` constraint merely because an operand
+  had it; successful results must still satisfy the declared output schema.
 - `map` returns an array whose item schema is the mapped-expression schema and
   whose length bounds equal the source bounds. Its mapped expression may not
   produce missing. `filter` preserves the source item schema and maximum
@@ -1699,12 +1794,12 @@ The operator-specific inference rules are:
   the input schema with the asserted constraint and remove no unrelated state.
   `assert-format` may name only a format in the closed v1 allowlist.
 
-Except for operators expressly defined to inspect, propagate, or handle
+**[R-0007-104]** Except for operators expressly defined to inspect, propagate, or handle
 `missing` or JSON `null`, every operand must be statically proven present and
 non-null. Successful-result inference is independent from whether a checked
 partial operator may fail for a runtime value.
 
-Guard-based narrowing applies to exact canonically identical expressions.
+**[R-0007-105]** Guard-based narrowing applies to exact canonically identical expressions.
 `is-missing` narrows presence, and `is-null` narrows nullability. `not` reverses
 the true and false facts. `and` carries true facts left to right; `or` carries
 false facts left to right. `if` checks its selected branch under the facts
@@ -1713,7 +1808,7 @@ are retained only when every path establishes the same fact.
 
 ### 8.8 `missing` and JSON `null`
 
-`missing` is an internal evaluation state introduced only by selection or
+**[R-0007-106]** `missing` is an internal evaluation state introduced only by selection or
 propagation from a selection. It has no literal syntax, cannot enter through a
 declared portable input, cannot be serialized, and never satisfies a schema.
 
@@ -1736,6 +1831,11 @@ predicate results must also be non-null. The source of `group-by` and
 keys may be JSON `null` when their inferred schemas permit it. Each
 `distinct-by`, `group-by`, and `count-by` key must be statically proven
 present. A null value compares equal only to null.
+
+Every operand of the new string helpers must be statically proven present and
+non-null. The same applies to every `join` item. No helper treats null as an
+empty string, stringifies a non-string implicitly, or accepts missing. Empty
+text and absent matches are ordinary present results under Section 8.5.
 
 The state predicates are total and return:
 
@@ -1762,7 +1862,7 @@ missing to null or null to missing.
 
 ### 8.9 Runtime failures
 
-A mapping runtime failure is distinct from a static validation error,
+**[R-0007-107]** A mapping runtime failure is distinct from a static validation error,
 cancellation, and an unexpected host fault. V1 mapping failures are:
 
 - a failed `require-present` or `require-non-null`;
@@ -1772,49 +1872,56 @@ cancellation, and an unexpected host fault. V1 mapping failures are:
   result outside the portable safe-integer domain; and
 - exhaustion of a portable mapping evaluation or size limit.
 
-Numeric arithmetic uses IEEE 754 binary64 round-to-nearest, ties-to-even, with
+**[R-0007-108]** Numeric arithmetic uses IEEE 754 binary64 round-to-nearest, ties-to-even, with
 one rounding after each operation in the abstract evaluation order. Fused
 operations or reassociation must not change a result. `remainder` uses a
 quotient truncated toward zero. A computed negative zero is normalized to
 zero. A result outside the portable numeric domain fails rather than producing
 `NaN`, infinity, or a clamped value.
 
-The first mapping failure terminates the transform immediately. No remaining
+**[R-0007-109]** The first mapping failure terminates the transform immediately. No remaining
 operand, collection element, downstream node, or native materializer starts.
 Failures are not values and cannot be caught by a mapping expression.
 
-A mapping failure's protected host diagnostic identifies the transform node,
+**[R-0007-110]** A mapping failure's protected host diagnostic identifies the transform node,
 operator, and expression JSON Pointer without reproducing operand values. That
 diagnostic may include bounded, non-sensitive context such as a violated
 assertion bound. The portable runtime failure contains only the exact stable
 code and closed envelope defined in Section 15.2.
 
-Runtime values are validated at portable boundaries. A value that violates a
+**[R-0007-111]** Runtime values are validated at portable boundaries. A value that violates a
 schema the binder had already proven is reported as a host or implementation
 contract failure, not as ordinary mapping input failure. Cancellation remains
 cancellation, and an unexpected implementation exception remains a host fault;
 neither is relabeled as a mapping failure.
 
-`sort-by` introduces no separate invalid-key runtime failure. Static validation
+**[R-0007-112]** `sort-by` introduces no separate invalid-key runtime failure. Static validation
 proves that every key is present, non-null, and numeric. Existing failures from
 the source or a key expression and portable limit exhaustion retain their
 ordinary codes and follow the evaluation order in Sections 8.6 and 8.10.
 `sort-by` never returns a partially sorted result.
 
-`group-by` and `count-by` likewise introduce no invalid-key runtime failure.
+**[R-0007-113]** `group-by` and `count-by` likewise introduce no invalid-key runtime failure.
 Static validation proves that every key is a present scalar. Source, key, and
 limit failures retain their ordinary codes and follow the same evaluation
 order. Neither operator returns a partial result.
 
-The other collection operators introduce no separate runtime failure. Static
+**[R-0007-114]** The other collection operators introduce no separate runtime failure. Static
 validation proves their source, item, key, and predicate domains. Existing
 failures from an evaluated operand, key, or predicate and portable limit
 exhaustion retain their ordinary codes and follow Sections 8.6 and 8.10.
 No array-producing operator returns a partial result.
 
+**[R-0007-115]** The new string helpers introduce no new runtime failure codes. Nonempty search
+and separator requirements and operand domains are validated statically;
+explicit assertions retain their existing failure behavior. Operand failures
+and portable string, collection, value-size, or work exhaustion retain their
+ordinary codes and deterministic order. A helper never truncates output to fit
+a limit or returns a partial string or split array.
+
 ### 8.10 Portable complexity and evaluation limits
 
-`qhapaq.mapping/v1` defines fixed structural ceilings, portable runtime
+**[R-0007-116]** `qhapaq.mapping/v1` defines fixed structural ceilings, portable runtime
 defaults, and deterministic accounting rules. Structural ceilings bound
 validation of an untrusted definition. Runtime limits bound each independent
 mapping-site evaluation. Trusted host policy separately bounds aggregate work,
@@ -1838,7 +1945,7 @@ operators per mapping site. A pipeline may request another effective maximum,
 but no v1 mapping site may contain more than 65,536 operators. The fixed
 65,536-operator ceiling cannot be raised by a pipeline or host.
 
-`mappingLimits`, when present, is a closed top-level object whose members are
+**[R-0007-117]** `mappingLimits`, when present, is a closed top-level object whose members are
 positive integers in the portable safe-integer domain. Its optional members
 are:
 
@@ -1867,16 +1974,16 @@ cannot, host bindability fails. A host must not silently clamp a requested
 limit. Host policy may permit greater capacity, but doing so does not raise the
 effective limits of a pipeline that omitted them or requested lower values.
 
-The runtime collection rules are:
+**[R-0007-118]** The runtime collection rules are:
 
 - An array that becomes the source of `map`, `filter`, `distinct`,
   `distinct-by`, `contains-item`, `concat-arrays`, `flatten`, `any`, `all`,
-  `sort-by`, `group-by`, or `count-by` must not contain more than
+  `sort-by`, `group-by`, `count-by`, or `join` must not contain more than
   `maxCollectionElements` elements. For `flatten`, this rule applies to the
   outer array and every inner array.
 - Every array produced by `literal`, `array`, `map`, `filter`, `slice`,
   `distinct`, `distinct-by`, `concat-arrays`, `flatten`, `sort-by`, `group-by`,
-  or `count-by`, including each `group-by` `items` array, and every array
+  `count-by`, or `split`, including each `group-by` `items` array, and every array
   returned as the final mapping result, must not contain more than
   `maxCollectionElements` elements. The rule applies recursively to arrays in
   produced literal and composite values. V1 has no separate group-count or
@@ -1901,7 +2008,7 @@ mapping result must satisfy both `maxStringScalars` and
 Value size is the number of bytes in the RFC 8785 canonical UTF-8
 representation. Every composite value created by `literal`, `object`, `array`,
 `map`, `filter`, `slice`, `distinct`, `distinct-by`, `concat-arrays`,
-`flatten`, `sort-by`, `group-by`, or `count-by`, and the final mapping result,
+`flatten`, `sort-by`, `group-by`, `count-by`, or `split`, and the final mapping result,
 must satisfy `maxValueUtf8Bytes`. A `group-by` result copies every source item
 and adds record overhead, so it may exceed this limit even when its source does
 not. Implementations may calculate size incrementally without materializing
@@ -1910,7 +2017,7 @@ before exceeding the effective limit. A mapping may select a bounded portion
 of a larger input; input frame values that are not produced as mapping results
 remain subject to separate host frame-memory and aggregate output budgets.
 
-`last` examines one array element when the source is non-empty and none when it
+**[R-0007-119]** `last` examines one array element when the source is non-empty and none when it
 is empty. `slice` examines and emits each selected element in ascending source
 index order. Elements before `start` and elements after the selected window are
 not examined and incur no element work. The ordinary operator-invocation,
@@ -1963,7 +2070,7 @@ all processing succeeds, each retained item incurs one element emission. The
 fixed debit covers all internal hashing, equality comparison, and
 bookkeeping; those steps incur no other charge.
 
-`contains-item` evaluates its candidate once. When the candidate is a string,
+**[R-0007-120]** `contains-item` evaluates its candidate once. When the candidate is a string,
 it debits one work unit for every Unicode scalar in that string immediately
 after evaluation, including for an empty source. For each attempted source
 item, it debits one element examination and one collection visit. When that
@@ -1989,7 +2096,55 @@ entry, one element examination for each inner item, and one element emission
 for each result item. Neither operator debits collection visits or fixed
 sorting-style work.
 
-Portable evaluation work uses one abstract work unit for each:
+**[R-0007-121]** For `slice-string`, `index-of`, `last-index-of`, `contains-string`,
+`starts-with`, `ends-with`, `split`, `join`, and `replace`, every consumed
+string operand must satisfy `maxStringScalars` and `maxStringUtf8Bytes`,
+in that order, immediately after evaluation. `join` also size-checks its source
+array immediately after evaluation and each item string during source-order
+preflight. These input checks apply even when the helper returns no text, no
+match, or an empty result. Existing string operators retain their earlier
+rules.
+
+After operand checks and before any matching, `index-of`, `last-index-of`,
+`contains-string`, `split`, and `replace` debit fixed matching work of
+`N + M`, where `N` is the source scalar length and `M` is the search or
+separator scalar length. The debit applies unchanged to empty searches,
+impossible matches, and early matches. It covers all matching, scalar
+examination, and internal comparison or search-table work; those steps incur
+no additional charges. Hosts must implement bounded linear-time matching,
+not unbounded backtracking or repeated full comparisons with quadratic
+worst-case work. `starts-with` and `ends-with` instead debit `2 * M` when
+`M <= N`, or `M` otherwise; an empty search debits zero. Their debit covers
+the search and the corresponding source window.
+
+`slice-string` debits one scalar examination for each skipped prefix scalar,
+up to `min(start, N)`, followed by one examination per selected scalar. This
+applies even when `count` is zero. Each selected scalar then incurs one
+emission. `split` incurs one array-element emission per field and one scalar
+emission per field scalar; separator scalars are not emitted. `replace`
+debits one examination per replacement scalar once, after matching-work debit
+and before determining the output, even when no match exists. It then debits
+one emission per result scalar, including each repeated replacement scalar.
+
+`join` preflight debits one array-element examination per source item and one
+examination per item scalar in source order. It emits one scalar charge per
+result scalar, including every separator occurrence. An empty source array
+incurs no item or output-scalar charge; the separator is still evaluated and
+size-checked. None of these string helpers debit `maxCollectionVisits`.
+
+String-result construction preflights exact scalar length followed by exact
+UTF-8 byte length before the first emission. `split` first checks its result
+field count against `maxCollectionElements`, then each field's scalar and
+byte limits in field order, then the complete array's canonical size against
+`maxValueUtf8Bytes`. Result counting and size preflight are covered by the
+specified matching or source-examination work and incur no additional
+portable charge; emission charges occur only after preflight succeeds.
+Source examinations by `slice-string` and `join` precede their output-size
+checks. Counters and formulas use exact non-negative integer arithmetic;
+overflow is exhaustion of the resource being calculated. Matching-work
+overflow is work exhaustion. No output is emitted after a failed preflight.
+
+**[R-0007-122]** Portable evaluation work uses one abstract work unit for each:
 
 - operator invocation, charged before that operator begins;
 - array element or object member examined or emitted by an operator, charged
@@ -2014,7 +2169,7 @@ terminates the mapping before that work occurs. This failure follows the
 abstract evaluation order in Section 8.6 and is a mapping runtime failure under
 Section 8.9.
 
-Expression depth above 256, operator count above 65,536, or operator count
+**[R-0007-123]** Expression depth above 256, operator count above 65,536, or operator count
 above the effective `maxOperators` is a portable document-validity failure.
 Runtime values are not required to be statically provable within the remaining
 limits. When actual evaluation exceeds an accepted collection, string, value,
@@ -2030,7 +2185,7 @@ failure and must not be relabeled as exhaustion of a portable mapping limit.
 
 ### 8.11 Collection-operator conformance requirements
 
-The normative `qhapaq.mapping/v1` conformance suite must include all of the
+**[R-0007-124]** The normative `qhapaq.mapping/v1` conformance suite must include all of the
 following `sort-by` vector groups:
 
 1. Valid structure and inference vectors cover the minimal operand form, the
@@ -2053,7 +2208,7 @@ following `sort-by` vector groups:
    per attempted key, ordinary examination and emission charges,
    overflow-as-exhaustion, and produced-value limits.
 
-The suite must also include all of the following `group-by` and `count-by`
+**[R-0007-125]** The suite must also include all of the following `group-by` and `count-by`
 vector groups:
 
 1. Valid structure and inference vectors cover the minimal operand form, the
@@ -2081,7 +2236,7 @@ vector groups:
    item emission charges, overflow-as-exhaustion, and a `group-by` result that
    exceeds `maxValueUtf8Bytes` although its source does not.
 
-The suite must include all of the following `distinct` and `distinct-by`
+**[R-0007-126]** The suite must include all of the following `distinct` and `distinct-by`
 vector groups:
 
 1. Valid structure and inference vectors cover both operators, the optional
@@ -2107,7 +2262,7 @@ vector groups:
    visit per processed item, whole-string scalar charges, retained-item
    emission, overflow-as-exhaustion, and produced collection and value limits.
 
-The suite must also include all of the following `contains-item`,
+**[R-0007-127]** The suite must also include all of the following `contains-item`,
 `concat-arrays`, `flatten`, `any`, and `all` vector groups:
 
 1. Valid structure and inference vectors cover comparable nullable scalar
@@ -2133,38 +2288,44 @@ The suite must also include all of the following `contains-item`,
    overflow and limit boundaries, failed preflight before examination or
    emission, outer and inner flatten examinations, and produced-value limits.
 
-Where the mapping language cannot observe an evaluation count directly,
+**[R-0007-128]** Where the mapping language cannot observe an evaluation count directly,
 paired work-limit or collection-visit-limit boundary vectors must make the
 required count observable without adding side effects.
 
 ### 8.12 Reopened v1 capabilities and later-version candidates
 
-The `qhapaq.mapping/v1` operator set is explicitly reopened while this
+**[R-0007-129]** The `qhapaq.mapping/v1` operator set is explicitly reopened while this
 specification remains draft and before its schema and conformance artifacts are
 published. The following unresolved Phase 0 capabilities are in v1 scope:
 
-- string slicing, search, containment, splitting, joining, and non-regex
-  replacement, with case-insensitive behavior dependent on an explicit,
-  portable comparison and Unicode policy;
+- case-insensitive string comparison, dependent on an explicit, portable
+  comparison and Unicode policy;
 - bounded regular-expression matching and extraction, dependent on the shared
   portable `pattern` grammar and evaluator;
 - object shaping and merge; and
 - common numeric helpers, including explicitly specified rounding modes and
   any array reductions such as sum, minimum, maximum, and average.
 
-The completed common-collection checkpoint selects `distinct`, `distinct-by`,
+**[R-0007-130]** The completed common-collection checkpoint selects `distinct`, `distinct-by`,
 `contains-item`, `concat-arrays`, one-level `flatten`, `any`, and `all` for v1
 with the normative semantics and conformance requirements in Sections 8.5
 through 8.11.
 
-The Phase 0 checkpoints in Section 21 decide the exact operators and semantics
+**[R-0007-131]** The completed string-capability checkpoint selects `slice-string`, `index-of`,
+`last-index-of`, `contains-string`, `starts-with`, `ends-with`, `split`,
+`join`, and `replace`, alongside the existing `concat`. Sections 8.5 through
+8.10 define exact-comparison semantics; Section 8.14 defines required string
+conformance coverage. This does not close the separate case-insensitive
+checkpoint.
+
+**[R-0007-132]** The Phase 0 checkpoints in Section 21 decide the exact operators and semantics
 for these capabilities. A checkpoint may reject a candidate operator, but every
 operator it selects is part of `qhapaq.mapping/v1`, not a future mapping-language
 version. The v1 operator set closes again only when all of these checkpoints
 have normative semantics. The corresponding schema and conformance artifacts
 must encode that final set before publication.
 
-The following capabilities remain outside v1 and are non-normative
+**[R-0007-133]** The following capabilities remain outside v1 and are non-normative
 later-version candidates:
 
 - temporal parsing, canonical normalization, formatting, timezone conversion,
@@ -2174,19 +2335,19 @@ later-version candidates:
 - Base64 conversion; and
 - general format templates.
 
-A future mapping-language version may select, rename, split, or omit these
+**[R-0007-134]** A future mapping-language version may select, rename, split, or omit these
 later-version candidates. This list grants no forward-compatibility
 interpretation to v1 hosts.
 
 ### 8.13 Language-version selection
 
-Every mapping site contains a required `language` member that selects one exact
+**[R-0007-135]** Every mapping site contains a required `language` member that selects one exact
 mapping-language version for that site. Language selection is local: there is no
 pipeline-wide default, inheritance, version range, alias, or unspecified latest
 version. Changing a pipeline format, another mapping site, or a host default
 must not reinterpret an untouched mapping expression.
 
-A pipeline format may permit more than one mapping-language version. Such a
+**[R-0007-136]** A pipeline format may permit more than one mapping-language version. Such a
 pipeline may contain mapping sites that select different permitted versions,
 including an older final output projection after a newer transform. Each site
 is parsed, validated, type-checked, budgeted, compiled, and evaluated according
@@ -2194,30 +2355,80 @@ to its selected version. Mapping-language versions do not invoke or embed one
 another; they compose only through portable values checked against the declared
 Qhapaq schemas at node boundaries.
 
-The exact pipeline-format schema defines the closed set of mapping-language
+**[R-0007-137]** The exact pipeline-format schema defines the closed set of mapping-language
 versions permitted at each kind of mapping site. `qhapaq.pipeline/v1` permits
 only `qhapaq.mapping/v1`, as required by Sections 6.3.2 and 10. A later pipeline
 format may permit `qhapaq.mapping/v1`, `qhapaq.mapping/v2`, or both without
 altering the meaning or validity rules of `qhapaq.pipeline/v1`.
 
-Patching or migrating one mapping site must preserve the `language` and
+**[R-0007-138]** Patching or migrating one mapping site must preserve the `language` and
 expression of every untouched site. Changing a site's `language` requires
 validating its complete expression under the newly selected version and
 produces a new canonical definition and definition digest. Canonicalization
 preserves every exact `language` value and never performs language migration.
 
+### 8.14 String-helper conformance requirements
+
+**[R-0007-139]** The normative `qhapaq.mapping/v1` conformance suite must include:
+
+1. Valid structure and inference vectors for every new helper, optional
+   `slice-string.count`, nonempty-search and separator narrowing, scalar and
+   UTF-8 lengths, window bounds, index bounds, split item and array bounds,
+   join length formulas, conservative replacement expansion, unknown bounds,
+   derived bounds outside the safe-integer domain, and dropped text
+   constraints.
+2. Invalid structure and type vectors for missing and unknown operands,
+   expression-valued or unrecognized comparison options, non-string,
+   potentially missing, or nullable operands, non-array join sources,
+   non-string or nullable join items, negative or unproven slice bounds, and
+   empty or not-proven-nonempty split separators and replacement searches.
+3. Scalar-index vectors with non-BMP characters, combining sequences,
+   canonical-equivalent but unequal strings, differing case, JSON escape
+   spellings, zero and omitted counts, starts at and beyond the end,
+   oversized counts, empty sources, and no grapheme or code-unit indexing.
+4. Search vectors for first and last positions, overlapping occurrences,
+   absent matches returning `-1`, empty-search boundary identities, prefix
+   and suffix windows, too-long searches, and relative indices after slicing.
+5. Split vectors for absent, leading, trailing, and adjacent separators,
+   empty source returning `[""]`, multi-scalar and overlapping separators,
+   preserved empty fields, and literal regex-like separator text.
+6. Join vectors for empty and singleton arrays, empty items and separator,
+   repeated separators, source ordering, and explicit stringification.
+7. Replacement vectors for absent, multiple, adjacent, and overlapping
+   matches; empty replacement; expansion; replacement containing the search;
+   and regex-like or substitution-like text treated literally.
+8. Evaluation and failure-order vectors proving single operand evaluation in
+   named order, consumed-value checks before later operands, join item
+   preflight in source order, fixed work before matching, complete output
+   preflight before emission, first-failure selection, and no partial results.
+9. Exact-accounting vectors immediately below and at `N + M`, prefix/suffix
+   debits, empty and impossible searches, slice skipped-prefix work and zero
+   count, item/scalar join examination, split field/scalar emission,
+   replacement-text examination even without matches, repeated output
+   scalars, and no collection visits. Cover scalar and UTF-8 input/output
+   limits, split cardinality and canonical-value limits, expansion, counter
+   overflow, and failed preflight preventing emission.
+10. Adversarial repetitive-source and repetitive-search vectors demonstrating
+    bounded linear matching independently of host search libraries, culture,
+    normalization, architecture, and native string index units.
+
+**[R-0007-140]** Paired work-limit boundary vectors must make required evaluation and charge
+counts observable where the language cannot inspect them directly. These
+requirements are published as executable vectors in Phase 1; closing this
+normative checkpoint does not mark those artifacts complete.
+
 ## 9. Schema Profile and Compatibility
 
 ### 9.1 Normative document-schema composition
 
-The JSON Schema that validates a pipeline document is distinct from the Qhapaq
+**[R-0007-141]** The JSON Schema that validates a pipeline document is distinct from the Qhapaq
 schema values embedded in that document for operation data, configuration, and
 pipeline inputs and outputs. The normative pipeline-document schema may use
 JSON Schema Draft 2020-12 composition keywords needed to define the closed
 document grammar even when those keywords are not permitted in embedded Qhapaq
 schema values.
 
-Each published pipeline-format schema is an immutable, self-contained schema
+**[R-0007-142]** Each published pipeline-format schema is an immutable, self-contained schema
 bundle. It contains a version-specific definition for every mapping-language
 version that the pipeline format permits. At each mapping site, the schema uses
 a closed `oneOf` whose branches are distinguished by a `language` property with
@@ -2259,12 +2470,12 @@ shape:
 }
 ```
 
-The illustrative `mappingSite` above shows the version-dispatch pattern rather
+**[R-0007-143]** The illustrative `mappingSite` above shows the version-dispatch pattern rather
 than the complete transform-node or output-projection schema. The normative
 schema defines separate complete closed branches for those records because
 their required members differ.
 
-The set of branches is fixed when a pipeline-format schema is published. A host
+**[R-0007-144]** The set of branches is fixed when a pipeline-format schema is published. A host
 must not add a newly installed or newly implemented mapping language to an
 older format's schema. Consequently, adding `qhapaq.mapping/v2` does not change
 the accepted instances of `qhapaq.pipeline/v1`; a later pipeline format must
@@ -2274,7 +2485,7 @@ resources and requires no file-system or network resolution.
 
 ### 9.2 Embedded schema profile
 
-Schema values embedded in pipeline definitions and operation descriptors use
+**[R-0007-145]** Schema values embedded in pipeline definitions and operation descriptors use
 JSON Schema Draft 2020-12 under a Qhapaq v1 profile. The profile must define:
 
 - the supported keywords and exact format allowlist;
@@ -2284,19 +2495,19 @@ JSON Schema Draft 2020-12 under a Qhapaq v1 profile. The profile must define:
 - local reference packaging;
 - the conservative compatibility algorithm.
 
-Remote schema resolution during validation or execution is prohibited.
+**[R-0007-146]** Remote schema resolution during validation or execution is prohibited.
 The v1 profile permits only fragment-only `$ref` values that resolve within the
 containing document, such as `#/$defs/customer`. External, relative-document,
 and network references are invalid. A future format may introduce separately
 packaged, digest-pinned schema artifacts without changing v1 behavior.
 
-Every Qhapaq-supported `format` is an assertion, not an annotation. A value that
+**[R-0007-147]** Every Qhapaq-supported `format` is an assertion, not an annotation. A value that
 does not satisfy its declared format is invalid. An unknown or unsupported
 format is also invalid rather than being ignored. The normative schema profile
 and conformance vectors define the closed v1 format allowlist and the validation
 rules for each member so that hosts cannot interpret formats differently.
 
-The v1 format allowlist is:
+**[R-0007-148]** The v1 format allowlist is:
 
 - `date`;
 - `time`;
@@ -2309,26 +2520,26 @@ The v1 format allowlist is:
 - `uri`; and
 - `uuid`.
 
-Their lexical and semantic validation rules follow the corresponding normative
+**[R-0007-149]** Their lexical and semantic validation rules follow the corresponding normative
 references used by the JSON Schema Draft 2020-12 format-assertion vocabulary.
 
-Every schema whose effective type includes `object` must declare
+**[R-0007-150]** Every schema whose effective type includes `object` must declare
 `additionalProperties`. Its value must be `false` or an explicit schema;
 omission and `true` are invalid. This makes object closure intentional while
 still permitting typed dictionary values. Declared properties and additional
 properties are both subject to the conservative compatibility algorithm.
 
-The v1 profile supports homogeneous arrays only. Every schema whose effective
+**[R-0007-151]** The v1 profile supports homogeneous arrays only. Every schema whose effective
 type includes `array` must declare exactly one `items` schema. Tuple validation
 through `prefixItems` and other tuple-specific behavior is unsupported.
 
-The v1 profile permits either one concrete JSON type or exactly one concrete
+**[R-0007-152]** The v1 profile permits either one concrete JSON type or exactly one concrete
 JSON type combined with `null`. General type unions and composition through
 `oneOf` or `anyOf` are unsupported. Optionality and nullability remain distinct:
 an object property is optional only when it is absent from `required`, and it
 accepts `null` only when its declared type explicitly includes `null`.
 
-The closed v1 schema-keyword allowlist is:
+**[R-0007-153]** The closed v1 schema-keyword allowlist is:
 
 - `$defs` and `$ref`;
 - `type`, `const`, and `enum`;
@@ -2340,19 +2551,19 @@ The closed v1 schema-keyword allowlist is:
 - `default`; and
 - `title`, `description`, and `examples`.
 
-Unknown or unsupported schema keywords are invalid rather than annotations to
+**[R-0007-154]** Unknown or unsupported schema keywords are invalid rather than annotations to
 ignore. The annotation keywords do not affect instance validation or schema
 compatibility, except for the Qhapaq normalization semantics assigned to
 `default`.
 
-The schema profile defines portable maximum complexity limits that participate
+**[R-0007-155]** The schema profile defines portable maximum complexity limits that participate
 in document validity. Every conforming host must accept schemas within those
 limits when no other validation rule fails. A host may impose stricter limits,
 but it must report those separately as host-bindability or policy failures
 rather than claiming that the portable document is invalid. Limit diagnostics
 must identify the exceeded resource without reproducing protected payload data.
 
-The portable v1 schema limits are:
+**[R-0007-156]** The portable v1 schema limits are:
 
 - at most 1 MiB for the RFC 8785 canonical UTF-8 representation of one schema;
 - at most 10,000 distinct schema objects;
@@ -2362,23 +2573,23 @@ The portable v1 schema limits are:
 - at most 1,024 Unicode scalar values in one `pattern`; and
 - at most 64 `$ref` dereferences in one resolution chain.
 
-Shared local references count each distinct schema object once toward the object
+**[R-0007-157]** Shared local references count each distinct schema object once toward the object
 limit. Cyclic references are invalid even when a validator could otherwise
 detect and stop the cycle.
 
-The `default` keyword has Qhapaq-specific normalization semantics for operation
+**[R-0007-158]** The `default` keyword has Qhapaq-specific normalization semantics for operation
 configuration properties. A property listed in its containing object's
 `required` array must be supplied explicitly. A `default` on a required
 property is authoring guidance only and must not be inserted by a validator,
 binder, or runtime.
 
-An omitted, non-required operation configuration property with a `default` is
+**[R-0007-159]** An omitted, non-required operation configuration property with a `default` is
 normalized to that concrete value. A caller never supplies a sentinel such as
 the string `"default"`. Explicit `null` is not omission and remains subject to
 the property's schema. The default value must itself satisfy the property
 schema.
 
-Normalization materializes optional defaults into the canonical pipeline
+**[R-0007-160]** Normalization materializes optional defaults into the canonical pipeline
 definition before it is hashed, persisted, reviewed, or bound. Implementations
 must not defer default selection until execution. Defaults are normative
 operation-contract content, are covered by the contract digest, and cannot
@@ -2386,12 +2597,12 @@ change for an existing operation ID and exact contract version. Changing an
 optional executable default therefore requires a new operation contract
 version.
 
-Compatibility validation is conservative. A connection is accepted only when
+**[R-0007-161]** Compatibility validation is conservative. A connection is accepted only when
 the validator can prove that every successful upstream value conforms to the
 downstream input schema. An unsupported or indeterminate comparison is rejected
 rather than treated as compatible.
 
-V1 uses one deterministic structural subtype algorithm over the closed Qhapaq
+**[R-0007-162]** V1 uses one deterministic structural subtype algorithm over the closed Qhapaq
 schema profile. An upstream schema is connection-compatible with a downstream
 schema only when that algorithm proves that the set of values admitted upstream
 is a subset of the set admitted downstream. Schema equality is sufficient but
@@ -2399,49 +2610,49 @@ not required. Hosts must not add implementation-specific compatibility cases;
 the same normalized schema pair must produce the same result on every
 conforming host.
 
-For `pattern`, compatibility is provable only when the downstream schema has no
+**[R-0007-163]** For `pattern`, compatibility is provable only when the downstream schema has no
 pattern or both schemas contain the same pattern string after JSON string
 decoding. V1 does not attempt regular-language inclusion analysis. Different
 patterns are indeterminate and therefore incompatible even when a human could
 show that one language contains the other.
 
-For `format`, compatibility is provable only when the downstream schema has no
+**[R-0007-164]** For `format`, compatibility is provable only when the downstream schema has no
 format or both schemas declare the same format. V1 defines no subtype
 relationships between different formats.
 
-`const` and `enum` constraints are compared as sets of JSON values. They are
+**[R-0007-165]** `const` and `enum` constraints are compared as sets of JSON values. They are
 compatible only when every literal value admitted by the upstream schema is
 also admitted by the downstream schema. JSON value equality for this comparison
 uses the canonical JSON data model, including mathematical equality for JSON
 numbers rather than source-text equality.
 
-Numeric ranges and string or array length ranges use exact mathematical set
+**[R-0007-166]** Numeric ranges and string or array length ranges use exact mathematical set
 containment, including inclusive and exclusive numeric endpoints. A wider
 upstream range is incompatible with a narrower downstream range. Authors may
 use an explicit checked `assert-number-range` or `assert-length` transform to
 narrow the schema; a binder must not insert an implicit runtime range check or
 alter the value by clamping it.
 
-The portable v1 numeric domain is the set of finite IEEE 754 binary64 values
+**[R-0007-167]** The portable v1 numeric domain is the set of finite IEEE 754 binary64 values
 accepted by RFC 8785 canonicalization. `NaN`, positive infinity, negative
 infinity, and negative zero as a semantically distinct value are unsupported.
 The `integer` type is restricted to values from `-9007199254740991` through
 `9007199254740991` so every integer is represented exactly across conforming
 implementations.
 
-`integer` is a structural subtype of `number`, so an integer output may connect
+**[R-0007-168]** `integer` is a structural subtype of `number`, so an integer output may connect
 directly to a numeric input when its remaining constraints are compatible. A
 general numeric output is not compatible with an integer input unless `const`
 or `enum` analysis proves that every admitted value is integral. Otherwise the
 pipeline requires an explicit checked `assert-integer` transform.
 
-For `multipleOf`, compatibility is provable when the downstream schema omits
+**[R-0007-169]** For `multipleOf`, compatibility is provable when the downstream schema omits
 the keyword or the upstream divisor is an exact positive integer multiple of
 the downstream divisor. Implementations must compare the exact mathematical
 values represented by the JSON numbers and must not use binary floating-point
 rounding to decide divisibility.
 
-For objects, every property required downstream must also be required upstream.
+**[R-0007-170]** For objects, every property required downstream must also be required upstream.
 Every property value the upstream schema may emit must be structurally
 compatible with the schema that the downstream applies to that property.
 An upstream property not named downstream is compatible only when the
@@ -2452,14 +2663,14 @@ property that an additional upstream property could match. A downstream
 `additionalProperties: false` rejects any upstream schema that may emit an
 undeclared downstream property. These rules apply recursively.
 
-For homogeneous arrays, the upstream `items` schema must be structurally
+**[R-0007-171]** For homogeneous arrays, the upstream `items` schema must be structurally
 compatible with the downstream `items` schema. The upstream length interval
 must be contained within the downstream interval. When the downstream requires
 `uniqueItems: true`, the upstream must also require uniqueness; an upstream
 uniqueness requirement remains compatible with a downstream schema that does
 not require it.
 
-The `pattern` keyword uses a Qhapaq-defined portable regular-expression subset,
+**[R-0007-172]** The `pattern` keyword uses a Qhapaq-defined portable regular-expression subset,
 not a host runtime's native regex dialect. The subset excludes backreferences,
 lookahead, lookbehind, conditionals, recursion, atomic groups, and executable or
 engine-specific extensions. Validation must use bounded evaluation and reject a
@@ -2467,12 +2678,12 @@ pattern outside the portable grammar before matching instance data. Sections
 9.3 and 9.5 define the grammar, matching algorithm, limits, and required
 cross-language conformance coverage.
 
-Within that subset, `\d`, `\w`, and `\s` and their negations have fixed ASCII
+**[R-0007-173]** Within that subset, `\d`, `\w`, and `\s` and their negations have fixed ASCII
 meanings independent of culture and host runtime. Literal Unicode characters
 are permitted. Unicode-category and Unicode-property escapes are unsupported in
 v1.
 
-At minimum:
+**[R-0007-174]** At minimum:
 
 - every downstream required property is guaranteed upstream;
 - optional or nullable values cannot satisfy required non-null inputs;
@@ -2483,13 +2694,13 @@ At minimum:
 
 ### 9.3 Portable regular-expression grammar and matching
 
-A portable pattern is decoded from its JSON string before it is parsed. Parsing
+**[R-0007-175]** A portable pattern is decoded from its JSON string before it is parsed. Parsing
 and matching operate on Unicode scalar values, not UTF-8 bytes, UTF-16 code
 units, grapheme clusters, or locale-dependent characters. An unpaired surrogate
 cannot occur in a valid decoded JSON string. No Unicode normalization, case
 folding, or locale-sensitive comparison is performed.
 
-The following grammar is normative. Grammar literals are shown in quotes,
+**[R-0007-176]** The following grammar is normative. Grammar literals are shown in quotes,
 juxtaposition means concatenation, `*` on a grammar production means zero or
 more grammar occurrences, and bracketed grammar terms are optional. These
 grammar metacharacters are notation and are not pattern syntax.
@@ -2522,11 +2733,11 @@ hex-digit        = digit / "A" / "B" / "C" / "D" / "E" / "F"
                  / "a" / "b" / "c" / "d" / "e" / "f"
 ```
 
-In the grammar, `n*m` means from `n` through `m` occurrences. The `\u{...}`
+**[R-0007-177]** In the grammar, `n*m` means from `n` through `m` occurrences. The `\u{...}`
 body's numeric value must be at most `10FFFF` hexadecimal and must not be in the
 surrogate range `D800` through `DFFF`.
 
-A `literal` is one scalar other than `\`, `|`, `(`, `)`, `[`, `]`, `{`, `}`,
+**[R-0007-178]** A `literal` is one scalar other than `\`, `|`, `(`, `)`, `[`, `]`, `{`, `}`,
 `*`, `+`, `?`, `.`, `^`, `$`, a C0 control from `U+0000` through `U+001F`, or
 `U+007F`. An `escaped-metacharacter` is `\` followed by one of those printable
 ASCII pattern metacharacters or `-`. A `class-literal` is any permitted literal
@@ -2534,24 +2745,24 @@ other than `-`, plus a pattern metacharacter that has no special meaning inside
 a class; `\`, `]`, `^`, and `-` must be escaped when used as class members.
 Unknown escapes and unescaped controls are invalid.
 
-Parentheses group only; v1 has no observable captures. Empty groups,
+**[R-0007-179]** Parentheses group only; v1 has no observable captures. Empty groups,
 concatenations, and alternation branches are valid and match the empty string.
 An assertion cannot be quantified. An atom can have at most one quantifier, so
 lazy, possessive, or adjacent quantifiers are invalid.
 
-Every `count` is interpreted as an unsigned decimal integer without a leading
+**[R-0007-180]** Every `count` is interpreted as an unsigned decimal integer without a leading
 zero unless it is exactly `0`. Each count must be at most 1,024. In a bounded
 range, the second count must be greater than or equal to the first. `{m,}` has
 no fixed repetition maximum; its compiled loop remains subject to the matching
 algorithm and state limit below.
 
-Class items are unioned. A range is valid only when both endpoints denote one
+**[R-0007-181]** Class items are unioned. A range is valid only when both endpoints denote one
 scalar, the first endpoint's scalar value is no greater than the second's, and
 neither endpoint is a shorthand class. A leading class `^` complements the
 union over the complete set of Unicode scalar values. An empty class is
 invalid.
 
-The fixed shorthand sets are:
+**[R-0007-182]** The fixed shorthand sets are:
 
 | Escape | Scalar set |
 | --- | --- |
@@ -2559,24 +2770,24 @@ The fixed shorthand sets are:
 | `\w` | ASCII `A`-`Z`, `a`-`z`, `0`-`9`, and `_` |
 | `\s` | `U+0009`, `U+000A`, `U+000B`, `U+000C`, `U+000D`, and `U+0020` |
 
-`\D`, `\W`, and `\S` are the complements of those sets over Unicode scalar
+**[R-0007-183]** `\D`, `\W`, and `\S` are the complements of those sets over Unicode scalar
 values. `.` matches every Unicode scalar, including line terminators. `^`
 matches only absolute input position zero, and `$` matches only the absolute
 position after the final scalar. There is no multiline, dot-all, ignore-case,
 or other flag syntax.
 
-Pattern matching is an unanchored search. A pattern succeeds if it accepts any
+**[R-0007-184]** Pattern matching is an unanchored search. A pattern succeeds if it accepts any
 contiguous scalar subsequence, including an empty subsequence. Authors use `^`
 and `$` when they require the whole instance string to match.
 
-After parsing, a validator compiles the abstract syntax tree to a Thompson
+**[R-0007-185]** After parsing, a validator compiles the abstract syntax tree to a Thompson
 epsilon-NFA. The normative machine has exactly five state forms:
 `consume(set, out)`, `split(out1, out2)`, `jump(out)`,
 `assert-start(out)` or `assert-end(out)`, and `accept`. Every state counts as
 one compiled state. An `out` is either a state reference or a dangling reference
 that compilation later patches.
 
-Compilation recursively returns one start reference and an ordered list of
+**[R-0007-186]** Compilation recursively returns one start reference and an ordered list of
 dangling exits:
 
 1. A literal, dot, or class creates one `consume` state with one dangling exit.
@@ -2606,13 +2817,13 @@ dangling exits:
 6. Compilation creates one `accept` state and patches every final dangling exit
    to it.
 
-A compiled pattern must contain no more than 4,096 states under this normative
+**[R-0007-187]** A compiled pattern must contain no more than 4,096 states under this normative
 unshared construction. Exceeding that limit is a document-validity failure.
 Implementations may share equivalent immutable fragments internally only when
 doing so does not accept a pattern whose normative construction exceeds the
 limit.
 
-For an input containing `N` scalars and an NFA containing `S` states, matching
+**[R-0007-188]** For an input containing `N` scalars and an NFA containing `S` states, matching
 uses this state-set simulation:
 
 1. Number input positions from zero through `N`. Start with an empty active
@@ -2628,7 +2839,7 @@ uses this state-set simulation:
 5. If position `N` completes without activating the accepting state, return
    `false`.
 
-Each state-position pair is visited at most once after deduplication. Matching
+**[R-0007-189]** Each state-position pair is visited at most once after deduplication. Matching
 therefore permits at most `(N + 1) x S` distinct state-position visits and uses
 at most `S` active states. A conforming implementation may use a different
 internal representation only when it produces the same Boolean result, rejects
@@ -2638,13 +2849,13 @@ conforming substitute unless those properties are independently enforced.
 
 ### 9.4 Closed v1 format algorithms
 
-Every format algorithm validates the entire decoded string. Formats are
+**[R-0007-190]** Every format algorithm validates the entire decoded string. Formats are
 case-sensitive except where a rule below explicitly permits either case.
 Formats perform no trimming, Unicode normalization, DNS lookup, URI
 dereferencing, clock lookup, or other external access. A `format` and any other
 string constraint in the same effective schema are conjunctive.
 
-The temporal formats use these shared rules:
+**[R-0007-191]** The temporal formats use these shared rules:
 
 - `date` has exactly the form `YYYY-MM-DD`. The year is from `0001` through
   `9999`. Month and day are two digits and must identify a date in the
@@ -2666,11 +2877,11 @@ The temporal formats use these shared rules:
   Date arithmetic for that conversion uses the proleptic Gregorian calendar
   and may cross a local date boundary.
 
-These rules are the v1 frozen RFC 3339 profile. They do not consult the
+**[R-0007-192]** These rules are the v1 frozen RFC 3339 profile. They do not consult the
 historical leap-second table, because updating such a table would otherwise
 change validation of an unchanged document.
 
-`duration` accepts exactly this ASCII grammar, corresponding to the RFC 3339
+**[R-0007-193]** `duration` accepts exactly this ASCII grammar, corresponding to the RFC 3339
 Appendix A `duration` production:
 
 ```text
@@ -2687,30 +2898,30 @@ time-parts     = "T" (digits "S"
 digits         = 1*ASCII-DIGIT
 ```
 
-Components cannot skip an intermediate component: for example, `P1Y2D` and
+**[R-0007-194]** Components cannot skip an intermediate component: for example, `P1Y2D` and
 `PT1H2S` are invalid. A week form cannot be combined with another component.
 Signs, whitespace, fractions, lowercase unit letters, alternative ISO 8601
 forms, and a bare `P` or `PT` are invalid. Digit sequences are validated
 lexically as arbitrary-precision non-negative integers; validation must not
 overflow a host numeric type.
 
-`hostname` accepts only ASCII and is valid when all of these conditions hold:
+**[R-0007-195]** `hostname` accepts only ASCII and is valid when all of these conditions hold:
 
 1. Its length is from 1 through 253 characters, with no trailing dot.
 2. Splitting on `.` produces labels from 1 through 63 characters.
 3. Every label starts and ends with an ASCII letter or digit.
 4. Every other label character is an ASCII letter, digit, or `-`.
 
-Letter case does not affect hostname validity. Internationalized names must be
+**[R-0007-196]** Letter case does not affect hostname validity. Internationalized names must be
 supplied in an already-valid ASCII representation; v1 performs no IDNA
 conversion.
 
-`ipv4` contains exactly four decimal octets separated by `.`. Each octet is
+**[R-0007-197]** `ipv4` contains exactly four decimal octets separated by `.`. Each octet is
 `0` or a digit from `1` through `9` followed by at most two digits, and its
 mathematical value must be from 0 through 255. A multi-digit octet cannot start
 with zero.
 
-`ipv6` implements the RFC 4291 text forms with this exact procedure:
+**[R-0007-198]** `ipv6` implements the RFC 4291 text forms with this exact procedure:
 
 1. Reject brackets, a prefix length, a scope or zone identifier, whitespace,
    more than one `::`, an empty component outside `::`, and any character other
@@ -2723,7 +2934,7 @@ with zero.
    IPv4 address as two. With `::`, the explicit groups must total fewer than
    eight and `::` supplies exactly enough zero groups to reach eight.
 
-`email` accepts only an RFC 5321-style ASCII mailbox under this closed profile:
+**[R-0007-199]** `email` accepts only an RFC 5321-style ASCII mailbox under this closed profile:
 
 1. The entire mailbox is at most 254 characters. The local part is at most 64
    characters and is followed by one unquoted `@` and a domain.
@@ -2737,10 +2948,10 @@ with zero.
    the v1 algorithm, or `[IPv6:IPv6]` where the tag is compared
    case-insensitively and the value satisfies the v1 `ipv6` algorithm.
 
-Comments, display names, source routes, whitespace outside a quoted local part,
+**[R-0007-200]** Comments, display names, source routes, whitespace outside a quoted local part,
 SMTPUTF8, obsolete forms, and general address-literal tags are invalid.
 
-`uri` accepts exactly the complete RFC 3986 `URI` production, not
+**[R-0007-201]** `uri` accepts exactly the complete RFC 3986 `URI` production, not
 `relative-ref` or IRI syntax. Validation uses the RFC 3986 ABNF over ASCII
 characters with these requirements:
 
@@ -2757,7 +2968,7 @@ characters with these requirements:
 4. Validation performs no case normalization, percent-decoding, dot-segment
    removal, default-port insertion, DNS validation, or scheme-specific checks.
 
-`uuid` contains exactly 36 ASCII characters in five hexadecimal fields of
+**[R-0007-202]** `uuid` contains exactly 36 ASCII characters in five hexadecimal fields of
 length 8, 4, 4, 4, and 12 separated by hyphens. Hexadecimal digits are compared
 case-insensitively. All bit patterns, including the nil UUID and unassigned
 version or variant values, are valid. Braces, whitespace, compact text, and a
@@ -2766,7 +2977,7 @@ version or variant values, are valid. Braces, whitespace, compact text, and a
 
 ### 9.5 Pattern and format conformance requirements
 
-The language-neutral conformance suite must include, at minimum:
+**[R-0007-203]** The language-neutral conformance suite must include, at minimum:
 
 - every grammar production, escape, shorthand, anchor, empty alternative, and
   quantifier boundary;
@@ -2792,15 +3003,15 @@ The language-neutral conformance suite must include, at minimum:
 - UUID case, field boundaries, nil and unassigned bit patterns, and rejected
   wrappers.
 
-Expected results must be independent of operating system, architecture,
+**[R-0007-204]** Expected results must be independent of operating system, architecture,
 culture, time zone, DNS, network access, and host parsing libraries.
 
 ## 10. Pipeline Output
 
-Without an explicit `output` projection, the root expression's output must be
+**[R-0007-205]** Without an explicit `output` projection, the root expression's output must be
 compatible with `schemas.output` and becomes the pipeline result.
 
-An explicit output projection is a closed boundary-specific mapping record with
+**[R-0007-206]** An explicit output projection is a closed boundary-specific mapping record with
 this exact shape:
 
 ```json
@@ -2840,7 +3051,7 @@ this exact shape:
 }
 ```
 
-`language`, `inputs`, and `expression` are required. `language` is exactly
+**[R-0007-207]** `language`, `inputs`, and `expression` are required. `language` is exactly
 `qhapaq.mapping/v1`. `inputs` is explicit, may be empty, and uses the same
 lower-camel alias grammar as a transform node. Its closed source union contains
 only `pipeline-input` and `node` sources; `current-input` is invalid because the
@@ -2849,7 +3060,7 @@ successful completion of the root. `expression` follows the canonical mapping
 syntax and may read only those declared inputs. Unknown output-projection
 members are invalid.
 
-The output projection has no `id`, `kind`, or `outputSchema`. It is not a
+**[R-0007-208]** The output projection has no `id`, `kind`, or `outputSchema`. It is not a
 structural node, does not create an externally addressable frame slot, and uses
 the pipeline's `schemas.output` as its required result schema. Returning one
 declared input expression unchanged is the canonical way to select a raw
@@ -2859,7 +3070,7 @@ eligible node output or the raw boundary input. An explicit output projection:
 - must produce a value conforming to `schemas.output`; and
 - cannot cause external side effects.
 
-This permits a result to combine selected values from multiple operations
+**[R-0007-209]** This permits a result to combine selected values from multiple operations
 without turning the execution frame into a persistent or externally queryable
 store.
 
@@ -2867,7 +3078,7 @@ store.
 
 ### 11.1 Portable descriptor
 
-Every registry-visible primitive or decorator has one portable descriptor
+**[R-0007-210]** Every registry-visible primitive or decorator has one portable descriptor
 containing:
 
 - stable operation ID;
@@ -2882,42 +3093,42 @@ containing:
 - usage guidance for when to use and not use the operation; and
 - reviewed examples intended for humans and AI systems.
 
-The descriptor separates normative `contract` fields from non-normative
+**[R-0007-211]** The descriptor separates normative `contract` fields from non-normative
 `documentation` fields. The contract digest covers normative fields and excludes
 documentation-only corrections, host availability, implementation provenance,
 and policy state.
 
-Operation descriptions, imported specifications, and examples are untrusted
+**[R-0007-212]** Operation descriptions, imported specifications, and examples are untrusted
 metadata. MCP and documentation projections must delimit them from authoritative
 instructions and must not let them broaden host or model authority.
 
 ### 11.2 Composition roles
 
-Portable descriptors use:
+**[R-0007-213]** Portable descriptors use:
 
 - `primitive` for leaf operations; and
 - `decorator` for operations that wrap an inner operation.
 
-A decorator descriptor declares that its input and output contracts are
+**[R-0007-214]** A decorator descriptor declares that its input and output contracts are
 preserved from its inner operation and provides a configuration schema.
 Structural sequence, parallel, conditional, try/catch recovery, loop, and
 transform forms are not registry descriptors.
 
 ### 11.3 Availability
 
-The effective registry reports whether an exact descriptor is:
+**[R-0007-215]** The effective registry reports whether an exact descriptor is:
 
 - available;
 - unavailable because a trusted implementation is absent;
 - unavailable because required host configuration is absent; or
 - unavailable because active policy excludes it.
 
-Explanations must not reveal credentials, secret references, sensitive
+**[R-0007-216]** Explanations must not reveal credentials, secret references, sensitive
 filesystem locations, or other protected host configuration.
 
 ### 11.4 Vocabulary identifiers and governance
 
-Capability, side-effect, idempotency, retry-disposition, effect-outcome, and
+**[R-0007-217]** Capability, side-effect, idempotency, retry-disposition, effect-outcome, and
 failure-code values use case-sensitive lowercase ASCII identifiers. An
 identifier:
 
@@ -2930,24 +3141,24 @@ identifier:
   normalization-equivalent spelling; and
 - is compared exactly without case folding or Unicode normalization.
 
-The `qhapaq.` namespace is reserved for this specification and other Qhapaq
+**[R-0007-218]** The `qhapaq.` namespace is reserved for this specification and other Qhapaq
 standards. An extension identifier uses a reverse-DNS namespace with at least
 three labels, such as `com.contoso.accelerator.use`. Possession or syntax of a
 name does not grant authority.
 
-The operation-descriptor format freezes the core capability, side-effect, and
+**[R-0007-219]** The operation-descriptor format freezes the core capability, side-effect, and
 idempotency vocabularies it references. `qhapaq.failure/v1` independently
 freezes the failure categories, retry dispositions, effect outcomes, reserved
 platform codes, and structured-failure projection rules.
 
-An otherwise valid descriptor may reference a syntactically valid namespaced
+**[R-0007-220]** An otherwise valid descriptor may reference a syntactically valid namespaced
 extension capability or side effect. A host that does not explicitly support
 the exact extension term reports the descriptor as host-unbindable. Policy
 cannot convert an unknown semantic term into a supported one merely by allowing
 its identifier. Unknown `qhapaq.` terms are invalid for the exact descriptor
 format.
 
-Arrays representing semantic sets are canonical author input rather than
+**[R-0007-221]** Arrays representing semantic sets are canonical author input rather than
 normalization requests. `capabilities` and `sideEffects` must be unique and in
 ascending Unicode code-point order. Failure declarations must have unique codes
 and be in ascending code order. An unsorted or duplicate-bearing array is
@@ -2955,13 +3166,13 @@ invalid; a validator must not reorder it before contract-digest computation.
 
 ### 11.5 Capability vocabulary
 
-A capability is a parameter-free declaration of authority or a host facility
+**[R-0007-222]** A capability is a parameter-free declaration of authority or a host facility
 that an operation or decorator may exercise on at least one valid execution
 path. It is not a declaration that the facility is used on every invocation and
 is not a resource locator, side effect, connection, budget, or data-sensitivity
 label.
 
-The closed Qhapaq v1 core capability vocabulary is:
+**[R-0007-223]** The closed Qhapaq v1 core capability vocabulary is:
 
 | Capability | Meaning |
 | --- | --- |
@@ -2973,7 +3184,7 @@ The closed Qhapaq v1 core capability vocabulary is:
 | `qhapaq.network.connect` | Initiate an outbound network connection, including a loopback TCP or HTTP connection. |
 | `qhapaq.process.execute` | Start or invoke an external process. |
 
-Destinations, paths, variable names, executable identities, logical resources,
+**[R-0007-224]** Destinations, paths, variable names, executable identities, logical resources,
 connections, and credential bindings are separate typed requirements evaluated
 by binding and policy. They must not be encoded into capability strings.
 Environment access identifies the requested variable explicitly and remains
@@ -2982,13 +3193,13 @@ implementation or provider code to apply, obtain, or refresh authentication
 material as required by an SDK, but the material never becomes an operation
 input, node output, transform value, failure payload, or pipeline result.
 
-V1 defines no core capability for clock access, randomness, ambient arbitrary
+**[R-0007-225]** V1 defines no core capability for clock access, randomness, ambient arbitrary
 host services, raw credential reads, inbound network listeners, or inbound IPC
 listeners. A future determinism or sensitive-value contract may add the
 appropriate independently enforceable metadata. V1 operations may connect to
 declared services but do not create listeners.
 
-Capabilities are orthogonal. No capability implies another, including
+**[R-0007-226]** Capabilities are orthogonal. No capability implies another, including
 `qhapaq.process.execute`; an operation declares every authority that it or a
 started child process may exercise. A plan aggregates a deduplicated set union
 over every potentially executable node, including mutually exclusive branches,
@@ -2998,12 +3209,12 @@ duplicate capability entries.
 
 ### 11.6 Side-effect vocabulary
 
-A side effect is a possible intended contract-level mutation outside the
+**[R-0007-227]** A side effect is a possible intended contract-level mutation outside the
 pipeline's value graph. Authority to access a facility and the consequence of
 using it remain separate: a read-only network operation declares
 `qhapaq.network.connect` and an empty `sideEffects` set.
 
-The closed Qhapaq v1 core side-effect vocabulary is:
+**[R-0007-228]** The closed Qhapaq v1 core side-effect vocabulary is:
 
 | Side effect | Meaning |
 | --- | --- |
@@ -3011,14 +3222,14 @@ The closed Qhapaq v1 core side-effect vocabulary is:
 | `qhapaq.external-action.trigger` | Request an externally meaningful action, such as a charge, deployment, workflow transition, or actuator command, that is not adequately described only as stored-data mutation or communication. |
 | `qhapaq.external-state.mutate` | Create, change, append to, rename, or delete durable or externally observable state. |
 
-Terms are broad consequence classes rather than protocol or CRUD verbs. An
+**[R-0007-229]** Terms are broad consequence classes rather than protocol or CRUD verbs. An
 operation declares every class that its intended behavior may produce on any
 valid path, including a path that later fails. Incidental provider logging,
 transport bookkeeping, or caching that is not part of the operation contract
 does not add a portable side-effect class. More specialized semantics require a
 supported reverse-DNS extension term.
 
-An empty `sideEffects` array is the sole representation of a guarantee that the
+**[R-0007-230]** An empty `sideEffects` array is the sole representation of a guarantee that the
 operation produces no core or extension-defined external mutation. There is no
 `none` term. A plan aggregates a deduplicated set union over every potentially
 executable node, including alternate and recovery paths. Repetition bounds are
@@ -3028,13 +3239,13 @@ node.
 
 ### 11.7 Idempotency vocabulary
 
-Idempotency concerns effects, not output determinism. Repeating an equivalent
+**[R-0007-231]** Idempotency concerns effects, not output determinism. Repeating an equivalent
 invocation is idempotent when it produces no additional externally observable
 effect beyond the first invocation. Outputs may differ because external state
 changed. Mapping expressions remain deterministic under Section 8; operation
 output determinism is a separate, currently undefined property.
 
-Two operation invocations are equivalent for this guarantee only when they
+**[R-0007-232]** Two operation invocations are equivalent for this guarantee only when they
 have the same:
 
 - exact operation contract;
@@ -3042,12 +3253,12 @@ have the same:
 - effective configuration; and
 - logical connection binding.
 
-Credential rotation inside the same logical connection does not create a
+**[R-0007-233]** Credential rotation inside the same logical connection does not create a
 different invocation. Implementation package identity is not part of the
 portable equivalence relation because every conforming implementation of the
 exact contract must provide the same declared guarantee.
 
-`idempotency` is always a closed object. Its required `classification` is one
+**[R-0007-234]** `idempotency` is always a closed object. Its required `classification` is one
 of:
 
 | Classification | Meaning |
@@ -3057,7 +3268,7 @@ of:
 | `qhapaq.non-idempotent` | An equivalent repeat may produce an additional effect and is known not to carry an idempotency guarantee. |
 | `qhapaq.unknown` | The contract supplies no idempotency guarantee. |
 
-For every classification other than `qhapaq.conditional`, `classification` is
+**[R-0007-235]** For every classification other than `qhapaq.conditional`, `classification` is
 the object's only member. A conditional object additionally requires:
 
 ```json
@@ -3068,7 +3279,7 @@ the object's only member. A conditional object additionally requires:
 }
 ```
 
-`keyPointer` is an RFC 6901 JSON Pointer into the operation input schema. It
+**[R-0007-236]** `keyPointer` is an RFC 6901 JSON Pointer into the operation input schema. It
 must resolve to a required, present, non-null string with `minLength` of at
 least one. The runtime value at that pointer is the caller-supplied key, and
 every equivalent retry must reuse it unchanged.
@@ -3078,12 +3289,12 @@ equivalent invocations carrying the same key. A retry is conditionally
 idempotent only when its complete configured retry horizon does not exceed that
 window.
 
-An empty `sideEffects` set requires `qhapaq.idempotent`, regardless of whether
+**[R-0007-237]** An empty `sideEffects` set requires `qhapaq.idempotent`, regardless of whether
 the operation's output can vary. Decorators use the same four classifications
 for their own effects. V1 decorators cannot strengthen an inner node's
 idempotency guarantee.
 
-A plan computes an idempotency risk summary with this conservative precedence:
+**[R-0007-238]** A plan computes an idempotency risk summary with this conservative precedence:
 
 1. any `qhapaq.non-idempotent` component produces `qhapaq.non-idempotent`;
 2. otherwise, any `qhapaq.unknown` component produces `qhapaq.unknown`;
@@ -3091,12 +3302,12 @@ A plan computes an idempotency risk summary with this conservative precedence:
    `qhapaq.conditional` and retains every distinct key and window requirement;
 4. otherwise the summary is `qhapaq.idempotent`.
 
-This summary does not claim that rerunning the complete pipeline is idempotent.
+**[R-0007-239]** This summary does not claim that rerunning the complete pipeline is idempotent.
 A rerun may read changed external state and therefore supply a different input
 to a later operation. Whole-run idempotency requires a future analysis that can
 prove stable repeated operation inputs.
 
-An operation-level retry decorator holds the retried invocation input,
+**[R-0007-240]** An operation-level retry decorator holds the retried invocation input,
 configuration, and connection constant. Retrying a
 `qhapaq.non-idempotent`, `qhapaq.unknown`, or unsatisfied
 `qhapaq.conditional` invocation remains document-valid and may be
@@ -3107,7 +3318,7 @@ not catchable.
 
 ### 11.8 Declared operation failures
 
-Every operation and decorator failure that may be reported as a catchable
+**[R-0007-241]** Every operation and decorator failure that may be reported as a catchable
 `operation` or `control` failure is exhaustively declared by its exact
 descriptor. Each normative declaration is a closed object containing:
 
@@ -3119,14 +3330,14 @@ descriptor. Each normative declaration is a closed object containing:
 }
 ```
 
-`code` begins with the descriptor's exact operation ID followed by `.` and a
+**[R-0007-242]** `code` begins with the descriptor's exact operation ID followed by `.` and a
 stable local suffix. Codes are unique within the descriptor and sorted as
 required by Section 11.4. Renaming a code changes the contract. An
 implementation that emits an undeclared code, a malformed envelope, or
 dispositions different from the declaration produces a non-catchable
 implementation contract violation rather than an operation failure.
 
-`retryDisposition` is one of:
+**[R-0007-243]** `retryDisposition` is one of:
 
 - `qhapaq.retry.transient`: repeating the same equivalent invocation may
   succeed after the condition changes;
@@ -3134,7 +3345,7 @@ implementation contract violation rather than an operation failure.
   expected to succeed without changing the request or contract; or
 - `qhapaq.retry.unknown`: the contract makes no retry-success claim.
 
-`effectOutcome` is one of:
+**[R-0007-244]** `effectOutcome` is one of:
 
 - `qhapaq.effect-outcome.none`: the failed attempt guarantees that none of its
   declared effects occurred;
@@ -3143,13 +3354,13 @@ implementation contract violation rather than an operation failure.
 - `qhapaq.effect-outcome.unknown`: at least one declared effect may have
   occurred, but the outcome is not known.
 
-The two dimensions are independent. A transient timeout with unknown effect
+**[R-0007-245]** The two dimensions are independent. A transient timeout with unknown effect
 outcome is not safely retryable merely because its cause may clear. Automatic
 retry is safe only when the retry disposition permits it and either the failure
 guarantees no effect or the operation's idempotency condition is satisfied.
 Other retries require explicit unsafe-retry policy.
 
-Failure descriptions are non-normative untrusted text stored under
+**[R-0007-246]** Failure descriptions are non-normative untrusted text stored under
 `documentation.failureDescriptions`, keyed by exact failure code. Every
 declared code has one non-empty description and the map contains no undeclared
 code. Descriptions are excluded from the contract digest and never appear in a
@@ -3157,14 +3368,14 @@ runtime failure value or caught-failure projection. Human-facing adapters may
 render them beside a stable code; pipeline logic cannot inspect or branch on
 the text.
 
-V1 portable failures contain no operation-specific details payload. Provider
+**[R-0007-247]** V1 portable failures contain no operation-specific details payload. Provider
 response bodies, validation data, external request identifiers, exceptions,
 and other implementation details remain protected host diagnostics subject to
 separate disclosure policy.
 
 ## 12. .NET Operation Declarations
 
-This section is specific to the .NET reference implementation and does not
+**[R-0007-248]** This section is specific to the .NET reference implementation and does not
 change the portable descriptor model.
 
 `IOperation<TInput, TOutput>` remains an execution-only contract. It does not
@@ -3173,19 +3384,19 @@ parameter.
 
 ### 12.1 Authoritative descriptor source
 
-Every registry-visible code-authored .NET operation has one checked-in portable
+**[R-0007-249]** Every registry-visible code-authored .NET operation has one checked-in portable
 descriptor JSON document adjacent to its implementation. That document is the
 authoritative source for the complete portable descriptor, including its
 normative contract and non-normative documentation.
 
-The initial descriptor format is
+**[R-0007-250]** The initial descriptor format is
 `qhapaq.operation-descriptor/v1alpha1`, defined by
 [`../schemas/operation-descriptor-v1alpha1.schema.json`](../schemas/operation-descriptor-v1alpha1.schema.json).
 It is a pre-release format that may be replaced by another pre-release version
 before immutable `v1` is published. Validators resolve the checked-in schema
 offline by its stable `$id`; validation never requires network access.
 
-The descriptor document:
+**[R-0007-251]** The descriptor document:
 
 - conforms to the exact versioned operation-descriptor schema;
 - contains no CLR type names, implementation factories, credentials, resolved
@@ -3197,7 +3408,7 @@ The descriptor document:
   enumeration; and
 - is packaged with source when source packages are produced.
 
-The implementation and descriptor use exact, case-sensitive basename matching
+**[R-0007-252]** The implementation and descriptor use exact, case-sensitive basename matching
 and reside in the same physical source directory:
 
 ```text
@@ -3205,29 +3416,29 @@ HttpOperation.cs
 HttpOperation.descriptor.json
 ```
 
-An operation cannot obtain its descriptor from an orthogonal descriptor tree,
+**[R-0007-253]** An operation cannot obtain its descriptor from an orthogonal descriptor tree,
 a parent directory, a linked file outside its source directory, or recursive
 filesystem discovery. The generator rejects a missing descriptor, more than one
 matching descriptor, basename or case mismatch, reuse by another operation, or
 an association outside the operation's physical directory.
 
-The contract digest excludes its own field and is computed from the canonical
+**[R-0007-254]** The contract digest excludes its own field and is computed from the canonical
 normative descriptor portion defined in Section 13. A supplied digest must
 match the computed value. The generator never silently replaces a missing or
 incorrect digest.
 
-C# declaration code is a generated projection of this JSON source. Authors do
+**[R-0007-255]** C# declaration code is a generated projection of this JSON source. Authors do
 not maintain a second hand-written descriptor property or duplicate descriptor
 fields in attributes.
 
 ### 12.2 Operation marker and authoring shape
 
-A registry-visible operation uses a marker attribute or an equivalent explicit
+**[R-0007-256]** A registry-visible operation uses a marker attribute or an equivalent explicit
 compiler input to associate the implementation class with exactly one descriptor
 document. The marker may carry the descriptor build-input identity or path, but
 it does not carry portable contract fields.
 
-The intended authoring shape is conceptually:
+**[R-0007-257]** The intended authoring shape is conceptually:
 
 ```csharp
 [QhapaqOperation("GetCustomerOperation.descriptor.json")]
@@ -3243,7 +3454,7 @@ public sealed partial class GetCustomerOperation :
 }
 ```
 
-The exact attribute name, constructor shape, generated type names, and namespace
+**[R-0007-258]** The exact attribute name, constructor shape, generated type names, and namespace
 layout remain implementation API details. Registry-visible implementation
 classes must be compatible with partial source generation. Internal
 combinators, test delegates, and non-catalog operations need not declare
@@ -3251,11 +3462,11 @@ portable descriptors and are not included in the generated manifest.
 
 ### 12.3 Build-time discovery and validation
 
-The .NET operation-authoring package supplies a Roslyn incremental generator.
+**[R-0007-259]** The .NET operation-authoring package supplies a Roslyn incremental generator.
 Each compilation explicitly references the generator as build tooling rather
 than as a runtime dependency.
 
-During compilation, the generator:
+**[R-0007-260]** During compilation, the generator:
 
 1. Uses semantic symbol analysis to find operation classes carrying the marker.
 2. Resolves the associated descriptor only from declared compiler build inputs.
@@ -3272,24 +3483,24 @@ During compilation, the generator:
    compilation.
 8. Emits deterministic source only when the required inputs are valid.
 
-Generator diagnostics are build diagnostics. Missing or ambiguous descriptor
+**[R-0007-261]** Generator diagnostics are build diagnostics. Missing or ambiguous descriptor
 inputs, invalid JSON or schemas, digest mismatches, unsupported class shapes,
 operation/declaration generic mismatches, and duplicate identities are errors.
 Diagnostics identify source locations and stable diagnostic codes without
 including operation payloads, credentials, or protected host configuration.
 
-Incremental caching is an optimization only. Changing an operation declaration,
+**[R-0007-262]** Incremental caching is an optimization only. Changing an operation declaration,
 descriptor document, descriptor schema, or generator version must invalidate all
 affected generated outputs.
 
 ### 12.4 Generated declaration and registration
 
-For each valid operation, the generator emits a partial declaration that
+**[R-0007-263]** For each valid operation, the generator emits a partial declaration that
 implements the static descriptor-declaration contract and exposes the descriptor
 represented by the authoritative JSON. The generated implementation must not
 instantiate the operation.
 
-Conceptually, generated source includes:
+**[R-0007-264]** Conceptually, generated source includes:
 
 ```csharp
 partial class GetCustomerOperation :
@@ -3300,7 +3511,7 @@ partial class GetCustomerOperation :
 }
 ```
 
-The generator also emits an explicit registration table containing closed
+**[R-0007-265]** The generator also emits an explicit registration table containing closed
 generic references:
 
 ```csharp
@@ -3316,38 +3527,38 @@ internal static class GeneratedOperationRegistration
 }
 ```
 
-Generated registration is ordinary compiled code. Runtime registration invokes
+**[R-0007-266]** Generated registration is ordinary compiled code. Runtime registration invokes
 this table directly; it does not enumerate assemblies, types, attributes, or
 resources to discover operations.
 
-Generated sources are compiler outputs and are not checked into the repository.
+**[R-0007-267]** Generated sources are compiler outputs and are not checked into the repository.
 Their ordering, identifiers, canonical descriptor bytes, and package manifest
 bytes must be deterministic and independent of absolute paths, machine state,
 culture, and filesystem enumeration order.
 
 ### 12.5 Generated portable manifest
 
-The generator produces one canonical portable operation manifest for its
+**[R-0007-268]** The generator produces one canonical portable operation manifest for its
 compilation. The manifest contains the complete generated descriptors in stable
 operation-ID and contract-version order. It does not contain CLR type names or
 implementation factories.
 
-The canonical manifest bytes are embedded into the compiled operation assembly
+**[R-0007-269]** The canonical manifest bytes are embedded into the compiled operation assembly
 as deterministic data reachable through its explicit generated registration
 entry point. Packaging may also expose the identical bytes as a package
 artifact. An embedded and packaged copy must be byte-for-byte equal.
 
-The manifest is a projection of the checked-in descriptor documents. It never
+**[R-0007-270]** The manifest is a projection of the checked-in descriptor documents. It never
 becomes an independent authoring source, and editing generated output is not a
 supported workflow.
 
 ### 12.6 Referenced packages and extensions
 
-A generator processes the source compilation and explicit descriptor build
+**[R-0007-271]** A generator processes the source compilation and explicit descriptor build
 inputs to which it is attached. It does not discover operations by scanning
 referenced assemblies.
 
-Each trusted operation or extension package therefore ships its own generated
+**[R-0007-272]** Each trusted operation or extension package therefore ships its own generated
 manifest and explicit registration entry point. A host includes a package only
 through trusted host configuration and calls that entry point explicitly.
 Combining built-in, extension, and OpenAPI-backed descriptors occurs during
@@ -3356,7 +3567,7 @@ conflicts are rejected.
 
 ### 12.7 Runtime verification
 
-Generated output improves correctness and reachability but is not an authority
+**[R-0007-273]** Generated output improves correctness and reachability but is not an authority
 grant. Effective-registry construction must still:
 
 - validate the embedded canonical manifest and recompute every contract digest;
@@ -3368,46 +3579,46 @@ grant. Effective-registry construction must still:
   availability, and active policy; and
 - produce immutable registry entries before any operation can execute.
 
-Source generation does not grant execution permission or descriptor-disclosure
+**[R-0007-274]** Source generation does not grant execution permission or descriptor-disclosure
 permission. CLI and MCP projections consume the same policy-filtered application
 services backed by the effective registry; they do not read generated assembly
 metadata directly.
 
 ### 12.8 Trimming, AOT, and security
 
-Closed generic references in generated registration preserve required operation
+**[R-0007-275]** Closed generic references in generated registration preserve required operation
 types for trimming and Native AOT without unbounded reflection. Generated code
 must not use descriptor values as source text, type names, member names, or
 instructions. Descriptor text and examples remain untrusted metadata even
 though their containing package is trusted.
 
-OpenAPI-backed operations and future non-.NET providers produce the same
+**[R-0007-276]** OpenAPI-backed operations and future non-.NET providers produce the same
 portable descriptors without using this .NET authoring pattern.
 
 ## 13. Contract and Implementation Versioning
 
 ### 13.1 Separate identities
 
-An operation contract identity consists of:
+**[R-0007-277]** An operation contract identity consists of:
 
 ```text
 operation ID + exact contract version + contract digest
 ```
 
-An implementation identity consists of its provider, package or extension
+**[R-0007-278]** An implementation identity consists of its provider, package or extension
 version, and integrity information. A pipeline selects only the operation
 contract. The trusted host selects and enables an implementation.
 
-A bound plan records both identities. An implementation may bind only when it
+**[R-0007-279]** A bound plan records both identities. An implementation may bind only when it
 declares support for the exact requested contract version and digest.
 
 ### 13.2 Immutability
 
-Once published, an operation ID and contract-version pair is immutable. A host
+**[R-0007-280]** Once published, an operation ID and contract-version pair is immutable. A host
 must reject duplicate descriptors with the same ID and version but different
 contract digests.
 
-The contract digest covers the canonical normative descriptor, including:
+**[R-0007-281]** The contract digest covers the canonical normative descriptor, including:
 
 - input, output, and configuration schemas;
 - structured failures;
@@ -3417,16 +3628,16 @@ The contract digest covers the canonical normative descriptor, including:
 - composition role; and
 - other machine-enforced behavioral guarantees.
 
-Documentation-only changes do not change the contract digest. Changing the
+**[R-0007-282]** Documentation-only changes do not change the contract digest. Changing the
 meaning of an operation requires a new contract version even when its schemas
 remain unchanged.
 
 ### 13.3 Compatibility rules
 
-Operation contract versions use Semantic Versioning with Qhapaq-specific,
+**[R-0007-283]** Operation contract versions use Semantic Versioning with Qhapaq-specific,
 conservative compatibility rules.
 
-A major version is required for a potentially breaking change, including:
+**[R-0007-284]** A major version is required for a potentially breaking change, including:
 
 - removing or renaming an accepted input;
 - adding a required input;
@@ -3439,11 +3650,11 @@ A major version is required for a potentially breaking change, including:
 - changing composition role; or
 - changing the meaning of an existing value.
 
-A minor version may describe a demonstrably backward-compatible addition, such
+**[R-0007-285]** A minor version may describe a demonstrably backward-compatible addition, such
 as accepting an optional input or adding an output where the prior contract
 explicitly permits additive properties.
 
-Vocabulary compatibility is classified conservatively:
+**[R-0007-286]** Vocabulary compatibility is classified conservatively:
 
 - adding a capability or side effect is breaking; removing one is a compatible
   strengthening;
@@ -3456,21 +3667,21 @@ Vocabulary compatibility is classified conservatively:
 - changing a non-normative failure description is compatible and does not
   change the contract digest.
 
-A patch version does not change the normative portable contract. Compatible
+**[R-0007-287]** A patch version does not change the normative portable contract. Compatible
 implementation fixes and performance changes normally advance the implementation
 version while continuing to implement the same exact operation contract.
 
-Contract-diff tooling classifies a comparison as `compatible`, `breaking`, or
+**[R-0007-288]** Contract-diff tooling classifies a comparison as `compatible`, `breaking`, or
 `indeterminate`. Indeterminate changes are not treated as compatible.
 
-Compatibility does not permit substitution. A pipeline requesting version
+**[R-0007-289]** Compatibility does not permit substitution. A pipeline requesting version
 `2.1.0` binds only to the exact `2.1.0` contract, even when `2.2.0` is classified
 as backward compatible. Compatibility information supports authoring,
 migration, and review.
 
 ### 13.4 Descriptor, generator, manifest, and surface versions
 
-Descriptor schema versions, generator package versions, generated registration
+**[R-0007-290]** Descriptor schema versions, generator package versions, generated registration
 contract versions, manifest-envelope versions, and Service, CLI, or MCP contract
 versions are independent:
 
@@ -3482,47 +3693,47 @@ versions are independent:
 | Portable manifest envelope | `qhapaq.operation-manifest/v1alpha1` | Envelope changes are versioned independently from contained descriptor formats. |
 | Service, CLI, and MCP surfaces | Their own versioned contracts | Transport evolution does not rewrite or implicitly upgrade descriptor documents. |
 
-A generator release publishes a compatibility matrix listing every descriptor
+**[R-0007-291]** A generator release publishes a compatibility matrix listing every descriptor
 format, manifest envelope, and registration-contract version it accepts or
 emits. Generator and schema versions are not one-to-one.
 
-For each supported descriptor format, the generator uses a format-specific
+**[R-0007-292]** For each supported descriptor format, the generator uses a format-specific
 parser and validator and then maps valid content into a common internal
 generation model. Normalization must preserve every normative field and the
 exact original format identity. The generator must not reinterpret an unknown
 field, silently downgrade a newer format, or treat a newer format as an older
 one.
 
-A compilation may contain descriptors from multiple formats only when the
+**[R-0007-293]** A compilation may contain descriptors from multiple formats only when the
 selected generator explicitly supports all of them and the selected manifest
 envelope can preserve each exact descriptor. The generated manifest records the
 format of every contained descriptor.
 
-Adding support for a new descriptor format is a backward-compatible generator
+**[R-0007-294]** Adding support for a new descriptor format is a backward-compatible generator
 feature when existing generated output remains compatible. Removing support for
 a previously supported published format is a breaking generator change.
 Projects pin a generator package version and fail the build when a descriptor
 format falls outside its published support matrix.
 
-Generated registration code targets a versioned authoring-runtime contract.
+**[R-0007-295]** Generated registration code targets a versioned authoring-runtime contract.
 Package dependency constraints must prevent compiling generated code against an
 incompatible runtime contract. A breaking registration API does not require a
 new descriptor schema when descriptor semantics are unchanged.
 
-Effective-registry construction independently declares the descriptor formats,
+**[R-0007-296]** Effective-registry construction independently declares the descriptor formats,
 manifest envelopes, and registration-contract versions supported by that host.
 It rejects an unsupported combination before making any operation available.
 A package that compiled successfully with a newer generator is therefore not
 assumed to be loadable by an older host.
 
-Business and Service layers expose a stable versioned summary model for common
+**[R-0007-297]** Business and Service layers expose a stable versioned summary model for common
 catalog fields and may also return the exact versioned portable descriptor when
 policy permits. CLI and MCP adapters project those Service contracts; they do
 not bind directly to generator or manifest internals. Metadata that cannot be
 represented compatibly requires an additive versioned projection or a new
 Service, CLI, or MCP contract rather than silent omission or reinterpretation.
 
-The pre-release sequence may introduce `v1alpha2`, `v1beta1`, and similar
+**[R-0007-298]** The pre-release sequence may introduce `v1alpha2`, `v1beta1`, and similar
 formats without mutating an earlier checked-in schema. Once
 `qhapaq.operation-descriptor/v1` is published, its schema and semantics are
 immutable. A breaking post-v1 change publishes `v2`; supported generators and
@@ -3530,7 +3741,7 @@ hosts may continue to accept `v1` and `v2` side by side.
 
 ## 14. Validation and Plan Binding
 
-Validation occurs in these ordered stages:
+**[R-0007-299]** Validation occurs in these ordered stages:
 
 1. Parse JSON and reject duplicate object member names.
 2. Validate the pipeline document against its exact format schema.
@@ -3552,7 +3763,7 @@ Validation occurs in these ordered stages:
 12. Evaluate active host policy and required connection availability.
 13. Construct the immutable execution plan.
 
-Validation reports four distinct conclusions:
+**[R-0007-300]** Validation reports four distinct conclusions:
 
 - **document validity:** the definition conforms to the portable language;
 - **host bindability:** the active host has matching mapping-language
@@ -3561,7 +3772,7 @@ Validation reports four distinct conclusions:
   and side effects; and
 - **execution permission:** evaluated again for a specific invocation.
 
-Document validity does not grant execution or payload-disclosure permission.
+**[R-0007-301]** Document validity does not grant execution or payload-disclosure permission.
 Changes to the effective registry, host profile, policy, connections, or
 implementation integrity invalidate affected cached plans.
 
@@ -3569,7 +3780,7 @@ implementation integrity invalidate affected cached plans.
 
 ### 15.1 Validation diagnostics
 
-Validation diagnostics are versioned machine-readable values containing:
+**[R-0007-302]** Validation diagnostics are versioned machine-readable values containing:
 
 - stable diagnostic code;
 - severity;
@@ -3601,12 +3812,12 @@ Example:
 }
 ```
 
-Diagnostics must not contain operation payloads, credentials, resolved secrets,
+**[R-0007-303]** Diagnostics must not contain operation payloads, credentials, resolved secrets,
 or protected host configuration by default.
 
 ### 15.2 Runtime structured-failure envelope
 
-Every runtime failure and terminal non-catchable execution outcome uses the
+**[R-0007-304]** Every runtime failure and terminal non-catchable execution outcome uses the
 versioned `qhapaq.failure/v1` envelope. Its closed base contains exactly:
 
 - `format`, whose value is `qhapaq.failure/v1`;
@@ -3616,12 +3827,12 @@ versioned `qhapaq.failure/v1` envelope. Its closed base contains exactly:
 - `effectOutcome`; and
 - `sourceNodeId` when one specific node originated the failure.
 
-`sourceNodeId` is required for every catchable failure and every other
+**[R-0007-305]** `sourceNodeId` is required for every catchable failure and every other
 node-originated failure. It is omitted when cancellation, policy, a run-wide
 budget, or a host fault has no honest single source node. It is never filled
 with the pipeline root merely to satisfy a shape.
 
-The closed category vocabulary is:
+**[R-0007-306]** The closed category vocabulary is:
 
 | Category | Catchable | Meaning |
 | --- | --- | --- |
@@ -3635,11 +3846,11 @@ The closed category vocabulary is:
 | `implementation` | no | A registered implementation violated its exact contract. |
 | `host` | no | Execution infrastructure was unavailable or failed unexpectedly. |
 
-Catchability is determined only by this category table. Individual codes cannot
+**[R-0007-307]** Catchability is determined only by this category table. Individual codes cannot
 override it, and the envelope has no `catchable` field. Validation and binding
 diagnostics remain Section 15.1 diagnostics rather than runtime failures.
 
-The reserved mapping codes are:
+**[R-0007-308]** The reserved mapping codes are:
 
 | Code | Retry disposition | Effect outcome |
 | --- | --- | --- |
@@ -3661,18 +3872,18 @@ The reserved mapping codes are:
 | `qhapaq.mapping.value-byte-limit-exceeded` | permanent | none |
 | `qhapaq.mapping.evaluation-work-limit-exceeded` | permanent | none |
 
-The table uses the suffixes `permanent` and `none` for
+**[R-0007-309]** The table uses the suffixes `permanent` and `none` for
 `qhapaq.retry.permanent` and `qhapaq.effect-outcome.none`, respectively.
 Mapping codes are assigned by distinct portable failure cause and are shared by
 operators with the same cause.
 
-The only structural-language control code is
+**[R-0007-310]** The only structural-language control code is
 `qhapaq.control.loop-limit-exceeded`. It is permanent for the same loop input.
 Its effect outcome is derived from all work started before exhaustion.
 Decorator control codes are exhaustively declared by the exact decorator
 descriptor and use that descriptor's operation-ID prefix.
 
-When `parallel` or `forEach` observes one non-cancellation child failure, it
+**[R-0007-311]** When `parallel` or `forEach` observes one non-cancellation child failure, it
 propagates that failure unchanged. When it observes two or more, it reports
 category `aggregate` and code `qhapaq.aggregate.multiple-failures`.
 Aggregate retry disposition is permanent if any cause is permanent, otherwise
@@ -3683,7 +3894,7 @@ none. Successful work with a non-empty declared side-effect set contributes an
 unknown outcome because a `may produce` declaration does not prove whether an
 effect occurred.
 
-The reserved non-catchable platform codes are:
+**[R-0007-312]** The reserved non-catchable platform codes are:
 
 | Category | Codes |
 | --- | --- |
@@ -3693,33 +3904,33 @@ The reserved non-catchable platform codes are:
 | `implementation` | `qhapaq.implementation.undeclared-failure`, `qhapaq.implementation.failure-contract-violation`, `qhapaq.implementation.output-contract-violation`, `qhapaq.implementation.input-materialization-failed`, `qhapaq.implementation.output-materialization-failed` |
 | `host` | `qhapaq.host.execution-unavailable`, `qhapaq.host.unexpected-fault` |
 
-Policy failures are permanent under the active policy and have effect outcome
+**[R-0007-313]** Policy failures are permanent under the active policy and have effect outcome
 none because eligibility is decided before execution. Host execution
 unavailability is transient and has effect outcome none. An unexpected host
 fault has unknown retry and effect outcomes. Input materialization failure has
 effect outcome none because operation invocation has not begun. Other
 implementation failures after invocation have unknown effect outcome.
 
-Cancellation, budget, loop-limit, aggregate, and other structural outcomes
+**[R-0007-314]** Cancellation, budget, loop-limit, aggregate, and other structural outcomes
 derive their effect outcome from all started work, not only from failure causes.
 The outcome is none only when all started work is effect-free or known not to
 have applied effects; it is occurred when an observed outcome proves that an
 effect occurred; otherwise it is unknown. This derivation never assumes that a
 successful operation with a `may produce` side effect actually produced it.
 
-The base envelope contains no human message, timestamp, correlation identifier,
+**[R-0007-315]** The base envelope contains no human message, timestamp, correlation identifier,
 exception data, or arbitrary details. Human-facing adapters resolve declared
 operation descriptions or Qhapaq platform-code documentation separately.
 
 ### 15.3 Aggregate and recovery causality
 
-The external execution result extends every aggregate failure with a closed
+**[R-0007-316]** The external execution result extends every aggregate failure with a closed
 recursive `causes` array, a `totalLeafFailureCount` positive JSON safe integer,
 and a `causesTruncated` Boolean. Causes follow the node's existing deterministic
 order: ordinal branch name for `parallel` and ascending work index for
 `forEach`. Nested aggregates preserve their causal grouping.
 
-The complete returned failure graph, including the root, aggregate causes, and
+**[R-0007-317]** The complete returned failure graph, including the root, aggregate causes, and
 recovery causality, contains at most 256 failure nodes and at most 32 cause
 levels. Projection uses deterministic depth-first preorder. Each aggregate's
 `totalLeafFailureCount` counts every observed leaf failure in its complete
@@ -3727,7 +3938,7 @@ subtree. `causesTruncated` is true exactly when the returned subtree omits at
 least one failure because of either bound. Protected host diagnostics may
 retain more information but must preserve the same causal ordering.
 
-When a `tryCatch` recovery subtree fails, the external execution result extends
+**[R-0007-318]** When a `tryCatch` recovery subtree fails, the external execution result extends
 the terminal recovery failure with a closed `causedBy` value containing the
 original try failure. When projection omits a recovery cause because of a graph
 bound, `causedByTruncated` is true on the result whose cause was omitted;
@@ -3735,13 +3946,13 @@ otherwise that member is absent. Nested recovery uses the same graph bounds
 and deterministic projection. Recovery failure is not relabeled as an
 aggregate.
 
-The `caught-failure` mapping source always receives only the closed base
+**[R-0007-319]** The `caught-failure` mapping source always receives only the closed base
 projection in Section 6.3.7. It never receives `causes`, `causedBy`, aggregate
 leaf counts, truncation metadata, descriptions, or protected diagnostics.
 
 ## 16. AI and MCP Authoring Surface
 
-The MCP adapter exposes the same shared application services used by other
+**[R-0007-320]** The MCP adapter exposes the same shared application services used by other
 entry points. Its authoring surface supports:
 
 - listing operation descriptors with filters for text, composition role,
@@ -3752,30 +3963,30 @@ entry points. Its authoring surface supports:
 - rendering deterministic Mermaid from a validated definition; and
 - comparing operation contracts for migration assistance.
 
-Validation returns structured diagnostics, inferred node schemas, exact resolved
+**[R-0007-321]** Validation returns structured diagnostics, inferred node schemas, exact resolved
 contracts and digests, aggregated effects and capabilities, and the four
 validation conclusions from Section 14.
 
-Pipeline creation and transformation tools return inert definitions. They do not
+**[R-0007-322]** Pipeline creation and transformation tools return inert definitions. They do not
 install extensions, mutate trusted profiles, resolve credentials, execute
 operations, or grant authority.
 
-Execution remains a separate policy-gated tool. A successful validation response
+**[R-0007-323]** Execution remains a separate policy-gated tool. A successful validation response
 must not be represented as execution approval.
 
 ## 17. Canonicalization and Mermaid
 
-Canonical definitions use the JSON Canonicalization Scheme defined by RFC 8785
+**[R-0007-324]** Canonical definitions use the JSON Canonicalization Scheme defined by RFC 8785
 after successful document validation and normalization. Duplicate member names,
 non-conforming numeric values, and values that cannot be represented by the
 canonicalization profile are invalid.
 
-Canonicalization preserves all semantically significant array ordering,
+**[R-0007-325]** Canonicalization preserves all semantically significant array ordering,
 including sequence steps, decorator nesting, and ordered mapping operands.
 Object member ordering is canonicalized and is not semantic unless a future
 format version explicitly says otherwise.
 
-Mermaid is generated from the validated definition and shows:
+**[R-0007-326]** Mermaid is generated from the validated definition and shows:
 
 - node IDs;
 - exact operation IDs and contract versions;
@@ -3788,9 +3999,11 @@ Mermaid is generated from the validated definition and shows:
 - `forEach` mode, cardinality, chunk-size, and concurrency bounds; and
 - transform nodes with concise input and output summaries.
 
-Mermaid is explanatory output and cannot be edited as an executable source.
+**[R-0007-327]** Mermaid is explanatory output and cannot be edited as an executable source.
 
 ## 18. Security and Privacy
+
+**[R-0007-328]**
 
 - Treat pipeline documents, descriptors, examples, imported API metadata, and
   generated prose as untrusted input.
@@ -3815,34 +4028,34 @@ Mermaid is explanatory output and cannot be edited as an executable source.
 
 ## 19. Compatibility and Evolution
 
-Pipeline format versions are independent from pipeline versions, operation
+**[R-0007-329]** Pipeline format versions are independent from pipeline versions, operation
 contract versions, implementation versions, Service API versions, and package
 versions.
 
-Each pipeline format defines a closed compatibility matrix of mapping-site kinds
+**[R-0007-330]** Each pipeline format defines a closed compatibility matrix of mapping-site kinds
 and permitted exact mapping-language versions. Supporting a newer mapping
 language does not add it to an older pipeline format. A format may permit
 multiple mapping-language versions in one definition, and modifying one mapping
 site does not require migrating other sites.
 
-An unknown format version, node kind, transform-language version, mapping
+**[R-0007-331]** An unknown format version, node kind, transform-language version, mapping
 operator, or normative schema keyword is a document-validity failure. A mapping
 language that is known and permitted by the exact pipeline format but not
 implemented by the active host is instead a host-bindability failure. A host
 must not silently reinterpret a newer definition or mapping expression as v1.
 
-Additive documentation metadata may evolve without changing execution semantics.
+**[R-0007-332]** Additive documentation metadata may evolve without changing execution semantics.
 Any change that alters canonical execution meaning requires a new pipeline
 format or transform-language version with explicit migration tooling.
 
-Persisted definitions remain the source of truth. Cached plans are disposable
+**[R-0007-333]** Persisted definitions remain the source of truth. Cached plans are disposable
 and must be rebuilt when their definition digest, registry generation, policy,
 host profile, connection bindings, implementation identity, or contract digest
 changes.
 
 ## 20. Testing and Conformance
 
-The language-neutral conformance suite includes:
+**[R-0007-334]** The language-neutral conformance suite includes:
 
 - valid and invalid pipeline-document vectors;
 - canonicalization and duplicate-member tests;
@@ -3866,6 +4079,9 @@ The language-neutral conformance suite includes:
 - common-collection structure, inference, equality, ordering, short-circuit,
   preflight, evaluation-order, and exact accounting vectors required by
   Section 8.11;
+- string-helper structure, inference, scalar indexing, exact comparison,
+  split/join/replacement, evaluation-order, bounded matching, and exact
+  accounting vectors required by Section 8.14;
 - mixed mapping-language-version pipelines, including independent transform and
   output-projection versions;
 - rejection of mapping languages not permitted by the exact pipeline format,
@@ -3894,7 +4110,7 @@ The language-neutral conformance suite includes:
 - security tests proving definitions cannot load code, access credentials,
   escape transform scope, or begin side effects before complete validation.
 
-The .NET reference implementation additionally tests:
+**[R-0007-335]** The .NET reference implementation additionally tests:
 
 - descriptor JSON as the sole authoritative descriptor source;
 - exact same-directory and basename association between an operation and its
@@ -3920,7 +4136,7 @@ The .NET reference implementation additionally tests:
 
 ## 21. Rollout and Migration
 
-Implementation proceeds through the following phases. The checkboxes are the
+**[R-0007-336]** Implementation proceeds through the following phases. The checkboxes are the
 persistent implementation checklist for this specification. A phase may be
 delivered through multiple changes, but an item must not be marked complete
 until its persistent artifact and the validation named by that item exist.
@@ -3928,7 +4144,7 @@ Completing an implementation item does not make an unresolved portable behavior
 normative; the applicable specification, schema, and conformance vector must be
 completed first.
 
-The phase numbers retain the existing checklist identities. Lettered milestones
+**[R-0007-337]** The phase numbers retain the existing checklist identities. Lettered milestones
 make previously implicit prerequisites and smaller delivery gates explicit.
 The listed order is the default implementation sequence, but the stated
 dependencies govern independent work: artifact families in Phase 1 and inert
@@ -3936,16 +4152,18 @@ parsing in Phase 4 may progress without waiting for unrelated generator or host
 work. No intermediate milestone enables execution or permits a partial v1
 execution-conformance claim.
 
-This section governs the definition-to-execution path, not every v1 product
+**[R-0007-338]** This section governs the definition-to-execution path, not every v1 product
 deliverable. The companion milestones below identify required integration and
 release work owned by other specifications.
 
 ### Phase 0: Close required normative decisions
 
-This phase resolves the language decisions on which all later artifacts depend.
+**[R-0007-339]** This phase resolves the language decisions on which all later artifacts depend.
 It does not require unrelated CLI, MCP, authentication, connector, or release
 details to be decided early. The Phase 0A organization checkpoint precedes
 scaffolding the remaining public .NET APIs.
+
+**[R-0007-340]**
 
 - [x] Replace illustrative transform syntax with the canonical
   `qhapaq.mapping/v1` operator-object syntax.
@@ -4007,10 +4225,16 @@ scaffolding the remaining public .NET APIs.
   accounting. Sections 8.5 through 8.10 define their semantics; Section 8.11
   defines their required conformance-vector groups, which are published in
   Phase 1.
-- [ ] Define string search, slicing, and composition capabilities, including
-  which of substring or slice, `index-of`, `last-index-of`, containment,
-  prefix/suffix checks, split, join, and non-regex replacement are supported;
-  specify index units, bounds, empty-search behavior, and comparison semantics.
+- [x] Define string search, slicing, and composition capabilities. V1 adds
+  `slice-string`, `index-of`, `last-index-of`, `contains-string`,
+  `starts-with`, `ends-with`, `split`, `join`, and literal all-occurrence
+  `replace`, alongside existing `concat`. It uses Unicode scalar indices,
+  non-negative truncated windows, `-1` for absent positional matches, exact
+  comparison, explicit empty-search identities, preserved split fields,
+  nonempty split/replacement searches, deterministic linear matching work,
+  and output preflight. Sections 8.5 through 8.10 define their semantics;
+  Section 8.14 defines conformance-vector requirements published in Phase 1.
+  The separate case-insensitive-comparison checkpoint remains open.
 - [ ] Decide whether string operations support case-insensitive comparison;
   define exact-comparison defaults and any supported ASCII or Unicode
   case-folding algorithm, Unicode-version dependency, and explicit selection
@@ -4032,7 +4256,7 @@ scaffolding the remaining public .NET APIs.
   deterministic evaluation order, portable resource accounting, and
   conformance-vector requirements.
 
-The design direction for these checkpoints is to extend the constrained,
+**[R-0007-341]** The design direction for these checkpoints is to extend the constrained,
 declarative mapping language rather than add inline executable code or a general
 reduction/interpreter facility. Prefer purpose-built collection operators for
 common queries. In particular, the most-common-element use case should be
@@ -4042,7 +4266,7 @@ group keys into object member names. These are capability and shape
 requirements; each operator's exact syntax and semantics remain subject to its
 checkpoint.
 
-String operations use exact comparison by default. Any case-insensitive mode
+**[R-0007-342]** String operations use exact comparison by default. Any case-insensitive mode
 must be explicitly selected and have portable, versioned comparison semantics;
 Unicode-aware case folding depends on a pinned Unicode version and algorithm.
 The initial regex-extraction direction is to return complete matches without
@@ -4050,7 +4274,7 @@ capture groups. Capture extraction is a separately scoped capability; match
 selection, overlap, empty-match advancement, and exact resource accounting
 remain to be specified.
 
-These are independently closable Phase 0 checkpoints: completing one does not
+**[R-0007-343]** These are independently closable Phase 0 checkpoints: completing one does not
 depend on completing the others. Each checkpoint records requirements and
 produces the normative semantics and conformance vectors for its selected
 capabilities before their implementation. This specification explicitly
@@ -4062,6 +4286,8 @@ operator set must not be declared complete or its schema and conformance
 artifacts published until all these checkpoints close. After publication, any
 additional capability requires an exact future mapping-language version and
 must not change the meaning of v1.
+
+**[R-0007-344]**
 
 - [ ] Define the public .NET marker and static declaration contracts, manifest
   envelope, generator diagnostic-code policy, and initial compatibility matrix.
@@ -4075,13 +4301,13 @@ must not change the meaning of v1.
   bindability, policy eligibility, and invocation-specific execution permission,
   including conclusions unavailable to an early slice.
 
-**Completion gate:** no open question in Section 23 blocks the normative
+**[R-0007-345]** **Completion gate:** no open question in Section 23 blocks the normative
 schemas, conformance vectors, descriptor generator, or first Service vertical
 slice.
 
 ### Phase 0A: Establish .NET organization and reuse boundaries
 
-This checkpoint refines, rather than replaces, the assembly, layer, visibility,
+**[R-0007-346]** This checkpoint refines, rather than replaces, the assembly, layer, visibility,
 and dependency rules in
 [`0006-dotnet-layered-architecture.md`](0006-dotnet-layered-architecture.md)
 and the
@@ -4125,7 +4351,7 @@ first implementation slices.
 
 ### Phase 1: Publish language-neutral schemas and vectors
 
-This phase turns the portable decisions into implementation-independent
+**[R-0007-347]** This phase turns the portable decisions into implementation-independent
 artifacts. Publish each artifact family with its expected results before its
 dependent implementation milestone is considered complete; unrelated execution
 vectors need not block descriptor tooling.
@@ -4157,7 +4383,8 @@ vectors need not block descriptor tooling.
   required by Section 9.5.
 - [ ] Add mapping parsing, type-inference, evaluation, and failure vectors,
   including the `last`, `slice`, and Section 8.11 `sort-by`, `group-by`, and
-  `count-by` and common-collection vector groups.
+  `count-by` and common-collection vector groups, plus the Section 8.14 string
+  helper groups.
 - [ ] Add mixed-version mapping, unsupported-language bindability, and
   patch-preservation vectors when a pipeline format permits multiple mapping
   versions.
@@ -4180,7 +4407,7 @@ artifact versions and capabilities exercised.
 
 ### Phase 1A: Implement shared portable validation foundations
 
-This milestone implements the common prerequisites used by descriptor
+**[R-0007-348]** This milestone implements the common prerequisites used by descriptor
 generation, registry verification, definition processing, and mapping engines.
 It does not introduce a parallel runtime or bypass the Phase 0A ownership rules.
 
@@ -4213,7 +4440,7 @@ network access, operation construction, or project-code execution.
 
 ### Phase 2: Implement .NET descriptor authoring and generation
 
-This phase provides deterministic, build-time declaration for code-authored
+**[R-0007-349]** This phase provides deterministic, build-time declaration for code-authored
 .NET operations.
 
 - [ ] Add the supported public descriptor identity and operation-authoring value
@@ -4249,7 +4476,7 @@ build inputs.
 
 ### Phase 3: Implement registry core and native bindings
 
-This phase creates the exact-resolution and native-binding core used by the
+**[R-0007-350]** This phase creates the exact-resolution and native-binding core used by the
 effective registry. Trusted source selection and host policy are completed in
 Phase 3A; registry-core tests alone do not establish a conforming host.
 
@@ -4280,7 +4507,7 @@ are unavailable before pipeline binding.
 
 ### Phase 3A: Establish trusted host configuration and policy
 
-This milestone supplies the host prerequisites otherwise assumed by registry
+**[R-0007-351]** This milestone supplies the host prerequisites otherwise assumed by registry
 construction, plan binding, and invocation. Its governing requirements are in
 [SPEC-0002](0002-operation-catalogs-and-host-configuration.md)
 and
@@ -4327,7 +4554,7 @@ connection, credential, and disclosure boundaries.
 
 ### Phase 3B: Deliver the first non-executing Service and CLI slice
 
-This milestone exercises the established layer boundaries before the full
+**[R-0007-352]** This milestone exercises the established layer boundaries before the full
 binding and execution implementation exists, following the rollout in
 SPEC-0006.
 
@@ -4352,7 +4579,7 @@ CLI and the public Service boundary without duplicating domain or policy rules.
 
 ### Phase 4: Implement parsing and portable validation
 
-This phase produces inert definitions and structural document-validity
+**[R-0007-353]** This phase produces inert definitions and structural document-validity
 diagnostics without executing or binding operations. It may proceed in parallel
 with Phases 2 through 3B once its own prerequisites exist. It does not claim
 complete semantic validity or infer omitted operation-configuration defaults.
@@ -4381,12 +4608,14 @@ digests are completed in Phase 6A.
 
 ### Phase 5: Implement the schema and mapping engines
 
-This phase supplies portable instance validation, conservative compatibility,
+**[R-0007-354]** This phase supplies portable instance validation, conservative compatibility,
 and deterministic transform behavior using the Phase 1A foundations. Its
 milestones may be delivered separately but do not relax the complete binding or
 execution gates.
 
 #### Phase 5A: Instance validation and schema compatibility
+
+**[R-0007-355]**
 
 - [ ] Implement portable instance validation.
 - [ ] Implement deterministic structural-subtype compatibility, including exact
@@ -4402,6 +4631,8 @@ schema-profile foundations.
 the specified portable results without host-specific acceptance cases.
 
 #### Phase 5B: Mapping parsing and static inference
+
+**[R-0007-356]**
 
 - [ ] Parse mapping expressions into immutable expression models.
 - [ ] Resolve each site's exact permitted mapping-language version without
@@ -4419,6 +4650,8 @@ with exact language identity and the specified static rejection behavior.
 
 #### Phase 5C: Mapping evaluation and budgets
 
+**[R-0007-357]**
+
 - [ ] Implement every specified mapping operator and checked failure behavior.
 - [ ] Enforce expression, collection, memory, and output budgets.
 - [ ] Pass deterministic evaluation, conversion, portable-limit boundary,
@@ -4432,10 +4665,12 @@ compatibility, mapping, and transform-failure conformance suites.
 
 ### Phase 6: Normalize exact contracts and bind immutable plans
 
-This phase converts a valid definition into disposable, host-specific derived
+**[R-0007-358]** This phase converts a valid definition into disposable, host-specific derived
 state without beginning execution.
 
 #### Phase 6A: Contract-informed normalization and definition identity
+
+**[R-0007-359]**
 
 - [ ] Resolve exact operation and decorator descriptors and their configuration
   schemas before selecting executable defaults.
@@ -4461,6 +4696,8 @@ configuration defaults and have reproducible identities independent of
 execution-time implementation construction.
 
 #### Phase 6B: Complete binding and cache invalidation
+
+**[R-0007-360]**
 
 - [ ] Resolve every operation and decorator by exact portable identity.
 - [ ] Validate normalized operation and decorator configuration.
@@ -4494,9 +4731,11 @@ stale plan.
 
 ### Phase 7: Implement the execution frame and runner
 
-This phase executes one non-durable invocation of a completely bound plan.
+**[R-0007-361]** This phase executes one non-durable invocation of a completely bound plan.
 
 #### Phase 7A: Execution frame and primitive/sequence execution
+
+**[R-0007-362]**
 
 - [ ] Validate boundary input and reevaluate invocation-specific execution and
   disclosure permissions before side effects.
@@ -4516,6 +4755,8 @@ safety path and private frame/failure contracts.
 
 #### Phase 7B: Transforms and final output
 
+**[R-0007-363]**
+
 - [ ] Execute transform serialization boundaries using only pre-bound
   projectors, evaluators, validators, and materializers.
 - [ ] Release frame slots after their final planned consumer when safe.
@@ -4530,6 +4771,8 @@ undeclared frame state.
 
 #### Phase 7C: Parallel and conditional execution
 
+**[R-0007-364]**
+
 - [ ] Execute named parallel branches and conditionals with the specified
   branch, join, failure, cancellation, and convergence semantics.
 - [ ] Observe every started task and preserve singleton failures and aggregate
@@ -4543,6 +4786,8 @@ undeclared frame state.
 failures, partial-success results, or branch-scope escapes.
 
 #### Phase 7D: Decorators and recovery
+
+**[R-0007-365]**
 
 - [ ] Execute decorators with specified ordering, attempt bounds, failure
   contracts, and idempotency/unsafe-retry policy.
@@ -4560,6 +4805,8 @@ policy or implying transactional rollback.
 
 #### Phase 7E: Bounded loops and collections
 
+**[R-0007-366]**
+
 - [ ] Execute bounded loops and item-mode and chunk-mode `forEach` nodes.
 - [ ] Implement iteration-local loop frames and expose only the final loop
   result.
@@ -4574,6 +4821,8 @@ policy or implying transactional rollback.
 aggregation, and bounded execution.
 
 #### Phase 7F: Integrated budgets, failures, and privacy
+
+**[R-0007-367]**
 
 - [ ] Enforce frame, transform, collection, loop, parallelism, and output
   budgets across nested compositions, including duration, operation, attempt,
@@ -4591,7 +4840,7 @@ evaluation.
 
 ### Phase 8: Add Service and authoring projections
 
-This phase exposes shared use cases without allowing adapters to bypass Business
+**[R-0007-368]** This phase exposes shared use cases without allowing adapters to bypass Business
 rules. It extends Phase 3B incrementally as each non-executing use case becomes
 available; it does not wait for Phase 7 unless a use case genuinely needs runner
 behavior.
@@ -4625,7 +4874,7 @@ projection rules.
 
 ### Phase 9: Enable policy-gated execution
 
-This phase enables execution through supported public entry points only after
+**[R-0007-369]** This phase enables execution through supported public entry points only after
 the full safety and conformance path is present.
 
 - [ ] Expose execution as a separate Service operation from validation and
@@ -4655,7 +4904,7 @@ parse-to-permission path and all claimed conformance suites pass.
 
 ### Companion milestones and delivery boundaries
 
-These milestones are tracked here to prevent the core rollout from being
+**[R-0007-370]** These milestones are tracked here to prevent the core rollout from being
 mistaken for complete v1 delivery. Their exact contracts and acceptance tests
 remain owned by the linked specifications. Complete each prerequisite before
 enabling or advertising its dependent capability; optional conformance claims

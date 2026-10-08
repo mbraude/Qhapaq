@@ -73,17 +73,17 @@ are intentional later capabilities. Their roadmap is defined in
 
 ### 5.1 Built-in Operations
 
-The reference implementation may ship a small reviewed catalog of general
+**[R-0002-001]** The reference implementation may ship a small reviewed catalog of general
 operations and decorators. Built-ins are versioned and described through the
 same operation-descriptor model as other sources.
 
-Shipping an operation does not automatically grant it unrestricted access.
+**[R-0002-002]** Shipping an operation does not automatically grant it unrestricted access.
 Built-ins remain subject to host capability, filesystem, network, and resource
 policy.
 
 ### 5.2 Declarative OpenAPI Connectors
 
-An OpenAPI connector turns explicitly selected OpenAPI operations into Qhapaq
+**[R-0002-003]** An OpenAPI connector turns explicitly selected OpenAPI operations into Qhapaq
 operation descriptors backed by the reference implementation's generic HTTP
 executor.
 
@@ -98,18 +98,18 @@ Registration must:
 - Name a logical credential requirement when authentication is needed.
 - Declare network destinations or server aliases that host policy can restrict.
 
-Importing an OpenAPI document must not expose every endpoint by default.
+**[R-0002-004]** Importing an OpenAPI document must not expose every endpoint by default.
 Endpoints without a stable `operationId`, ambiguous schemas, unsupported
 authentication, or deterministic response mapping must be rejected until the
 catalog supplies an explicit override.
 
-For reproducibility, a remote OpenAPI document should be imported as a local
+**[R-0002-005]** For reproducibility, a remote OpenAPI document should be imported as a local
 snapshot or pinned by a cryptographic digest. Hosts must not silently execute
 against changed connector metadata.
 
 ### 5.3 Precompiled .NET Extensions
 
-A precompiled extension contains:
+**[R-0002-006]** A precompiled extension contains:
 
 - One or more assemblies targeting the supported Qhapaq extension contract.
 - A versioned extension manifest.
@@ -119,20 +119,20 @@ A precompiled extension contains:
 - Declared capabilities and external dependencies.
 - Integrity information for installed artifacts.
 
-Extensions are installed through an explicit user or administrator action and
+**[R-0002-007]** Extensions are installed through an explicit user or administrator action and
 loaded only from locations enabled by the active trusted host profile. Loading
 occurs at process startup or an explicit host restart boundary, not during a
 pipeline run.
 
-An extension executes arbitrary code with the Qhapaq process identity.
+**[R-0002-008]** An extension executes arbitrary code with the Qhapaq process identity.
 Assembly-load contexts, dependency isolation, signatures, and package hashes can
 improve reliability and provenance but do not make untrusted code safe.
 
-The MCP surface must not install, update, enable, or discover arbitrary
+**[R-0002-009]** The MCP surface must not install, update, enable, or discover arbitrary
 filesystem extensions. It may report descriptors for extensions already enabled
 by the host.
 
-Code-authored .NET operations use the static declaration and generated-manifest
+**[R-0002-010]** Code-authored .NET operations use the static declaration and generated-manifest
 model defined in
 [`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
 Registration remains explicit and does not scan assemblies reflectively.
@@ -141,10 +141,10 @@ shape.
 
 ## 6. Portable Project Catalog
 
-The conventional project file is `.qhapaq/qhapaq.catalog.json`. It is intended
+**[R-0002-011]** The conventional project file is `.qhapaq/qhapaq.catalog.json`. It is intended
 to be safe to review and commit.
 
-A catalog may contain:
+**[R-0002-012]** A catalog may contain:
 
 - Catalog format, ID, and version.
 - OpenAPI document references and integrity digests.
@@ -155,7 +155,7 @@ A catalog may contain:
 - Required capabilities and documented side effects.
 - Human-readable descriptions and examples.
 
-A catalog must not contain:
+**[R-0002-013]** A catalog must not contain:
 
 - Secret values, access tokens, private keys, or passwords.
 - Credential-provider configuration tied to one user or machine.
@@ -188,15 +188,15 @@ Illustrative shape:
 }
 ```
 
-The exact normative schema will live under `schemas/` and may refine these
+**[R-0002-014]** The exact normative schema will live under `schemas/` and may refine these
 property names.
 
 ## 7. Trusted User Host Profile
 
-The host profile is security-sensitive local configuration. It selects what the
+**[R-0002-015]** The host profile is security-sensitive local configuration. It selects what the
 process trusts and can execute.
 
-A profile contains:
+**[R-0002-016]** A profile contains:
 
 - Enabled project catalogs, preferably with expected IDs or digests.
 - Enabled precompiled extensions and exact versions or integrity values.
@@ -246,12 +246,12 @@ Illustrative shape:
 }
 ```
 
-This example uses Windows paths only illustratively. The normative format must
+**[R-0002-017]** This example uses Windows paths only illustratively. The normative format must
 support portable path and URI handling.
 
 ## 8. Profile Discovery and Storage
 
-The host must use an explicitly selected profile:
+**[R-0002-018]** The host must use an explicitly selected profile:
 
 ```text
 qhapaq mcp --profile work
@@ -259,7 +259,7 @@ qhapaq run pipeline.json --profile work
 qhapaq mcp --config <absolute-profile-path>
 ```
 
-A named profile resolves in the operating system's user configuration
+**[R-0002-019]** A named profile resolves in the operating system's user configuration
 directory:
 
 - Windows: `%APPDATA%\Qhapaq\profiles\<name>.json`
@@ -267,11 +267,11 @@ directory:
   to the XDG Base Directory specification.
 - macOS: `~/Library/Application Support/Qhapaq/profiles/<name>.json`
 
-Qhapaq must not automatically treat a workspace file as a trusted host profile.
+**[R-0002-020]** Qhapaq must not automatically treat a workspace file as a trusted host profile.
 The current working directory cannot implicitly enable extensions, bind
 credentials, or broaden policy.
 
-V1 profiles do not inherit from or merge with other profiles. An explicit
+**[R-0002-021]** V1 profiles do not inherit from or merge with other profiles. An explicit
 `--config` path and a named `--profile` are mutually exclusive. Security policy
 collections replace rather than merge, and unknown properties are rejected.
 Command-line options may further restrict policy for one invocation but must not
@@ -279,11 +279,11 @@ silently broaden the active profile.
 
 ## 9. Authentication and Credential Providers
 
-Pipeline definitions and project catalogs refer only to logical authentication
+**[R-0002-022]** Pipeline definitions and project catalogs refer only to logical authentication
 requirements such as `orders.read`. The trusted host profile binds each
 requirement to a credential provider.
 
-A credential provider:
+**[R-0002-023]** A credential provider:
 
 - Resolves credentials only when required by an allowed operation.
 - Returns authentication material directly to the transport adapter.
@@ -301,26 +301,26 @@ The initial provider set remains to be finalized. Candidate providers include:
 - Interactive OAuth authorization code or device authorization.
 - Environment-variable and OS-protected secret-reference resolvers.
 
-The generic HTTP executor applies authentication after policy approves the
+**[R-0002-024]** The generic HTTP executor applies authentication after policy approves the
 destination. A pipeline cannot read a credential, choose an arbitrary destination
 for it, or override the provider's header and scope restrictions.
 
-Credential and token caches are state, not configuration. When persisted, they
+**[R-0002-025]** Credential and token caches are state, not configuration. When persisted, they
 must use OS-appropriate access controls and protection at rest. The host must
 support clearing cached credentials without editing catalogs or pipelines.
 
-Future hosted deployments can replace the local credential-provider
+**[R-0002-026]** Future hosted deployments can replace the local credential-provider
 implementation with request- or tenant-scoped providers while preserving the
 logical authentication names in catalogs and pipelines.
 
-Later provider packages may resolve secrets or credentials from remote systems
+**[R-0002-027]** Later provider packages may resolve secrets or credentials from remote systems
 such as Azure Key Vault. V1 interfaces must therefore support asynchronous
 resolution, cancellation, refresh, expiration, redaction, and provider-specific
 configuration without placing provider credentials in portable catalogs.
 
 ## 10. Effective Catalog Construction
 
-At startup, the host:
+**[R-0002-028]** At startup, the host:
 
 1. Loads and validates the explicitly selected trusted profile.
 2. Resolves and validates enabled catalog paths and expected identities.
@@ -332,17 +332,17 @@ At startup, the host:
 7. Applies capability and operation allowlists.
 8. Produces an immutable effective operation registry.
 
-Any error fails host startup or explicit reload. The host must not silently omit
+**[R-0002-029]** Any error fails host startup or explicit reload. The host must not silently omit
 an invalid catalog, extension, credential binding, or policy rule and then report
 partial success.
 
-The effective registry is immutable during a pipeline run. Configuration changes
+**[R-0002-030]** The effective registry is immutable during a pipeline run. Configuration changes
 take effect only after an explicit reload boundary that rebuilds and revalidates
 the complete registry.
 
 ## 11. MCP Administration Boundary
 
-The MCP server may:
+**[R-0002-031]** The MCP server may:
 
 - List effective operation descriptors.
 - Explain why an operation is unavailable.
@@ -352,7 +352,7 @@ The MCP server may:
 - Propose immutable connection setup plans and request an independent trusted
   local consent flow.
 
-The MCP server must not:
+**[R-0002-032]** The MCP server must not:
 
 - Install, update, or enable an extension.
 - Add a catalog to the trusted profile.
@@ -362,13 +362,15 @@ The MCP server must not:
 - Broaden network, filesystem, process, or execution policy.
 - Select a different trusted profile after startup.
 
-Administrative CLI commands, if provided, must be separate from model-accessible
+**[R-0002-033]** Administrative CLI commands, if provided, must be separate from model-accessible
 MCP tools and require an explicit local user action. An approved local consent
 broker may apply a specific proposed connection plan without giving MCP general
 profile-administration authority. That flow is defined in
 [`0004-ai-assisted-connections.md`](0004-ai-assisted-connections.md).
 
 ## 12. Security Considerations
+
+**[R-0002-034]**
 
 - Treat project catalogs, OpenAPI descriptions, examples, and extension metadata
   as untrusted input.
@@ -386,6 +388,8 @@ profile-administration authority. That flow is defined in
   an independently specified security boundary.
 
 ## 13. Testing Strategy
+
+**[R-0002-035]**
 
 - Catalog and host-profile JSON Schema conformance tests.
 - Tests proving project catalogs cannot load assemblies or contain secrets.

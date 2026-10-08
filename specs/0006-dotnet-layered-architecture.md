@@ -65,7 +65,7 @@ implementations are the `qhapaq` CLI and MCP server, implemented by
 implementations may include `Qhapaq.Implementations.GRPC` or
 application-specific adapters.
 
-Each implementation:
+**[R-0006-001]** Each implementation:
 
 - parses and authenticates its transport-specific request;
 - maps that request to one exact version of the public Service contract;
@@ -73,33 +73,33 @@ Each implementation:
 - maps the Service result or structured failure to its own protocol; and
 - contains no pipeline construction, binding, policy, or execution rules.
 
-`Qhapaq.Implementations.Hosting` is the .NET hosting and composition adapter
+**[R-0006-002]** `Qhapaq.Implementations.Hosting` is the .NET hosting and composition adapter
 used by entry points. It invokes the public Service V1 composition entry point
 and must not reference or register Business or DAL components directly.
 
 ### 4.2 Service
 
-Service is the common application boundary. It coordinates complete use cases
+**[R-0006-003]** Service is the common application boundary. It coordinates complete use cases
 such as constructing, validating, visualizing, and executing a pipeline. It
 normalizes entry-point inputs, applies application-level validation, invokes
 Business contracts, and translates domain outcomes into stable service
 outcomes.
 
-Service contracts are versioned independently from NuGet packages, pipeline
+**[R-0006-004]** Service contracts are versioned independently from NuGet packages, pipeline
 document versions, and operation versions. Initial public contracts use the
 `Qhapaq.Abstractions.Service.V1` namespace, and their implementation uses the
 `Qhapaq.Service.V1` assembly and root namespace. A breaking contract change
 adds a new contract namespace and side-by-side implementation assembly, such
 as `Qhapaq.Service.V2`; it must not silently change V1 behavior.
 
-The Service contract is public because third parties may create their own entry
+**[R-0006-005]** The Service contract is public because third parties may create their own entry
 points. It is an advanced integration boundary rather than a transport
 protocol. Service implementations are internal and obtained through supported
 dependency-injection registration.
 
 ### 4.3 Business
 
-Business owns domain behavior that is independent of an entry point:
+**[R-0006-006]** Business owns domain behavior that is independent of an entry point:
 
 - pipeline construction and higher-level composition;
 - semantic validation and type compatibility;
@@ -109,13 +109,13 @@ Business owns domain behavior that is independent of an entry point:
 - canonical definition projections; and
 - deterministic visualization and invocation-skill generation.
 
-Business accepts only Service-to-Business abstraction types and calls only
+**[R-0006-007]** Business accepts only Service-to-Business abstraction types and calls only
 Business-to-DAL abstraction types. It must not parse CLI arguments, MCP
 messages, or other transport envelopes.
 
 ### 4.4 Data Access Layer
 
-DAL is the lowest implementation layer. It owns:
+**[R-0006-008]** DAL is the lowest implementation layer. It owns:
 
 - primitive `IOperation<TInput, TOutput>` implementations;
 - operation decorators and wrappers;
@@ -123,13 +123,13 @@ DAL is the lowest implementation layer. It owns:
 - low-level definition, plan-cache, and host-configuration adapters; and
 - external resource adapters used by operations.
 
-DAL does not make application-use-case decisions and does not call Business,
+**[R-0006-009]** DAL does not make application-use-case decisions and does not call Business,
 Service, or Service Implementation components. A primitive operation package
 continues to depend only on `Qhapaq.Abstractions`.
 
 ## 5. Contract Placement and Visibility
 
-All cross-layer interfaces and boundary object types are defined in
+**[R-0006-010]** All cross-layer interfaces and boundary object types are defined in
 `Qhapaq.Abstractions`. Their visibility follows least exposure:
 
 | Contract category | Visibility | Consumers |
@@ -140,12 +140,12 @@ All cross-layer interfaces and boundary object types are defined in
 | Business-to-DAL contracts and values | `internal` | Qhapaq implementation assemblies and tests |
 | Concrete Service, Business, and DAL types | `internal` | Owning-layer registration and tests |
 
-`InternalsVisibleTo` may grant named Qhapaq implementation and test assemblies
+**[R-0006-011]** `InternalsVisibleTo` may grant named Qhapaq implementation and test assemblies
 access to internal contracts. It must not grant access to third-party
 assemblies, use a wildcard, or become a substitute for a deliberately public
 contract.
 
-Public contracts must not expose internal contract types, concrete
+**[R-0006-012]** Public contracts must not expose internal contract types, concrete
 implementation types, dependency-injection container types, transport types,
 or mutable implementation state. Portable JSON and protocol semantics remain
 defined by schemas and language-neutral specifications rather than these CLR
@@ -153,17 +153,17 @@ types.
 
 ## 6. Dependency and Composition Rules
 
-Each component receives required collaborators through constructor injection.
+**[R-0006-013]** Each component receives required collaborators through constructor injection.
 Service location, ambient mutable state, and runtime type-name activation are
 prohibited.
 
-The allowed runtime call graph is:
+**[R-0006-014]** The allowed runtime call graph is:
 
 ```text
 Service Implementation -> Service -> Business -> DAL
 ```
 
-The allowed contract dependencies are:
+**[R-0006-015]** The allowed contract dependencies are:
 
 ```text
 Service Implementation -> public Service contracts
@@ -172,14 +172,14 @@ Business               -> internal Business-to-DAL contracts
 DAL                    -> public operation contracts and platform abstractions
 ```
 
-The .NET implementation uses `Microsoft.Extensions.DependencyInjection` as
+**[R-0006-016]** The .NET implementation uses `Microsoft.Extensions.DependencyInjection` as
 decided by
 [ADR-0001](../docs/architecture/decisions/0001-use-microsoft-dependency-injection.md).
 Composition APIs use `IServiceCollection`; behavioral components must not
 depend on `IServiceCollection`, `IServiceProvider`, or `IServiceScopeFactory`.
 `Qhapaq.Abstractions` must not expose Microsoft DI types.
 
-Composition follows the same adjacent-layer direction as runtime behavior:
+**[R-0006-017]** Composition follows the same adjacent-layer direction as runtime behavior:
 
 ```text
 Qhapaq.Implementations.Hosting
@@ -188,7 +188,7 @@ Qhapaq.Implementations.Hosting
     -> Qhapaq.DAL registration
 ```
 
-Each layer registers its own internal concrete types, exposes only its boundary
+**[R-0006-018]** Each layer registers its own internal concrete types, exposes only its boundary
 abstractions for resolution, and delegates registration only to the immediately
 lower layer. Hosting must not reference Business or DAL. Service must not
 reference DAL. The Service V1 registration entry point is public so supported
@@ -196,13 +196,13 @@ hosting adapters can compose the versioned Service boundary. Business and DAL
 registration entry points remain internal and are visible only to the named
 adjacent Qhapaq assembly and tests.
 
-Only an executable or hosting boundary may build or directly access the root
+**[R-0006-019]** Only an executable or hosting boundary may build or directly access the root
 `IServiceProvider`. Registration methods must not build a nested provider,
 resolve services, or invoke product behavior. Registration is explicit rather
 than reflection-based assembly scanning. Hosts enable build and scope
 validation in development and automated tests.
 
-Cross-cutting concerns belong at the lowest layer that has the required
+**[R-0006-020]** Cross-cutting concerns belong at the lowest layer that has the required
 context. Transport diagnostics stay in Service Implementations, use-case
 diagnostics stay in Service, domain diagnostics stay in Business, and
 operation-specific diagnostics stay in DAL. Policy enforcement must not be
@@ -210,7 +210,7 @@ implemented only in a transport adapter.
 
 ## 7. Assemblies and Distribution Packages
 
-Every production project sets `AssemblyName` and `RootNamespace` to its project
+**[R-0006-021]** Every production project sets `AssemblyName` and `RootNamespace` to its project
 name. Initial production assemblies are:
 
 | Assembly and root namespace | Layer | Distribution |
@@ -223,13 +223,13 @@ name. Initial production assemblies are:
 | `Qhapaq.Implementations.MCP` | Service Implementations | `Qhapaq.Mcp` NuGet package and MCP host distribution |
 | `Qhapaq.Implementations.CLI` | Service Implementations | Self-contained `qhapaq` executable distribution |
 
-The `Qhapaq` NuGet package is a distribution package and does not require a
+**[R-0006-022]** The `Qhapaq` NuGet package is a distribution package and does not require a
 `Qhapaq.dll` facade assembly. Similarly, package names may remain stable when
 their contained implementation assembly has a more precise layer-aligned name.
 Adding a public package for an internal layer remains a separate compatibility
 decision.
 
-Future entry-point assemblies use the
+**[R-0006-023]** Future entry-point assemblies use the
 `Qhapaq.Implementations.<Implementation>` pattern. Future breaking Service
 versions use `Qhapaq.Service.V<Major>`. `CLI`, `MCP`, `DAL`, and similarly
 established initialisms retain their canonical uppercase spelling in assembly
@@ -237,7 +237,7 @@ and root namespace names.
 
 ## 8. Initial .NET Project and File Plan
 
-The initial project structure is:
+**[R-0006-024]** The initial project structure is:
 
 ```text
 implementations/dotnet/
@@ -296,13 +296,13 @@ implementations/dotnet/
         `-- Qhapaq.Implementations.CLI.Tests/
 ```
 
-Assembly references provide the primary structural boundary. Folder names and
+**[R-0006-025]** Assembly references provide the primary structural boundary. Folder names and
 namespaces communicate ownership within each assembly. Additional files should
 be introduced only with behavior and tests, not as empty placeholders.
 
 ## 9. Initial Components
 
-The names below define responsibilities and relationships for the initial
+**[R-0006-026]** The names below define responsibilities and relationships for the initial
 scaffold. Exact method and DTO shapes remain governed by the use-case and
 protocol specifications created before implementation.
 
@@ -323,7 +323,7 @@ protocol specifications created before implementation.
 | DAL | `IExecutionPlanCache` | Cache derived bound plans without making them portable |
 | DAL | `IOperation<TInput, TOutput>` | Execute a primitive or type-preserving decorated operation |
 
-The declaration contracts planned under `Operations/Declarations/` let
+**[R-0006-027]** The declaration contracts planned under `Operations/Declarations/` let
 registry-visible code-authored operations expose a static portable descriptor
 without construction. A marker attribute may support analyzers and source
 generators, but registration remains explicit and reflection-free. Exact API
@@ -333,7 +333,7 @@ and remain to be designed before implementation.
 
 ## 10. Component Diagram
 
-The maintainable diagram source is
+**[R-0006-028]** The maintainable diagram source is
 [`../docs/architecture/diagrams/dotnet-layered-components.mmd`](../docs/architecture/diagrams/dotnet-layered-components.mmd).
 
 ```mermaid
@@ -388,12 +388,12 @@ flowchart TB
     BCOMP -. "compose" .-> DCOMP
 ```
 
-Solid arrows are permitted runtime calls. Dotted arrows are composition-time
+**[R-0006-029]** Solid arrows are permitted runtime calls. Dotted arrows are composition-time
 delegation between adjacent layers and do not permit direct behavioral calls.
 
 ## 11. Enforcement and Testing
 
-The initial scaffold must include architecture tests that fail when:
+**[R-0006-030]** The initial scaffold must include architecture tests that fail when:
 
 - `Qhapaq.Implementations.*` references `Qhapaq.Business` or `Qhapaq.DAL`;
 - `Qhapaq.Service.V1` references `Qhapaq.DAL`;
@@ -409,7 +409,7 @@ The initial scaffold must include architecture tests that fail when:
 - a registration method builds or resolves from a service provider; or
 - a complete graph fails Microsoft DI build or scope validation.
 
-Unit tests remain aligned to their owning layer. Integration tests begin at a
+**[R-0006-031]** Unit tests remain aligned to their owning layer. Integration tests begin at a
 supported Service Implementation or the public Service boundary and verify
 cross-layer behavior without bypassing a boundary. Package-consumer tests must
 prove that third-party operation libraries need only `Qhapaq.Abstractions` and
@@ -417,6 +417,8 @@ that third-party entry points can consume Service V1 without accessing internal
 Business or DAL contracts.
 
 ## 12. Security, Compatibility, and Failure Handling
+
+**[R-0006-032]**
 
 - Every Service Implementation must preserve authentication, authorization,
   policy, and disclosure decisions returned by Service; it must not weaken them
@@ -435,6 +437,8 @@ Business or DAL contracts.
 
 ## 13. Rollout
 
+**[R-0006-033]**
+
 1. Scaffold `Qhapaq.Abstractions`, `Qhapaq.Service.V1`, `Qhapaq.Business`,
    `Qhapaq.DAL`, `Qhapaq.Implementations.Hosting`,
    `Qhapaq.Implementations.MCP`, `Qhapaq.Implementations.CLI`, and their test
@@ -446,7 +450,7 @@ Business or DAL contracts.
 5. Implement and test one vertical slice through CLI and the public Service
    boundary before expanding the API.
 
-No artifact-plan item is complete merely because its directory or placeholder
+**[R-0006-034]** No artifact-plan item is complete merely because its directory or placeholder
 type exists.
 
 ## 14. Alternatives Considered

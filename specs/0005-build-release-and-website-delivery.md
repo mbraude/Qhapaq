@@ -63,7 +63,7 @@ This specification does not:
 
 ## 4. Delivery Channels and Cadence
 
-Qhapaq has three user-visible channels:
+**[R-0005-001]** Qhapaq has three user-visible channels:
 
 1. **Preview:** pull-request artifacts and an isolated website environment for
    review. Preview outputs are temporary and never presented as releases.
@@ -75,7 +75,7 @@ Qhapaq has three user-visible channels:
    `v<major>.<minor>.<patch>-rc.<number>` may publish an explicitly marked
    prerelease.
 
-The event cadence is:
+**[R-0005-002]** The event cadence is:
 
 | Event | Required behavior | Publication |
 | --- | --- | --- |
@@ -87,14 +87,14 @@ The event cadence is:
 | Weekly schedule | Run dependency, license, secret, vulnerability, and workflow-permission review | Reports and automated update issues or pull requests |
 | Manual workflow dispatch | Retry a failed idempotent publication, redeploy a previously verified website artifact, or perform documented recovery | Only the destination and artifact identity explicitly selected by an authorized maintainer |
 
-Stable releases are readiness-driven during v1. Maintainers should review release
+**[R-0005-003]** Stable releases are readiness-driven during v1. Maintainers should review release
 readiness at least monthly, but must not publish an empty or insufficiently
 validated release to satisfy a calendar. A regular release train may be adopted
 after demand and compatibility commitments justify it.
 
 ## 5. Workflow Topology
 
-The initial workflow set is:
+**[R-0005-004]** The initial workflow set is:
 
 - `ci.yml`: pull-request, branch, and reusable validation jobs.
 - `edge.yml`: `main` build and edge publication.
@@ -102,21 +102,21 @@ The initial workflow set is:
 - `website.yml`: pull-request previews, production deployment, and cleanup.
 - `scheduled.yml`: nightly and weekly assurance jobs.
 
-The exact file split may change, but event permissions and responsibilities must
+**[R-0005-005]** The exact file split may change, but event permissions and responsibilities must
 remain separate. In particular, untrusted pull-request jobs must not have access
 to release, package-publishing, container-publishing, or production-deployment
 credentials.
 
-Workflows call repository scripts for restore, format verification, build,
+**[R-0005-006]** Workflows call repository scripts for restore, format verification, build,
 test, pack, site generation, and package verification. Local and CI execution
 must use the same pinned SDK, lock files, and warnings-as-errors policy.
 
-Concurrency rules cancel superseded pull-request and website-preview runs. A
+**[R-0005-007]** Concurrency rules cancel superseded pull-request and website-preview runs. A
 release publication is never canceled merely because a newer commit or tag
 appears. Publication jobs use idempotency checks so retrying a partially failed
 run neither overwrites an immutable artifact nor reports false success.
 
-Required pull-request checks initially include:
+**[R-0005-008]** Required pull-request checks initially include:
 
 - Formatting, compilation, analyzers, and unit tests.
 - Applicable integration and conformance tests.
@@ -125,14 +125,14 @@ Required pull-request checks initially include:
 - Clean package-consumer and self-contained CLI smoke tests.
 - Secret, dependency, license, and source-policy checks.
 
-The supported operating-system and architecture matrix is defined separately.
+**[R-0005-009]** The supported operating-system and architecture matrix is defined separately.
 Pull requests may use a representative blocking matrix when the complete matrix
 is too expensive, but `main`, release, and scheduled workflows must provide
 complete supported-target coverage before a target is advertised.
 
 ## 6. Build and Version Model
 
-One source commit produces one internally consistent artifact set. The build
+**[R-0005-010]** One source commit produces one internally consistent artifact set. The build
 records:
 
 - Full Git commit SHA and source repository.
@@ -142,17 +142,17 @@ records:
   applicable.
 - Build timestamp used only where reproducibility permits it.
 
-Stable artifact versions come only from the protected release tag. Edge
+**[R-0005-011]** Stable artifact versions come only from the protected release tag. Edge
 artifacts use a unique SemVer-compatible prerelease version containing an
 ordered build identifier and commit identity. A mutable `edge` label or download
 link may point to the newest successful build, but the underlying artifact
 manifest must expose its unique version and full commit SHA.
 
-A release workflow builds the tagged commit once, stores the resulting artifact
+**[R-0005-012]** A release workflow builds the tagged commit once, stores the resulting artifact
 set, verifies it in clean environments, and publishes those exact bytes to every
 destination. Publication steps must not rebuild packages independently.
 
-The release manifest inventories every output, media type, version, digest,
+**[R-0005-013]** The release manifest inventories every output, media type, version, digest,
 target platform, and destination. Checksums, SBOMs, signatures or attestations,
 and provenance refer to the exact published bytes.
 
@@ -160,7 +160,7 @@ and provenance refer to the exact published bytes.
 
 ### 7.1 Edge
 
-Every successful `main` run publishes:
+**[R-0005-014]** Every successful `main` run publishes:
 
 - Self-contained CLI archives for the supported platform matrix.
 - The four NuGet package files as downloadable artifacts, without pushing them
@@ -172,12 +172,12 @@ Every successful `main` run publishes:
 - A rolling public edge release or download index that links to the exact
   commit-addressed build.
 
-Temporary GitHub Actions artifacts may supplement the public edge channel but
+**[R-0005-015]** Temporary GitHub Actions artifacts may supplement the public edge channel but
 must not be its only storage because they expire and may require authentication.
 
 ### 7.2 Stable and Prerelease
 
-A protected Semantic Version tag publishes:
+**[R-0005-016]** A protected Semantic Version tag publishes:
 
 - `Qhapaq.Abstractions`, `Qhapaq`, `Qhapaq.Hosting`, and `Qhapaq.Mcp` to
   nuget.org.
@@ -187,20 +187,20 @@ A protected Semantic Version tag publishes:
 - SBOMs, artifact attestations or equivalent provenance, release notes, license
   notices, and required third-party attributions.
 
-Release candidates use prerelease versions and are clearly separated from the
+**[R-0005-017]** Release candidates use prerelease versions and are clearly separated from the
 stable install path. The website defaults to the latest stable release while
 offering an explicitly labeled edge or prerelease download path.
 
-Published stable package versions and release assets are never replaced. A bad
+**[R-0005-018]** Published stable package versions and release assets are never replaced. A bad
 release is deprecated where the destination supports it and corrected with a
 new version.
 
 ## 8. Website Delivery
 
-The public static website is hosted by Azure Static Web Apps. Repository content
+**[R-0005-019]** The public static website is hosted by Azure Static Web Apps. Repository content
 is canonical; the deployed site is generated output.
 
-For a pull request that changes website, documentation, examples, schemas, or
+**[R-0005-020]** For a pull request that changes website, documentation, examples, schemas, or
 generated reference inputs, automation:
 
 1. Builds the site from that pull request.
@@ -209,25 +209,25 @@ generated reference inputs, automation:
 4. Reports the preview URL and test result on the pull request.
 5. Deletes the preview environment when the pull request closes.
 
-After a reviewed change reaches `main`, automation rebuilds and tests the site,
+**[R-0005-021]** After a reviewed change reaches `main`, automation rebuilds and tests the site,
 then deploys production. A merge to protected `main` is the approval event; the
 normal production deployment should not require a second routine button click.
 The GitHub production environment restricts the workflow, branch, and
 credentials that can deploy.
 
-Versioned API and specification documentation is published by the release
+**[R-0005-022]** Versioned API and specification documentation is published by the release
 workflow. General project content may update with every `main` merge. The site
 must clearly distinguish documentation for stable, prerelease, and edge
 versions.
 
-Website rollback redeploys a previously verified site artifact or source commit.
+**[R-0005-023]** Website rollback redeploys a previously verified site artifact or source commit.
 Rollback does not rewrite repository history. Production smoke checks run after
 deployment, and a failure blocks success reporting and initiates the documented
 recovery path.
 
 ## 9. Credentials and Workflow Security
 
-Workflow permissions default to read-only and are elevated per job. Actions are
+**[R-0005-024]** Workflow permissions default to read-only and are elevated per job. Actions are
 pinned to reviewed immutable revisions according to repository policy.
 
 - NuGet publication uses nuget.org Trusted Publishing with GitHub OIDC and
@@ -244,19 +244,19 @@ pinned to reviewed immutable revisions according to repository policy.
   practical; private signing material is never committed or exposed to
   untrusted jobs.
 
-Release tags, workflow files, build scripts, dependency locks, and production
+**[R-0005-025]** Release tags, workflow files, build scripts, dependency locks, and production
 site configuration require code-owner review. Protected environments limit
 which branches or tags may deploy. Fork pull requests run without privileged
 secrets and must not use a workflow event that executes untrusted code in a
 privileged base-repository context.
 
-Build logs, manifests, SBOMs, and provenance must not contain credentials,
+**[R-0005-026]** Build logs, manifests, SBOMs, and provenance must not contain credentials,
 private package-source tokens, signing material, or sensitive environment
 values.
 
 ## 10. Provenance, Retention, and Audit
 
-Every stable artifact and public edge build provides:
+**[R-0005-027]** Every stable artifact and public edge build provides:
 
 - SHA-256 checksums.
 - A machine-readable SBOM in a documented standard format.
@@ -265,17 +265,19 @@ Every stable artifact and public edge build provides:
 - A release manifest connecting files, packages, container digests, and
   documentation versions.
 
-Stable releases, their manifests, checksums, provenance, and release notes are
+**[R-0005-028]** Stable releases, their manifests, checksums, provenance, and release notes are
 retained indefinitely subject to legal requirements. Edge builds have a
 documented retention policy, but the newest successful edge build and any build
 referenced by an active investigation must remain available. Temporary preview
 and CI artifacts expire automatically.
 
-Workflow runs and deployment records provide an auditable history of actor,
+**[R-0005-029]** Workflow runs and deployment records provide an auditable history of actor,
 event, commit, environment, artifacts, and destination. The project documents
 how a user verifies checksums and provenance before installation.
 
 ## 11. Failure and Recovery
+
+**[R-0005-030]**
 
 - CI failure blocks merge.
 - Edge publication failure marks the `main` run unsuccessful but does not roll
@@ -290,13 +292,13 @@ how a user verifies checksums and provenance before installation.
   security or legal process requires stronger action.
 - A compromised credential is revoked or rotated before publication resumes.
 
-Recovery procedures and destination-specific limitations are documented in
+**[R-0005-031]** Recovery procedures and destination-specific limitations are documented in
 `RELEASE.md` before the first public release and exercised through a release
 dry run.
 
 ## 12. Testing and Acceptance
 
-Before public release, the delivery system must demonstrate:
+**[R-0005-032]** Before public release, the delivery system must demonstrate:
 
 - Required checks block an intentionally failing pull request.
 - A pull request creates and then removes an isolated website preview.
@@ -316,6 +318,8 @@ Before public release, the delivery system must demonstrate:
   environments.
 
 ## 13. Rollout
+
+**[R-0005-033]**
 
 1. Add local scripts and pinned toolchain configuration.
 2. Add required pull-request CI and branch protection.

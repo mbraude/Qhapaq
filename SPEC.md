@@ -11,7 +11,7 @@ executing typed pipelines. Its name literally means "a thing of importance,
 prominence, or greatness." Symbolically, it represents the roads that connected
 an entire civilization.
 
-The project embodies that symbolism by connecting small, independently useful
+**[R-0000-001]** The project embodies that symbolism by connecting small, independently useful
 operations into dependable orchestrations. Any language or system can consume
 Qhapaq through its CLI or Model Context Protocol (MCP) surface. .NET applications
 also receive an enhanced in-process, strongly typed library API. Pipelines use a
@@ -24,7 +24,7 @@ that affect the project as a whole.
 
 ### 1.1 Product Model
 
-The language-neutral model treats an operation as an asynchronous mapping from a
+**[R-0000-002]** The language-neutral model treats an operation as an asynchronous mapping from a
 declared input schema to a declared output schema. The .NET reference
 implementation expresses that abstraction as:
 
@@ -37,7 +37,7 @@ public interface IOperation<TInput, TOutput>
 }
 ```
 
-Operations compose without losing this abstraction. Sequential composition feeds
+**[R-0000-003]** Operations compose without losing this abstraction. Sequential composition feeds
 one operation's output into the next. Parallel composition gives two operations
 the same input and combines their outputs. Decorators preserve an operation's
 input and output types while adding behavior such as retries, caching, batching,
@@ -45,7 +45,7 @@ timeouts, logging, or metrics. Conditional, bounded-loop, and bounded
 collection-execution combinators provide controlled flow without turning the
 initial release into a durable workflow engine.
 
-The .NET 10 reference implementation executes strongly typed CLR values
+**[R-0000-004]** The .NET 10 reference implementation executes strongly typed CLR values
 in-process. JSON is used at pipeline, persistence, CLI, and MCP boundaries, not
 between every operation. A canonical JSON definition binds through a
 host-controlled operation registry into a validated, immutable execution plan.
@@ -76,7 +76,7 @@ definition-to-plan binding semantics are specified in
 
 ### 1.2 Initial Scope Boundaries
 
-Qhapaq v1 will:
+**[R-0000-005]** Qhapaq v1 will:
 
 - Provide a C# API and a .NET 10 in-process execution engine.
 - Provide a language-neutral CLI contract and separately distributed executable
@@ -102,7 +102,7 @@ Qhapaq v1 will:
 - Deny disclosure of operation payloads to MCP clients by default, independently
   from permission to execute an operation.
 
-Qhapaq v1 will not:
+**[R-0000-006]** Qhapaq v1 will not:
 
 - Resume a pipeline run after process failure.
 - Provide distributed scheduling, durable timers, exactly-once effects,
@@ -114,18 +114,18 @@ Qhapaq v1 will not:
 
 ### 1.3 Portability and Implementations
 
-The CLI and MCP contracts, canonical JSON model, execution semantics, and
+**[R-0000-007]** The CLI and MCP contracts, canonical JSON model, execution semantics, and
 conformance data are language-neutral and normative. The .NET implementation is
 the v1 reference implementation, but it is not the semantic authority when it
 conflicts with those specifications.
 
-Users must not need a system-wide .NET installation to use the CLI. Releases
+**[R-0000-008]** Users must not need a system-wide .NET installation to use the CLI. Releases
 should include self-contained executables for the supported platform matrix and
 a container image. Native AOT may be used where compatible, but portability
 depends on explicitly published operating-system and architecture targets rather
 than a claim that one binary runs everywhere.
 
-If another implementation is added, it must declare its conformance level and
+**[R-0000-009]** If another implementation is added, it must declare its conformance level and
 pass the shared language-neutral test vectors. A new implementation belongs
 under `implementations/<language>/`; it must not fork the document format or
 redefine common execution semantics.
@@ -140,18 +140,18 @@ but not part of its local single-user delivery:
 - Remote operation providers that expose primitives to the engine over gRPC.
 - Hosted and eventually tenant-scoped configuration, identity, and policy.
 
-These are deferred deliverables, not rejected use cases. V1 contracts must avoid
+**[R-0000-010]** These are deferred deliverables, not rejected use cases. V1 contracts must avoid
 embedding local filesystem paths, process identity, or .NET-specific transport
 assumptions into portable pipeline and catalog documents.
 
 ### 1.5 Public Project Website
 
-Qhapaq will have a public static website hosted on Azure Static Web Apps. The
+**[R-0000-011]** Qhapaq will have a public static website hosted on Azure Static Web Apps. The
 site will advertise the project, explain its purpose and capabilities, show
 representative use cases, and direct users to installation, documentation,
 source, packages, and community resources.
 
-The website is a product and documentation surface, not a Qhapaq execution,
+**[R-0000-012]** The website is a product and documentation surface, not a Qhapaq execution,
 configuration, credential, or control-plane component. Pull requests receive
 isolated preview deployments, and reviewed changes merged to `main` deploy
 automatically to production. Its information architecture, visual design,
@@ -161,21 +161,21 @@ design decisions. Build and deployment behavior is defined in
 
 ### 1.6 Licensing, Commercial Rights, and Brand
 
-Qhapaq is source-available rather than OSI open source. Publicly released source
+**[R-0000-013]** Qhapaq is source-available rather than OSI open source. Publicly released source
 is licensed under the PolyForm Internal Use License 1.0.0, which permits internal
 business use and modification but does not permit distribution or sublicensing.
 
-The project owner reserves the right to offer separate commercial licenses for
+**[R-0000-014]** The project owner reserves the right to offer separate commercial licenses for
 distribution, embedding, OEM use, hosted or managed services, support, and other
 uses not granted by the public license. Commercial terms will be documented
 separately and reviewed by qualified legal counsel before they are offered.
 
-The software license does not grant rights to the Qhapaq name, logos, service
+**[R-0000-015]** The software license does not grant rights to the Qhapaq name, logos, service
 identity, or compatibility marks. A separate trademark and brand-use policy will
 define permitted nominative references and protect official products and hosted
 services.
 
-External contributions require contributor terms that preserve the project
+**[R-0000-016]** External contributions require contributor terms that preserve the project
 owner's ability to distribute contributions under the public license and
 separate commercial licenses. The contributor agreement or assignment model
 must be selected with legal review before accepting substantive outside
@@ -211,7 +211,7 @@ The repository should be:
 
 ## 4. Proposed Repository Structure
 
-The following is the target structure. Directories and files should be added when
+**[R-0000-017]** The following is the target structure. Directories and files should be added when
 they have real content rather than being committed as empty placeholders.
 
 ```text
@@ -277,6 +277,8 @@ Qhapaq/
 
 ### 4.1 Root Files
 
+**[R-0000-018]**
+
 | Path | Purpose |
 | --- | --- |
 | `README.md` | Project overview, quick start, status, and links to deeper documentation. |
@@ -297,6 +299,8 @@ Qhapaq/
 
 ### 4.2 Source and Quality
 
+**[R-0000-019]**
+
 | Path | Purpose |
 | --- | --- |
 | `implementations/dotnet/src/` | .NET reference implementation, CLI, and MCP source. |
@@ -309,11 +313,13 @@ Qhapaq/
 | `tools/` | Tool configuration or project-owned development utilities. |
 | `build/` | Build orchestration files only; generated output remains ignored. |
 
-Language-specific conventions remain within each implementation directory.
+**[R-0000-020]** Language-specific conventions remain within each implementation directory.
 Normative schemas, conformance vectors, and specifications remain at the
 repository root so no implementation owns the portable contract.
 
 ### 4.3 Specifications and Documentation
+
+**[R-0000-021]**
 
 | Path | Purpose |
 | --- | --- |
@@ -325,13 +331,13 @@ repository root so no implementation owns the portable contract.
 | `docs/reference/` | Generated or curated technical reference material. |
 | `docs/wiki/` | Canonical wiki source that can be published or synchronized. |
 
-Documentation stored in this repository is canonical. If a GitHub Wiki is used,
+**[R-0000-022]** Documentation stored in this repository is canonical. If a GitHub Wiki is used,
 it should be generated or synchronized from `docs/wiki/` so knowledge does not
 live only in a separate wiki repository.
 
 ### 4.4 GitHub and Community
 
-The `.github/` directory will contain:
+**[R-0000-023]** The `.github/` directory will contain:
 
 - GitHub-specific support and repository metadata.
 - Issue forms and pull request templates.
@@ -341,17 +347,17 @@ The `.github/` directory will contain:
 - GitHub Copilot repository instructions, path-specific instructions, custom
   agents, and prompts.
 
-Project-wide contribution and security policies remain at the repository root so
+**[R-0000-024]** Project-wide contribution and security policies remain at the repository root so
 they are prominent and usable independently of GitHub. GitHub-specific files
 should adapt or link to canonical project guidance rather than duplicate it.
 
-Workflows should initially be limited to checks the project can execute
+**[R-0000-025]** Workflows should initially be limited to checks the project can execute
 reliably. Deployment workflows should be introduced only after deployment
 targets and environments are specified.
 
 ### 4.5 AI Collaboration
 
-AI guidance should be layered rather than tied to one vendor:
+**[R-0000-026]** AI guidance should be layered rather than tied to one vendor:
 
 - `AGENTS.md` defines repository-wide, tool-neutral working agreements.
 - `.agents/skills/<skill-name>/SKILL.md` defines portable, self-contained skills;
@@ -365,11 +371,11 @@ AI guidance should be layered rather than tied to one vendor:
 - `.ai/evaluations/` contains test cases or rubrics that measure AI-generated
   changes against project expectations.
 
-Skills should implement repeatable capabilities rather than hold general
+**[R-0000-027]** Skills should implement repeatable capabilities rather than hold general
 repository policy. General policy belongs in `AGENTS.md`, `CONTRIBUTING.md`, or
 the relevant document under `docs/development/`.
 
-Qhapaq-generated pipeline invocation skills are product artifacts, not
+**[R-0000-028]** Qhapaq-generated pipeline invocation skills are product artifacts, not
 repository-collaboration policy. They contain or reference a canonical pipeline
 definition and delegate validation, binding, policy enforcement, and execution
 to a conforming Qhapaq host. They must not become an additional executable
@@ -377,18 +383,18 @@ pipeline format or grant authority beyond the active host policy. The portable
 invocation-skill profile is defined in
 [`specs/0001-core-pipeline-model.md`](specs/0001-core-pipeline-model.md).
 
-Any tool-specific instruction file, including proposed `.dm` files, must have a
+**[R-0000-029]** Any tool-specific instruction file, including proposed `.dm` files, must have a
 documented consumer and format before it is added. Tool-neutral guidance should
 remain authoritative to avoid conflicting instructions.
 
-AI-assisted changes are held to the same review, test, security, licensing, and
+**[R-0000-030]** AI-assisted changes are held to the same review, test, security, licensing, and
 attribution standards as human-authored changes. Contributors must not provide
 AI tools with secrets, private data, or third-party code they are not permitted
 to share.
 
 ### 4.6 MCP Integration
 
-Model Context Protocol integration has separate locations for configuration and
+**[R-0000-031]** Model Context Protocol integration has separate locations for configuration and
 implementation:
 
 - `.vscode/mcp.json` contains safe, portable MCP server definitions used by
@@ -399,14 +405,14 @@ implementation:
 - A first-class, published Qhapaq MCP product should use the repository's future
   implementation convention instead of being hidden under `tools/`.
 
-Committed MCP configuration should reference environment variables, interactive
+**[R-0000-032]** Committed MCP configuration should reference environment variables, interactive
 inputs, or an approved external secret store for sensitive values. Every
 configured server must document its purpose, trust boundary, required access,
 and setup process.
 
 ### 4.7 Coding Conventions
 
-Coding standards should have three complementary layers:
+**[R-0000-033]** Coding standards should have three complementary layers:
 
 1. Formatters, linters, compiler settings, and tests enforce objective rules.
 2. `docs/development/coding-conventions.md` documents rules and rationale that
@@ -414,12 +420,12 @@ Coding standards should have three complementary layers:
 3. `AGENTS.md` and applicable tool-specific instructions summarize the
    operational requirements for AI-assisted changes.
 
-The detailed coding conventions are authoritative. AI instruction files should
+**[R-0000-034]** The detailed coding conventions are authoritative. AI instruction files should
 link to them rather than copy the complete text.
 
 ### 4.8 Instruction Authority
 
-When guidance overlaps, the following precedence applies:
+**[R-0000-035]** When guidance overlaps, the following precedence applies:
 
 1. Applicable law, the project license, and the security policy.
 2. This project specification.
@@ -428,18 +434,18 @@ When guidance overlaps, the following precedence applies:
 5. Applicable path-specific or tool-specific AI instructions.
 6. Individual prompts and skills.
 
-A prompt, skill, MCP server, or tool-specific configuration must not silently
+**[R-0000-036]** A prompt, skill, MCP server, or tool-specific configuration must not silently
 override higher-authority project guidance.
 
 ## 5. Automation Strategy
 
-Automation is event-driven and implemented with GitHub Actions. Repository
+**[R-0000-037]** Automation is event-driven and implemented with GitHub Actions. Repository
 scripts remain the authoritative entry points for build, test, package, and
 site-generation behavior so contributors can reproduce CI locally.
 
 ### 5.1 Pull Requests
 
-Every pull request targeting `main` runs required formatting, build, test,
+**[R-0000-038]** Every pull request targeting `main` runs required formatting, build, test,
 conformance, package smoke, documentation, secret, dependency, and license
 checks. Website changes receive an isolated Azure Static Web Apps preview that
 is removed when the pull request closes. Pull-request workflows do not receive
@@ -447,7 +453,7 @@ package-publishing or production-deployment credentials.
 
 ### 5.2 Main and Edge
 
-Every reviewed merge or other protected push to `main` runs a release-shaped
+**[R-0000-039]** Every reviewed merge or other protected push to `main` runs a release-shaped
 build, publishes a public `edge` build identified by its exact commit, updates
 the moving edge download pointer and container tag, and deploys the production
 website. Edge artifacts are explicitly unstable and are not pushed to the stable
@@ -455,19 +461,19 @@ nuget.org feed.
 
 ### 5.3 Stable Releases
 
-Stable and prerelease publication is triggered only by protected Semantic
+**[R-0000-040]** Stable and prerelease publication is triggered only by protected Semantic
 Version tags. The tag is the explicit release decision; the subsequent verified
 publication is automatic. A release builds one artifact set and publishes those
 exact bytes as NuGet packages, self-contained CLI archives, a container image,
 schemas, conformance data, checksums, SBOMs, provenance, and release notes.
 Published stable artifacts are immutable.
 
-Stable releases are readiness-driven during v1 rather than forced onto a fixed
+**[R-0000-041]** Stable releases are readiness-driven during v1 rather than forced onto a fixed
 calendar. Maintainers review readiness at least monthly. Nightly and weekly
 scheduled workflows provide deeper platform, integration, dependency, license,
 and security assurance but do not publish stable releases.
 
-Protected GitHub environments, least-privilege workflow permissions, trusted
+**[R-0000-042]** Protected GitHub environments, least-privilege workflow permissions, trusted
 publishing, and workload identity federation are used where supported. A
 narrowly scoped, rotated deployment token may be used where Azure Static Web
 Apps requires it. All channels preserve provenance and an audit trail and have
@@ -476,7 +482,7 @@ documented recovery behavior. The normative model is defined in
 
 ## 6. Specification Process
 
-Substantial features should begin with a document in `specs/` containing:
+**[R-0000-043]** Substantial features should begin with a document in `specs/` containing:
 
 1. Status and owners.
 2. Problem statement.
@@ -489,13 +495,13 @@ Substantial features should begin with a document in `specs/` containing:
 9. Rollout, migration, and rollback plans when applicable.
 10. Unresolved questions.
 
-Specifications should use a stable identifier such as
+**[R-0000-044]** Specifications should use a stable identifier such as
 `specs/0001-short-title.md`. Cross-cutting technical decisions should use ADRs
 under `docs/architecture/decisions/`.
 
 ## 7. Branching, Changes, and Releases
 
-The initial recommendation is:
+**[R-0000-045]** The initial recommendation is:
 
 - Use a protected default branch named `main`.
 - Develop through short-lived branches and pull requests.
@@ -619,7 +625,7 @@ These conventions should be revisited before the first public release.
 
 ## 10. Definition of Repository Readiness
 
-The repository is ready for implementation when:
+**[R-0000-046]** The repository is ready for implementation when:
 
 - The initial use cases, scope, and non-goals are documented.
 - The NuGet package boundaries, operating-system support, and license are

@@ -48,7 +48,67 @@ without weakening unrelated rules.
 - Delete superseded code instead of retaining speculative compatibility layers
   before a public contract exists.
 
-## 3. Repository and project organization
+## 3. Specification traceability
+
+Product behavior is specification-driven, as decided by
+[ADR-0003](../architecture/decisions/0003-enforce-specification-traceability.md).
+Specifications are written first and are the source of truth; implementations
+conform to them.
+
+### Required
+
+- Do not add or alter product behavior unless a specification requirement
+  describes it. If no requirement exists, add or revise one in the governing
+  specification in the same or an earlier change.
+- Reference implemented requirements with
+  `spec: <requirement-id>@<fingerprint>`, for example
+  `spec: R-0001-012@44aa01`. Separate multiple references with commas.
+- In `Qhapaq.Service.V*`, `Qhapaq.Business`, `Qhapaq.DAL`, and
+  `Qhapaq.Implementations.*`, every non-private type and member must carry a
+  reference itself or inherit one from its containing type.
+- Tests that verify a requirement reference it in a line comment on the test
+  method.
+- When any text in a requirement block changes, review every code and test location
+  that references it and update the fingerprint in the same change. Do not
+  update a fingerprint without confirming that the referencing code still
+  conforms.
+- Never reference a section number or heading instead of a requirement
+  identifier.
+
+### Placement
+
+Place a reference at the narrowest level that explains the code:
+
+- **Type:** in the type's XML documentation `<remarks>` when the type as a
+  whole realizes a specified concept.
+- **Member:** in the member's `<remarks>` when it implements a specific rule or
+  contract. This is the default level.
+- **Block:** in a `//` comment immediately before a block that encodes a
+  non-obvious specified decision, such as validation or policy ordering,
+  cancellation or failure semantics, limits, disclosure, or error mapping. Add a
+  short explanation after an em dash when the connection is not obvious.
+
+Do not add references to dependency-injection registration, plumbing, private
+helpers whose containing member is already traced, or trivial members.
+
+```csharp
+/// <summary>Invokes both branches and combines their results.</summary>
+/// <remarks>spec: R-0001-012@44aa01</remarks>
+public async Task<Document> InvokeAsync(Document input, CancellationToken cancellationToken)
+{
+    // spec: R-0001-012@44aa01 — cancel the sibling before awaiting it so no failure is lost.
+    ...
+}
+```
+
+### Enforcement
+
+A trace checker will verify that references resolve to non-retired
+requirements, that fingerprints are current, and that product surface is
+traced. It is planned and not yet available; until it exists, reviewers enforce
+these rules manually.
+
+## 4. Repository and project organization
 
 - Language-neutral specifications, schemas, conformance data, and examples stay
   at the repository root.
@@ -105,7 +165,7 @@ Folders and namespaces must make the owning layer unambiguous. Shared code does
 not bypass a layer: place it in the lowest layer that owns its semantics or
 define a boundary contract when two adjacent layers genuinely collaborate.
 
-## 4. C# and .NET
+## 5. C# and .NET
 
 These defaults apply when the .NET 10 projects are created.
 
@@ -230,7 +290,7 @@ These defaults apply when the .NET 10 projects are created.
 - Define collaborator lifetimes intentionally; do not let singleton services
   capture scoped credentials or request state.
 
-## 5. Portable JSON and schemas
+## 6. Portable JSON and schemas
 
 - Use UTF-8 JSON and `System.Text.Json` in the .NET reference implementation
   unless an accepted decision selects otherwise.
@@ -247,7 +307,7 @@ These defaults apply when the .NET 10 projects are created.
 - Breaking portable-contract changes require a new document, schema, or
   protocol version and updated conformance vectors.
 
-## 6. Security and privacy
+## 7. Security and privacy
 
 - Treat pipeline documents, imported OpenAPI documents, operation metadata,
   external responses, paths, URLs, and generated prose as untrusted input.
@@ -266,7 +326,7 @@ These defaults apply when the .NET 10 projects are created.
 - Do not add cryptography, secret storage, or authentication mechanisms without
   specialist review and an explicit design decision.
 
-## 7. Logging, diagnostics, and observability
+## 8. Logging, diagnostics, and observability
 
 - Use structured logging fields rather than interpolating machine-readable
   values into message text.
@@ -281,7 +341,7 @@ These defaults apply when the .NET 10 projects are created.
 - Human CLI diagnostics go to standard error; machine-readable output remains
   valid on standard output.
 
-## 8. Testing
+## 9. Testing
 
 ### Required
 
@@ -307,7 +367,7 @@ These defaults apply when the .NET 10 projects are created.
 - Test names describe the condition and expected outcome without encoding
   incidental implementation steps.
 
-## 9. Dependencies and tools
+## 10. Dependencies and tools
 
 - Prefer the platform and existing dependencies before adding a package.
 - Pin SDKs and tools; use lock files where the ecosystem supports them.
@@ -321,7 +381,7 @@ These defaults apply when the .NET 10 projects are created.
 - Dependency updates must pass the same tests and package-consumer checks as
   source changes.
 
-## 10. Documentation
+## 11. Documentation
 
 - Update documentation and examples in the same change as the behavior they
   describe.
@@ -335,7 +395,7 @@ These defaults apply when the .NET 10 projects are created.
   generation command.
 - Use accessible headings, descriptive link text, alt text, and table structure.
 
-## 11. Generated code and artifacts
+## 12. Generated code and artifacts
 
 - Generated files identify their source and generation process when the format
   permits it.
@@ -347,7 +407,7 @@ These defaults apply when the .NET 10 projects are created.
 - Published packages, manifests, checksums, SBOMs, and provenance must refer to
   the exact same built bytes.
 
-## 12. Decision triggers
+## 13. Decision triggers
 
 Record a specification or ADR before implementing a choice that affects:
 

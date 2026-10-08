@@ -58,7 +58,7 @@ described in
 
 ## 4. Core Abstraction
 
-Normatively, an operation is an asynchronous mapping from a value matching its
+**[R-0001-001]** Normatively, an operation is an asynchronous mapping from a value matching its
 declared input schema to a value matching its declared output schema. It accepts
 a cancellation signal, may have documented side effects, and either produces a
 valid output or reports failure.
@@ -74,7 +74,7 @@ public interface IOperation<TInput, TOutput>
 }
 ```
 
-An implementation must:
+**[R-0001-002]** An implementation must:
 
 - Honor cancellation when it can do so safely.
 - Return a task that completes only when its work has completed.
@@ -82,7 +82,7 @@ An implementation must:
 - Document externally visible side effects and idempotency expectations.
 - Be safe for the lifetime with which its host registers it.
 
-This .NET interface intentionally has no general-purpose execution-context
+**[R-0001-003]** This .NET interface intentionally has no general-purpose execution-context
 parameter.
 Operations may receive collaborators such as loggers, clients, clocks, or caches
 through normal construction and dependency injection. Runtime tracing should use
@@ -96,7 +96,7 @@ portable descriptor and .NET authoring pattern are defined in
 
 ### 5.1 Sequential Composition
 
-Given:
+**[R-0001-004]** Given:
 
 ```text
 first:  IOperation<A, B>
@@ -114,7 +114,7 @@ failure or cancellation from the first prevents the second from starting. The
 runtime does not implicitly convert incompatible intermediate schemas or native
 types.
 
-The initial binary implementation is named `CompoundOperation<TInput,
+**[R-0001-005]** The initial binary implementation is named `CompoundOperation<TInput,
 TIntermediate, TOutput>`. Fluent APIs and declarative syntax may flatten longer
 sequences for readability, but their behavior is equivalent to binary
 composition.
@@ -134,11 +134,11 @@ parallel composition produces:
 IOperation<A, ParallelResult<B, C>>
 ```
 
-Both branches receive the same input and may execute concurrently. The result
+**[R-0001-006]** Both branches receive the same input and may execute concurrently. The result
 has stable `Left` and `Right` members rather than relying on serialized CLR tuple
 metadata.
 
-If either branch fails, the composed operation must signal cancellation to the
+**[R-0001-007]** If either branch fails, the composed operation must signal cancellation to the
 other branch, observe both branch tasks, and report every branch failure in a
 `ParallelExecutionException`. Its read-only `BranchExceptions` collection
 reports failures in stable left-to-right branch order. Cancellation caused only
@@ -146,32 +146,32 @@ by a sibling branch failure is not an additional branch failure. Signaling
 cancellation does not guarantee that a branch or its side effects stop
 immediately.
 
-The initial primitive is binary. Larger fan-outs are equivalent to recursive
+**[R-0001-008]** The initial primitive is binary. Larger fan-outs are equivalent to recursive
 binary composition, while authoring APIs may present a flattened named-branch
 view.
 
 ### 5.3 Decorators
 
-A decorator transforms:
+**[R-0001-009]** A decorator transforms:
 
 ```text
 IOperation<A, B> -> IOperation<A, B>
 ```
 
-Decorators can add retries, timeouts, caching, batching, concurrency limits,
+**[R-0001-010]** Decorators can add retries, timeouts, caching, batching, concurrency limits,
 logging, tracing, metrics, or other policies without changing the wrapped
 operation's public types.
 
-Decorator order is semantically significant. For example, retrying a timeout is
+**[R-0001-011]** Decorator order is semantically significant. For example, retrying a timeout is
 different from applying one timeout across all attempts. Code and JSON must
 preserve explicit nesting order.
 
-Retry configuration uses `maxAttempts`, including the initial attempt, rather
+**[R-0001-012]** Retry configuration uses `maxAttempts`, including the initial attempt, rather
 than the ambiguous term `maxRetries`. Cancellation is not retryable by default.
 
 ### 5.4 Conditional Composition
 
-A conditional combines:
+**[R-0001-013]** A conditional combines:
 
 ```text
 predicate: IOperation<A, bool>
@@ -181,13 +181,13 @@ whenFalse: IOperation<A, B>
 
 and produces `IOperation<A, B>`.
 
-The predicate runs once for each invocation. Only the selected branch executes,
+**[R-0001-014]** The predicate runs once for each invocation. Only the selected branch executes,
 and it receives the original input. Both branches must have compatible document
 output schemas and implementation-native output types.
 
 ### 5.5 Try/Catch Recovery
 
-Try/catch recovery combines:
+**[R-0001-015]** Try/catch recovery combines:
 
 ```text
 try:   IOperation<A, B>
@@ -196,7 +196,7 @@ catch: IOperation<A, B>
 
 and produces `IOperation<A, B>`.
 
-The try operation executes once. Its success bypasses recovery. A catchable
+**[R-0001-016]** The try operation executes once. Its success bypasses recovery. A catchable
 failure executes the catch operation once with the original input. Declarative
 catch subtrees may explicitly bind the fixed, non-sensitive caught-failure
 projection defined by
@@ -204,7 +204,7 @@ projection defined by
 the projection is not an ambient exception object or a replacement for the
 catch operation's ordinary input.
 
-Cancellation, policy denial, exhausted run-wide host budgets, implementation
+**[R-0001-017]** Cancellation, policy denial, exhausted run-wide host budgets, implementation
 contract violations, and unexpected host or implementation faults are not
 catchable. Recovery does not roll back or compensate for side effects already
 produced by the try operation. Both successful paths must have compatible
@@ -212,7 +212,7 @@ document output schemas and implementation-native output types.
 
 ### 5.6 Bounded Loops
 
-A bounded while-loop combines:
+**[R-0001-018]** A bounded while-loop combines:
 
 ```text
 condition: IOperation<TState, bool>
@@ -221,18 +221,18 @@ body:      IOperation<TState, TState>
 
 and produces `IOperation<TState, TState>`.
 
-The condition is evaluated before each iteration. The output of one body
+**[R-0001-019]** The condition is evaluated before each iteration. The output of one body
 invocation becomes the state for the next condition evaluation. Every loop must
 declare a positive `maxIterations`. If the condition remains true after the
 maximum number of body invocations, execution fails with a
 `LoopLimitExceededException` whose `MaxIterations` value reports the configured
 limit instead of returning a potentially incomplete result.
 
-Arbitrary graph cycles and unbounded loops are invalid in v1.
+**[R-0001-020]** Arbitrary graph cycles and unbounded loops are invalid in v1.
 
 ### 5.7 Bounded Collection Execution
 
-A bounded collection combinator maps an arbitrary operation over an input
+**[R-0001-021]** A bounded collection combinator maps an arbitrary operation over an input
 collection in either item mode or contiguous-chunk mode:
 
 ```text
@@ -245,13 +245,13 @@ produces:
 IOperation<IReadOnlyList<TItem>, IReadOnlyList<TOutput>>
 ```
 
-In chunk mode, the body instead accepts a bounded non-empty collection of
+**[R-0001-022]** In chunk mode, the body instead accepts a bounded non-empty collection of
 `TItem`, and the result still contains one `TOutput` per body invocation.
 Every collection node declares maximum input cardinality and concurrency; chunk
 mode also declares maximum chunk size. Results preserve source item or chunk
 order regardless of completion order. Empty input produces empty output.
 
-If a body invocation fails, the combinator stops scheduling work, signals
+**[R-0001-023]** If a body invocation fails, the combinator stops scheduling work, signals
 cancellation to active sibling invocations, observes all started work, reports
 non-cancellation failures in source order, and returns no partial output.
 Cancellation, side effects, and aggregate resource limits follow the exact
@@ -260,7 +260,7 @@ portable semantics in
 
 ## 6. Pipeline Representations and Lifecycle
 
-A pipeline has three representations:
+**[R-0001-024]** A pipeline has three representations:
 
 1. **Definition:** canonical, versioned JSON suitable for interchange,
    persistence, signing, hashing, review, and AI authoring.
@@ -270,29 +270,29 @@ A pipeline has three representations:
 3. **Run:** one non-durable invocation of a bound plan with a typed or
    deserialized boundary input.
 
-An invocation skill is a packaging and discovery artifact around a definition
+**[R-0001-025]** An invocation skill is a packaging and discovery artifact around a definition
 or exact definition reference. It is not a fourth executable representation.
 The definition remains the source of truth, and a conforming host remains
 responsible for validation, binding, policy, and execution.
 
-The definition is the source of truth. An execution plan is a derived cache and
+**[R-0001-026]** The definition is the source of truth. An execution plan is a derived cache and
 must not be treated as a portable artifact. In v1, "compile" means binding a
 definition into this validated execution plan. It does not mean generating C#,
 IL, or an assembly.
 
-Plan binding must fail before execution when a referenced operation or decorator
+**[R-0001-027]** Plan binding must fail before execution when a referenced operation or decorator
 is unavailable, its exact requested version is unavailable, connected types are
 incompatible, configuration is invalid, the structure is invalid, or host
 policy rejects a capability.
 
-Each run maintains a private execution frame containing the boundary input and
+**[R-0001-028]** Each run maintains a private execution frame containing the boundary input and
 immutable named node outputs. Transforms explicitly bind only the dominating
 outputs they consume. The frame is ephemeral engine state, not a general
 operation context, persistent run history, or model-accessible payload store.
 
 ## 7. Canonical JSON Model
 
-Every document must declare:
+**[R-0001-029]** Every document must declare:
 
 - A Qhapaq document format identifier and version.
 - A stable pipeline identifier and pipeline version.
@@ -302,7 +302,7 @@ Every document must declare:
 - Configuration values or host-resolved references.
 - Optional human-readable metadata that does not affect execution semantics.
 
-The model is an expression tree whose structural forms include:
+**[R-0001-030]** The model is an expression tree whose structural forms include:
 
 - Primitive operation reference.
 - Side-effect-free transform.
@@ -314,14 +314,14 @@ The model is an expression tree whose structural forms include:
 - Bounded loop with a condition, body, and maximum iteration count.
 - Bounded collection execution in item or contiguous-chunk mode.
 
-Every node has a stable document-local ID. Transforms and the optional final
+**[R-0001-031]** Every node has a stable document-local ID. Transforms and the optional final
 output projection may combine explicitly bound boundary input and earlier node
 outputs when those outputs dominate the consumer. The normative document model,
 execution-frame scope rules, transform language, schema profile,
 canonicalization, and plan-binding lifecycle are defined in
 [`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
 
-Pipeline documents must not contain:
+**[R-0001-032]** Pipeline documents must not contain:
 
 - Implementation type names used for activation, including assembly-qualified
   CLR type names.
@@ -333,7 +333,7 @@ Pipeline documents must not contain:
 
 ## 8. Operation Registry
 
-A host-controlled registry is the only mechanism by which a declarative
+**[R-0001-033]** A host-controlled registry is the only mechanism by which a declarative
 operation reference becomes executable code. A registry descriptor includes:
 
 - Stable operation or decorator identifier.
@@ -343,36 +343,38 @@ operation reference becomes executable code. A registry descriptor includes:
 - Declared capabilities and side-effect characteristics.
 - Documentation and examples intended for humans and AI systems.
 
-An implementation binding additionally associates the portable descriptor with
+**[R-0001-034]** An implementation binding additionally associates the portable descriptor with
 native input and output types, implementation identity, integrity information,
 and factory information held by the host. Those details are not supplied by the
 pipeline document. Pipelines pin exact operation contracts; the trusted host
 selects exact implementation artifacts.
 
-Operation IDs are portable names, not implementation type names. A host decides
+**[R-0001-035]** Operation IDs are portable names, not implementation type names. A host decides
 which descriptors and implementations to register. Portable binding requires
 compatible declared schemas. The .NET binding additionally requires CLR type
 assignability.
 
-Values remain native runtime values between in-process operations; the .NET
+**[R-0001-036]** Values remain native runtime values between in-process operations; the .NET
 reference implementation uses strongly typed CLR objects. Serialization occurs
 at CLI, MCP, pipeline, and persistence boundaries and in explicit serialization
 or transform nodes. Qhapaq does not automatically reshape or convert mismatched
 intermediate values; a pipeline must use an explicit transform or registered
 mapping operation.
 
-Published operation ID and contract-version pairs are immutable. Compatible
+**[R-0001-037]** Published operation ID and contract-version pairs are immutable. Compatible
 newer versions support authoring and migration analysis but are never silently
 substituted for an exact pipeline reference. Descriptor declaration, digest, and
 compatibility rules are defined in
 [`0007-portable-pipeline-definitions-and-binding.md`](0007-portable-pipeline-definitions-and-binding.md).
 
-The v1 reference host can populate its registry from built-in operations,
+**[R-0001-038]** The v1 reference host can populate its registry from built-in operations,
 declarative OpenAPI connectors, and explicitly installed precompiled .NET
 extensions. Catalog and host configuration semantics are defined in
 [`0002-operation-catalogs-and-host-configuration.md`](0002-operation-catalogs-and-host-configuration.md).
 
 ## 9. Execution Semantics
+
+**[R-0001-039]**
 
 - Each pipeline invocation is independent unless registered operations explicitly
   share state.
@@ -387,13 +389,13 @@ extensions. Catalog and host configuration semantics are defined in
   memory, output size, or operation capabilities.
 - Definition validation does not prove that side-effecting execution is safe.
 
-Execution is at-least-once at the operation level when retry decorators are
+**[R-0001-040]** Execution is at-least-once at the operation level when retry decorators are
 used. Authors must account for idempotency or supply deduplication behavior when
 retrying side effects.
 
 ## 10. Mermaid Visualization
 
-Qhapaq generates Mermaid flowcharts from validated pipeline definitions.
+**[R-0001-041]** Qhapaq generates Mermaid flowcharts from validated pipeline definitions.
 Visualization is deterministic for a given canonical definition and shows:
 
 - Operation identifiers and versions.
@@ -404,29 +406,29 @@ Visualization is deterministic for a given canonical definition and shows:
 - Loop boundaries and maximum iteration counts.
 - Collection mode, cardinality, chunk-size, and concurrency bounds.
 
-Mermaid is an explanatory projection. Editing generated Mermaid does not modify
+**[R-0001-042]** Mermaid is an explanatory projection. Editing generated Mermaid does not modify
 or define a pipeline.
 
 ## 11. CLI Surface
 
-The CLI is a normative cross-language process boundary. It supports operation
+**[R-0001-043]** The CLI is a normative cross-language process boundary. It supports operation
 discovery, validation, Mermaid rendering, plan inspection, and policy-gated
 execution over canonical JSON. It also generates portable invocation-skill
 bundles from validated definitions.
 
-Machine-readable input and output use versioned JSON through files or standard
+**[R-0001-044]** Machine-readable input and output use versioned JSON through files or standard
 input and standard output. Human diagnostics go to standard error and must not
 corrupt machine-readable standard output. Exit statuses and structured error
 documents are part of the compatibility contract.
 
-The exact command grammar, exit-status mapping, streaming behavior, and error
+**[R-0001-045]** The exact command grammar, exit-status mapping, streaming behavior, and error
 schema will be specified separately. Releases should include self-contained
 executables for supported operating systems and architectures plus a container
 image. Users of these artifacts do not need a system-wide .NET installation.
 
 ## 12. MCP Surface and Trust Boundary
 
-The Qhapaq MCP server is a separately hosted adapter over the same catalog,
+**[R-0001-046]** The Qhapaq MCP server is a separately hosted adapter over the same catalog,
 validation, binding, visualization, and execution services used by other hosts.
 Its v1 tools support:
 
@@ -441,7 +443,7 @@ Its v1 tools support:
 - Executing an exact persisted pipeline reference when the host advertises that
   capability and policy explicitly permits it.
 
-Execution is privileged and must be policy-gated. The host must be able to
+**[R-0001-047]** Execution is privileged and must be policy-gated. The host must be able to
 disable it, constrain available operations and capabilities, enforce resource
 budgets, and resolve secrets without exposing them to the model or pipeline
 document. The server must not load code or expand its registry based solely on
@@ -452,44 +454,44 @@ profiles, return credential material, or broaden execution policy.
 
 ### 13.1 Purpose and Authority
 
-A pipeline invocation skill gives an AI system reviewed instructions and
+**[R-0001-048]** A pipeline invocation skill gives an AI system reviewed instructions and
 machine-readable artifacts for invoking a particular Qhapaq pipeline. It is a
 thin adapter over the normative CLI or MCP execution contract. It must not
 reimplement pipeline semantics, contain executable operation code, or act as a
 capability token.
 
-Possession or invocation of a skill grants no execution, connection, secret,
+**[R-0001-049]** Possession or invocation of a skill grants no execution, connection, secret,
 network, extension, budget, or payload-disclosure authority. Every invocation
 must pass the same complete validation, binding, policy, budget, credential
 resolution, and disclosure checks as a direct CLI or MCP request.
 
 ### 13.2 Parameter Model
 
-The pipeline boundary input schema is the skill's parameter contract. A
+**[R-0001-050]** The pipeline boundary input schema is the skill's parameter contract. A
 generated skill must not introduce a second expression or parameter language.
 Runtime input is a JSON value validated against that schema before any operation
 starts.
 
-Static operation configuration is not implicitly overridable. A pipeline author
+**[R-0001-051]** Static operation configuration is not implicitly overridable. A pipeline author
 who wants a value to vary between invocations must expose it through the
 pipeline boundary input or use an explicit operation whose declared semantics
 perform that binding. Skills and invocation requests must not patch arbitrary
 locations in a canonical definition.
 
-Examples and default values, when exported, are non-authoritative documentation
+**[R-0001-052]** Examples and default values, when exported, are non-authoritative documentation
 unless the pipeline input schema gives them normative semantics. A generator
 must not invent omitted required values or silently substitute invalid input.
 
 ### 13.3 Portable Bundle Profile
 
-The v1 portable profile is a self-contained directory with:
+**[R-0001-053]** The v1 portable profile is a self-contained directory with:
 
 - `SKILL.md`, containing human- and agent-readable invocation guidance.
 - `qhapaq-skill.json`, a versioned machine-readable manifest.
 - `references/input.schema.json` and `references/output.schema.json`.
 - `references/pipeline.json` in snapshot mode.
 
-The manifest declares:
+**[R-0001-054]** The manifest declares:
 
 - Its Qhapaq skill-bundle format identifier and version.
 - The pipeline ID, exact pipeline version, and canonical definition digest.
@@ -500,12 +502,12 @@ The manifest declares:
   characteristics.
 - Generator identity and version as informational provenance.
 
-Paths in a bundle are normalized relative paths and must not escape the bundle
+**[R-0001-055]** Paths in a bundle are normalized relative paths and must not escape the bundle
 root. A bundle must not contain credentials, resolved secret values, token-cache
 material, trusted host-profile contents, implementation type names, executable
 operation code, or policy overrides.
 
-`SKILL.md` describes when the pipeline is appropriate, identifies its side
+**[R-0001-056]** `SKILL.md` describes when the pipeline is appropriate, identifies its side
 effects and prerequisites, explains the boundary input, and directs the consumer
 to the normative Qhapaq CLI or MCP operation. Generated prose, pipeline
 metadata, operation descriptions, examples, and other untrusted display text
@@ -513,45 +515,45 @@ must be clearly delimited so they cannot silently become authoritative
 instructions or override the manifest, pipeline definition, host policy, or
 higher-authority guidance.
 
-Client-specific skill, prompt, or agent formats are adapters over this portable
+**[R-0001-057]** Client-specific skill, prompt, or agent formats are adapters over this portable
 bundle. They must preserve its exact pipeline identity, version, digest,
 parameter schema, authority limits, and disclosure behavior.
 
 ### 13.4 Snapshot and Reference Modes
 
-Snapshot mode is the required portable mode and includes the canonical pipeline
+**[R-0001-058]** Snapshot mode is the required portable mode and includes the canonical pipeline
 definition in the bundle. Before execution, the host recomputes its canonical
 digest and rejects a mismatch. Snapshot mode does not require access to the host
 that generated the skill, but the executing host must provide the exact
 registered operations and permitted capabilities required by the definition.
 
-Reference mode identifies a persisted definition by stable pipeline ID, exact
+**[R-0001-059]** Reference mode identifies a persisted definition by stable pipeline ID, exact
 pipeline version, and expected canonical digest. It is an optional host
 capability for centrally managed pipelines. The host resolves the reference and
 must fail before execution if it is absent or if its identity, version, or
 digest differs. Reference mode must not select an unspecified `latest` version
 or silently follow a mutable alias.
 
-A skill must be regenerated or explicitly reviewed when the intended canonical
+**[R-0001-060]** A skill must be regenerated or explicitly reviewed when the intended canonical
 definition changes. Updating examples or non-semantic guidance must not alter
 the pinned definition digest.
 
 ### 13.5 CLI and MCP Generation
 
-The normative CLI supports generating a bundle from a validated canonical
+**[R-0001-061]** The normative CLI supports generating a bundle from a validated canonical
 definition and may write the resulting bounded directory tree to a
 user-selected destination. It must refuse path traversal, unexpected overwrite,
 invalid definitions, unresolved exact operation versions, or content that would
 place prohibited sensitive material in the bundle.
 
-The MCP surface accepts a validated definition or exact persisted reference and
+**[R-0001-062]** The MCP surface accepts a validated definition or exact persisted reference and
 returns a structured bundle or an MCP resource containing that bundle. An MCP
 tool must not write to an arbitrary client-selected filesystem path. Skill
 generation does not install the skill, persist or approve a connection, modify
 a trusted profile, install an extension, or broaden execution or disclosure
 policy.
 
-Executing a generated skill uses the ordinary definition-execution request in
+**[R-0001-063]** Executing a generated skill uses the ordinary definition-execution request in
 snapshot mode or an exact-reference execution request in reference mode. The
 structured result includes the pipeline ID, version, digest, run ID, status, and
 either a schema-valid output or a structured indication that output was
@@ -560,11 +562,11 @@ the same language-neutral result and error models.
 
 ### 13.6 Compatibility and Conformance
 
-The skill-bundle format version is independent of the pipeline document,
+**[R-0001-064]** The skill-bundle format version is independent of the pipeline document,
 pipeline, operation, package, CLI, and MCP protocol versions. A breaking bundle
 change requires a new bundle format version.
 
-Snapshot skill generation is part of host conformance for implementations that
+**[R-0001-065]** Snapshot skill generation is part of host conformance for implementations that
 claim invocation-skill support. Reference-mode generation and execution are
 reported as a separate host capability. Shared conformance vectors cover bundle
 structure, path safety, canonical digest verification, input validation,
@@ -573,6 +575,8 @@ exclusion, disclosure enforcement, and resistance to instruction injection
 through untrusted metadata.
 
 ## 14. Security and Reliability Requirements
+
+**[R-0001-066]**
 
 - Reject unknown document versions and unknown fields where ambiguity would
   affect execution.
@@ -590,48 +594,48 @@ through untrusted metadata.
 
 ## 15. Observability
 
-Every implementation should integrate with its ecosystem's logging, metrics, and
+**[R-0001-067]** Every implementation should integrate with its ecosystem's logging, metrics, and
 distributed tracing standards. The .NET reference implementation uses standard
 .NET abstractions. Diagnostics should identify the pipeline, plan, run,
 expression, operation ID, implementation version, attempt, branch, and duration
 without recording input or output payloads by default.
 
-The detailed event and metric contract will be specified separately. The core
+**[R-0001-068]** The detailed event and metric contract will be specified separately. The core
 operation interface remains independent of a Qhapaq-specific execution context.
 
 ## 16. Compatibility, Conformance, and Versioning
 
-The following versions are independent:
+**[R-0001-069]** The following versions are independent:
 
 - NuGet package version.
 - Pipeline document format version.
 - User-authored pipeline version.
 - Registered operation implementation version.
 
-An implementation must not infer compatibility merely because two of these
+**[R-0001-070]** An implementation must not infer compatibility merely because two of these
 versions are equal. Breaking document changes require a new document format
 version. Operation resolution is exact and deterministic in v1; version ranges
 and "latest" aliases are deferred.
 
-The language-neutral specification, JSON Schemas, CLI and MCP contracts, and
+**[R-0001-071]** The language-neutral specification, JSON Schemas, CLI and MCP contracts, and
 conformance vectors are normative. The .NET implementation is the v1 reference
 implementation, not a substitute for those artifacts.
 
-Conformance is reported by capability:
+**[R-0001-072]** Conformance is reported by capability:
 
 - **Definition conformance:** parsing, validation, and canonicalization.
 - **Visualization conformance:** deterministic Mermaid projection.
 - **Execution conformance:** composition and failure semantics.
 - **Host conformance:** normative CLI or MCP behavior.
 
-An implementation may claim only the capabilities whose shared valid, invalid,
+**[R-0001-073]** An implementation may claim only the capabilities whose shared valid, invalid,
 and behavioral test vectors it passes. Future implementations live under
 `implementations/<language>/` and reuse the same root specifications, schemas,
 and conformance data.
 
 ## 17. .NET Package Boundaries
 
-The initial public package decomposition is:
+**[R-0001-074]** The initial public package decomposition is:
 
 - `Qhapaq.Abstractions`: public Service and operation-authoring contracts,
   minimal shared types, and internal cross-layer contracts.
@@ -642,15 +646,15 @@ The initial public package decomposition is:
 - `Qhapaq.Mcp`: separately hosted MCP adapter package containing the
   `Qhapaq.Implementations.MCP` assembly.
 
-Primitive-operation libraries should need only `Qhapaq.Abstractions`. The main
+**[R-0001-075]** Primitive-operation libraries should need only `Qhapaq.Abstractions`. The main
 `Qhapaq` package provides the complete default authoring and execution
 experience. Hosting and MCP dependencies remain optional.
 
-The `qhapaq` CLI is a separately distributed executable built from the same
+**[R-0001-076]** The `qhapaq` CLI is a separately distributed executable built from the same
 reference implementation and the `Qhapaq.Implementations.CLI` assembly. It is
 not an additional reusable NuGet library boundary.
 
-Package boundaries and assembly boundaries are intentionally independent. The
+**[R-0001-077]** Package boundaries and assembly boundaries are intentionally independent. The
 layer-aligned assemblies implement the Service Implementations, versioned
 Service, Business, and DAL boundaries defined in
 [`0006-dotnet-layered-architecture.md`](0006-dotnet-layered-architecture.md).
@@ -659,7 +663,7 @@ boundaries.
 
 ## 18. Testing Strategy
 
-The implementation requires:
+**[R-0001-078]** The implementation requires:
 
 - Algebra and type-compatibility unit tests for every combinator.
 - Cancellation and multi-failure tests for parallel execution.

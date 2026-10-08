@@ -45,6 +45,11 @@ Repository guidance uses these levels:
   conforming Qhapaq host and never grant authority.
 - V1 runs are non-durable. Do not imply resume, exactly-once effects,
   compensation, or transactional rollback.
+- Product behavior traces to specification requirements. Do not implement
+  behavior that no requirement describes; add or revise the requirement first.
+  Reference implemented requirements in code and tests as described in the
+  [coding conventions](docs/development/coding-conventions.md#3-specification-traceability).
+  When a requirement changes, update every location that references it.
 
 ## Working practices
 

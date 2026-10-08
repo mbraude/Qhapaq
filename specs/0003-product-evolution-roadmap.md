@@ -15,6 +15,8 @@ portable contracts and distinguishes deferred evolution from rejected scope.
 
 ## 2. Roadmap Principles
 
+**[R-0003-001]**
+
 - Portable pipeline, catalog, operation, error, and policy models remain
   independent of transport and implementation language.
 - Local and remote hosts use the same core application services and execution
@@ -30,7 +32,7 @@ portable contracts and distinguishes deferred evolution from rejected scope.
 
 ## 3. V1 Foundations
 
-V1 delivers local single-user CLI and MCP hosting, but establishes:
+**[R-0003-002]** V1 delivers local single-user CLI and MCP hosting, but establishes:
 
 - An asynchronous credential-provider abstraction with cancellation, refresh,
   expiration, and redaction behavior.
@@ -54,12 +56,12 @@ these seams.
 
 ### 4.1 Direction
 
-Later releases should support provider packages that resolve secret material or
+**[R-0003-003]** Later releases should support provider packages that resolve secret material or
 obtain credentials from remote systems. Azure Key Vault is a primary example;
 other providers may include hosted cloud secret managers, HashiCorp Vault, and
 organization-specific credential brokers.
 
-A secret store and a credential provider are related but distinct:
+**[R-0003-004]** A secret store and a credential provider are related but distinct:
 
 - A **secret store provider** retrieves protected values such as API keys or
   client secrets.
@@ -71,7 +73,7 @@ need only a token.
 
 ### 4.2 Required Behavior
 
-Remote providers must define:
+**[R-0003-005]** Remote providers must define:
 
 - Versioned, provider-specific non-secret configuration.
 - Authentication of Qhapaq to the provider, preferably through workload,
@@ -90,7 +92,7 @@ settings and opaque references.
 
 ### 4.3 Compatibility Requirements
 
-Adding a remote provider must not:
+**[R-0003-006]** Adding a remote provider must not:
 
 - Change pipeline documents.
 - Expose provider references or values through MCP catalog discovery.
@@ -102,7 +104,7 @@ Adding a remote provider must not:
 
 ### 5.1 Direction
 
-A future Qhapaq gRPC host will expose the engine as a versioned service. Clients
+**[R-0003-007]** A future Qhapaq gRPC host will expose the engine as a versioned service. Clients
 in any language can use it instead of launching the CLI or embedding the .NET
 library.
 
@@ -116,6 +118,8 @@ The deployment mode changes hosting and security policy, not pipeline semantics.
 
 ### 5.2 Candidate Service Capabilities
 
+**[R-0003-008]**
+
 - Discover effective operation descriptors.
 - Validate and canonicalize pipeline definitions.
 - Generate Mermaid visualization.
@@ -126,12 +130,12 @@ The deployment mode changes hosting and security policy, not pipeline semantics.
 - Retrieve a bounded result or structured failure.
 - Report server capabilities, limits, and protocol versions.
 
-Administrative APIs for profiles, extensions, credentials, or policy must be
+**[R-0003-009]** Administrative APIs for profiles, extensions, credentials, or policy must be
 separate from ordinary execution APIs and are not implied by this roadmap.
 
 ### 5.3 Required Protocol Semantics
 
-The future protocol must specify:
+**[R-0003-010]** The future protocol must specify:
 
 - Protobuf schemas and independent protocol versioning.
 - Capability negotiation.
@@ -145,7 +149,7 @@ The future protocol must specify:
 - Idempotency keys where a request can be safely deduplicated.
 - Audit identifiers and trace-context propagation.
 
-A client retry does not imply safe operation retry. The protocol must expose
+**[R-0003-011]** A client retry does not imply safe operation retry. The protocol must expose
 enough information for clients to distinguish transport failure from confirmed
 execution failure, while avoiding unsupported exactly-once claims.
 
@@ -153,7 +157,7 @@ execution failure, while avoiding unsupported exactly-once claims.
 
 ### 6.1 Direction
 
-A remote operation provider allows a Qhapaq host to use primitives implemented
+**[R-0003-012]** A remote operation provider allows a Qhapaq host to use primitives implemented
 in another process, language, trust zone, or service. This is distinct from a
 remote Qhapaq host:
 
@@ -167,7 +171,7 @@ Qhapaq engine.
 
 ### 6.2 Provider Capabilities
 
-A future provider protocol should support:
+**[R-0003-013]** A future provider protocol should support:
 
 - Descriptor discovery with exact operation versions and schemas.
 - Provider identity, health, and capability negotiation.
@@ -180,12 +184,12 @@ A future provider protocol should support:
 - Authentication, authorization, and transport encryption.
 - Concurrency, payload, duration, and resource limits.
 
-The host builds remote descriptors into its effective registry only when trusted
+**[R-0003-014]** The host builds remote descriptors into its effective registry only when trusted
 host configuration enables the provider and policy allows its capabilities.
 
 ### 6.3 Execution Semantics
 
-Remote invocation introduces ambiguity that does not exist for a completed local
+**[R-0003-015]** Remote invocation introduces ambiguity that does not exist for a completed local
 task. The provider protocol must define:
 
 - Whether an operation is idempotent and safe to retry.
@@ -195,25 +199,25 @@ task. The provider protocol must define:
 - How provider-side throttling and temporary failure are represented.
 - Which side owns serialization validation.
 
-Network retries are not automatic operation retries. Retry behavior remains an
+**[R-0003-016]** Network retries are not automatic operation retries. Retry behavior remains an
 explicit Qhapaq policy and must account for the operation's declared side
 effects.
 
 ### 6.4 Security Boundary
 
-A remote provider is untrusted until enabled by the host. Descriptor discovery
+**[R-0003-017]** A remote provider is untrusted until enabled by the host. Descriptor discovery
 does not grant execution permission. Host policy must constrain provider
 identity, operation IDs, versions, destinations, credentials, capabilities, and
 resource use.
 
-A provider must never receive host credentials unrelated to the selected
+**[R-0003-018]** A provider must never receive host credentials unrelated to the selected
 operation. If an operation needs downstream authentication, the architecture
 must explicitly choose between provider-owned credentials, delegated tokens, or
 a constrained credential-broker protocol.
 
 ## 7. Hosted Identity and Configuration
 
-Remote hosting eventually requires configuration and identity scopes beyond the
+**[R-0003-019]** Remote hosting eventually requires configuration and identity scopes beyond the
 v1 user profile:
 
 - Service-instance configuration.
@@ -222,12 +226,12 @@ v1 user profile:
 - User or workload identity.
 - Request-scoped policy and delegated credentials.
 
-The effective configuration model must define precedence without allowing a
+**[R-0003-020]** The effective configuration model must define precedence without allowing a
 less-trusted scope to broaden a more-trusted policy. Tenant isolation applies to
 catalogs, extensions, providers, credentials, caches, plans, diagnostics, and
 results.
 
-Hosted support does not require exposing `IServiceProvider`, credentials, or a
+**[R-0003-021]** Hosted support does not require exposing `IServiceProvider`, credentials, or a
 general execution-context property bag to operations. Narrow interfaces and
 transport-independent request context should be specified when the hosted use
 cases are designed.
@@ -247,9 +251,11 @@ The following order reduces architectural risk without assigning release dates:
 6. Add hosted and tenant-scoped configuration, policy, credentials, and
    isolation only with an explicit service-hosting specification.
 
-Each step requires its own accepted specification and threat model.
+**[R-0003-022]** Each step requires its own accepted specification and threat model.
 
 ## 9. Deferred Capability Register
+
+**[R-0003-023]**
 
 | Capability | V1 status | Required v1 seam |
 | --- | --- | --- |
