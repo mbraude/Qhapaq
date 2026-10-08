@@ -1385,6 +1385,11 @@ and rejects members not listed as required or optional.
 | `equal`, `not-equal`, `deep-equal`, `less-than`, `less-than-or-equal`, `greater-than`, `greater-than-or-equal`, `subtract`, `divide`, `remainder` | `left`: expression; `right`: expression | none |
 | `map` | `value`: expression; `itemName`: identifier; `expression`: expression | `indexName`: identifier |
 | `filter` | `value`: expression; `itemName`: identifier; `predicate`: expression | `indexName`: identifier |
+| `distinct`, `flatten` | `value`: expression | none |
+| `distinct-by` | `value`: expression; `itemName`: identifier; `key`: expression | `indexName`: identifier |
+| `contains-item` | `value`: expression; `item`: expression | none |
+| `concat-arrays` | `values`: ordered array of at least two expressions | none |
+| `any`, `all` | `value`: expression; `itemName`: identifier; `predicate`: expression | `indexName`: identifier |
 | `sort-by` | `value`: expression; `itemName`: identifier; `key`: expression; `direction`: `"ascending"` or `"descending"` | `indexName`: identifier |
 | `group-by`, `count-by` | `value`: expression; `itemName`: identifier; `key`: expression | `indexName`: identifier |
 | `assert-number-range` | `value`: expression and at least one bound | `minimum` or `exclusiveMinimum`; `maximum` or `exclusiveMaximum` |
@@ -1420,17 +1425,57 @@ the result contains every remaining element and does not fail or produce
 with a literal zero `start` and `count` equal to `n`, and skipping `n` items
 uses `slice` with `start` equal to `n` and no `count`.
 
-`map`, `filter`, `sort-by`, `group-by`, and `count-by` evaluate only arrays.
-`itemName` is required and names the current element. `indexName`, when
-present, names its original zero-based source index.
+`map`, `filter`, `distinct`, `distinct-by`, `contains-item`, `concat-arrays`,
+`flatten`, `any`, `all`, `sort-by`, `group-by`, and `count-by` evaluate only
+arrays in their collection-valued operands. `itemName` is required where listed
+and names the current element. `indexName`, when present, names its original
+zero-based source index.
 `variable` may name only a collection variable in active lexical scope.
 `itemName` and `indexName` must differ from each other, from every transform
 input alias, and from every active outer collection-variable name. Shadowing is
 invalid. A collection variable is in scope only within the containing
 `expression`, `predicate`, or `key`, including nested expressions. A
-`sort-by`, `group-by`, or `count-by` collection variable is not in scope within
-`value` or after the operator completes. V1 exposes no sorted-rank or group
-variable.
+`distinct-by`, `any`, `all`, `sort-by`, `group-by`, or `count-by` collection
+variable is not in scope within `value` or after the operator completes. V1
+exposes no retained-result rank, sorted-rank, or group variable.
+
+`distinct.value` must infer as an array whose items are strings, integers,
+numbers, Booleans, or JSON `null`; an item schema may permit `null` together
+with one of those scalar types. It removes duplicate values using exactly the
+`equal` semantics defined below and retains the first occurrence of each value
+in source order. An empty source produces an empty array.
+
+`distinct-by` accepts any array item schema. Its `key` must infer as the same
+present scalar-or-null domain permitted for `group-by` and `count-by` keys.
+Keys compare using exactly the same equality rules. The operator retains the
+first source item for each distinct key, in the order in which those keys first
+occur. It evaluates a key for every source item before emitting any retained
+item. An empty source produces an empty array.
+
+`contains-item.item` must infer as a present scalar or JSON `null` value
+comparable with the source item schema under `equal`: non-null types must be
+the same scalar type or both numeric, and either schema may additionally
+permit `null`. Array and object items are invalid. `contains-item` returns
+`true` for the first equal source item and otherwise returns `false`; an empty
+source therefore returns `false`. Composite membership composes `any` with
+`deep-equal`.
+
+Every `concat-arrays.values` expression must infer as an array. The item
+schemas must have a common super-schema representable by the inference rules
+in Section 8.7. The result contains every item from the first array in source
+order, followed by every item from each later array in operand order.
+
+`flatten.value` must infer as an array whose items are non-null arrays. It
+removes exactly one array level: inner arrays are visited in outer source order
+and each inner array's items retain their order. Empty outer or inner arrays
+contribute no result items. V1 has no recursive or author-selected-depth
+flattening operator.
+
+`any.predicate` and `all.predicate` must infer as required, non-null Booleans.
+`any` returns `true` at the first true predicate and returns `false` when no
+predicate is true. `all` returns `false` at the first false predicate and
+returns `true` when no predicate is false. Consequently, `any` is `false` and
+`all` is `true` for an empty source.
 
 `sort-by.key` must infer as a required, non-null integer or number. Sorting uses
 the existing portable numeric comparison semantics and permits integer and
@@ -1510,12 +1555,32 @@ The abstract evaluation order is deterministic and sequential:
    index zero upward. `map` evaluates one expression per element. `filter`
    evaluates one predicate per element and preserves the relative order of
    retained elements.
-10. `sort-by` evaluates its source once. After the source-size and fixed
+10. `distinct` evaluates its source once. After the source-size and fixed
+    deduplication-work checks in Section 8.10, it processes every item in
+    ascending source-index order before emitting retained items in
+    first-occurrence order.
+11. `distinct-by` evaluates its source once. After the source-size and fixed
+    deduplication-work checks, it evaluates each key exactly once in ascending
+    source-index order. All keys must succeed before retained items are
+    emitted in first-key-occurrence order.
+12. `contains-item` evaluates `value` and then `item`, each exactly once. It
+    compares source elements in ascending index order and stops at the first
+    equal item.
+13. `concat-arrays` evaluates its `values` expressions from index zero upward.
+    All operands and the result cardinality must pass their checks before
+    result emission begins.
+14. `flatten` evaluates its outer source once. All inner-array and result
+    cardinality checks complete in outer source order before result emission
+    begins.
+15. `any` and `all` evaluate their source once and predicates in ascending
+    source-index order. `any` stops at the first true predicate; `all` stops at
+    the first false predicate.
+16. `sort-by` evaluates its source once. After the source-size and fixed
     sorting-work checks in Section 8.10, it evaluates each key exactly once in
     ascending source-index order. All keys must succeed before sorting and
     result emission begin. It then stably orders the stored items and keys and
     emits items in result order.
-11. `group-by` and `count-by` evaluate their source once. After the
+17. `group-by` and `count-by` evaluate their source once. After the
     source-size and fixed grouping-work checks in Section 8.10, they evaluate
     each key exactly once in ascending source-index order. All keys must
     succeed before grouping and result emission begin. They then emit group
@@ -1597,6 +1662,22 @@ The operator-specific inference rules are:
   produce missing. `filter` preserves the source item schema and maximum
   length, sets minimum length to zero, and requires a required, non-null Boolean
   predicate.
+- `distinct` returns a present array with the source scalar item schema,
+  `uniqueItems: true`, minimum length one when the source minimum is at least
+  one and zero otherwise, and the source maximum length. `distinct-by` returns
+  the same length bounds and source item schema but does not infer
+  `uniqueItems`.
+- `contains-item`, `any`, and `all` return required, non-null Boolean values.
+- `concat-arrays` returns a present array whose item schema is the least
+  representable common super-schema of all operand item schemas. Its minimum
+  and maximum lengths are the exact sums of the corresponding known operand
+  bounds. An unknown operand bound makes the corresponding result bound
+  unknown. It does not infer `uniqueItems`.
+- `flatten` returns a present array with the inner-array item schema. When the
+  outer and inner minimum bounds are known, its minimum length is their exact
+  product; when both maximum bounds are known, its maximum length is their
+  exact product. A missing factor makes the corresponding result bound
+  unknown. It does not infer `uniqueItems`.
 - `sort-by` returns a present array with the source item schema and the same
   `minItems` and `maxItems` bounds as the source. It preserves a source
   `uniqueItems` guarantee. Its key must be a required, non-null integer or
@@ -1644,10 +1725,17 @@ selected JSON `null` remains null.
 `slice` never produces `missing` because of its bounds. It returns a present,
 possibly empty array according to Section 8.5. As with other operators not
 defined to handle value states, the source and bound operands of `last` and
-`slice`, and the source and key of `sort-by`, must be statically proven present
-and non-null. The source of `group-by` and `count-by` must be statically proven
-present and non-null. Their key must be statically proven present but may be
-JSON `null`, which forms its own group.
+`slice`, every source of `distinct`, `distinct-by`, `contains-item`,
+`concat-arrays`, `flatten`, `any`, `all`, and `sort-by`, and every `sort-by`
+key must be statically proven present and non-null. Every inner array consumed
+by `flatten` must also be statically non-null. A `contains-item` candidate and
+every `any` or `all` predicate result must be statically proven present;
+predicate results must also be non-null. The source of `group-by` and
+`count-by` must be statically proven present and non-null. `distinct` items,
+`distinct-by` keys, `contains-item` candidates and source items, and grouping
+keys may be JSON `null` when their inferred schemas permit it. Each
+`distinct-by`, `group-by`, and `count-by` key must be statically proven
+present. A null value compares equal only to null.
 
 The state predicates are total and return:
 
@@ -1718,6 +1806,12 @@ Static validation proves that every key is a present scalar. Source, key, and
 limit failures retain their ordinary codes and follow the same evaluation
 order. Neither operator returns a partial result.
 
+The other collection operators introduce no separate runtime failure. Static
+validation proves their source, item, key, and predicate domains. Existing
+failures from an evaluated operand, key, or predicate and portable limit
+exhaustion retain their ordinary codes and follow Sections 8.6 and 8.10.
+No array-producing operator returns a partial result.
+
 ### 8.10 Portable complexity and evaluation limits
 
 `qhapaq.mapping/v1` defines fixed structural ceilings, portable runtime
@@ -1752,7 +1846,7 @@ are:
 | --- | ---: | --- |
 | `maxOperators` | 4,096 | Syntactic operators permitted in each mapping site; never greater than 65,536 |
 | `maxCollectionElements` | 100,000 | Elements permitted in each array processed or produced by a mapping |
-| `maxCollectionVisits` | 1,000,000 | Cumulative `map` and `filter` element visits in one evaluation |
+| `maxCollectionVisits` | 1,000,000 | Cumulative visits debited by `map`, `filter`, `distinct`, `distinct-by`, `contains-item`, `any`, `all`, `sort-by`, `group-by`, and `count-by` in one evaluation |
 | `maxStringScalars` | 1,000,000 | Unicode scalar values permitted in each string |
 | `maxStringUtf8Bytes` | 4,194,304 | UTF-8 bytes permitted in each decoded string value |
 | `maxValueUtf8Bytes` | 67,108,864 | RFC 8785 canonical UTF-8 bytes permitted in each produced composite value and final result |
@@ -1775,19 +1869,25 @@ effective limits of a pipeline that omitted them or requested lower values.
 
 The runtime collection rules are:
 
-- An array that becomes the source of `map`, `filter`, `sort-by`, `group-by`,
-  or `count-by` must not contain more than `maxCollectionElements` elements.
+- An array that becomes the source of `map`, `filter`, `distinct`,
+  `distinct-by`, `contains-item`, `concat-arrays`, `flatten`, `any`, `all`,
+  `sort-by`, `group-by`, or `count-by` must not contain more than
+  `maxCollectionElements` elements. For `flatten`, this rule applies to the
+  outer array and every inner array.
 - Every array produced by `literal`, `array`, `map`, `filter`, `slice`,
-  `sort-by`, `group-by`, or `count-by`, including each `group-by` `items`
-  array, and every array returned as the final mapping result, must not
-  contain more than `maxCollectionElements` elements. The rule applies
-  recursively to arrays in produced literal and composite values. V1 has no
-  separate group-count limit.
+  `distinct`, `distinct-by`, `concat-arrays`, `flatten`, `sort-by`, `group-by`,
+  or `count-by`, including each `group-by` `items` array, and every array
+  returned as the final mapping result, must not contain more than
+  `maxCollectionElements` elements. The rule applies recursively to arrays in
+  produced literal and composite values. V1 has no separate group-count or
+  deduplicated-count limit.
 - Immediately before a `map` body, `filter` predicate, or `sort-by`,
-  `group-by`, or `count-by` key begins for an element, one collection visit is
-  debited from the evaluation's shared
-  `maxCollectionVisits` budget. Filtered-out elements count. Unevaluated
-  elements do not.
+  `distinct-by`, `group-by`, or `count-by` key begins for an element, one
+  collection visit is debited from the evaluation's shared
+  `maxCollectionVisits` budget. `distinct`, `contains-item`, `any`, and `all`
+  likewise debit one visit immediately before processing an attempted source
+  item. Filtered-out, duplicate, unequal, and non-decisive elements count.
+  Unevaluated elements after a short-circuit do not.
 - Nested collection operators share the same visit budget. No nested operator,
   branch, or collection element receives a fresh budget.
 
@@ -1800,15 +1900,15 @@ mapping result must satisfy both `maxStringScalars` and
 
 Value size is the number of bytes in the RFC 8785 canonical UTF-8
 representation. Every composite value created by `literal`, `object`, `array`,
-`map`, `filter`, `slice`, `sort-by`, `group-by`, or `count-by`, and the final
-mapping result, must satisfy `maxValueUtf8Bytes`. A `group-by` result copies
-every source item and adds record overhead, so it may exceed this limit even
-when its source does not. Implementations may calculate size incrementally without
-materializing canonical JSON, but must produce the same byte count and must
-stop construction before exceeding the effective limit. A mapping may select a
-bounded portion of a larger input; input frame values that are not produced as
-mapping results remain subject to separate host frame-memory and aggregate
-output budgets.
+`map`, `filter`, `slice`, `distinct`, `distinct-by`, `concat-arrays`,
+`flatten`, `sort-by`, `group-by`, or `count-by`, and the final mapping result,
+must satisfy `maxValueUtf8Bytes`. A `group-by` result copies every source item
+and adds record overhead, so it may exceed this limit even when its source does
+not. Implementations may calculate size incrementally without materializing
+canonical JSON, but must produce the same byte count and must stop construction
+before exceeding the effective limit. A mapping may select a bounded portion
+of a larger input; input frame values that are not produced as mapping results
+remain subject to separate host frame-memory and aggregate output budgets.
 
 `last` examines one array element when the source is non-empty and none when it
 is empty. `slice` examines and emits each selected element in ascending source
@@ -1849,6 +1949,46 @@ placed in a `group-by` `items` array incurs one element emission. `count-by`
 emits no source items. The fixed grouping-work debit covers all internal
 hashing, comparison, and bookkeeping; those steps incur no other charge.
 
+`distinct` and `distinct-by` debit the same fixed
+`n * ceil(log2(n))` work as grouping, with the same exact arithmetic and
+exhaustion rule, after evaluating and size-checking the source and before
+processing any item or key. `distinct` then processes each source item in
+ascending index order, debiting one element examination and one collection
+visit. When the item is a string, it next debits one work unit for every
+Unicode scalar in that string. `distinct-by` instead debits one element
+examination and one collection visit before each key, charges the key
+expression normally, and then applies the same per-scalar charge to a string
+key. Every source item or key is processed even when it is a duplicate. After
+all processing succeeds, each retained item incurs one element emission. The
+fixed debit covers all internal hashing, equality comparison, and
+bookkeeping; those steps incur no other charge.
+
+`contains-item` evaluates its candidate once. When the candidate is a string,
+it debits one work unit for every Unicode scalar in that string immediately
+after evaluation, including for an empty source. For each attempted source
+item, it debits one element examination and one collection visit. When that
+item is a string, it then debits one work unit for every Unicode scalar in the
+item before deciding equality. It stops after the first equal item.
+
+`any` and `all` debit one element examination and one collection visit
+immediately before each attempted predicate, then charge the predicate
+normally. They perform no element emission and incur no charge for elements
+after the decisive predicate. Empty sources incur no element examination,
+collection visit, or predicate charge.
+
+`concat-arrays` evaluates and size-checks every source array in operand order,
+then uses exact non-negative integer arithmetic to preflight the summed result
+cardinality against `maxCollectionElements`. `flatten` evaluates and
+size-checks the outer source and each inner array in outer source order, then
+preflights the sum of all inner lengths in the same way. Counter overflow is
+collection-size exhaustion. A failed preflight prevents every source-element
+examination and result emission. After a successful preflight,
+`concat-arrays` debits one element examination and one element emission for
+each copied item. `flatten` debits one element examination for each outer
+entry, one element examination for each inner item, and one element emission
+for each result item. Neither operator debits collection visits or fixed
+sorting-style work.
+
 Portable evaluation work uses one abstract work unit for each:
 
 - operator invocation, charged before that operator begins;
@@ -1857,9 +1997,9 @@ Portable evaluation work uses one abstract work unit for each:
 - Unicode scalar value examined or emitted by a string-processing operator,
   charged before that scalar is processed.
 
-Repeated evaluation of a `map` body or `filter` predicate charges every
-operator invocation again, as does repeated evaluation of a `sort-by`,
-`group-by`, or `count-by` key.
+Repeated evaluation of a `map` body, `filter`, `any`, or `all` predicate, or
+`distinct-by`, `sort-by`, `group-by`, or `count-by` key charges every operator
+invocation again.
 Composite construction, `deep-equal`, `stringify`, and other traversals charge
 each member, element, or string scalar they actually examine or emit under
 these rules. An item that is both examined and emitted incurs both charges.
@@ -1941,6 +2081,58 @@ vector groups:
    item emission charges, overflow-as-exhaustion, and a `group-by` result that
    exceeds `maxValueUtf8Bytes` although its source does not.
 
+The suite must include all of the following `distinct` and `distinct-by`
+vector groups:
+
+1. Valid structure and inference vectors cover both operators, the optional
+   `indexName`, nested lexical scope, nullable scalar values and keys, source
+   item-schema preservation, reduced length bounds, `distinct` uniqueness, and
+   the absence of inferred `distinct-by` item uniqueness.
+2. Invalid structure and type vectors cover missing and unknown operands,
+   invalid or colliding identifiers, non-array or nullable sources, array and
+   object `distinct` items, missing or composite keys, and out-of-scope
+   variables.
+3. Equality and ordering vectors cover empty, singleton, all-equal, and
+   all-distinct sources; `null` and Boolean values; numerically equal integer
+   and number values and zero with negative zero; strings that differ only by
+   case or Unicode normalization remaining distinct; first-occurrence order;
+   object items selected by scalar keys; and keys that use the original source
+   index.
+4. Evaluation and failure-order vectors prove that the source is evaluated
+   once, every item or key is processed once in source order, the first key
+   failure prevents later keys, all processing completes before emission, and
+   failed upfront deduplication work prevents every item and key.
+5. Exact-accounting vectors exercise the fixed debit boundaries and zero case,
+   source collection-limit rejection before deduplication work, one collection
+   visit per processed item, whole-string scalar charges, retained-item
+   emission, overflow-as-exhaustion, and produced collection and value limits.
+
+The suite must also include all of the following `contains-item`,
+`concat-arrays`, `flatten`, `any`, and `all` vector groups:
+
+1. Valid structure and inference vectors cover comparable nullable scalar
+   membership, numeric cross-type equality, compatible array-item joins,
+   summed and multiplied length bounds, one-level flattening, optional index
+   variables, and required Boolean results.
+2. Invalid structure and type vectors cover missing and unknown operands,
+   fewer than two `concat-arrays` operands, incompatible item schemas,
+   non-array or nullable sources, nullable inner arrays, composite or
+   incomparable membership items, invalid or colliding identifiers, missing
+   or nullable predicates, and out-of-scope variables.
+3. Result vectors cover empty and non-empty membership, an early and absent
+   match, operand and item ordering for concatenation, empty outer and inner
+   arrays, exactly one level of flattening, `any` false and `all` true for an
+   empty source, and early and absent decisive predicates.
+4. Evaluation and failure-order vectors prove single source and candidate
+   evaluation, operand-order evaluation, cardinality preflight before emission,
+   predicate evaluation in source order, short-circuit suppression of later
+   predicates and failures, and no partial array result.
+5. Exact-accounting vectors cover whole-string membership charges,
+   collection-visit and work boundaries immediately before and after decisive
+   Boolean elements, no empty-source visits, concat and flatten cardinality
+   overflow and limit boundaries, failed preflight before examination or
+   emission, outer and inner flatten examinations, and produced-value limits.
+
 Where the mapping language cannot observe an evaluation count directly,
 paired work-limit or collection-visit-limit boundary vectors must make the
 required count observable without adding side effects.
@@ -1951,8 +2143,6 @@ The `qhapaq.mapping/v1` operator set is explicitly reopened while this
 specification remains draft and before its schema and conformance artifacts are
 published. The following unresolved Phase 0 capabilities are in v1 scope:
 
-- distinct, membership, concatenation, flattening, and predicate-based
-  collection helpers;
 - string slicing, search, containment, splitting, joining, and non-regex
   replacement, with case-insensitive behavior dependent on an explicit,
   portable comparison and Unicode policy;
@@ -1961,6 +2151,11 @@ published. The following unresolved Phase 0 capabilities are in v1 scope:
 - object shaping and merge; and
 - common numeric helpers, including explicitly specified rounding modes and
   any array reductions such as sum, minimum, maximum, and average.
+
+The completed common-collection checkpoint selects `distinct`, `distinct-by`,
+`contains-item`, `concat-arrays`, one-level `flatten`, `any`, and `all` for v1
+with the normative semantics and conformance requirements in Sections 8.5
+through 8.11.
 
 The Phase 0 checkpoints in Section 21 decide the exact operators and semantics
 for these capabilities. A checkpoint may reject a candidate operator, but every
@@ -3668,6 +3863,9 @@ The language-neutral conformance suite includes:
   accounting vectors required by Section 8.11;
 - `group-by` and `count-by` structure, inference, grouping, evaluation-order,
   and exact accounting vectors required by Section 8.11;
+- common-collection structure, inference, equality, ordering, short-circuit,
+  preflight, evaluation-order, and exact accounting vectors required by
+  Section 8.11;
 - mixed mapping-language-version pipelines, including independent transform and
   output-projection versions;
 - rejection of mapping languages not permitted by the exact pipeline format,
@@ -3801,9 +3999,14 @@ scaffolding the remaining public .NET APIs.
   average move to the numeric-helper checkpoint. Sections 8.5 through 8.10
   define their semantics; Section 8.11 defines their required
   conformance-vector groups, which are published in Phase 1.
-- [ ] Define other common collection capabilities, including which of
-  `distinct`, `distinct-by`, membership, concatenation, flattening, `any`, and
-  `all` are supported and their equality, ordering, typing, and budget rules.
+- [x] Define other common collection capabilities. V1 adds `distinct`,
+  `distinct-by`, `contains-item`, `concat-arrays`, one-level `flatten`, `any`,
+  and `all`; uses scalar `equal` semantics, stable first-occurrence and source
+  ordering, short-circuit quantifiers, precise result inference, fixed
+  deduplication work, and linear search, concatenation, and flattening
+  accounting. Sections 8.5 through 8.10 define their semantics; Section 8.11
+  defines their required conformance-vector groups, which are published in
+  Phase 1.
 - [ ] Define string search, slicing, and composition capabilities, including
   which of substring or slice, `index-of`, `last-index-of`, containment,
   prefix/suffix checks, split, join, and non-regex replacement are supported;
@@ -3954,7 +4157,7 @@ vectors need not block descriptor tooling.
   required by Section 9.5.
 - [ ] Add mapping parsing, type-inference, evaluation, and failure vectors,
   including the `last`, `slice`, and Section 8.11 `sort-by`, `group-by`, and
-  `count-by` vector groups.
+  `count-by` and common-collection vector groups.
 - [ ] Add mixed-version mapping, unsupported-language bindability, and
   patch-preservation vectors when a pipeline format permits multiple mapping
   versions.
