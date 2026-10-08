@@ -1723,18 +1723,25 @@ failure and must not be relabeled as exhaustion of a portable mapping limit.
 The following capabilities are intentionally outside v1 and are recorded as
 non-normative candidates rather than commitments:
 
-- bounded regular-expression matching, extraction, and replacement, dependent
-  on the shared portable `pattern` grammar and evaluator;
+- array selection and windowing conveniences beyond the existing `item`
+  operator; deterministic sorting and ranking; grouping, counting, and other
+  purpose-built aggregates; and distinct, membership, concatenation,
+  flattening, and predicate-based collection helpers;
+- string slicing, search, containment, splitting, joining, and non-regex
+  replacement, with case-insensitive behavior dependent on an explicit,
+  portable comparison and Unicode policy;
+- bounded regular-expression matching and extraction, dependent on the shared
+  portable `pattern` grammar and evaluator;
 - temporal parsing, canonical normalization, formatting, timezone conversion,
   comparison, and arithmetic, dependent on a dedicated portable temporal model;
 - locale-independent Unicode case conversion, dependent on a pinned Unicode
   version and mapping algorithm;
-- sorting, reduction, membership and containment helpers, substring and
-  non-regex replacement helpers, Base64 conversion, object merge, and general
-  format templates.
+- object shaping and merge, Base64 conversion, and general format templates;
+- common numeric helpers, including explicitly specified rounding modes.
 
 A future mapping-language version may select, rename, split, or omit these
-candidates. This list grants no forward-compatibility interpretation to v1
+candidates. The Phase 0 checkpoints above define each selected capability
+separately. This list grants no forward-compatibility interpretation to v1
 hosts.
 
 ### 8.12 Language-version selection
@@ -3527,6 +3534,78 @@ scaffolding the remaining public .NET APIs.
   the closed format allowlist.
 - [x] Define the normative capability, side-effect, idempotency, and structured
   failure vocabularies.
+- [ ] Define future array selection and windowing capabilities, including
+  whether convenience forms such as first, last, take, skip, or slice add value
+  beyond the existing `item` operator and the exact bounds and missing-value
+  semantics.
+- [ ] Define deterministic array ordering and ranking capabilities. The
+  candidate `sort-by` takes a source `value`, `itemName`, `key`, and explicit
+  ascending or descending `direction`, with optional `indexName` for the
+  original zero-based index. The key must be statically present, non-null, and
+  numeric, ordered by the existing portable numeric comparison semantics;
+  each key is evaluated exactly once in input order. Sorting is stable in
+  either direction, preserving input order for equal keys. Its result retains
+  the source item schema and array length bounds. Its fixed sorting-work debit
+  is `n × ceil(log2(n))` units for an input of `n` elements, zero when `n` is
+  zero or one, in addition to key-expression evaluation. Debit this amount
+  immediately after evaluating the source and before evaluating keys. Define
+  its remaining operand validation, runtime failure behavior, and conformance
+  vectors.
+- [ ] Define array grouping and aggregation capabilities, including the result
+  shape and ordering of `group-by`, whether `count-by` and other purpose-built
+  aggregates are supported, key equality, and cardinality and work limits.
+- [ ] Define other common collection capabilities, including which of
+  `distinct`, `distinct-by`, membership, concatenation, flattening, `any`, and
+  `all` are supported and their equality, ordering, typing, and budget rules.
+- [ ] Define string search, slicing, and composition capabilities, including
+  which of substring or slice, `index-of`, `last-index-of`, containment,
+  prefix/suffix checks, split, join, and non-regex replacement are supported;
+  specify index units, bounds, empty-search behavior, and comparison semantics.
+- [ ] Decide whether string operations support case-insensitive comparison;
+  define exact-comparison defaults and any supported ASCII or Unicode
+  case-folding algorithm, Unicode-version dependency, and explicit selection
+  syntax.
+- [ ] Define portable regex search and extraction capabilities using the
+  shared pattern grammar, including Boolean matching, complete-match and
+  capture behavior, match selection and ordering, overlap, empty matches, and
+  collection and work limits.
+- [ ] Define object-shaping capabilities, including supported property
+  presence, setting, removal, and merge operations and explicit collision
+  behavior.
+- [ ] Define common numeric helper capabilities, including supported
+  absolute/minimum/maximum/clamp and rounding operations, numeric-domain
+  behavior, and exact rounding modes.
+- [ ] For every selected future mapping capability, define its closed operand
+  shape, static result typing, missing/null and runtime-failure behavior,
+  deterministic evaluation order, portable resource accounting, and
+  conformance-vector requirements.
+
+The design direction for these checkpoints is to extend the constrained,
+declarative mapping language rather than add inline executable code or a general
+reduction/interpreter facility. Prefer purpose-built collection operators for
+common queries. In particular, the most-common-element use case should be
+expressible with `count-by`, `sort-by`, and the existing `item` operator;
+`group-by` should return an array of group records rather than coerce arbitrary
+group keys into object member names. These are capability and shape
+requirements; each operator's exact syntax and semantics remain subject to its
+checkpoint.
+
+String operations use exact comparison by default. Any case-insensitive mode
+must be explicitly selected and have portable, versioned comparison semantics;
+Unicode-aware case folding depends on a pinned Unicode version and algorithm.
+The initial regex-extraction direction is to return complete matches without
+capture groups. Capture extraction is a separately scoped capability; match
+selection, overlap, empty-match advancement, and exact resource accounting
+remain to be specified.
+
+These are independently closable Phase 0 checkpoints: completing one does not
+depend on completing the others. Each checkpoint records requirements and
+produces the normative semantics and conformance vectors for its selected
+capabilities before their implementation. They do not add operators to
+`qhapaq.mapping/v1`, delay its artifacts, or commit to supporting every listed
+candidate. Any selected capabilities must be assigned an exact future mapping
+language version without changing the meaning of existing versions.
+
 - [ ] Define the public .NET marker and static declaration contracts, manifest
   envelope, generator diagnostic-code policy, and initial compatibility matrix.
 - [ ] Specify policy-filtered exact descriptor retrieval as the first
