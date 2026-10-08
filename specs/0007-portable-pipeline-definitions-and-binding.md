@@ -1386,6 +1386,7 @@ and rejects members not listed as required or optional.
 | `map` | `value`: expression; `itemName`: identifier; `expression`: expression | `indexName`: identifier |
 | `filter` | `value`: expression; `itemName`: identifier; `predicate`: expression | `indexName`: identifier |
 | `sort-by` | `value`: expression; `itemName`: identifier; `key`: expression; `direction`: `"ascending"` or `"descending"` | `indexName`: identifier |
+| `group-by`, `count-by` | `value`: expression; `itemName`: identifier; `key`: expression | `indexName`: identifier |
 | `assert-number-range` | `value`: expression and at least one bound | `minimum` or `exclusiveMinimum`; `maximum` or `exclusiveMaximum` |
 | `assert-length` | `value`: expression and at least one bound | `minimum`; `maximum` |
 | `assert-format` | `value`: expression; `format`: allowed format name | none |
@@ -1419,16 +1420,17 @@ the result contains every remaining element and does not fail or produce
 with a literal zero `start` and `count` equal to `n`, and skipping `n` items
 uses `slice` with `start` equal to `n` and no `count`.
 
-`map`, `filter`, and `sort-by` evaluate only arrays. `itemName` is required and
-names the current element. `indexName`, when present, names its original
-zero-based source index.
+`map`, `filter`, `sort-by`, `group-by`, and `count-by` evaluate only arrays.
+`itemName` is required and names the current element. `indexName`, when
+present, names its original zero-based source index.
 `variable` may name only a collection variable in active lexical scope.
 `itemName` and `indexName` must differ from each other, from every transform
 input alias, and from every active outer collection-variable name. Shadowing is
 invalid. A collection variable is in scope only within the containing
 `expression`, `predicate`, or `key`, including nested expressions. A
-`sort-by` collection variable is not in scope within `value` or after the
-operator completes. V1 exposes no sorted-rank variable.
+`sort-by`, `group-by`, or `count-by` collection variable is not in scope within
+`value` or after the operator completes. V1 exposes no sorted-rank or group
+variable.
 
 `sort-by.key` must infer as a required, non-null integer or number. Sorting uses
 the existing portable numeric comparison semantics and permits integer and
@@ -1438,6 +1440,31 @@ places lesser keys first. Descending order reverses only lesser-than and
 greater-than outcomes; it does not reverse equal-key items. Sorting is stable
 in either direction, so items with equal keys retain their relative source
 order.
+
+`group-by` partitions its source into groups of items with equal keys.
+`count-by` uses the same partition but reports only each group's size.
+`group-by.key` and `count-by.key` must infer as a present string, integer,
+number, Boolean, or JSON `null` value; a key schema may permit `null` together
+with one of those scalar types. Array and object keys are invalid. Keys compare
+using exactly the `equal` semantics: strings are equal only when their Unicode
+scalar sequences are identical, without normalization, case folding, or
+locale-sensitive collation; numbers use mathematical equality; Booleans compare
+by value; and `null` equals only `null`. Values of different scalar kinds are
+never equal.
+
+Groups appear in the order in which their key first occurs in the source.
+`group-by` returns one closed record `{ "key": k, "items": [...] }` per group,
+where `items` contains every source item with key `k` in source order.
+`count-by` returns one closed record `{ "key": k, "count": c }` per group,
+where `c` is the number of source items with key `k`. The reported key is the
+first such item's key. Neither operator accepts author-selected member names;
+renaming uses `map` and `object`. An empty source produces an empty array.
+The most-common-key query composes `count-by`, `sort-by` on `count` in
+descending order, and `item` with index zero; ties select the key that first
+occurs in the source.
+
+V1 grouping provides no array reductions such as sum, minimum, maximum, or
+average. Those are decided by the numeric-helper checkpoint in Section 21.
 
 `length` and `assert-length` accept only strings and arrays. String length is
 the number of Unicode scalar values; array length is the number of elements.
@@ -1488,6 +1515,11 @@ The abstract evaluation order is deterministic and sequential:
     ascending source-index order. All keys must succeed before sorting and
     result emission begin. It then stably orders the stored items and keys and
     emits items in result order.
+11. `group-by` and `count-by` evaluate their source once. After the
+    source-size and fixed grouping-work checks in Section 8.10, they evaluate
+    each key exactly once in ascending source-index order. All keys must
+    succeed before grouping and result emission begin. They then emit group
+    records in first-occurrence order.
 
 The first runtime failure in this order terminates the transform. Unevaluated
 operands and elements cannot fail and consume no evaluation budget. An
@@ -1569,6 +1601,18 @@ The operator-specific inference rules are:
   `minItems` and `maxItems` bounds as the source. It preserves a source
   `uniqueItems` guarantee. Its key must be a required, non-null integer or
   number. No other order-sensitive constraint is inferred or introduced.
+- Let `I` be the source item schema, `K` the inferred key schema, including
+  `null` when the key may be null, and `Smin` and `Smax` the source length
+  bounds. `group-by` returns a present array of closed objects with required
+  members `key`, inferred as `K`, and `items`, inferred as an array of `I` with
+  `minItems` one, `maxItems` `Smax`, and any source `uniqueItems` guarantee.
+  `count-by` returns a present array of closed objects with required members
+  `key`, inferred as `K`, and `count`, inferred as an integer from one through
+  `Smax`. Each result array has `minItems` one when `Smin` is at least one and
+  zero otherwise, and `maxItems` `Smax`. An unknown source bound omits the
+  corresponding derived bound. `K` retains its inferred `const`, `enum`, and
+  `format` constraints. Neither result infers `uniqueItems` or another
+  constraint not listed here.
 - Parsers return required, non-null `number` or Boolean results on success.
   `stringify` returns a required, non-null string. Checked assertions intersect
   the input schema with the asserted constraint and remove no unrelated state.
@@ -1601,7 +1645,9 @@ selected JSON `null` remains null.
 possibly empty array according to Section 8.5. As with other operators not
 defined to handle value states, the source and bound operands of `last` and
 `slice`, and the source and key of `sort-by`, must be statically proven present
-and non-null.
+and non-null. The source of `group-by` and `count-by` must be statically proven
+present and non-null. Their key must be statically proven present but may be
+JSON `null`, which forms its own group.
 
 The state predicates are total and return:
 
@@ -1667,6 +1713,11 @@ the source or a key expression and portable limit exhaustion retain their
 ordinary codes and follow the evaluation order in Sections 8.6 and 8.10.
 `sort-by` never returns a partially sorted result.
 
+`group-by` and `count-by` likewise introduce no invalid-key runtime failure.
+Static validation proves that every key is a present scalar. Source, key, and
+limit failures retain their ordinary codes and follow the same evaluation
+order. Neither operator returns a partial result.
+
 ### 8.10 Portable complexity and evaluation limits
 
 `qhapaq.mapping/v1` defines fixed structural ceilings, portable runtime
@@ -1724,14 +1775,17 @@ effective limits of a pipeline that omitted them or requested lower values.
 
 The runtime collection rules are:
 
-- An array that becomes the source of `map`, `filter`, or `sort-by` must not
-  contain more than `maxCollectionElements` elements.
-- Every array produced by `literal`, `array`, `map`, `filter`, `slice`, or
-  `sort-by`, and every array returned as the final mapping result, must not
+- An array that becomes the source of `map`, `filter`, `sort-by`, `group-by`,
+  or `count-by` must not contain more than `maxCollectionElements` elements.
+- Every array produced by `literal`, `array`, `map`, `filter`, `slice`,
+  `sort-by`, `group-by`, or `count-by`, including each `group-by` `items`
+  array, and every array returned as the final mapping result, must not
   contain more than `maxCollectionElements` elements. The rule applies
-  recursively to arrays in produced literal and composite values.
-- Immediately before a `map` body, `filter` predicate, or `sort-by` key begins
-  for an element, one collection visit is debited from the evaluation's shared
+  recursively to arrays in produced literal and composite values. V1 has no
+  separate group-count limit.
+- Immediately before a `map` body, `filter` predicate, or `sort-by`,
+  `group-by`, or `count-by` key begins for an element, one collection visit is
+  debited from the evaluation's shared
   `maxCollectionVisits` budget. Filtered-out elements count. Unevaluated
   elements do not.
 - Nested collection operators share the same visit budget. No nested operator,
@@ -1746,8 +1800,10 @@ mapping result must satisfy both `maxStringScalars` and
 
 Value size is the number of bytes in the RFC 8785 canonical UTF-8
 representation. Every composite value created by `literal`, `object`, `array`,
-`map`, `filter`, `slice`, or `sort-by`, and the final mapping result, must satisfy
-`maxValueUtf8Bytes`. Implementations may calculate size incrementally without
+`map`, `filter`, `slice`, `sort-by`, `group-by`, or `count-by`, and the final
+mapping result, must satisfy `maxValueUtf8Bytes`. A `group-by` result copies
+every source item and adds record overhead, so it may exceed this limit even
+when its source does not. Implementations may calculate size incrementally without
 materializing canonical JSON, but must produce the same byte count and must
 stop construction before exceeding the effective limit. A mapping may select a
 bounded portion of a larger input; input frame values that are not produced as
@@ -1779,6 +1835,20 @@ movement; those internal steps incur no additional examination, emission,
 collection-visit, or per-comparison work charges. Produced-array collection,
 string, and value-size limits still apply.
 
+`group-by` and `count-by` debit the same fixed `n * ceil(log2(n))` work, with
+the same exact arithmetic and exhaustion rule, after evaluating and
+size-checking the source and before examining any element or evaluating any
+key. They then process source elements in ascending index order. Before each
+key, they debit one element examination and one collection visit, then charge
+the key expression normally. Immediately after a key that is a string is
+evaluated, and before the next key begins, they debit one work unit for each
+Unicode scalar value in that key. Number, Boolean, and `null` keys incur no
+additional key charge. During emission, each group record incurs one element
+emission and one member emission for each of its two members, and each item
+placed in a `group-by` `items` array incurs one element emission. `count-by`
+emits no source items. The fixed grouping-work debit covers all internal
+hashing, comparison, and bookkeeping; those steps incur no other charge.
+
 Portable evaluation work uses one abstract work unit for each:
 
 - operator invocation, charged before that operator begins;
@@ -1788,7 +1858,8 @@ Portable evaluation work uses one abstract work unit for each:
   charged before that scalar is processed.
 
 Repeated evaluation of a `map` body or `filter` predicate charges every
-operator invocation again, as does repeated evaluation of a `sort-by` key.
+operator invocation again, as does repeated evaluation of a `sort-by`,
+`group-by`, or `count-by` key.
 Composite construction, `deep-equal`, `stringify`, and other traversals charge
 each member, element, or string scalar they actually examine or emit under
 these rules. An item that is both examined and emitted incurs both charges.
@@ -1817,7 +1888,7 @@ subject to explicit host approval. Hosts may also enforce independent
 aggregate run limits. Exhausting an aggregate host limit is an execution-budget
 failure and must not be relabeled as exhaustion of a portable mapping limit.
 
-### 8.11 `sort-by` conformance requirements
+### 8.11 Collection-operator conformance requirements
 
 The normative `qhapaq.mapping/v1` conformance suite must include all of the
 following `sort-by` vector groups:
@@ -1842,6 +1913,34 @@ following `sort-by` vector groups:
    per attempted key, ordinary examination and emission charges,
    overflow-as-exhaustion, and produced-value limits.
 
+The suite must also include all of the following `group-by` and `count-by`
+vector groups:
+
+1. Valid structure and inference vectors cover the minimal operand form, the
+   optional `indexName`, nested lexical scope, record schemas, `items` and
+   `count` bounds, result length bounds, nullable keys, and unknown source
+   bounds.
+2. Invalid structure and type vectors cover missing and unknown operands,
+   including `direction`; invalid or colliding identifiers; non-array,
+   potentially missing, or nullable sources; potentially missing, array, or
+   object keys; and out-of-scope variables.
+3. Grouping vectors cover empty, singleton, single-key, and all-distinct
+   sources; `null` and Boolean keys; numerically equal integer and number keys
+   and zero with negative zero; strings that differ only by case or Unicode
+   normalization remaining distinct; first-occurrence group order; source
+   order within groups; keys that use the original source index; and the
+   most-common-key composition, including its first-occurrence tie-break.
+4. Evaluation and failure-order vectors prove that the source is evaluated
+   once, keys are evaluated once in input order, the first key failure prevents
+   later keys, every key completes before emission, and failed upfront
+   grouping-work debit prevents every key.
+5. Exact-accounting vectors exercise the boundary immediately below and at the
+   fixed `n * ceil(log2(n))` debit, its zero value for `n <= 1`, source
+   collection-limit rejection before grouping work, one shared collection
+   visit per attempted key, per-scalar string-key charges, record, member, and
+   item emission charges, overflow-as-exhaustion, and a `group-by` result that
+   exceeds `maxValueUtf8Bytes` although its source does not.
+
 Where the mapping language cannot observe an evaluation count directly,
 paired work-limit or collection-visit-limit boundary vectors must make the
 required count observable without adding side effects.
@@ -1852,16 +1951,16 @@ The `qhapaq.mapping/v1` operator set is explicitly reopened while this
 specification remains draft and before its schema and conformance artifacts are
 published. The following unresolved Phase 0 capabilities are in v1 scope:
 
-- grouping, counting, and other purpose-built aggregates; and distinct,
-  membership, concatenation, flattening, and predicate-based collection
-  helpers;
+- distinct, membership, concatenation, flattening, and predicate-based
+  collection helpers;
 - string slicing, search, containment, splitting, joining, and non-regex
   replacement, with case-insensitive behavior dependent on an explicit,
   portable comparison and Unicode policy;
 - bounded regular-expression matching and extraction, dependent on the shared
   portable `pattern` grammar and evaluator;
 - object shaping and merge; and
-- common numeric helpers, including explicitly specified rounding modes.
+- common numeric helpers, including explicitly specified rounding modes and
+  any array reductions such as sum, minimum, maximum, and average.
 
 The Phase 0 checkpoints in Section 21 decide the exact operators and semantics
 for these capabilities. A checkpoint may reject a candidate operator, but every
@@ -3565,6 +3664,10 @@ The language-neutral conformance suite includes:
   omitted and zero counts, starts at and beyond the source length, truncated
   windows, non-negative-bound validation, inferred length bounds, single source
   evaluation, and exact collection-size and work accounting;
+- `sort-by` structure, inference, ordering, evaluation-order, and exact
+  accounting vectors required by Section 8.11;
+- `group-by` and `count-by` structure, inference, grouping, evaluation-order,
+  and exact accounting vectors required by Section 8.11;
 - mixed mapping-language-version pipelines, including independent transform and
   output-projection versions;
 - rejection of mapping languages not permitted by the exact pipeline format,
@@ -3683,15 +3786,21 @@ scaffolding the remaining public .NET APIs.
   `slice`; it retains `item` with literal index zero instead of adding `first`,
   and expresses take and skip through `slice`. Define their exact bounds,
   typing, evaluation, resource-accounting, and missing-value semantics.
-- [ ] Publish and validate the normative conformance vectors for deterministic
-  array ordering and ranking. Sections 8.5 through 8.11 define the closed
-  `sort-by` operands, lexical scope, static typing, stable numeric ordering,
-  evaluation and failure order, result inference, exact resource accounting,
-  and required vector groups. This item remains open until those persistent
-  vectors and their validation exist.
-- [ ] Define array grouping and aggregation capabilities, including the result
-  shape and ordering of `group-by`, whether `count-by` and other purpose-built
-  aggregates are supported, key equality, and cardinality and work limits.
+- [x] Define deterministic array ordering and ranking capabilities. V1 adds
+  `sort-by` with a literal `direction`, stable numeric-key ordering, no
+  sorted-rank variable, and an upfront `n × ceil(log2(n))` sorting-work debit.
+  Sections 8.5 through 8.10 define its operands, scope, typing, evaluation,
+  failure, and resource accounting; Section 8.11 defines its required
+  conformance-vector groups, which are published in Phase 1.
+- [x] Define array grouping and aggregation capabilities. V1 adds `group-by`
+  and `count-by` with present scalar or `null` keys compared by `equal`
+  semantics, first-occurrence group order, source order within groups, fixed
+  `{key, items}` and `{key, count}` records, an upfront `n × ceil(log2(n))`
+  grouping-work debit plus per-scalar string-key charges, and no separate
+  group-count limit. Array reductions such as sum, minimum, maximum, and
+  average move to the numeric-helper checkpoint. Sections 8.5 through 8.10
+  define their semantics; Section 8.11 defines their required
+  conformance-vector groups, which are published in Phase 1.
 - [ ] Define other common collection capabilities, including which of
   `distinct`, `distinct-by`, membership, concatenation, flattening, `any`, and
   `all` are supported and their equality, ordering, typing, and budget rules.
@@ -3712,7 +3821,9 @@ scaffolding the remaining public .NET APIs.
   behavior.
 - [ ] Define common numeric helper capabilities, including supported
   absolute/minimum/maximum/clamp and rounding operations, numeric-domain
-  behavior, and exact rounding modes.
+  behavior, and exact rounding modes. Also decide whether v1 supports array
+  reductions such as sum, minimum, maximum, and average, including empty-array
+  behavior, accumulation order, and overflow.
 - [ ] For every selected v1 mapping capability, define its closed operand
   shape, static result typing, missing/null and runtime-failure behavior,
   deterministic evaluation order, portable resource accounting, and
@@ -3841,7 +3952,9 @@ vectors need not block descriptor tooling.
 - [ ] Add schema-profile and conservative compatibility vectors.
 - [ ] Add portable-pattern and closed-format boundary and adversarial vectors
   required by Section 9.5.
-- [ ] Add mapping parsing, type-inference, evaluation, and failure vectors.
+- [ ] Add mapping parsing, type-inference, evaluation, and failure vectors,
+  including the `last`, `slice`, and Section 8.11 `sort-by`, `group-by`, and
+  `count-by` vector groups.
 - [ ] Add mixed-version mapping, unsupported-language bindability, and
   patch-preservation vectors when a pipeline format permits multiple mapping
   versions.
