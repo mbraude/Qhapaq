@@ -51,49 +51,73 @@ without weakening unrelated rules.
 ## 3. Specification traceability
 
 Product behavior is specification-driven, as decided by
-[ADR-0003](../architecture/decisions/0003-enforce-specification-traceability.md).
+[ADR-0003](../architecture/decisions/0003-enforce-specification-traceability.md)
+and amended by
+[ADR-0004](../architecture/decisions/0004-classify-changes-and-trace-through-commits.md).
 Specifications are written first and are the source of truth; implementations
 conform to them.
 
 ### Required
 
-- Do not add or alter product behavior unless a specification requirement
-  describes it. If no requirement exists, add or revise one in the governing
-  specification in the same or an earlier change.
-- Reference implemented requirements with
+- Classify every change as one kind of change: `requirement`, `amendment`,
+  `extension`, `bug`, `editorial`, `refactor`, or `maintenance`, as defined in
+  [specs/README.md](../../specs/README.md#kinds-of-change).
+- Do not add or alter product behavior unless a requirement describes it. If
+  no requirement exists, add or revise one in the governing platform or
+  [component specification](../../specs/components/README.md) in the same or
+  an earlier change.
+- Record the change kind and the requirements a change implements in commit
+  trailers:
+
+  ```text
+  Change-Kind: <kind>
+  Spec: R-0001-012@44aa01, R-0001-013@9c2e10
+  ```
+
+  `Spec:` is required for `requirement`, `amendment`, `extension`, `bug`, and
+  `editorial` changes and is omitted for `refactor`. A `requirement` or
+  `extension` change may name a whole document, such as `SPEC-0007` or
+  `COMP-0001`. Squash merges must keep every `Spec:` trailer.
+  `Change-Kind:` is required even for intermediate commits. Enable the local
+  [commit-message hook](git-hooks.md); it complements the commit skills but
+  does not replace semantic review or future CI enforcement.
+- Mark code that enforces a requirement with an inline reference
   `spec: <requirement-id>@<fingerprint>`, for example
   `spec: R-0001-012@44aa01`. Separate multiple references with commas.
-- In `Qhapaq.Service.V*`, `Qhapaq.Business`, `Qhapaq.DAL`, and
-  `Qhapaq.Implementations.*`, every non-private type and member must carry a
-  reference itself or inherit one from its containing type.
 - Tests that verify a requirement reference it in a line comment on the test
-  method.
-- When any text in a requirement block changes, review every code and test location
-  that references it and update the fingerprint in the same change. Do not
-  update a fingerprint without confirming that the referencing code still
-  conforms.
+  method. A `bug` fix adds a regression test that references the requirement
+  it restores.
+- When any text in a requirement block changes, review every code and test
+  location that references it and update the fingerprint in the same change.
+  Do not update a fingerprint without confirming that the referencing code
+  still conforms.
 - Never reference a section number or heading instead of a requirement
   identifier.
 
 ### Placement
 
-Place a reference at the narrowest level that explains the code:
+Commit trailers record which requirements a change implements. An inline
+reference marks only an *invariant*: code that enforces a requirement, where
+the test is *would deleting or rewriting this code violate a specification?*
+Invariants include:
 
-- **Type:** in the type's XML documentation `<remarks>` when the type as a
-  whole realizes a specified concept.
-- **Member:** in the member's `<remarks>` when it implements a specific rule or
-  contract. This is the default level.
-- **Block:** in a `//` comment immediately before a block that encodes a
-  non-obvious specified decision, such as validation or policy ordering,
-  cancellation or failure semantics, limits, disclosure, or error mapping. Add a
-  short explanation after an em dash when the connection is not obvious.
+- validation and policy checks and their ordering;
+- permission, credential, and disclosure decisions;
+- limits and bounds;
+- cancellation, failure, and error-mapping semantics;
+- exact-version resolution and determinism rules; and
+- security and trust boundaries.
 
-Do not add references to dependency-injection registration, plumbing, private
-helpers whose containing member is already traced, or trivial members.
+Place the reference in a `//` comment immediately before the enforcing
+statement or block. Add a short explanation after an em dash when the
+connection is not obvious. When a whole member is the enforcement, such as a
+dedicated validator, place it in the member's `<remarks>` instead.
+
+Do not add references to types, entry points, members that merely implement a
+feature, dependency-injection registration, or plumbing. The commit trailers
+already trace them.
 
 ```csharp
-/// <summary>Invokes both branches and combines their results.</summary>
-/// <remarks>spec: R-0001-012@44aa01</remarks>
 public async Task<Document> InvokeAsync(Document input, CancellationToken cancellationToken)
 {
     // spec: R-0001-012@44aa01 — cancel the sibling before awaiting it so no failure is lost.
@@ -115,11 +139,11 @@ Waivable rules are the judgment findings of the semantic review:
 
 | Rule | Finding waived |
 | --- | --- |
-| `untraced-behavior` | The code implements behavior that the referenced requirements do not describe. |
-| `conformance` | The code appears to contradict a requirement it references. |
+| `untraced-behavior` | The code implements behavior that no requirement describes. |
+| `conformance` | The code appears to contradict a requirement in scope. |
 | `unsupported-reference` | A reference appears not to support the code it annotates. |
-| `line-reference` | A non-obvious specified decision lacks a line-level reference. |
-| `test-reference` | A test of a specified rule, or an implemented requirement, lacks a test reference. |
+| `invariant-marker` | Code that enforces a requirement lacks an inline reference. |
+| `test-reference` | A test of a specified rule, an implemented requirement, or a bug fix lacks a test reference. |
 
 - Place the waiver where a reference would go. In a type's or member's
   `<remarks>` it covers that type or member. In a `//` comment it covers the
@@ -128,8 +152,8 @@ Waivable rules are the judgment findings of the semantic review:
   apply or why it is accepted, for example by citing the requirement text or a
   tracking issue.
 - Mechanical rules cannot be waived. These are reference grammar, resolution,
-  fingerprints, identifier integrity, and missing references on product
-  surface. Fix the code or the specification instead.
+  fingerprints, identifier integrity, and a missing `Spec:` trailer. Fix the
+  code, the trailers, or the specification instead.
 - AI agents must not add, broaden, or move a waiver unless the user explicitly
   directs it for that finding.
 
@@ -141,12 +165,15 @@ Waivable rules are the judgment findings of the semantic review:
 ### Enforcement
 
 A deterministic trace checker will verify that references resolve to
-non-retired requirements, that fingerprints are current, and that product
-surface is traced. It is planned and not yet available. Until it exists, the
-AI-led [`spec-trace-check` skill](../../.agents/skills/spec-trace-check/SKILL.md)
-inspects files changed since `HEAD` against these rules. It runs as the first
-step of `build-and-test`, which `commit-and-push` runs by default. Reviewers
-remain responsible for anything the skill misses.
+non-retired requirements, that fingerprints are current, and that commit
+trailers are present and resolvable. It is planned and not yet available.
+Until it exists, the AI-led
+[`spec-trace-check` skill](../../.agents/skills/spec-trace-check/SKILL.md)
+inspects files changed since `HEAD`, classifies the change, proposes its
+trailers, and reviews changed code against the requirements in scope. It runs
+as the first step of `build-and-test`, which `commit-and-push` runs by default.
+The [`fix-bug` skill](../../.agents/skills/fix-bug/SKILL.md) applies the bug
+workflow. Reviewers remain responsible for anything the skills miss.
 
 ## 4. Repository and project organization
 

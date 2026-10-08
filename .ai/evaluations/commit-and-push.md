@@ -37,6 +37,12 @@ An invocation passes when it:
 6. leaves the working tree clean; and
 7. reports the commit hash, subject, remote branch, and validation result.
 
+When the repository under test defines specification commit trailers, the
+commit message must also end with the `Change-Kind:` and `Spec:` trailers
+proposed by the trace check, before any `Co-authored-by:` trailer. When
+`skip-build-and-test=true`, the trailers are derived by review and the report
+states that they were not verified.
+
 The exact commit wording may vary. It must be specific, imperative, consistent
 with the synthetic repository's history, and must not claim unverified results.
 

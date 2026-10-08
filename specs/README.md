@@ -13,6 +13,11 @@ implementation.
 | [SPEC-0006](0006-dotnet-layered-architecture.md) | .NET layers, dependency direction, visibility, service versioning, and initial component plan. |
 | [SPEC-0007](0007-portable-pipeline-definitions-and-binding.md) | Canonical pipeline JSON, execution-frame dataflow, transforms, operation contracts, validation, and plan binding. |
 
+Platform specifications define the platform. Individual components that work
+within platform contracts, such as operations, connectors, decorators, and
+credential providers, are specified separately in
+[component specifications](components/README.md).
+
 New substantial features use the next stable numeric identifier and include
 status, goals, non-goals, design, security, testing, rollout, alternatives, and
 open questions as applicable. Cross-cutting implementation choices may also
@@ -21,9 +26,14 @@ require an ADR under [docs/architecture/decisions/](../docs/architecture/decisio
 ## Requirement identifiers and traceability
 
 Specifications are the source of truth for product behavior. Product behavior
-is specified before it is implemented, and implementations reference the
-requirements they satisfy, as decided by
-[ADR-0003](../docs/architecture/decisions/0003-enforce-specification-traceability.md).
+is specified before it is implemented, as decided by
+[ADR-0003](../docs/architecture/decisions/0003-enforce-specification-traceability.md)
+and amended by
+[ADR-0004](../docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md).
+The specification library, which is `SPEC.md`, the numbered specifications,
+and the [component specifications](components/README.md), must be sufficient
+to reproduce the system in a new implementation. Specifications never
+reference implementation code.
 
 Normative content that an implementation or test can satisfy is grouped into
 requirement blocks, each starting with a stable identifier. A block is one
@@ -35,10 +45,31 @@ cancellation to the other branch and must not lose the secondary failure.
 ```
 
 Identifiers are never renumbered or reused. Retired requirements remain as
-tombstones. Code and tests reference requirements as
-`spec: R-0001-012@<fingerprint>`, where the fingerprint changes whenever any
-text in the block changes, so dependent code must be reviewed with every
-requirement edit.
+tombstones. A reference has the form `spec: R-0001-012@<fingerprint>`, where
+the fingerprint changes whenever any text in the block changes, so dependent
+code must be reviewed with every requirement edit.
+
+Each commit records the requirements it implements in `Spec:` trailers. Code
+carries an inline reference only where it enforces a requirement, and tests
+reference the requirements they verify.
 
 `SPEC.md` and every numbered specification carry requirement identifiers. New
 requirements take the next unused sequence number in their specification.
+
+## Kinds of change
+
+Every change is one of the following kinds, as defined by ADR-0004.
+
+| Kind | When to use it | Specification change |
+| --- | --- | --- |
+| `requirement` | Add a platform capability, contract, or trust boundary. | New blocks in `SPEC.md` or a numbered specification. |
+| `amendment` | Change the meaning of an existing requirement. | Edit the block in place and update the code that references it. |
+| `extension` | Add or change a component, such as an operation, within existing platform contracts. | A new or changed [component specification](components/README.md). |
+| `bug` | Make code conform to a requirement it violates. | None; add a regression test that references the requirement. |
+| `editorial` | Reword without changing meaning. | Reworded blocks; review and update references. |
+| `refactor` | Restructure without changing behavior. | None. |
+| `maintenance` | Change build, tooling, skills, documentation, or tests of existing behavior. | None. |
+
+If the specification is wrong, ambiguous, or silent about a defect, the fix is
+an `amendment`, not a `bug`. If a new component needs a platform change, that
+change is a `requirement` or `amendment` made first.

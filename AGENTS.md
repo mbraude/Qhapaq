@@ -8,7 +8,9 @@ other automated contributors.
 Follow applicable guidance in this order:
 
 1. Law, license terms, and security policy.
-2. [SPEC.md](SPEC.md) and applicable numbered files under [specs/](specs/).
+2. [SPEC.md](SPEC.md), applicable numbered files under [specs/](specs/), and
+   applicable component specifications under
+   [specs/components/](specs/components/README.md).
 3. Repository contribution and engineering policies.
 4. This file.
 5. Applicable path-specific instructions.
@@ -47,9 +49,14 @@ Repository guidance uses these levels:
   compensation, or transactional rollback.
 - Product behavior traces to specification requirements. Do not implement
   behavior that no requirement describes; add or revise the requirement first.
-  Reference implemented requirements in code and tests as described in the
+  Classify every change by kind and record it, with the requirements it
+  implements, in `Change-Kind:` and `Spec:` commit trailers. Mark only code
+  that enforces a requirement, and tests that verify one, with inline
+  references, as described in the
   [coding conventions](docs/development/coding-conventions.md#3-specification-traceability).
-  When a requirement changes, update every location that references it.
+  When a requirement changes, update every location that references it. Fix
+  defects with the [`fix-bug` skill](.agents/skills/fix-bug/SKILL.md); a
+  defect the specification does not clearly govern is an amendment, not a bug.
   Before reporting a change as complete, run the
   [`spec-trace-check` skill](.agents/skills/spec-trace-check/SKILL.md), or
   `build-and-test`, which runs it, and do not report completion on `FAIL`.
@@ -80,6 +87,8 @@ Update the appropriate artifact when a change makes a durable decision:
 
 - Product behavior, public contracts, compatibility, trust boundaries, or
   language-neutral semantics belong in `SPEC.md` or a numbered specification.
+- The implementation-neutral behavior of an individual component, such as an
+  operation, belongs in a component specification under `specs/components/`.
 - Cross-cutting implementation choices and their tradeoffs belong in
   `docs/architecture/decisions/`.
 - Detailed engineering practices belong in

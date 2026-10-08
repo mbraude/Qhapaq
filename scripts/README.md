@@ -14,3 +14,9 @@ Scripts must:
 
 Workflow YAML should orchestrate these scripts rather than duplicate their
 logic.
+
+## Available checks
+
+- `test-git-hooks.ps1`: tests local `Change-Kind:` enforcement in an isolated
+  temporary Git repository. See the
+  [Git hook guide](../docs/development/git-hooks.md) for setup and execution.

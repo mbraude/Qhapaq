@@ -1,0 +1,22 @@
+#!/bin/sh
+if [ "$#" -ne 1 ]; then
+    echo "commit-msg: expected one commit-message file." >&2
+    exit 1
+fi
+
+trailers=$(git interpret-trailers --parse "$1") || exit 1
+printf '%s\n' "$trailers" | awk '
+    tolower($0) ~ /^change-kind[[:space:]]*:/ {
+        count++
+        if ($0 !~ /^Change-Kind: (requirement|amendment|extension|bug|editorial|refactor|maintenance)$/) {
+            invalid = 1
+        }
+    }
+    END {
+        if (count != 1 || invalid) {
+            print "commit-msg: require exactly one Change-Kind: trailer with a valid kind." > "/dev/stderr"
+            print "Allowed: requirement, amendment, extension, bug, editorial, refactor, maintenance." > "/dev/stderr"
+            exit 1
+        }
+    }
+'

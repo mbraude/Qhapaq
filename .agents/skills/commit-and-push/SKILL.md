@@ -17,6 +17,8 @@ tracked and untracked working-tree change in one commit and push it to `origin`.
 - `skip-semantic-review` (optional boolean, default: `false`): Passed through
   `build-and-test` to `spec-trace-check` to skip only the AI-led semantic
   review. Honor it only when the user explicitly supplies it.
+- `change-kind` (optional): The kind of change the user states, passed through
+  `build-and-test` to `spec-trace-check`.
 
 ## Preconditions
 
@@ -55,8 +57,9 @@ staging. If a file cannot be reviewed, stop and identify it.
 ### 2. Validate
 
 Unless `skip-build-and-test=true`, invoke the repository's `build-and-test`
-skill, passing `skip-semantic-review` when the user supplied it, and require
-it to complete successfully. When
+skill, passing `skip-semantic-review` and `change-kind` when the user supplied
+them, and require it to complete successfully. Keep the change kind and
+proposed trailers it reports for step 4. When
 `skip-build-and-test=true`, skip that invocation and record that the build,
 unit tests, and specification trace check were not run.
 
@@ -99,6 +102,11 @@ prominent file.
   hidden. Summarize outcomes rather than listing file names.
 - Include any sign-off, attribution, issue reference, or trailer required by
   repository instructions.
+- When the repository defines specification commit trailers, end the message
+  with the `Change-Kind:` and `Spec:` trailers, before any `Co-authored-by:`
+  trailer. Use the trailers that `spec-trace-check` proposed. When the trace
+  check did not run, derive them by applying its classification step to the
+  staged diff, and state in the report that they were not verified.
 - Do not claim checks, behavior, or results that were not verified.
 
 ### 5. Commit
@@ -128,7 +136,7 @@ rebase, merge, reset, or retry with force automatically.
 
 Report:
 
-- the commit hash and final subject;
+- the commit hash, final subject, and specification trailers;
 - the pushed remote branch;
 - validation commands and their results, or an explicit statement that build
   and unit-test validation was skipped because `skip-build-and-test=true`; and

@@ -19,3 +19,5 @@ Current guidance:
   engineering requirements and defaults.
 - [.NET toolchain](dotnet-toolchain.md) documents the pinned SDK and local
   restore, format, build, and test commands.
+- [Git hooks](git-hooks.md) documents local commit-trailer enforcement and
+  its regression checks.

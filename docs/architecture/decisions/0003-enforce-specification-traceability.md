@@ -1,7 +1,15 @@
 # ADR-0003: Enforce Specification Traceability
 
-> **Status:** Accepted
+> **Status:** Accepted; amended by
+> [ADR-0004](0004-classify-changes-and-trace-through-commits.md)
 > **Date:** 2026-10-07
+
+> [!NOTE]
+> ADR-0004 replaces the source-reference placement rules and the untraced
+> product surface check below. Code now carries `spec:` references only where
+> it enforces a requirement, and commit trailers record which requirements a
+> change implements. The identifier, fingerprint, stale-reference, waiver, and
+> semantic-review rules remain in force.
 
 ## Context
 

@@ -14,6 +14,8 @@ Integration tests are outside this skill's scope.
 - `skip-semantic-review` (optional boolean, default: `false`): Passed through
   to `spec-trace-check`. Honor it only when the user explicitly supplies it;
   never infer it.
+- `change-kind` (optional): Passed through to `spec-trace-check` when the user
+  states the kind of change.
 
 ## Preconditions
 
@@ -38,10 +40,10 @@ without claiming later steps passed.
 ### 1. Check specification traceability
 
 Invoke the repository's `spec-trace-check` skill on the current working tree,
-passing `skip-semantic-review` when the user supplied it.
+passing `skip-semantic-review` and `change-kind` when the user supplied them.
 It inspects only files changed since `HEAD`. If its verdict is `FAIL`, stop
-and report its errors without building. Carry any warnings into the final
-report.
+and report its errors without building. Carry its warnings, change kind, and
+proposed commit trailers into the final report.
 
 Run every remaining command from `implementations/dotnet/`.
 
@@ -73,7 +75,8 @@ because that would also run integration tests.
 
 Report:
 
-- the specification trace-check verdict and its findings;
+- the specification trace-check verdict, its findings, the change kind, and
+  the proposed commit trailers;
 - whether the locked build succeeded;
 - the warning and error counts reported by the build;
 - the pass, fail, and skip totals for each unit test project;

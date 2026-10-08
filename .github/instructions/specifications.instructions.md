@@ -43,3 +43,18 @@ Follow [AGENTS.md](../../AGENTS.md).
 - When changing any text inside a requirement block, find every `spec:`
   reference to its identifier, confirm the referencing code and tests still
   conform or update them, and update their fingerprints in the same change.
+- Keep specifications implementation-neutral and free of references to code.
+  The specification library must be sufficient to reproduce the system.
+- Specify components that work within platform contracts, such as operations,
+  connectors, decorators, and credential providers, under
+  [specs/components/](../../specs/components/README.md) rather than in a
+  platform specification, as defined by
+  [ADR-0004](../../docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md).
+  Component requirement identifiers use `C` and the component number, for
+  example `**[R-C0001-003]**`. Never change the meaning of a published
+  component contract version; add a new version instead.
+- Give each component contract version its own `Incomplete` or `Published`
+  status outside requirement blocks. Commits and pushes do not publish it.
+  Until CI promotion exists, require explicit human approval after documented
+  review and validation of the exact revision. Never reset a published version
+  to incomplete or infer publication from a successful validation command.
