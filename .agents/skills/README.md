@@ -21,6 +21,7 @@ skills stored here by default.
 
 | Skill | Purpose |
 |---|---|
-| [Build and test](build-and-test/SKILL.md) | Build the .NET solution with locked dependencies and run every unit test project. |
+| [Build and test](build-and-test/SKILL.md) | Run the specification trace check, build the .NET solution with locked dependencies, and run every unit test project. |
+| [Specification trace check](spec-trace-check/SKILL.md) | AI-led inspection of files changed since `HEAD` for requirement identifier integrity, spec reference fingerprints, and untraced or nonconforming product behavior. |
 | [Commit and push](commit-and-push/SKILL.md) | Review all working-tree changes since `HEAD`, create a representative commit, and push the current branch to `origin`. |
 | [Commit and push without build and test](commit-and-push-without-build-and-test/SKILL.md) | Invoke the commit-and-push workflow with build and unit-test validation explicitly skipped. |

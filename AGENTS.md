@@ -50,6 +50,11 @@ Repository guidance uses these levels:
   Reference implemented requirements in code and tests as described in the
   [coding conventions](docs/development/coding-conventions.md#3-specification-traceability).
   When a requirement changes, update every location that references it.
+  Before reporting a change as complete, run the
+  [`spec-trace-check` skill](.agents/skills/spec-trace-check/SKILL.md), or
+  `build-and-test`, which runs it, and do not report completion on `FAIL`.
+  Never add a `spec-waive:` comment or pass `skip-semantic-review` unless the
+  user explicitly directs it.
 
 ## Working practices
 

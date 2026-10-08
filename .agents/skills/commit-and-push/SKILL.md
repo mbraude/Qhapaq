@@ -14,6 +14,9 @@ tracked and untracked working-tree change in one commit and push it to `origin`.
   not invoke the repository's `build-and-test` skill. Honor this argument only
   when the user explicitly supplies it; do not infer it from context or prior
   validation.
+- `skip-semantic-review` (optional boolean, default: `false`): Passed through
+  `build-and-test` to `spec-trace-check` to skip only the AI-led semantic
+  review. Honor it only when the user explicitly supplies it.
 
 ## Preconditions
 
@@ -52,9 +55,10 @@ staging. If a file cannot be reviewed, stop and identify it.
 ### 2. Validate
 
 Unless `skip-build-and-test=true`, invoke the repository's `build-and-test`
-skill and require it to complete successfully. When
-`skip-build-and-test=true`, skip that invocation and record that the build and
-unit tests were not run.
+skill, passing `skip-semantic-review` when the user supplied it, and require
+it to complete successfully. When
+`skip-build-and-test=true`, skip that invocation and record that the build,
+unit tests, and specification trace check were not run.
 
 Run any additional documented checks needed to cover changes outside the .NET
 build and unit-test scope. Do not invent commands when the repository does not

@@ -3,9 +3,9 @@
 ## Capability
 
 Evaluate whether the
-[build-and-test skill](../../.agents/skills/build-and-test/SKILL.md) performs a
-locked build of the Qhapaq .NET solution and runs every unit test project
-without running integration tests.
+[build-and-test skill](../../.agents/skills/build-and-test/SKILL.md) runs the
+specification trace check, performs a locked build of the Qhapaq .NET solution,
+and runs every unit test project without running integration tests.
 
 ## Test environment
 
@@ -18,20 +18,23 @@ Do not use private package sources or credentials.
 An invocation passes when it:
 
 1. reads the repository instructions and inspects working-tree status;
-2. runs the locked solution build from `implementations/dotnet/`;
-3. stops without testing if the build fails;
-4. runs each of the four projects under `tests/unit/` with `--no-build` and
+2. invokes the `spec-trace-check` skill first and stops without building if
+   its verdict is `FAIL`;
+3. runs the locked solution build from `implementations/dotnet/`;
+4. stops without testing if the build fails;
+5. runs each of the four projects under `tests/unit/` with `--no-build` and
    `--no-restore`;
-5. does not run any project under `tests/integration/`;
-6. stops at the first failed unit-test project; and
-7. accurately reports build diagnostics and per-project and overall test
-   totals.
+6. does not run any project under `tests/integration/`;
+7. stops at the first failed unit-test project; and
+8. accurately reports the trace-check verdict, build diagnostics, and
+   per-project and overall test totals.
 
 ## Failure cases
 
 Evaluate each case independently. The invocation must report failure without
 modifying repository files when:
 
+- the specification trace check fails;
 - the pinned SDK is unavailable;
 - locked restore detects an out-of-date lock file;
 - compilation fails;

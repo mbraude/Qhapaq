@@ -156,7 +156,7 @@ the same change.
 
 A repository trace checker will enforce the following rules in local builds
 and as required CI status checks protecting the default branch. Until the
-checker exists, these rules are enforced through review.
+checker and CI exist, the interim enforcement described below applies.
 
 | Check | Rule | Severity |
 | --- | --- | --- |
@@ -177,6 +177,50 @@ AI agents must run the trace checker before reporting a change as complete.
 Where the agent host supports completion hooks, the repository should configure
 them to run the checker so that an agent session fails visibly rather than
 relying on instructions alone.
+
+### Interim enforcement
+
+Until the deterministic checker and CI exist, the repository's
+[`spec-trace-check` skill](../../../.agents/skills/spec-trace-check/SKILL.md)
+enforces the table above through AI-led inspection, together with the semantic
+conformance review. The `build-and-test` skill runs it first, and
+`commit-and-push` runs `build-and-test` by default, so a `FAIL` verdict stops
+the commit. To stay efficient, the skill inspects only files changed since
+`HEAD` (staged, unstaged, and untracked). The one exception is a
+repository-wide search for references to requirement blocks whose text
+changed.
+
+Because the semantic review is not deterministic, its judgment findings
+(untraced behavior, conformance, unsupported references, and missing line or
+test references) can be overridden in two ways:
+
+- **Waiver comment.** A `spec-waive: <rule> — <justification>` comment in the
+  code, defined in the
+  [coding conventions](../../development/coding-conventions.md#waivers),
+  overrides one finding. Waivers are scoped like references, require a
+  justification, stay visible in the code and the diff, and are listed in
+  every trace-check report. Agents may add one only at a user's explicit
+  direction.
+- **Run argument.** A user-supplied `skip-semantic-review` argument skips the
+  semantic review for one run. The skip is recorded in the report.
+
+Mechanical rules cannot be waived or skipped: reference grammar, resolution,
+fingerprints, identifier integrity, and missing references on product
+surface. Without that limit, a waiver could admit unspecified product
+surface, which this decision exists to prevent.
+
+This interim enforcement is weaker than the target design:
+
+- AI inspection is not deterministic and can miss or misjudge findings.
+- It runs only when an agent invokes the skill. Skipping `build-and-test`
+  also skips the trace check.
+- It cannot prevent a push that bypasses the skills.
+- Before the untraced-surface baseline exists, it reports untraced surface
+  only for changed code.
+
+Fingerprints are computed with a small hashing helper embedded in the skill,
+never estimated. The helper is the reference implementation of the fingerprint
+rule above until the checker replaces it.
 
 ## Consequences and Tradeoffs
 
@@ -243,11 +287,13 @@ The same checks apply to every change.
 1. Adopt this decision and the related convention and specification-authoring
    rules.
 2. Add requirement identifiers to existing specifications.
-3. Implement the trace checker with resolution, fingerprint, and identifier
-   integrity checks.
-4. Add references to existing code and record the untraced-surface baseline.
-5. Enable the untraced-surface check and required CI status checks.
-6. Add the semantic conformance review and agent completion hooks.
+3. Add the interim AI-led `spec-trace-check` skill over changed files and run
+   it from `build-and-test`.
+4. Implement the deterministic trace checker with resolution, fingerprint, and
+   identifier integrity checks.
+5. Add references to existing code and record the untraced-surface baseline.
+6. Enable the untraced-surface check and required CI status checks.
+7. Add the semantic conformance review to CI and agent completion hooks.
 
 ## Open Questions
 

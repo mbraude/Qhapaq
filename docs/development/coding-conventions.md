@@ -101,12 +101,52 @@ public async Task<Document> InvokeAsync(Document input, CancellationToken cancel
 }
 ```
 
+### Waivers
+
+The AI-led semantic review is not deterministic. When a reviewer
+confirms that a judgment finding is wrong or accepted, waive it explicitly in
+the code instead of rewording the code to satisfy the reviewer:
+
+```text
+spec-waive: <rule>[, <rule>...] — <justification>
+```
+
+Waivable rules are the judgment findings of the semantic review:
+
+| Rule | Finding waived |
+| --- | --- |
+| `untraced-behavior` | The code implements behavior that the referenced requirements do not describe. |
+| `conformance` | The code appears to contradict a requirement it references. |
+| `unsupported-reference` | A reference appears not to support the code it annotates. |
+| `line-reference` | A non-obvious specified decision lacks a line-level reference. |
+| `test-reference` | A test of a specified rule, or an implemented requirement, lacks a test reference. |
+
+- Place the waiver where a reference would go. In a type's or member's
+  `<remarks>` it covers that type or member. In a `//` comment it covers the
+  statement or block that immediately follows.
+- The justification is required and must explain why the finding does not
+  apply or why it is accepted, for example by citing the requirement text or a
+  tracking issue.
+- Mechanical rules cannot be waived. These are reference grammar, resolution,
+  fingerprints, identifier integrity, and missing references on product
+  surface. Fix the code or the specification instead.
+- AI agents must not add, broaden, or move a waiver unless the user explicitly
+  directs it for that finding.
+
+```csharp
+// spec-waive: untraced-behavior — the retry only absorbs transient HTTP 503 from the local
+// test double and does not change observable behavior; see issue #42.
+```
+
 ### Enforcement
 
-A trace checker will verify that references resolve to non-retired
-requirements, that fingerprints are current, and that product surface is
-traced. It is planned and not yet available; until it exists, reviewers enforce
-these rules manually.
+A deterministic trace checker will verify that references resolve to
+non-retired requirements, that fingerprints are current, and that product
+surface is traced. It is planned and not yet available. Until it exists, the
+AI-led [`spec-trace-check` skill](../../.agents/skills/spec-trace-check/SKILL.md)
+inspects files changed since `HEAD` against these rules. It runs as the first
+step of `build-and-test`, which `commit-and-push` runs by default. Reviewers
+remain responsible for anything the skill misses.
 
 ## 4. Repository and project organization
 
