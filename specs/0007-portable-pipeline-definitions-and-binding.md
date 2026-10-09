@@ -4,7 +4,7 @@
 >
 > **Target:** Qhapaq v1
 >
-> **Last updated:** 2026-10-07
+> **Last updated:** 2026-10-08
 
 ## 1. Summary
 
@@ -1376,9 +1376,10 @@ and rejects members not listed as required or optional.
 | `last` | `value`: expression | none |
 | `slice` | `value`: expression; `start`: expression | `count`: expression |
 | `slice-string` | `value`: expression; `start`: expression | `count`: expression |
-| `index-of`, `last-index-of`, `contains-string`, `starts-with`, `ends-with` | `value`: expression; `search`: expression | none |
-| `split`, `join` | `value`: expression; `separator`: expression | none |
-| `replace` | `value`: expression; `search`: expression; `replacement`: expression | none |
+| `index-of`, `last-index-of`, `contains-string`, `starts-with`, `ends-with` | `value`: expression; `search`: expression | `comparison`: `"exact"`, `"ascii-case-insensitive"`, or `"unicode-case-insensitive"` |
+| `split` | `value`: expression; `separator`: expression | `comparison`: `"exact"`, `"ascii-case-insensitive"`, or `"unicode-case-insensitive"` |
+| `join` | `value`: expression; `separator`: expression | none |
+| `replace` | `value`: expression; `search`: expression; `replacement`: expression | `comparison`: `"exact"`, `"ascii-case-insensitive"`, or `"unicode-case-insensitive"` |
 | `object` | `fields`: map from member names to expressions | none |
 | `array` | `items`: ordered expression array | none |
 | `length` | `value`: expression | none |
@@ -1400,9 +1401,11 @@ and rejects members not listed as required or optional.
 | `assert-length` | `value`: expression and at least one bound | `minimum`; `maximum` |
 | `assert-format` | `value`: expression; `format`: allowed format name | none |
 
-**[R-0007-073]** `property.name`, assertion bounds, and `assert-format.format` are literal
-operands rather than expressions. `sort-by.direction` is also a literal operand,
-not an expression. Numeric-range bounds are finite JSON numbers.
+**[R-0007-073]** `property.name`, assertion bounds, `assert-format.format`,
+`sort-by.direction`, and every supported `comparison` operand are literal
+operands rather than expressions. A `comparison` operand accepts only
+`"exact"`, `"ascii-case-insensitive"`, or `"unicode-case-insensitive"`.
+Numeric-range bounds are finite JSON numbers.
 At most one inclusive or exclusive bound may be supplied for each side.
 Length bounds are non-negative integer literals. The lower bound must not
 exceed the upper bound, accounting for exclusive numeric endpoints.
@@ -1430,12 +1433,38 @@ with a literal zero `start` and `count` equal to `n`, and skipping `n` items
 uses `slice` with `start` equal to `n` and no `count`.
 
 **[R-0007-077]** The string helpers use decoded Unicode scalar sequences. Positions and counts
-are zero-based scalar indices and scalar lengths, never UTF-8 bytes, UTF-16
-code units, or grapheme clusters. Comparison is exact and case-sensitive,
-without Unicode normalization, case folding, or locale-sensitive collation.
-Canonical JSON escaping does not affect comparison. These operators have no
-comparison-mode operand at this checkpoint; the separate case-insensitive
-checkpoint in Section 21 remains open.
+are zero-based indices and lengths in the original, unfolded scalar sequence,
+never UTF-8 bytes, UTF-16 code units, grapheme clusters, or folded-string
+positions. `index-of`, `last-index-of`, `contains-string`, `starts-with`,
+`ends-with`, `split`, and `replace` accept the optional literal `comparison`
+operand defined in Section 8.5. Omitting it is exactly equivalent to selecting
+`"exact"`. Exact comparison is case-sensitive scalar-sequence identity without
+Unicode normalization, case folding, or locale-sensitive collation. Canonical
+JSON escaping does not affect any comparison.
+
+**[R-0007-371]** `"ascii-case-insensitive"` comparison maps each scalar from `A` through `Z`
+(U+0041 through U+005A) to the corresponding scalar from `a` through `z`
+(U+0061 through U+007A) and leaves every other scalar unchanged.
+`"unicode-case-insensitive"` comparison applies Unicode 18.0.0 full Default
+Case Folding independently to each scalar and concatenates the mappings. It
+uses the common (`C`) and full (`F`) mappings from that version's
+`CaseFolding.txt`, leaves a scalar without either mapping unchanged, and does
+not use the simple (`S`) or Turkic (`T`) mappings. Neither insensitive mode
+performs normalization before or after folding or depends on host culture,
+locale, native string comparison, or a host runtime's Unicode data. Unicode
+18.0.0 is part of the semantics of `qhapaq.mapping/v1`; adopting another
+Unicode version after publication requires a new mapping-language version.
+
+**[R-0007-372]** Matching compares the complete transformed search sequence against contiguous
+transformed source sequences. A match is valid only when both ends coincide
+with boundaries between original source scalars, so a match never selects only
+part of one scalar's full-fold expansion. Results and edits refer to the
+corresponding complete span in the original source. For example, under
+`"unicode-case-insensitive"`, U+00DF (`ß`) matches `ss`, but a search for one
+`s` does not match either half of that scalar's `ss` expansion. General
+`equal`, `not-equal`, `deep-equal`, collection equality, grouping, membership,
+ordering, and portable regular-expression matching do not accept this option
+and retain their independently specified exact semantics.
 
 **[R-0007-078]** `slice-string` accepts a string `value` and required, non-null integer `start`
 and optional `count` expressions whose inferred minima are non-negative.
@@ -1449,25 +1478,28 @@ operator, and `slice` remains array-only.
 
 **[R-0007-079]** `index-of`, `last-index-of`, `contains-string`, `starts-with`, and `ends-with`
 accept string `value` and `search` operands. `index-of` returns the smallest
-starting scalar index of a matching contiguous sequence; `last-index-of`
-returns the greatest. Overlapping occurrences are eligible for both positional
-searches. Both return the integer `-1` when no match exists. An empty search
-matches every boundary: `index-of` returns zero and `last-index-of` returns
-the source scalar length. `contains-string` returns whether any match exists;
-`starts-with` and `ends-with` require a match at the beginning and end,
-respectively. All three return `true` for an empty search, including an empty
-source. V1 adds no search-window operands; windows compose `slice-string`
-and a search, whose result index is relative to the selected window.
+original-source scalar index of a valid matching span under the selected
+comparison; `last-index-of` returns the greatest. Overlapping occurrences are
+eligible for both positional searches. Both return the integer `-1` when no
+match exists. An empty search matches every original-source boundary:
+`index-of` returns zero and `last-index-of` returns the source scalar length.
+`contains-string` returns whether any match exists; `starts-with` and
+`ends-with` require a valid matching span at the beginning and end of the
+original source, respectively. All three return `true` for an empty search,
+including an empty source. V1 adds no search-window operands; windows compose
+`slice-string` and a search, whose result index is relative to the original,
+unfolded selected window.
 
 **[R-0007-080]** `split` accepts string `value` and `separator` operands. The separator must
 be statically proven to contain at least one scalar; an unconstrained dynamic
-separator requires `assert-length` with `minimum` one. It finds matches from
-left to right, resuming after the complete matched separator, so matches do
-not overlap. The result contains the intervening substrings in source order,
-including every leading, trailing, and adjacent-separator empty field. No
-match returns one field containing the source, and an empty source returns
-`[""]`. It performs no implicit trimming or empty-field removal and has no
-empty-separator tokenization mode.
+separator requires `assert-length` with `minimum` one. It finds valid matching
+source spans under the selected comparison from left to right, resuming after
+the complete original-source span, so matches do not overlap. The result
+contains the intervening original substrings in source order, including every
+leading, trailing, and adjacent-separator empty field. No match returns one
+field containing the source, and an empty source returns `[""]`. It performs
+no implicit trimming or empty-field removal and has no empty-separator
+tokenization mode.
 
 **[R-0007-081]** `join.value` must infer as an array of required, non-null strings, and
 `join.separator` must infer as a string. It emits items in array order with
@@ -1478,12 +1510,13 @@ The existing string `concat` operator remains supported unchanged.
 
 **[R-0007-082]** `replace` accepts string `value`, `search`, and `replacement` operands. The
 search must be statically proven nonempty, using explicit length narrowing
-when needed. It replaces every left-to-right, non-overlapping occurrence in
-the original source; matching resumes after the matched search sequence and
-never examines inserted replacement text for new matches. An empty replacement
-deletes matches, and an absent match leaves the source text unchanged.
-Replacement text is literal data with no capture, substitution, escape, or
-regex interpretation. V1 has no replace-first operator or first/all mode.
+when needed. It replaces every left-to-right, non-overlapping valid matching
+span under the selected comparison in the original source; matching resumes
+after the complete original-source span and never examines inserted replacement
+text for new matches. An empty replacement deletes matches, and an absent
+match leaves the source text unchanged. Replacement text is literal data with
+no folding, capture, substitution, escape, or regex interpretation. V1 has no
+replace-first operator or first/all mode.
 
 **[R-0007-083]** `map`, `filter`, `distinct`, `distinct-by`, `contains-item`, `concat-arrays`,
 `flatten`, `any`, `all`, `sort-by`, `group-by`, and `count-by` evaluate only
@@ -1650,9 +1683,10 @@ in addition to the presence and nullability requirements in Section 8.7.
     `split` and `join` evaluate `value` then `separator`. `replace` evaluates
     `value`, then `search`, then `replacement`. Each operand is evaluated
     exactly once, with its consumed-value checks immediately after evaluation.
-    After all operands pass, matching-work checks precede matching and output
-    preflight as specified in Section 8.10. Every output preflight completes
-    before emission; `join` preflight examines items in source order.
+    A `comparison` operand is a structurally validated literal and is not
+    evaluated. After all operands pass, matching-work checks precede matching
+    and output preflight as specified in Section 8.10. Every output preflight
+    completes before emission; `join` preflight examines items in source order.
 
 **[R-0007-099]** The first runtime failure in this order terminates the transform. Unevaluated
 operands and elements cannot fail and consume no evaluation budget. An
@@ -2105,17 +2139,27 @@ preflight. These input checks apply even when the helper returns no text, no
 match, or an empty result. Existing string operators retain their earlier
 rules.
 
+For matching-work formulas, let `F(X)` be the scalar length after transforming
+`X` under the selected comparison: identity under `"exact"`, the mapping in
+R-0007-371 under `"ascii-case-insensitive"`, or the full fold in R-0007-371
+under `"unicode-case-insensitive"`. Folded sequences are internal comparison
+data, not operator results, and are not subject to string-output or portable
+value-size limits.
+
 After operand checks and before any matching, `index-of`, `last-index-of`,
 `contains-string`, `split`, and `replace` debit fixed matching work of
-`N + M`, where `N` is the source scalar length and `M` is the search or
-separator scalar length. The debit applies unchanged to empty searches,
-impossible matches, and early matches. It covers all matching, scalar
-examination, and internal comparison or search-table work; those steps incur
-no additional charges. Hosts must implement bounded linear-time matching,
-not unbounded backtracking or repeated full comparisons with quadratic
-worst-case work. `starts-with` and `ends-with` instead debit `2 * M` when
-`M <= N`, or `M` otherwise; an empty search debits zero. Their debit covers
-the search and the corresponding source window.
+`F(value) + F(search)`, using `separator` in place of `search` for `split`.
+The debit applies unchanged to empty searches, impossible matches, and early
+matches. It covers transformation, matching, scalar examination, boundary
+tracking, and internal comparison or search-table work; those steps incur no
+additional charges. Hosts must implement bounded linear-time transformation
+and matching, not unbounded backtracking or repeated full comparisons with
+quadratic worst-case work. `starts-with` and `ends-with` instead debit
+`2 * F(search)` when `F(search) <= F(value)`, or `F(search)` otherwise; an
+empty search debits zero. Their debit covers transformation of the search and
+the corresponding source window. Exact and ASCII-insensitive comparison
+therefore retain the previous formulas, while Unicode full-fold expansions
+increase the debit by their exact expanded scalar count.
 
 `slice-string` debits one scalar examination for each skipped prefix scalar,
 up to `min(start, N)`, followed by one examination per selected scalar. This
@@ -2296,10 +2340,8 @@ required count observable without adding side effects.
 
 **[R-0007-129]** The `qhapaq.mapping/v1` operator set is explicitly reopened while this
 specification remains draft and before its schema and conformance artifacts are
-published. The following unresolved Phase 0 capabilities are in v1 scope:
+published. The following unresolved Phase 0 capabilities remain in v1 scope:
 
-- case-insensitive string comparison, dependent on an explicit, portable
-  comparison and Unicode policy;
 - bounded regular-expression matching and extraction, dependent on the shared
   portable `pattern` grammar and evaluator;
 - object shaping and merge; and
@@ -2314,9 +2356,10 @@ through 8.11.
 **[R-0007-131]** The completed string-capability checkpoint selects `slice-string`, `index-of`,
 `last-index-of`, `contains-string`, `starts-with`, `ends-with`, `split`,
 `join`, and `replace`, alongside the existing `concat`. Sections 8.5 through
-8.10 define exact-comparison semantics; Section 8.14 defines required string
-conformance coverage. This does not close the separate case-insensitive
-checkpoint.
+8.10 define exact, ASCII-insensitive, and Unicode-insensitive comparison
+semantics for the seven matching operators selected in R-0007-077; Section
+8.14 defines required string conformance coverage. General equality and
+nonmatching string helpers remain exact.
 
 **[R-0007-132]** The Phase 0 checkpoints in Section 21 decide the exact operators and semantics
 for these capabilities. A checkpoint may reject a candidate operator, but every
@@ -2371,46 +2414,58 @@ preserves every exact `language` value and never performs language migration.
 
 **[R-0007-139]** The normative `qhapaq.mapping/v1` conformance suite must include:
 
-1. Valid structure and inference vectors for every new helper, optional
-   `slice-string.count`, nonempty-search and separator narrowing, scalar and
-   UTF-8 lengths, window bounds, index bounds, split item and array bounds,
-   join length formulas, conservative replacement expansion, unknown bounds,
-   derived bounds outside the safe-integer domain, and dropped text
-   constraints.
+1. Valid structure and inference vectors for every new helper, every supported
+   `comparison` option on each of the seven matching operators, omission and
+   explicit selection of `"exact"`, optional `slice-string.count`,
+   nonempty-search and separator narrowing, scalar and UTF-8 lengths, window
+   bounds, index bounds, split item and array bounds, join length formulas,
+   conservative replacement expansion, unknown bounds, derived bounds outside
+   the safe-integer domain, and dropped text constraints.
 2. Invalid structure and type vectors for missing and unknown operands,
    expression-valued or unrecognized comparison options, non-string,
    potentially missing, or nullable operands, non-array join sources,
    non-string or nullable join items, negative or unproven slice bounds, and
    empty or not-proven-nonempty split separators and replacement searches.
-3. Scalar-index vectors with non-BMP characters, combining sequences,
-   canonical-equivalent but unequal strings, differing case, JSON escape
-   spellings, zero and omitted counts, starts at and beyond the end,
-   oversized counts, empty sources, and no grapheme or code-unit indexing.
-4. Search vectors for first and last positions, overlapping occurrences,
-   absent matches returning `-1`, empty-search boundary identities, prefix
-   and suffix windows, too-long searches, and relative indices after slicing.
+3. Scalar-index and comparison vectors with non-BMP characters, combining
+   sequences, canonical-equivalent but unequal strings, differing case, JSON
+   escape spellings, ASCII folding with non-ASCII scalars unchanged, Unicode
+   18.0.0 common and full mappings, multi-scalar expansions, no normalization,
+   no Turkic tailoring, host-culture independence, zero and omitted counts,
+   starts at and beyond the end, oversized counts, empty sources, and no
+   folded, grapheme, or code-unit indexing.
+4. Search vectors for first and last original-source positions, overlapping
+   occurrences, valid complete-expansion matches, rejected partial-expansion
+   matches, expansions before a returned position, absent matches returning
+   `-1`, empty-search boundary identities, prefix and suffix windows, too-long
+   searches before and after folding, and relative source indices after
+   slicing.
 5. Split vectors for absent, leading, trailing, and adjacent separators,
-   empty source returning `[""]`, multi-scalar and overlapping separators,
-   preserved empty fields, and literal regex-like separator text.
+   empty source returning `[""]`, multi-scalar, overlapping, and full-fold
+   separators, complete original-source span consumption, preserved empty
+   fields, and literal regex-like separator text.
 6. Join vectors for empty and singleton arrays, empty items and separator,
    repeated separators, source ordering, and explicit stringification.
-7. Replacement vectors for absent, multiple, adjacent, and overlapping
-   matches; empty replacement; expansion; replacement containing the search;
-   and regex-like or substitution-like text treated literally.
+7. Replacement vectors for absent, multiple, adjacent, overlapping, and
+   full-fold matches; complete original-source span replacement; empty
+   replacement; output expansion; replacement containing the search; and
+   regex-like or substitution-like text treated literally and without folding.
 8. Evaluation and failure-order vectors proving single operand evaluation in
    named order, consumed-value checks before later operands, join item
    preflight in source order, fixed work before matching, complete output
    preflight before emission, first-failure selection, and no partial results.
-9. Exact-accounting vectors immediately below and at `N + M`, prefix/suffix
+9. Exact-accounting vectors immediately below and at the formulas over
+   `F(value)` and `F(search)`, including Unicode expansions, prefix/suffix
    debits, empty and impossible searches, slice skipped-prefix work and zero
    count, item/scalar join examination, split field/scalar emission,
    replacement-text examination even without matches, repeated output
    scalars, and no collection visits. Cover scalar and UTF-8 input/output
-   limits, split cardinality and canonical-value limits, expansion, counter
-   overflow, and failed preflight preventing emission.
-10. Adversarial repetitive-source and repetitive-search vectors demonstrating
-    bounded linear matching independently of host search libraries, culture,
-    normalization, architecture, and native string index units.
+   limits, internal folds exceeding an input scalar length, split cardinality
+   and canonical-value limits, output expansion, counter overflow, and failed
+   preflight preventing emission.
+10. Adversarial repetitive-source and repetitive-search vectors in every
+    comparison mode demonstrating bounded linear transformation and matching
+    independently of host search libraries, culture, normalization,
+    architecture, host Unicode data, and native string index units.
 
 **[R-0007-140]** Paired work-limit boundary vectors must make required evaluation and charge
 counts observable where the language cannot inspect them directly. These
@@ -4079,7 +4134,8 @@ changes.
 - common-collection structure, inference, equality, ordering, short-circuit,
   preflight, evaluation-order, and exact accounting vectors required by
   Section 8.11;
-- string-helper structure, inference, scalar indexing, exact comparison,
+- string-helper structure, inference, original-scalar indexing, exact,
+  ASCII-insensitive, and Unicode-insensitive comparison,
   split/join/replacement, evaluation-order, bounded matching, and exact
   accounting vectors required by Section 8.14;
 - mixed mapping-language-version pipelines, including independent transform and
@@ -4234,11 +4290,17 @@ scaffolding the remaining public .NET APIs.
   nonempty split/replacement searches, deterministic linear matching work,
   and output preflight. Sections 8.5 through 8.10 define their semantics;
   Section 8.14 defines conformance-vector requirements published in Phase 1.
-  The separate case-insensitive-comparison checkpoint remains open.
-- [ ] Decide whether string operations support case-insensitive comparison;
-  define exact-comparison defaults and any supported ASCII or Unicode
-  case-folding algorithm, Unicode-version dependency, and explicit selection
-  syntax.
+  The separate case-insensitive-comparison checkpoint is complete.
+- [x] Define case-insensitive string comparison. V1 adds optional literal
+  `comparison` selection to the seven substring-matching operators, keeps
+  exact comparison as the default, and supports ASCII case folding plus full
+  Unicode 18.0.0 Default Case Folding without normalization or Turkic
+  tailoring. Matches must align to original-source scalar boundaries,
+  positions remain original-source scalar indices, folded lengths determine
+  matching-work debits, and later Unicode data requires a new mapping-language
+  version after publication. Sections 8.5 through 8.10 define the normative
+  behavior; Section 8.14 defines conformance-vector requirements published in
+  Phase 1.
 - [ ] Define portable regex search and extraction capabilities using the
   shared pattern grammar, including Boolean matching, complete-match and
   capture behavior, match selection and ordering, overlap, empty matches, and
@@ -4266,13 +4328,12 @@ group keys into object member names. These are capability and shape
 requirements; each operator's exact syntax and semantics remain subject to its
 checkpoint.
 
-**[R-0007-342]** String operations use exact comparison by default. Any case-insensitive mode
-must be explicitly selected and have portable, versioned comparison semantics;
-Unicode-aware case folding depends on a pinned Unicode version and algorithm.
-The initial regex-extraction direction is to return complete matches without
-capture groups. Capture extraction is a separately scoped capability; match
-selection, overlap, empty-match advancement, and exact resource accounting
-remain to be specified.
+**[R-0007-342]** String operations use exact comparison by default. The explicit portable
+case-insensitive modes for literal substring matching are closed by
+R-0007-077, R-0007-371, and R-0007-372. The initial regex-extraction direction
+is to return complete matches without capture groups. Capture extraction is a
+separately scoped capability; match selection, overlap, empty-match
+advancement, and exact resource accounting remain to be specified.
 
 **[R-0007-343]** These are independently closable Phase 0 checkpoints: completing one does not
 depend on completing the others. Each checkpoint records requirements and
