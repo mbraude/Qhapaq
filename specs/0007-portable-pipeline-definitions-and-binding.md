@@ -1268,11 +1268,11 @@ its input is JSON `null`, does not handle missing, and otherwise passes the
 value through. Their inferred result types remove only the state each operator
 checks.
 
-**[R-0007-064]** Sections 8.5 through 8.11 and 8.14 define the v1 operators whose semantics have been
-closed to date, including their operand shapes, evaluation order, result typing,
-value-state behavior, runtime failure behavior, and required conformance
-coverage. Section 8.12 records the remaining Phase 0 checkpoints in the
-explicitly reopened v1 operator set. The
+**[R-0007-064]** Sections 8.5 through 8.11, 8.14, and 8.15 define the v1 operators whose
+semantics have been closed to date, including their operand shapes, evaluation
+order, result typing, value-state behavior, runtime failure behavior, and
+required conformance coverage. Section 8.12 records the remaining Phase 0
+checkpoints in the explicitly reopened v1 operator set. The
 normative schema must enumerate exactly the operators and shapes selected when
 those checkpoints close. Unknown operators are invalid.
 
@@ -1380,6 +1380,8 @@ and rejects members not listed as required or optional.
 | `split` | `value`: expression; `separator`: expression | `comparison`: `"exact"`, `"ascii-case-insensitive"`, or `"unicode-case-insensitive"` |
 | `join` | `value`: expression; `separator`: expression | none |
 | `replace` | `value`: expression; `search`: expression; `replacement`: expression | `comparison`: `"exact"`, `"ascii-case-insensitive"`, or `"unicode-case-insensitive"` |
+| `regex-test`, `regex-find` | `value`: expression; `pattern`: string | none |
+| `regex-find-all` | `value`: expression; `pattern`: string | `overlap`: Boolean |
 | `object` | `fields`: map from member names to expressions | none |
 | `array` | `items`: ordered expression array | none |
 | `length` | `value`: expression | none |
@@ -1402,9 +1404,14 @@ and rejects members not listed as required or optional.
 | `assert-format` | `value`: expression; `format`: allowed format name | none |
 
 **[R-0007-073]** `property.name`, assertion bounds, `assert-format.format`,
-`sort-by.direction`, and every supported `comparison` operand are literal
-operands rather than expressions. A `comparison` operand accepts only
+`sort-by.direction`, every supported `comparison` operand, every regex
+`pattern`, and `regex-find-all.overlap` are literal operands rather than
+expressions. A `comparison` operand accepts only
 `"exact"`, `"ascii-case-insensitive"`, or `"unicode-case-insensitive"`.
+Each regex `pattern` is a JSON string that must satisfy the portable pattern
+grammar and construction limits in Sections 9.3 and 9.5.
+`regex-find-all.overlap` is a JSON Boolean; omission is exactly equivalent to
+`false`.
 Numeric-range bounds are finite JSON numbers.
 At most one inclusive or exclusive bound may be supplied for each side.
 Length bounds are non-negative integer literals. The lower bound must not
@@ -1465,6 +1472,56 @@ corresponding complete span in the original source. For example, under
 `equal`, `not-equal`, `deep-equal`, collection equality, grouping, membership,
 ordering, and portable regular-expression matching do not accept this option
 and retain their independently specified exact semantics.
+
+**[R-0007-373]** `regex-test`, `regex-find`, and `regex-find-all` apply one literal portable
+pattern to one decoded string `value`. Pattern parsing, compilation, and the
+4,096-state construction limit use Sections 9.3 and 9.5 during document
+validation. Invalid syntax or an excessive normative state count is a
+document-validity failure, not a runtime no-match. Implementations may cache
+the validated compiled pattern. The operators provide no case-insensitive
+mode, normalization, host-runtime regex option, substitution syntax, or
+observable capture. Parentheses retain their grouping-only meaning from
+R-0007-179.
+
+`regex-test` returns whether any complete pattern match exists. `regex-find`
+returns the complete original-source substring selected by R-0007-374, or JSON
+`null` when no match exists. `regex-find-all` returns the complete selected
+substrings in the order defined by R-0007-375, or an empty array when no match
+exists. An empty matched substring is `""` and remains distinct from the
+`regex-find` no-match result `null`. Match results contain no positions or
+capture records.
+
+**[R-0007-374]** Number positions in an input containing `N` Unicode scalars from zero through
+`N`. A span `[p, q)` is a complete match when `0 <= p <= q <= N` and an
+anchored run that adds the compiled NFA's start state only at `p`, consumes
+exactly the scalars from `p` through `q - 1`, and adds no later start state has
+the accepting state active at `q`. Assertions in that run are evaluated
+against absolute positions in the original input: `^` succeeds only at
+position zero and `$` only at position `N`.
+
+A search step beginning at cursor `c` considers spans whose start is at least
+`c`. It selects the least start `p` for which any complete match exists, then
+selects the greatest end `q` among complete matches beginning at that `p`.
+This is leftmost-longest selection and is independent of alternation order,
+quantifier expansion order, NFA state order, or a host regex engine's match
+preference. If no eligible span exists, the step has no match. `regex-test`
+and `regex-find` perform one search step beginning at zero. Matching remains
+the unanchored search of R-0007-184; authors use `^` and `$` to require a
+whole-input match.
+
+**[R-0007-375]** `regex-find-all` initializes its cursor to zero and repeatedly performs the
+search step in R-0007-374 while the cursor is at most `N`. A step with no match
+ends iteration. A selected nonempty match `[p, q)` is appended and advances
+the cursor to `q` when `overlap` is false, or to `p + 1` when `overlap` is
+true. A selected empty match `[p, p)` is appended and advances the cursor to
+`p + 1` when `p < N`; an empty match at `N` is appended once and ends
+iteration. Empty-match advancement is the same in either overlap mode.
+
+The result therefore contains at most `N + 1` matches in ascending start
+position. Non-overlapping mode is the default and never selects a later match
+whose start precedes the prior nonempty match's end. Overlapping mode may
+select such a match but still selects at most one leftmost-longest match per
+search step. It does not enumerate every accepting span.
 
 **[R-0007-078]** `slice-string` accepts a string `value` and required, non-null integer `start`
 and optional `count` expressions whose inferred minima are non-negative.
@@ -1627,6 +1684,7 @@ Boolean. Numeric arithmetic operands must infer as `integer` or `number`.
 `assert-number-range` accepts an integer or number; `assert-length` accepts a
 string or array; and `assert-format` accepts a string. These requirements are
 in addition to the presence and nullability requirements in Section 8.7.
+Every regex operator's `value` must infer as a string.
 
 ### 8.6 Evaluation order
 
@@ -1687,6 +1745,12 @@ in addition to the presence and nullability requirements in Section 8.7.
     evaluated. After all operands pass, matching-work checks precede matching
     and output preflight as specified in Section 8.10. Every output preflight
     completes before emission; `join` preflight examines items in source order.
+19. Each regex operator evaluates `value` exactly once and immediately applies
+    its consumed-string checks. `pattern` and `overlap` are structurally
+    validated literals and are not evaluated. After the input checks, each
+    search-step work debit precedes that step. `regex-find-all` completes all
+    matching and result preflight before emitting any array element or matched
+    scalar.
 
 **[R-0007-099]** The first runtime failure in this order terminates the transform. Unevaluated
 operands and elements cannot fail and consume no evaluation budget. An
@@ -1781,6 +1845,13 @@ element types. Inferred schemas omit documentation annotations.
   When source maximum `Smax` and replacement maximum `Rmax` are known,
   its maximum is `Smax * max(1, Rmax)`, a conservative bound because the
   search consumes at least one scalar per match.
+- `regex-test` returns a required, non-null Boolean. `regex-find` returns a
+  present nullable string with `minLength` zero and `maxLength` equal to the
+  source `maxLength` when known. `regex-find-all` returns a required, non-null
+  array with `minItems` zero and `maxItems` equal to the source `maxLength`
+  plus one when known. Its items are non-null strings with `minLength` zero
+  and `maxLength` equal to the source `maxLength` when known. It does not
+  infer `uniqueItems`.
 - The new string-helper bounds use exact non-negative integer arithmetic.
   A derived bound outside the schema profile's portable safe-integer domain
   is omitted rather than wrapped or clamped. Text results retain no source
@@ -1866,10 +1937,11 @@ keys may be JSON `null` when their inferred schemas permit it. Each
 `distinct-by`, `group-by`, and `count-by` key must be statically proven
 present. A null value compares equal only to null.
 
-Every operand of the new string helpers must be statically proven present and
-non-null. The same applies to every `join` item. No helper treats null as an
-empty string, stringifies a non-string implicitly, or accepts missing. Empty
-text and absent matches are ordinary present results under Section 8.5.
+Every operand of the new string and regex helpers must be statically proven
+present and non-null. The same applies to every `join` item. No helper treats
+null as an empty string, stringifies a non-string implicitly, or accepts
+missing. Empty text and absent matches are ordinary present results under
+Section 8.5.
 
 The state predicates are total and return:
 
@@ -1946,12 +2018,13 @@ failures from an evaluated operand, key, or predicate and portable limit
 exhaustion retain their ordinary codes and follow Sections 8.6 and 8.10.
 No array-producing operator returns a partial result.
 
-**[R-0007-115]** The new string helpers introduce no new runtime failure codes. Nonempty search
-and separator requirements and operand domains are validated statically;
-explicit assertions retain their existing failure behavior. Operand failures
-and portable string, collection, value-size, or work exhaustion retain their
-ordinary codes and deterministic order. A helper never truncates output to fit
-a limit or returns a partial string or split array.
+**[R-0007-115]** The new string and regex helpers introduce no new runtime failure codes.
+Nonempty literal-search and separator requirements, regex patterns, and
+operand domains are validated statically; explicit assertions retain their
+existing failure behavior. Operand failures and portable string, collection,
+value-size, or work exhaustion retain their ordinary codes and deterministic
+order. A helper never truncates output to fit a limit or returns a partial
+string or array.
 
 ### 8.10 Portable complexity and evaluation limits
 
@@ -2017,11 +2090,11 @@ effective limits of a pipeline that omitted them or requested lower values.
   outer array and every inner array.
 - Every array produced by `literal`, `array`, `map`, `filter`, `slice`,
   `distinct`, `distinct-by`, `concat-arrays`, `flatten`, `sort-by`, `group-by`,
-  `count-by`, or `split`, including each `group-by` `items` array, and every array
-  returned as the final mapping result, must not contain more than
-  `maxCollectionElements` elements. The rule applies recursively to arrays in
-  produced literal and composite values. V1 has no separate group-count or
-  deduplicated-count limit.
+  `count-by`, `split`, or `regex-find-all`, including each `group-by` `items`
+  array, and every array returned as the final mapping result, must not contain
+  more than `maxCollectionElements` elements. The rule applies recursively to
+  arrays in produced literal and composite values. V1 has no separate
+  group-count, deduplicated-count, or regex-match-count limit.
 - Immediately before a `map` body, `filter` predicate, or `sort-by`,
   `distinct-by`, `group-by`, or `count-by` key begins for an element, one
   collection visit is debited from the evaluation's shared
@@ -2042,14 +2115,15 @@ mapping result must satisfy both `maxStringScalars` and
 Value size is the number of bytes in the RFC 8785 canonical UTF-8
 representation. Every composite value created by `literal`, `object`, `array`,
 `map`, `filter`, `slice`, `distinct`, `distinct-by`, `concat-arrays`,
-`flatten`, `sort-by`, `group-by`, `count-by`, or `split`, and the final mapping result,
-must satisfy `maxValueUtf8Bytes`. A `group-by` result copies every source item
-and adds record overhead, so it may exceed this limit even when its source does
-not. Implementations may calculate size incrementally without materializing
-canonical JSON, but must produce the same byte count and must stop construction
-before exceeding the effective limit. A mapping may select a bounded portion
-of a larger input; input frame values that are not produced as mapping results
-remain subject to separate host frame-memory and aggregate output budgets.
+`flatten`, `sort-by`, `group-by`, `count-by`, `split`, or `regex-find-all`,
+and the final mapping result, must satisfy `maxValueUtf8Bytes`. A `group-by`
+result copies every source item and adds record overhead, so it may exceed this
+limit even when its source does not. Implementations may calculate size
+incrementally without materializing canonical JSON, but must produce the same
+byte count and must stop construction before exceeding the effective limit. A
+mapping may select a bounded portion of a larger input; input frame values that
+are not produced as mapping results remain subject to separate host
+frame-memory and aggregate output budgets.
 
 **[R-0007-119]** `last` examines one array element when the source is non-empty and none when it
 is empty. `slice` examines and emits each selected element in ascending source
@@ -2131,13 +2205,13 @@ for each result item. Neither operator debits collection visits or fixed
 sorting-style work.
 
 **[R-0007-121]** For `slice-string`, `index-of`, `last-index-of`, `contains-string`,
-`starts-with`, `ends-with`, `split`, `join`, and `replace`, every consumed
-string operand must satisfy `maxStringScalars` and `maxStringUtf8Bytes`,
-in that order, immediately after evaluation. `join` also size-checks its source
-array immediately after evaluation and each item string during source-order
-preflight. These input checks apply even when the helper returns no text, no
-match, or an empty result. Existing string operators retain their earlier
-rules.
+`starts-with`, `ends-with`, `split`, `join`, `replace`, `regex-test`,
+`regex-find`, and `regex-find-all`, every consumed string operand must satisfy
+`maxStringScalars` and `maxStringUtf8Bytes`, in that order, immediately after
+evaluation. `join` also size-checks its source array immediately after
+evaluation and each item string during source-order preflight. These input
+checks apply even when the helper returns no text, no match, or an empty
+result. Existing string operators retain their earlier rules.
 
 For matching-work formulas, let `F(X)` be the scalar length after transforming
 `X` under the selected comparison: identity under `"exact"`, the mapping in
@@ -2187,6 +2261,31 @@ Source examinations by `slice-string` and `join` precede their output-size
 checks. Counters and formulas use exact non-negative integer arithmetic;
 overflow is exhaustion of the resource being calculated. Matching-work
 overflow is work exhaustion. No output is emitted after a failed preflight.
+
+**[R-0007-376]** Let `N` be the regex input's scalar length, `S` the state count of the
+normative unshared Thompson NFA construction in R-0007-185 through R-0007-187,
+and `c` the cursor of a search step. Immediately before that step,
+`regex-test`, `regex-find`, and `regex-find-all` debit
+`(N - c + 1) * S` work units. The calculation uses exact non-negative integer
+arithmetic. Counter overflow or a debit greater than the remaining
+`maxEvaluationWork` is work exhaustion before matching for that step begins.
+The fixed debit applies even when the step finds an early match or no match and
+covers NFA simulation, scalar examination, match-boundary tracking, and result
+preflight for that step. Those activities incur no additional examination
+charge. A conforming implementation must complete one search step in
+`O((N - c + 1) * S)` time and `O(S)` active-state records; it must not perform
+one independent full suffix scan for every candidate start or delegate to
+unbounded backtracking.
+
+`regex-find` emits one scalar for each scalar in its selected match; `null`
+emits none. `regex-find-all` first checks its complete match count against
+`maxCollectionElements`, then checks matched-string scalar and UTF-8 limits in
+result order, then checks the complete array's canonical size against
+`maxValueUtf8Bytes`. After every check succeeds, it emits one array element
+per match and one scalar per scalar in each matched string. No regex operator
+debits `maxCollectionVisits`. A failed search-step debit or result preflight
+prevents every result emission; matching never truncates a match or collection
+to fit a limit.
 
 **[R-0007-122]** Portable evaluation work uses one abstract work unit for each:
 
@@ -2342,8 +2441,6 @@ required count observable without adding side effects.
 specification remains draft and before its schema and conformance artifacts are
 published. The following unresolved Phase 0 capabilities remain in v1 scope:
 
-- bounded regular-expression matching and extraction, dependent on the shared
-  portable `pattern` grammar and evaluator;
 - object shaping and merge; and
 - common numeric helpers, including explicitly specified rounding modes and
   any array reductions such as sum, minimum, maximum, and average.
@@ -2360,6 +2457,14 @@ through 8.11.
 semantics for the seven matching operators selected in R-0007-077; Section
 8.14 defines required string conformance coverage. General equality and
 nonmatching string helpers remain exact.
+
+**[R-0007-378]** The completed regex-capability checkpoint selects `regex-test`,
+`regex-find`, and `regex-find-all`. Sections 8.5 through 8.10 define their
+literal portable patterns, complete-match results without captures,
+leftmost-longest selection, absolute anchors, ordered non-overlapping and
+optional overlapping iteration, empty-match advancement, static inference,
+failure behavior, and exact portable accounting. Section 8.15 defines their
+required conformance coverage.
 
 **[R-0007-132]** The Phase 0 checkpoints in Section 21 decide the exact operators and semantics
 for these capabilities. A checkpoint may reject a candidate operator, but every
@@ -2471,6 +2576,53 @@ preserves every exact `language` value and never performs language migration.
 counts observable where the language cannot inspect them directly. These
 requirements are published as executable vectors in Phase 1; closing this
 normative checkpoint does not mark those artifacts complete.
+
+### 8.15 Regex-helper conformance requirements
+
+**[R-0007-377]** The normative `qhapaq.mapping/v1` conformance suite must include:
+
+1. Valid structure and inference vectors for `regex-test`, `regex-find`, and
+   `regex-find-all`; omitted, false, and true literal `overlap`; nullable
+   first-match and array result schemas; empty-match bounds; known and unknown
+   source lengths; and dropped source `format`, `pattern`, `const`, and `enum`
+   constraints.
+2. Invalid structure and type vectors for missing and unknown operands,
+   expression-valued patterns or overlap choices, unknown members, non-string,
+   potentially missing, or nullable values, every invalid portable-pattern
+   grammar case, and normative pattern constructions immediately below and
+   above 4,096 states.
+3. Result vectors for absent, empty, and nonempty matches; non-BMP scalars;
+   combining sequences; canonical-equivalent but unequal text; exact
+   shorthand-class behavior; complete original-source substrings; no
+   captures; and strings that resemble host-specific regex options,
+   substitutions, backreferences, or other excluded syntax.
+4. Selection vectors for competing starts, competing ends at one start,
+   alternation-order independence, leftmost-longest quantifiers, absolute
+   start and end anchors, explicit whole-input patterns, and unanchored search.
+5. Iteration vectors for default and explicit non-overlap, overlap, adjacent
+   matches, overlapping matches of different lengths, no enumeration of every
+   accepting span, ascending source order, and at most one selected match per
+   search step.
+6. Empty-match vectors at the beginning, interior, and end of empty and
+   nonempty inputs; patterns with both empty and nonempty matches at one start;
+   one-scalar advancement; a final empty match emitted once; and the
+   `N + 1` result-count bound in both overlap modes.
+7. Evaluation and failure-order vectors proving one `value` evaluation,
+   consumed-string checks before matching work, one fixed debit before each
+   search step, no later step after no match or final empty match, complete
+   matching and preflight before emission, deterministic first failure, and no
+   partial string or array.
+8. Exact-accounting vectors immediately below and at every
+   `(N - c + 1) * S` debit, including early and absent matches, multiple
+   non-overlapping, overlapping, and empty-match steps, safe-integer and
+   counter overflow, input string limits, result collection cardinality,
+   matched-string scalar and UTF-8 limits, complete-array canonical size,
+   scalar and element emissions, no collection visits, and failed preflight
+   preventing emission.
+9. Cross-language adversarial vectors demonstrating that selection, results,
+   and bounded work are independent of host backtracking engines, native
+   string index units, culture, normalization, architecture, and NFA state or
+   traversal order.
 
 ## 9. Schema Profile and Compatibility
 
@@ -4301,10 +4453,16 @@ scaffolding the remaining public .NET APIs.
   version after publication. Sections 8.5 through 8.10 define the normative
   behavior; Section 8.14 defines conformance-vector requirements published in
   Phase 1.
-- [ ] Define portable regex search and extraction capabilities using the
+- [x] Define portable regex search and extraction capabilities using the
   shared pattern grammar, including Boolean matching, complete-match and
   capture behavior, match selection and ordering, overlap, empty matches, and
-  collection and work limits.
+  collection and work limits. V1 adds `regex-test`, `regex-find`, and
+  `regex-find-all` with literal portable patterns, complete matched strings
+  without captures, leftmost-longest selection, absolute anchors,
+  non-overlapping iteration by default, optional literal overlap, explicit
+  empty-match advancement, and deterministic state-count-based work debits.
+  Sections 8.5 through 8.10 define their normative semantics; Section 8.15
+  defines conformance-vector requirements published in Phase 1.
 - [ ] Define object-shaping capabilities, including supported property
   presence, setting, removal, and merge operations and explicit collision
   behavior.
@@ -4330,10 +4488,13 @@ checkpoint.
 
 **[R-0007-342]** String operations use exact comparison by default. The explicit portable
 case-insensitive modes for literal substring matching are closed by
-R-0007-077, R-0007-371, and R-0007-372. The initial regex-extraction direction
-is to return complete matches without capture groups. Capture extraction is a
-separately scoped capability; match selection, overlap, empty-match
-advancement, and exact resource accounting remain to be specified.
+R-0007-077, R-0007-371, and R-0007-372. Regex search and extraction are closed
+by R-0007-373 through R-0007-378.
+They return complete matched strings without capture groups, use
+leftmost-longest selection, support explicit overlap only on all-match
+extraction, advance deterministically after empty matches, and reuse the
+portable string, collection, value-size, and evaluation-work limits. Capture
+extraction remains outside v1.
 
 **[R-0007-343]** These are independently closable Phase 0 checkpoints: completing one does not
 depend on completing the others. Each checkpoint records requirements and
