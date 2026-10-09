@@ -24,8 +24,9 @@ skills stored here by default.
 | [Build and test](build-and-test/SKILL.md) | Run the specification trace check, build the .NET solution with locked dependencies, and run every unit test project. |
 | [Specification trace check](spec-trace-check/SKILL.md) | AI-led inspection of files changed since `HEAD` that classifies the change, proposes `Change-Kind` and `Spec:` commit trailers, checks identifiers and reference fingerprints, and reviews changed code against the requirements in scope. |
 | [Fix bug](fix-bug/SKILL.md) | Fix a defect as a `bug` change: find the governing requirements, add a referencing regression test, apply a minimal fix, and validate. |
-| [Commit and push](commit-and-push/SKILL.md) | Review all working-tree changes since `HEAD`, create a representative commit with specification trailers, and push the current branch to `origin`. |
+| [Commit and push](commit-and-push/SKILL.md) | Review the selected staged snapshot, or all working-tree changes when nothing is staged, create a representative commit with specification trailers, and push the current branch to `origin`. |
 | [Commit and push without build and test](commit-and-push-without-build-and-test/SKILL.md) | Invoke the commit-and-push workflow with build and unit-test validation explicitly skipped. |
+| [Approve, commit, and push](approve-commit-push/SKILL.md) | Resolve a unique ready-for-review target from an ID/path or prompt/editor context, require explicit snapshot approval, default to trace-only validation for design work, and require build/tests for implementation/code before commit and push. |
 | [Create specification](spec-create/SKILL.md) | Draft or amend platform/component requirements and create initial decision work. |
 | [Synchronize work plan](work-plan-sync/SKILL.md) | Bootstrap or reconcile work items from specification changes without executing them. |
 | [Edit work plan](work-plan-edit/SKILL.md) | Make bounded planning-only edits while preserving coverage, dependencies, and history. |

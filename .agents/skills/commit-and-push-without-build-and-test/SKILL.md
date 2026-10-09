@@ -1,6 +1,6 @@
 ---
 name: commit-and-push-without-build-and-test
-description: Commit and push all current repository changes without running the build and unit tests. Use when the user explicitly asks to commit and push while skipping build-and-test validation.
+description: Commit and push the selected Git snapshot without running the build and unit tests. Use when the user explicitly asks to commit and push while skipping build-and-test validation.
 ---
 
 # Commit and Push Without Build and Test
