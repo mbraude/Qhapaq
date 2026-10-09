@@ -4,7 +4,7 @@
 >
 > **Target:** Qhapaq v1
 >
-> **Last updated:** 2026-10-08
+> **Last updated:** 2026-10-09
 
 ## 1. Summary
 
@@ -1268,13 +1268,11 @@ its input is JSON `null`, does not handle missing, and otherwise passes the
 value through. Their inferred result types remove only the state each operator
 checks.
 
-**[R-0007-064]** Sections 8.5 through 8.11 and 8.14 through 8.16 define the v1 operators whose
+**[R-0007-064]** Sections 8.5 through 8.16 define the v1 operators,
 semantics have been closed to date, including their operand shapes, evaluation
 order, result typing, value-state behavior, runtime failure behavior, and
-required conformance coverage. Section 8.12 records the unresolved capabilities
-in the explicitly reopened v1 operator set. The
-normative schema must enumerate exactly the operators and shapes selected when
-that set closes. Unknown operators are invalid.
+required conformance coverage. The normative schema must enumerate exactly
+these operators and shapes. Unknown operators are invalid.
 
 ### 8.2 Prohibited capabilities
 
@@ -1389,10 +1387,12 @@ and rejects members not listed as required or optional.
 | `array` | `items`: ordered expression array | none |
 | `length` | `value`: expression | none |
 | `is-missing`, `is-null`, `require-present`, `require-non-null`, `not`, `negate`, `trim`, `stringify`, `parse-number`, `parse-boolean`, `assert-integer` | `value`: expression | none |
+| `absolute`, `floor`, `ceiling`, `truncate`, `round` | `value`: expression | none |
 | `coalesce-missing`, `coalesce-null` | `value`: expression; `fallback`: expression | none |
 | `if` | `condition`: expression; `then`: expression; `else`: expression | none |
-| `and`, `or`, `add`, `multiply`, `concat` | `values`: ordered array of at least two expressions | none |
+| `and`, `or`, `add`, `multiply`, `concat`, `minimum`, `maximum` | `values`: ordered array of at least two expressions | none |
 | `equal`, `not-equal`, `deep-equal`, `less-than`, `less-than-or-equal`, `greater-than`, `greater-than-or-equal`, `subtract`, `divide`, `remainder` | `left`: expression; `right`: expression | none |
+| `clamp` | `value`: expression; `minimum`: expression; `maximum`: expression | none |
 | `map` | `value`: expression; `itemName`: identifier; `expression`: expression | `indexName`: identifier |
 | `filter` | `value`: expression; `itemName`: identifier; `predicate`: expression | `indexName`: identifier |
 | `distinct`, `flatten` | `value`: expression | none |
@@ -1402,6 +1402,7 @@ and rejects members not listed as required or optional.
 | `any`, `all` | `value`: expression; `itemName`: identifier; `predicate`: expression | `indexName`: identifier |
 | `sort-by` | `value`: expression; `itemName`: identifier; `key`: expression; `direction`: `"ascending"` or `"descending"` | `indexName`: identifier |
 | `group-by`, `count-by` | `value`: expression; `itemName`: identifier; `key`: expression | `indexName`: identifier |
+| `sum`, `minimum-array`, `maximum-array`, `average` | `value`: expression | none |
 | `assert-number-range` | `value`: expression and at least one bound | `minimum` or `exclusiveMinimum`; `maximum` or `exclusiveMaximum` |
 | `assert-length` | `value`: expression and at least one bound | `minimum`; `maximum` |
 | `assert-format` | `value`: expression; `format`: allowed format name | none |
@@ -1686,8 +1687,9 @@ The most-common-key query composes `count-by`, `sort-by` on `count` in
 descending order, and `item` with index zero; ties select the key that first
 occurs in the source.
 
-**[R-0007-093]** V1 grouping provides no array reductions such as sum, minimum, maximum, or
-average. Numeric helpers and reductions remain unresolved under Section 8.12.
+**[R-0007-093]** V1 grouping does not perform numeric aggregation. Numeric aggregation uses the
+purpose-built `sum`, `minimum-array`, `maximum-array`, and `average` operators
+defined in Section 8.12; grouping and reduction compose explicitly.
 
 **[R-0007-094]** `length` and `assert-length` accept only strings and arrays. String length is
 the number of Unicode scalar values; array length is the number of elements.
@@ -1707,6 +1709,9 @@ define string collation, temporal ordering, or composite ordering.
 **[R-0007-097]** `property.value` must infer as an object. `item.value` must infer as an array.
 `if.condition`, every `and` and `or` value, and `not.value` must infer as
 Boolean. Numeric arithmetic operands must infer as `integer` or `number`.
+The operands of every numeric helper must infer as `integer` or `number`.
+Every numeric reduction source must infer as an array of required, non-null
+`integer` or `number` items.
 `concat` values and `trim.value` must infer as strings. `parse-number` and
 `parse-boolean` accept strings. `assert-integer` accepts a number;
 `assert-number-range` accepts an integer or number; `assert-length` accepts a
@@ -1726,8 +1731,9 @@ operand, must infer as an object.
    `index`. `slice` evaluates `value`, then `start`, then `count` when present;
    it evaluates each operand exactly once.
 4. `object.fields` are evaluated in RFC 8785 member-name order.
-5. `add` and `multiply` are left folds in listed order. Implementations must not
-   regroup operands.
+5. `add`, `multiply`, `minimum`, and `maximum` process their `values` arrays
+   from index zero upward. `add` and `multiply` are left folds in listed order.
+   Implementations must not regroup operands.
 6. `if` evaluates `condition` and only the selected branch.
 7. `and` stops at the first false operand. `or` stops at the first true operand.
 8. A coalescing operator evaluates `fallback` only when its specifically
@@ -1789,6 +1795,11 @@ operand, must infer as an object.
     merge complete every source examination, result-limit check, and output
     preflight before emitting any result member. A failed operand, examination,
     or preflight prevents every result emission.
+21. `clamp` evaluates `value`, `minimum`, and `maximum` in that order, exactly
+    once each.
+22. `sum`, `minimum-array`, `maximum-array`, and `average` evaluate their source
+    once and process its items in ascending source-index order. No item is
+    revisited or processed after the first failure.
 
 **[R-0007-099]** The first runtime failure in this order terminates the transform. Unevaluated
 operands and elements cannot fail and consume no evaluation budget. An
@@ -1860,6 +1871,8 @@ element types. Inferred schemas omit documentation annotations.
 - Numeric operators use interval arithmetic. `add`, `multiply`, `subtract`, and
   `negate` preserve `integer` when all applicable operands are integers;
   otherwise they infer `number`. `divide` and `remainder` infer `number`.
+- The numeric helpers and reductions use the result types and interval rules
+  in R-0007-388.
 - `concat` returns a string with summed length bounds. `trim` returns a string
   with minimum length zero and a maximum no greater than the source maximum.
 - `slice-string` returns a required, non-null string. Its `minLength` and
@@ -2055,15 +2068,19 @@ cancellation, and an unexpected host fault. V1 mapping failures are:
 - text rejected by `parse-number` or `parse-boolean`;
 - a failed integer, numeric-range, length, or format assertion;
 - division or remainder by zero, a non-finite numeric result, or an integer
-  result outside the portable safe-integer domain; and
+  result outside the portable safe-integer domain;
+- dynamically reversed `clamp` bounds;
+- an empty `minimum-array`, `maximum-array`, or `average` source; and
 - exhaustion of a portable mapping evaluation or size limit.
 
-**[R-0007-108]** Numeric arithmetic uses IEEE 754 binary64 round-to-nearest, ties-to-even, with
-one rounding after each operation in the abstract evaluation order. Fused
-operations or reassociation must not change a result. `remainder` uses a
-quotient truncated toward zero. A computed negative zero is normalized to
-zero. A result outside the portable numeric domain fails rather than producing
-`NaN`, infinity, or a clamped value.
+**[R-0007-108]** Numeric arithmetic uses IEEE 754 binary64 with one rounding after each
+operation in the abstract evaluation order. Arithmetic operations use
+round-to-nearest, ties-to-even; the purpose-built rounding helpers instead use
+their directed or ties-to-even modes in R-0007-386. Fused operations or
+reassociation must not change a result. `remainder` uses a quotient truncated
+toward zero. A computed negative zero is normalized to zero. A result outside
+the portable numeric domain fails rather than producing `NaN`, infinity, or a
+clamped value.
 
 **[R-0007-109]** The first mapping failure terminates the transform immediately. No remaining
 operand, collection element, downstream node, or native materializer starts.
@@ -2092,11 +2109,17 @@ Static validation proves that every key is a present scalar. Source, key, and
 limit failures retain their ordinary codes and follow the same evaluation
 order. Neither operator returns a partial result.
 
-**[R-0007-114]** The other collection operators introduce no separate runtime failure. Static
+**[R-0007-114]** The other non-reduction collection operators introduce no separate runtime
+failure. Static
 validation proves their source, item, key, and predicate domains. Existing
 failures from an evaluated operand, key, or predicate and portable limit
 exhaustion retain their ordinary codes and follow Sections 8.6 and 8.10.
 No array-producing operator returns a partial result.
+
+The numeric reductions introduce no item-domain failure because static
+validation proves their source and item domains. Their empty-source and
+arithmetic failures follow R-0007-387 and R-0007-389. They return no partial
+result.
 
 **[R-0007-115]** The new string and regex helpers introduce no new runtime failure codes.
 Nonempty literal-search and separator requirements, regex patterns, and
@@ -2148,7 +2171,7 @@ are:
 | --- | ---: | --- |
 | `maxOperators` | 4,096 | Syntactic operators permitted in each mapping site; never greater than 65,536 |
 | `maxCollectionElements` | 100,000 | Elements permitted in each array processed or produced by a mapping |
-| `maxCollectionVisits` | 1,000,000 | Cumulative visits debited by `map`, `filter`, `distinct`, `distinct-by`, `contains-item`, `any`, `all`, `sort-by`, `group-by`, and `count-by` in one evaluation |
+| `maxCollectionVisits` | 1,000,000 | Cumulative visits debited by `map`, `filter`, `distinct`, `distinct-by`, `contains-item`, `any`, `all`, `sort-by`, `group-by`, `count-by`, and numeric reductions in one evaluation |
 | `maxStringScalars` | 1,000,000 | Unicode scalar values permitted in each string |
 | `maxStringUtf8Bytes` | 4,194,304 | UTF-8 bytes permitted in each decoded string value |
 | `maxValueUtf8Bytes` | 67,108,864 | RFC 8785 canonical UTF-8 bytes permitted in each produced composite value and final result |
@@ -2173,7 +2196,8 @@ effective limits of a pipeline that omitted them or requested lower values.
 
 - An array that becomes the source of `map`, `filter`, `distinct`,
   `distinct-by`, `contains-item`, `concat-arrays`, `flatten`, `any`, `all`,
-  `sort-by`, `group-by`, `count-by`, or `join` must not contain more than
+  `sort-by`, `group-by`, `count-by`, `join`, `sum`, `minimum-array`,
+  `maximum-array`, or `average` must not contain more than
   `maxCollectionElements` elements. For `flatten`, this rule applies to the
   outer array and every inner array.
 - Every array produced by `literal`, `array`, `map`, `filter`, `slice`,
@@ -2187,8 +2211,9 @@ effective limits of a pipeline that omitted them or requested lower values.
   `distinct-by`, `group-by`, or `count-by` key begins for an element, one
   collection visit is debited from the evaluation's shared
   `maxCollectionVisits` budget. `distinct`, `contains-item`, `any`, and `all`
-  likewise debit one visit immediately before processing an attempted source
-  item. Filtered-out, duplicate, unequal, and non-decisive elements count.
+  and each numeric reduction likewise debit one visit immediately before
+  processing an attempted source item. Filtered-out, duplicate, unequal, and
+  non-decisive elements count.
   Unevaluated elements after a short-circuit do not.
 - Nested collection operators share the same visit budget. No nested operator,
   branch, or collection element receives a fresh budget.
@@ -2541,14 +2566,134 @@ vector groups:
 paired work-limit or collection-visit-limit boundary vectors must make the
 required count observable without adding side effects.
 
-### 8.12 Reopened v1 capabilities and later-version candidates
+### 8.12 Closed numeric capabilities and later-version candidates
 
-**[R-0007-129]** The `qhapaq.mapping/v1` operator set is explicitly reopened while this
-specification remains draft and before its schema and conformance artifacts are
-published. The following unresolved capabilities remain in v1 scope:
+**[R-0007-129]** The `qhapaq.mapping/v1` operator set includes the purpose-built numeric
+helpers `absolute`, `minimum`, `maximum`, `clamp`, `floor`, `ceiling`,
+`truncate`, and `round`, and the purpose-built numeric reductions `sum`,
+`minimum-array`, `maximum-array`, and `average`.
 
-- common numeric helpers, including explicitly specified rounding modes and
-  any array reductions such as sum, minimum, maximum, and average.
+**[R-0007-385]** V1 explicitly rejects a general reduce or fold operator, host-selected
+numeric behavior, configurable midpoint modes, decimal-place or
+significant-digit rounding, and an overloaded scalar/array form of `minimum`
+or `maximum`. These candidates are omitted from `qhapaq.mapping/v1`; they are
+not implicitly deferred under the v1 identity.
+
+**[R-0007-386]** `absolute` returns the mathematical magnitude of `value`.
+`minimum` and `maximum` compare their ordered `values` numerically and return
+the first operand with the selected mathematical value; an integer and number
+representation of the same value therefore tie. `clamp` returns `minimum` when
+`value` is less than it, `maximum` when `value` is greater than it, and the
+original `value` otherwise. Equal clamp bounds are valid.
+
+`floor` rounds toward negative infinity, `ceiling` toward positive infinity,
+and `truncate` toward zero. `round` rounds to the nearest integral mathematical
+value, with an exact halfway case selecting the even integral value. These
+operators accept no precision or mode operand. Each performs one binary64
+operation, and R-0007-108 governs rounding, negative-zero normalization, and
+the portable numeric domain.
+
+**[R-0007-387]** `sum`, `minimum-array`, `maximum-array`, and `average` accept an array whose
+items are statically proven present, non-null, and numeric. `sum` is a
+source-order left fold beginning with integer zero; an empty source returns
+that zero. `minimum-array` and `maximum-array` retain the first source value on
+a mathematical tie. They and `average` fail with
+`qhapaq.mapping.empty-reduction-source` for an empty source.
+
+`average` performs exactly the same source-order sum and then one division by
+the exact positive source length. Each addition and the final division follow
+R-0007-108. A non-finite intermediate or result fails immediately. An
+integer-only sum uses the existing integer-addition rule and fails as soon as
+an intermediate leaves the portable safe-integer domain, even when a
+reassociated sum or a different averaging algorithm could produce an
+in-domain result. Implementations must not reassociate, compensate, pairwise
+sum, or substitute an online averaging algorithm.
+
+**[R-0007-388]** Every scalar numeric helper operand must be statically proven present,
+non-null, and numeric. Every numeric reduction source must be statically proven
+present and non-null and have required, non-null numeric items. `absolute`
+preserves `integer`; `minimum` and `maximum` preserve `integer` only when every
+operand is integer; and `clamp` preserves `integer` only when all three
+operands are integer. Otherwise those operators infer `number`.
+
+`floor`, `ceiling`, `truncate`, and `round` infer `integer` only when the
+operand's inferred interval proves every successful rounded result lies in the
+portable safe-integer domain; otherwise they infer `number`. `sum` preserves
+`integer` for an integer item schema and otherwise infers `number`.
+`minimum-array` and `maximum-array` preserve the source item numeric type, and
+`average` infers `number`.
+
+Inference applies the exact monotonic operator to known interval endpoints and
+uses the narrowest inclusive or exclusive bounds that soundly contain every
+successful result. For `minimum`, the result lower bound is the least operand
+lower bound and its upper bound is the least operand upper bound; `maximum`
+uses the greatest operand lower and upper bounds. An array minimum or maximum
+retains the item interval. A sum, average, or clamp bound is retained only when
+exact interval arithmetic proves it without assuming an unknown source
+cardinality, operand relationship, or absence of an earlier runtime failure;
+otherwise that bound is omitted.
+Derived bounds outside the portable schema domain are omitted rather than
+wrapped or clamped.
+
+**[R-0007-389]** Scalar helper operands follow R-0007-098. Each reduction evaluates its source
+once and processes items in ascending index order. The first operand, bound,
+item, arithmetic, or resource failure terminates evaluation; later work does
+not occur. `clamp` fails with `qhapaq.mapping.invalid-clamp-bounds` when its
+evaluated minimum is greater than its evaluated maximum. Validation rejects a
+clamp statically when inferred intervals prove that every possible minimum is
+greater than every possible maximum; otherwise the runtime check remains.
+
+The two new codes are permanent mapping failures with effect outcome `none`.
+No numeric helper handles, converts, or emits `missing` or JSON `null`.
+R-0007-104 rejects operands or reduction items that are not statically proven
+present and non-null.
+
+**[R-0007-390]** Each numeric reduction source is subject to
+`maxCollectionElements`. Immediately before each attempted source item, the
+evaluator debits one array-element examination and one collection visit from
+the evaluation's shared budgets, in that order. The reduction operator's
+ordinary invocation and these per-item debits are its complete portable work
+charge; internal
+comparison, addition, and final division steps add no separate work units.
+An empty source incurs no examination or visit. Counter overflow is exhaustion,
+and a failed debit prevents that item and every later item from being processed.
+
+**[R-0007-391]** The normative `qhapaq.mapping/v1` conformance suite must include:
+
+1. Valid and invalid structure vectors for every exact numeric-helper and
+   reduction shape, including minimum operand counts, unknown members,
+   prohibited rounding operands, and rejected general or overloaded forms.
+2. Static inference vectors for integer/number promotion, interval endpoints,
+   safe-integer rounding boundaries, reduction item schemas, potentially
+   missing or nullable operands and items, nonnumeric values, empty-capable
+   arrays, and statically reversed clamp bounds.
+3. Scalar result vectors for negative and positive values, zero and normalized
+   negative zero, cross-type numeric ties and first-operand retention, clamp
+   below/within/above/equal-bound cases, each directed rounding mode, positive
+   and negative halfway ties, and large finite number results outside the
+   portable integer domain.
+4. Reduction vectors for empty, singleton, integer, number, mixed-sign, and
+   cross-type arrays; first-value min/max ties; empty sum zero; empty failures;
+   source-order intermediate rounding; integer-range and non-finite
+   intermediate failures; and sum-then-divide average behavior.
+5. Evaluation, failure, and exact-accounting vectors proving operand and item
+   order, no reassociation or online averaging, first-failure termination,
+   dynamic reversed-clamp failure, source collection limits, one examination
+   and one shared collection visit per attempted item, no empty-source debit,
+   and boundaries immediately before and after work and visit exhaustion.
+
+#### Numeric examples
+
+These examples are illustrative applications of the normative rules above:
+
+| Expression | Result |
+| --- | --- |
+| `{"op":"absolute","value":{"op":"literal","value":-4}}` | `4` |
+| `{"op":"round","value":{"op":"literal","value":2.5}}` | `2` |
+| `{"op":"round","value":{"op":"literal","value":3.5}}` | `4` |
+| `{"op":"clamp","value":{"op":"literal","value":12},"minimum":{"op":"literal","value":0},"maximum":{"op":"literal","value":10}}` | `10` |
+| `{"op":"sum","value":{"op":"literal","value":[]}}` | `0` |
+| `{"op":"average","value":{"op":"literal","value":[1,2,3]}}` | `2` |
 
 **[R-0007-130]** The common-collection capabilities include `distinct`, `distinct-by`,
 `contains-item`, `concat-arrays`, one-level `flatten`, `any`, and `all` for v1
@@ -2579,12 +2724,10 @@ results, static inference and narrowing, missing and null behavior,
 deterministic evaluation, failure behavior, and exact portable accounting.
 Section 8.16 defines their required conformance coverage.
 
-**[R-0007-132]** The remaining capabilities require exact operator selections and normative
-semantics. A candidate operator may be explicitly rejected, but every selected
-operator is part of `qhapaq.mapping/v1`, not a future mapping-language version.
-The v1 operator set closes again only when every selected capability has
-normative semantics. The corresponding schema and
-conformance artifacts must encode that final set before publication.
+**[R-0007-132]** Every selected capability is part of `qhapaq.mapping/v1`, not a future
+mapping-language version. The v1 operator set is closed by Sections 8.5 through
+8.16. The corresponding schema and conformance artifacts must encode that
+exact set before publication.
 
 **[R-0007-133]** The following capabilities remain outside v1 and are non-normative
 later-version candidates:
@@ -4215,6 +4358,8 @@ diagnostics remain Section 15.1 diagnostics rather than runtime failures.
 | `qhapaq.mapping.division-by-zero` | permanent | none |
 | `qhapaq.mapping.non-finite-number-result` | permanent | none |
 | `qhapaq.mapping.portable-integer-range-exceeded` | permanent | none |
+| `qhapaq.mapping.invalid-clamp-bounds` | permanent | none |
+| `qhapaq.mapping.empty-reduction-source` | permanent | none |
 | `qhapaq.mapping.collection-element-limit-exceeded` | permanent | none |
 | `qhapaq.mapping.collection-visit-limit-exceeded` | permanent | none |
 | `qhapaq.mapping.string-scalar-limit-exceeded` | permanent | none |
@@ -4506,13 +4651,13 @@ in R-0007-369 apply to every enabled execution surface.
 
 **[R-0007-339]** *Retired.*
 
-**[R-0007-340]** Every selected v1 mapping capability requires a closed operand shape, static
+**[R-0007-340]** Every selected v1 mapping capability has a closed operand shape, static
 result typing, distinct `missing` and JSON `null` behavior, runtime failures,
 deterministic evaluation order, portable resource accounting, and required
-conformance vectors. The unresolved numeric capabilities in Section 8.12
-require explicit selections for absolute/minimum/maximum/clamp and rounding
-helpers, numeric-domain behavior, and exact rounding modes. Any selected array
-reductions require empty-array, accumulation-order, and overflow semantics.
+conformance vectors. Section 8.12 explicitly selects
+absolute/minimum/maximum/clamp and rounding helpers, fixes their numeric-domain
+behavior and exact rounding modes, and defines selected array reductions with
+empty-array, accumulation-order, and overflow semantics.
 
 **[R-0007-341]** Mapping capabilities extend the constrained,
 declarative mapping language rather than add inline executable code or a general
@@ -4534,14 +4679,12 @@ portable string, collection, value-size, and evaluation-work limits. Capture
 extraction remains outside v1.
 
 **[R-0007-343]** Each selected mapping capability requires normative semantics and conformance
-vectors before its implementation. This specification explicitly
-reopens `qhapaq.mapping/v1` while it remains draft and unimplemented. The
-specified array selection and windowing capabilities and every operator selected
-for the remaining capabilities are part of v1. A rejected candidate
-is omitted explicitly rather than deferred implicitly. The v1
-operator set must not be declared complete or its schema and conformance
-artifacts published until every selected capability satisfies R-0007-340.
-After publication, any
+vectors before its implementation. The specification reopened
+`qhapaq.mapping/v1` while it remained draft and unimplemented; Sections 8.5
+through 8.16 now close the selected operator set. A rejected candidate is
+omitted explicitly rather than deferred implicitly. The schema and conformance
+artifacts must not be published until every selected capability's required
+vectors exist and satisfy R-0007-340. After publication, any
 additional capability requires an exact future mapping-language version and
 must not change the meaning of v1.
 

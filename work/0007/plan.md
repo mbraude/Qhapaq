@@ -2,8 +2,8 @@
 spec: SPEC-0007
 sources:
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: b4102aabf4e8fdc6eabaf6b1d5aabf13e327ad6a21bd07f1c53288c2490cccdb
+    revision: 6fa79545b7bfa9d4253439dc315cda55d12b0f43
+    content_sha256: 89cd50096b1cac49160fd67dbc97aad10207a11b1f950ddbbbbec6e9da86cadf
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: e5a35871ce14aa37d7169ac35d824c910bb0494a01e419dc7895a69dd0092eb9
@@ -518,8 +518,40 @@ durability, exactly-once or transactional rollback is introduced.
 
 ```text
 Change-Kind: amendment
-Spec: R-0007-064@11203a, R-0007-093@52918d, R-0007-129@3a5fa1, R-0007-130@33feb8, R-0007-131@2e230b, R-0007-132@599ec3, R-0007-140@dece32
-Spec: R-0007-337@59e5d2, R-0007-340@0da743, R-0007-341@99d07c, R-0007-343@c2c7fe, R-0007-344@25665b, R-0007-345@040649, R-0007-346@c13709, R-0007-347@4a4d6f, R-0007-348@751226
+Spec: R-0007-064@11dacd, R-0007-093@02bc90, R-0007-129@8f3c40, R-0007-130@33feb8, R-0007-131@2e230b, R-0007-132@b393aa, R-0007-140@dece32
+Spec: R-0007-337@59e5d2, R-0007-340@461e39, R-0007-341@99d07c, R-0007-343@028495, R-0007-344@25665b, R-0007-345@040649, R-0007-346@c13709, R-0007-347@4a4d6f, R-0007-348@751226
 Spec: R-0007-349@9ad651, R-0007-350@6c7d7d, R-0007-351@61802f, R-0007-352@9878cd, R-0007-353@0385b0, R-0007-354@e02caa, R-0007-355@1001ba, R-0007-356@d72b96, R-0007-357@92d8c6, R-0007-358@ed3c88, R-0007-359@d7f0b0, R-0007-360@96f212
 Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920, R-0007-365@916de2, R-0007-366@5563c5, R-0007-367@7d10ba, R-0007-368@c5f632, R-0007-369@511eb8, R-0007-370@7bc93c, R-0007-378@df03a9, R-0007-383@28fa2d
 ```
+
+## D-0007-001 numeric decision reconciliation
+
+- Date: 2026-10-09. Baseline
+  `6fa79545b7bfa9d4253439dc315cda55d12b0f43` supplied the committed
+  SPEC-0007 input. The source record now hashes the reviewed working-copy bytes
+  containing D-0007-001's accepted numeric decisions; it does not claim those
+  bytes are committed.
+- R-0007-129 and new R-0007-385 through R-0007-391 select the purpose-built
+  scalar helpers and reductions, reject general/configurable alternatives, and
+  close their shapes, numeric behavior, typing, state, order, failure,
+  accounting, and conformance expectations. Cross-cutting requirements and the
+  reserved failure-code table are reconciled to that outcome.
+- D-0007-001 is the only decision resolved by this reconciliation. D-0007-002
+  remains the dependent all-operator completeness audit and is not eligible
+  until D-0007-001 receives exact-snapshot approval and becomes complete.
+  I-0007-004 remains downstream of D-0007-002 and D-0007-015; no implementation
+  slice, schema, vector, readiness approval, or publication is created.
+- Repository-wide reverse-impact search found no implementation, schema, or
+  conformance references to the changed requirement IDs. The affected future
+  artifact milestone remains governed through D-0007-002 and R-0007-343/347.
+- Refreshed the historical proposed-trailer requirement fingerprints above for
+  R-0007-064, R-0007-093, R-0007-129, R-0007-132, R-0007-340, and R-0007-343
+  after the numeric decision changed their requirement text. They now identify
+  the exact current SPEC-0007 blocks; this does not change the recorded source
+  baseline or claim that the proposed trailers were committed.
+- No readiness record exists. Numeric normative closure removes one known
+  specification blocker but does not establish mapping-v1 readiness; D-0007-002,
+  required schemas and vectors, and scoped readiness review remain outstanding.
+- Validation and exact reviewed snapshots are recorded in D-0007-001. This
+  reconciliation is not human approval, completion, implementation,
+  publication, or permission to execute.

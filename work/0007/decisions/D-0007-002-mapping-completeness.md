@@ -4,7 +4,7 @@ kind: decision
 title: Audit and close the complete v1 mapping operator set
 status: open
 spec: SPEC-0007
-requirements: [R-0007-340, R-0007-341, R-0007-342, R-0007-343]
+requirements: [R-0007-340, R-0007-341, R-0007-342, R-0007-343, R-0007-385, R-0007-386, R-0007-387, R-0007-388, R-0007-389, R-0007-390, R-0007-391]
 depends_on: [D-0007-001]
 artifacts: [specs/0007-portable-pipeline-definitions-and-binding.md]
 ---
@@ -13,8 +13,8 @@ artifacts: [specs/0007-portable-pipeline-definitions-and-binding.md]
 
 ## Objective
 
-Close the reopened operator set and audit all capability-completeness
-dimensions in R-0007-340 without creating duplicate work for the same gate.
+Audit the closed operator set against all capability-completeness dimensions in
+R-0007-340 without creating duplicate work for the same gate.
 
 ## Scope and exclusions
 
@@ -38,9 +38,10 @@ tables and examples mutually consistent? Does any unresolved candidate remain?
 
 ## Resolution
 
-Unresolved. Depends on numeric closure; full completeness requires the current
-operator audit, not predecessor status alone. Earlier decisions can be reviewed
-through Git history without a retrospective work-item gate.
+Unresolved. Depends on approved numeric closure in D-0007-001; full completeness
+requires the current operator audit, not predecessor status alone. Earlier
+decisions can be reviewed through Git history without a retrospective
+work-item gate.
 
 ## Validation and review
 
