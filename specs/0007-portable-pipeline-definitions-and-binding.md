@@ -1268,7 +1268,7 @@ its input is JSON `null`, does not handle missing, and otherwise passes the
 value through. Their inferred result types remove only the state each operator
 checks.
 
-**[R-0007-064]** Sections 8.5 through 8.11, 8.14, and 8.15 define the v1 operators whose
+**[R-0007-064]** Sections 8.5 through 8.11 and 8.14 through 8.16 define the v1 operators whose
 semantics have been closed to date, including their operand shapes, evaluation
 order, result typing, value-state behavior, runtime failure behavior, and
 required conformance coverage. Section 8.12 records the remaining Phase 0
@@ -1372,6 +1372,9 @@ and rejects members not listed as required or optional.
 | `literal` | `value`: any JSON value | none |
 | `input`, `variable` | `name`: identifier | none |
 | `property` | `value`: expression; `name`: string | none |
+| `has-property`, `remove-property` | `value`: expression; `name`: string | none |
+| `set-property` | `value`: expression; `name`: string; `propertyValue`: expression | none |
+| `merge-objects` | `values`: ordered array of at least two expressions | none |
 | `item` | `value`: expression; `index`: expression | none |
 | `last` | `value`: expression | none |
 | `slice` | `value`: expression; `start`: expression | `count`: expression |
@@ -1403,10 +1406,13 @@ and rejects members not listed as required or optional.
 | `assert-length` | `value`: expression and at least one bound | `minimum`; `maximum` |
 | `assert-format` | `value`: expression; `format`: allowed format name | none |
 
-**[R-0007-073]** `property.name`, assertion bounds, `assert-format.format`,
-`sort-by.direction`, every supported `comparison` operand, every regex
-`pattern`, and `regex-find-all.overlap` are literal operands rather than
-expressions. A `comparison` operand accepts only
+**[R-0007-073]** `property.name`, every object-shaping `name`, assertion bounds,
+`assert-format.format`, `sort-by.direction`, every supported `comparison`
+operand, every regex `pattern`, and `regex-find-all.overlap` are literal
+operands rather than expressions. A property name is any JSON string,
+including the empty string, and denotes that one exact member without path
+parsing, normalization, or identifier interpretation. A `comparison` operand
+accepts only
 `"exact"`, `"ascii-case-insensitive"`, or `"unicode-case-insensitive"`.
 Each regex `pattern` is a JSON string that must satisfy the portable pattern
 grammar and construction limits in Sections 9.3 and 9.5.
@@ -1418,12 +1424,34 @@ Length bounds are non-negative integer literals. The lower bound must not
 exceed the upper bound, accounting for exclusive numeric endpoints.
 
 **[R-0007-074]** An empty `object.fields` map and an empty `array.items` array are valid.
-`property.name` names one member and never contains a path. `item.index` must
-infer as a required, non-null integer expression. `last.value` and
-`slice.value` must infer as arrays. `slice.start` and `slice.count`, when
-present, must infer as required, non-null integers whose inferred minimum is
-non-negative. A dynamic integer not already proven non-negative must be
-explicitly narrowed before use.
+An empty object is a valid object-shaping operand. `property.name` and each
+object-shaping `name` name one member and never contain a path; nested shaping
+composes single-level operators. `item.index` must infer as a required,
+non-null integer expression. `last.value` and `slice.value` must infer as
+arrays. `slice.start` and `slice.count`, when present, must infer as required,
+non-null integers whose inferred minimum is non-negative. A dynamic integer
+not already proven non-negative must be explicitly narrowed before use.
+
+**[R-0007-379]** `has-property` returns whether its object `value` contains the exact named
+member. A member whose value is JSON `null` is present. `set-property` returns
+an object containing every source member except that the exact named member is
+added or replaced by `propertyValue`. It has no add-only or replace-only mode.
+`remove-property` returns an object without the exact named member; absence is
+a no-op, and removing the last member returns an empty object.
+
+`merge-objects` performs one shallow merge of its ordered object operands.
+Every top-level member contributes independently. When a name occurs more than
+once, the value from the last operand containing that name replaces every
+earlier value. This rule applies uniformly when the values are equal, JSON
+`null`, scalars, arrays, or objects; object-valued collisions replace the
+earlier object wholesale and never recurse. Empty operands contribute no
+members.
+
+Every object-shaping result is a new portable value. Source mutation, reference
+identity, and member insertion order are unobservable. Object member order is
+not semantic. Implementations may share immutable storage or use another
+representation only when no observable result, failure, or resource debit
+changes.
 
 **[R-0007-075]** `last` is the only single-item convenience operator. It selects the final array
 element without evaluating its source more than once. V1 has no `first`
@@ -1684,7 +1712,9 @@ Boolean. Numeric arithmetic operands must infer as `integer` or `number`.
 `assert-number-range` accepts an integer or number; `assert-length` accepts a
 string or array; and `assert-format` accepts a string. These requirements are
 in addition to the presence and nullability requirements in Section 8.7.
-Every regex operator's `value` must infer as a string.
+Every regex operator's `value` must infer as a string. Every `has-property`,
+`set-property`, and `remove-property` `value`, and every `merge-objects`
+operand, must infer as an object.
 
 ### 8.6 Evaluation order
 
@@ -1751,6 +1781,14 @@ Every regex operator's `value` must infer as a string.
     search-step work debit precedes that step. `regex-find-all` completes all
     matching and result preflight before emitting any array element or matched
     scalar.
+20. `has-property` and `remove-property` evaluate `value` exactly once.
+    `set-property` evaluates `value` and then `propertyValue`, each exactly
+    once. `merge-objects` processes `values` from index zero upward: it
+    evaluates one operand and examines that object's members in RFC 8785
+    member-name order before evaluating the next operand. Set, removal, and
+    merge complete every source examination, result-limit check, and output
+    preflight before emitting any result member. A failed operand, examination,
+    or preflight prevents every result emission.
 
 **[R-0007-099]** The first runtime failure in this order terminates the transform. Unevaluated
 operands and elements cannot fail and consume no evaluation budget. An
@@ -1791,6 +1829,7 @@ element types. Inferred schemas omit documentation annotations.
 - `property` infers the effective named-property or additional-property schema
   and sets `mayBeMissing` when the member is not required. Selecting a member
   forbidden by the input schema is invalid.
+- Object-shaping operators use the detailed inference rules in R-0007-380.
 - `item` infers the array item schema. It sets `mayBeMissing` unless the inferred
   index bounds and source `minItems` prove that every possible index exists.
 - `last` infers the array item schema. It sets `mayBeMissing` unless the source
@@ -1901,15 +1940,49 @@ element types. Inferred schemas omit documentation annotations.
 
 **[R-0007-104]** Except for operators expressly defined to inspect, propagate, or handle
 `missing` or JSON `null`, every operand must be statically proven present and
-non-null. Successful-result inference is independent from whether a checked
-partial operator may fail for a runtime value.
+non-null. `set-property.propertyValue` is the sole object-shaping exception: it
+must be present but may be JSON `null`. Successful-result inference is
+independent from whether a checked partial operator may fail for a runtime
+value.
 
 **[R-0007-105]** Guard-based narrowing applies to exact canonically identical expressions.
 `is-missing` narrows presence, and `is-null` narrows nullability. `not` reverses
-the true and false facts. `and` carries true facts left to right; `or` carries
-false facts left to right. `if` checks its selected branch under the facts
-established by the corresponding condition outcome. Facts from alternatives
-are retained only when every path establishes the same fact.
+the true and false facts. A true `has-property(value, name)` narrows the exact
+canonical `property(value, name)` expression to present; a false result narrows
+it to missing. It does not narrow nullability. `and` carries true facts left to
+right; `or` carries false facts left to right. `if` checks its selected branch
+under the facts established by the corresponding condition outcome. Facts
+from alternatives are retained only when every path establishes the same fact.
+
+**[R-0007-380]** `has-property` returns a required, non-null Boolean. It infers `const: true`
+when the source schema requires the named member, `const: false` when the
+source schema forbids it, and otherwise no Boolean `const`.
+
+`set-property` preserves every unaffected declared-property schema and
+required status, replaces or adds the named property's schema with the inferred
+`propertyValue` schema, marks that property required, and preserves the source
+`additionalProperties` rule. `remove-property` removes the named declaration
+and required status and preserves `additionalProperties`. This is exact for a
+closed source. For a typed-open source, the retained additional-property schema
+conservatively continues to admit the removed name because the v1 schema
+profile cannot exclude one name from an otherwise open object.
+
+For `merge-objects`, the result declares the union of the operands' declared
+property names. A declared result property is required when at least one
+operand requires that name. Its schema is the least representable common
+super-schema of every operand schema that can supply the final value under the
+last-wins rule: an operand's effective named- or additional-property schema is
+a candidate when that operand may supply the name and no later operand
+requires it. The result is closed only when every operand is closed; otherwise
+its additional-property schema is the least representable common super-schema
+of the operands' additional-property schemas that permit values.
+
+Every join uses R-0007-101 and R-0007-102. An unrepresentable property or
+additional-property join is a static expression error. The ordinary schema
+profile limits apply to inferred results, including the declared-property
+limit. Object-level `const`, `enum`, `default`, `title`, `description`, and
+`examples` are not propagated merely because a source had them; they appear in
+the result only when another general inference rule independently proves them.
 
 ### 8.8 `missing` and JSON `null`
 
@@ -1942,6 +2015,13 @@ present and non-null. The same applies to every `join` item. No helper treats
 null as an empty string, stringifies a non-string implicitly, or accepts
 missing. Empty text and absent matches are ordinary present results under
 Section 8.5.
+
+Every object operand of `has-property`, `set-property`, `remove-property`, and
+`merge-objects` must be statically proven present and non-null.
+`set-property.propertyValue` must be present and may be null when its inferred
+schema permits null. No object-shaping operator treats missing or null as an
+empty object, inserts missing, omits a member because its value is missing, or
+converts null to missing.
 
 The state predicates are total and return:
 
@@ -2025,6 +2105,14 @@ existing failure behavior. Operand failures and portable string, collection,
 value-size, or work exhaustion retain their ordinary codes and deterministic
 order. A helper never truncates output to fit a limit or returns a partial
 string or array.
+
+**[R-0007-381]** The object-shaping operators introduce no new operator-specific runtime failure.
+Static validation proves their operand domains, presence requirements, and
+representable inferred schemas. Removing an absent property succeeds,
+collisions use the last-wins rule, and empty objects are ordinary values.
+Existing operand failures and portable value-size or work exhaustion retain
+their ordinary codes and follow Sections 8.6 and 8.10. No object-shaping
+operator returns a partial result.
 
 ### 8.10 Portable complexity and evaluation limits
 
@@ -2114,9 +2202,10 @@ mapping result must satisfy both `maxStringScalars` and
 
 Value size is the number of bytes in the RFC 8785 canonical UTF-8
 representation. Every composite value created by `literal`, `object`, `array`,
-`map`, `filter`, `slice`, `distinct`, `distinct-by`, `concat-arrays`,
-`flatten`, `sort-by`, `group-by`, `count-by`, `split`, or `regex-find-all`,
-and the final mapping result, must satisfy `maxValueUtf8Bytes`. A `group-by`
+`set-property`, `remove-property`, `merge-objects`, `map`, `filter`, `slice`,
+`distinct`, `distinct-by`, `concat-arrays`, `flatten`, `sort-by`, `group-by`,
+`count-by`, `split`, or `regex-find-all`, and the final mapping result, must
+satisfy `maxValueUtf8Bytes`. A `group-by`
 result copies every source item and adds record overhead, so it may exceed this
 limit even when its source does not. Implementations may calculate size
 incrementally without materializing canonical JSON, but must produce the same
@@ -2312,6 +2401,23 @@ terminates the mapping before that work occurs. This failure follows the
 abstract evaluation order in Section 8.6 and is a mapping runtime failure under
 Section 8.9.
 
+**[R-0007-382]** `has-property` uses the same named-member lookup accounting as `property`: it
+charges one member examination when the named member is present and none when
+it is absent. After their expression operands succeed, `set-property` and
+`remove-property` examine every source member in RFC 8785 member-name order.
+`merge-objects` examines every member of every operand, including members later
+replaced by collisions, in the operand and member order defined by R-0007-098.
+Collision detection and replacement incur no separate fixed or logarithmic
+debit.
+
+After every examination and complete result preflight succeeds,
+`set-property`, `remove-property`, and `merge-objects` emit each final member
+once in RFC 8785 member-name order. Ordinary recursive composite, string, and
+canonical-size accounting applies to the produced value. A member retained or
+replaced is charged according to whether it is examined, emitted, or both.
+Counter overflow is exhaustion, and a failed examination debit or result
+preflight prevents every member emission.
+
 **[R-0007-123]** Expression depth above 256, operator count above 65,536, or operator count
 above the effective `maxOperators` is a portable document-validity failure.
 Runtime values are not required to be statically provable within the remaining
@@ -2441,7 +2547,6 @@ required count observable without adding side effects.
 specification remains draft and before its schema and conformance artifacts are
 published. The following unresolved Phase 0 capabilities remain in v1 scope:
 
-- object shaping and merge; and
 - common numeric helpers, including explicitly specified rounding modes and
   any array reductions such as sum, minimum, maximum, and average.
 
@@ -2466,12 +2571,20 @@ optional overlapping iteration, empty-match advancement, static inference,
 failure behavior, and exact portable accounting. Section 8.15 defines their
 required conformance coverage.
 
+**[R-0007-383]** The completed object-shaping checkpoint selects `has-property`,
+`set-property`, `remove-property`, and `merge-objects`. Sections 8.5 through
+8.10 define their literal single-level names, upsert and no-op removal
+semantics, shallow ordered last-wins merge, immutable order-insensitive
+results, static inference and narrowing, missing and null behavior,
+deterministic evaluation, failure behavior, and exact portable accounting.
+Section 8.16 defines their required conformance coverage.
+
 **[R-0007-132]** The Phase 0 checkpoints in Section 21 decide the exact operators and semantics
-for these capabilities. A checkpoint may reject a candidate operator, but every
-operator it selects is part of `qhapaq.mapping/v1`, not a future mapping-language
-version. The v1 operator set closes again only when all of these checkpoints
-have normative semantics. The corresponding schema and conformance artifacts
-must encode that final set before publication.
+for the remaining capabilities. A checkpoint may reject a candidate operator,
+but every operator it selects is part of `qhapaq.mapping/v1`, not a future
+mapping-language version. The v1 operator set closes again only when all of
+these checkpoints have normative semantics. The corresponding schema and
+conformance artifacts must encode that final set before publication.
 
 **[R-0007-133]** The following capabilities remain outside v1 and are non-normative
 later-version candidates:
@@ -2623,6 +2736,36 @@ normative checkpoint does not mark those artifacts complete.
    and bounded work are independent of host backtracking engines, native
    string index units, culture, normalization, architecture, and NFA state or
    traversal order.
+
+### 8.16 Object-shaping conformance requirements
+
+**[R-0007-384]** The normative `qhapaq.mapping/v1` conformance suite must include:
+
+1. Valid structure and inference vectors for all four exact operator shapes;
+   empty objects; empty, dotted, slash-containing, and Unicode member names;
+   closed and typed-open objects; optional, required, and nullable members;
+   nullable set values; optional-to-required setting; conservative open-object
+   removal; representable merge joins; and nested single-level composition.
+2. Invalid structure and type vectors for missing and unknown operands,
+   expression-valued names, fewer than two merge values, non-object,
+   potentially missing, or nullable object operands, a potentially missing set
+   value, inferred results above schema-profile limits, and unrepresentable
+   optional or open merge joins.
+3. Result vectors for present, absent, and null-valued `has-property`; adding
+   and replacing members; storing null; absent and last-member removal; empty
+   operands; shallow merge; and operand-order last-wins collisions involving
+   equal, null, scalar, array, and object values. Vectors must also prove that
+   source mutation, reference identity, and member order are unobservable.
+4. Evaluation and failure-order vectors proving evaluate-once behavior,
+   object-before-`propertyValue` evaluation, per-operand merge evaluation and
+   examination before the next operand, canonical member traversal,
+   suppression of later operands after the first failure, complete preflight
+   before emission, and absence of partial results.
+5. Exact-accounting vectors for present and absent named lookup, every source
+   member examination, overwritten-member examination, final-member emission,
+   recursive produced-value limits, boundaries immediately below and at the
+   work and value-size limits, failed preflight before emission, and counter
+   overflow as exhaustion.
 
 ## 9. Schema Profile and Compatibility
 
@@ -4463,9 +4606,13 @@ scaffolding the remaining public .NET APIs.
   empty-match advancement, and deterministic state-count-based work debits.
   Sections 8.5 through 8.10 define their normative semantics; Section 8.15
   defines conformance-vector requirements published in Phase 1.
-- [ ] Define object-shaping capabilities, including supported property
-  presence, setting, removal, and merge operations and explicit collision
-  behavior.
+- [x] Define object-shaping capabilities. V1 adds `has-property`,
+  `set-property`, `remove-property`, and `merge-objects` with literal
+  single-level names, upsert and absent-removal no-op semantics, shallow
+  ordered last-wins merge, precise conservative schema inference, explicit
+  missing/null and evaluation behavior, deterministic full-member accounting,
+  and required conformance coverage. Sections 8.5 through 8.10 and 8.16 define
+  the normative behavior.
 - [ ] Define common numeric helper capabilities, including supported
   absolute/minimum/maximum/clamp and rounding operations, numeric-domain
   behavior, and exact rounding modes. Also decide whether v1 supports array

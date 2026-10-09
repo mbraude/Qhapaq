@@ -107,11 +107,33 @@ prominent file.
   trailer. Use the trailers that `spec-trace-check` proposed. When the trace
   check did not run, derive them by applying its classification step to the
   staged diff, and state in the report that they were not verified.
+- Keep every trailer in one final contiguous paragraph: place one blank line
+  before the first trailer and no blank lines between trailer lines. Repeated
+  `git commit -m` arguments create separate paragraphs, so never pass
+  individual trailer lines through separate `-m` arguments.
+
+  ```text
+  Subject
+
+  Optional body.
+
+  Change-Kind: requirement
+  Spec: R-0007-001@abcdef
+  Co-authored-by: Example <example@example.invalid>
+  ```
+
+- When the message contains trailers, write the complete message to a temporary
+  file. Before committing, run `git interpret-trailers --parse <message-file>`
+  and verify that it returns exactly one expected `Change-Kind:` trailer and
+  every expected `Spec:` and attribution trailer. Stop before committing if
+  parsing omits, duplicates, or changes any expected trailer.
 - Do not claim checks, behavior, or results that were not verified.
 
 ### 5. Commit
 
 Create one non-interactive commit using the generated subject and optional body.
+When step 4 required a temporary message file, commit with
+`git commit --file <message-file>` and remove the temporary file afterward.
 Do not amend an existing commit. If hooks fail, preserve their output and stop;
 do not bypass them.
 
