@@ -24,6 +24,7 @@ defined in
 | Path | Purpose |
 | --- | --- |
 | [specs/](specs/) | Normative feature and behavior specifications. |
+| [work/](work/) | Specification decision plans, incremental delivery work, and readiness evidence. |
 | [schemas/](schemas/) | Language-neutral schemas for portable documents and protocols. |
 | [conformance/](conformance/) | Shared valid, invalid, and behavioral compatibility vectors. |
 | [implementations/](implementations/) | Language-specific reference and future implementations. |

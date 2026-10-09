@@ -95,6 +95,12 @@ Update the appropriate artifact when a change makes a durable decision:
   [docs/development/coding-conventions.md](docs/development/coding-conventions.md).
 - Repeatable procedures may become skills under `.agents/skills/`; general
   policy must not.
+- Track specification decisions and incremental delivery under `work/` using
+  the [specification-driven workflow](docs/development/spec-driven-workflow.md).
+  Work artifacts never override requirements or architectural decisions.
+  Preserve stable IDs, reconcile affected plans when sources change, and require
+  explicit review of exact snapshots before completion. Generate plans for
+  existing specifications only when requested.
 
 Do not bury a new architectural decision only in code, a pull request
 description, a prompt, or a tool-specific instruction file.

@@ -26,3 +26,19 @@ skills stored here by default.
 | [Fix bug](fix-bug/SKILL.md) | Fix a defect as a `bug` change: find the governing requirements, add a referencing regression test, apply a minimal fix, and validate. |
 | [Commit and push](commit-and-push/SKILL.md) | Review all working-tree changes since `HEAD`, create a representative commit with specification trailers, and push the current branch to `origin`. |
 | [Commit and push without build and test](commit-and-push-without-build-and-test/SKILL.md) | Invoke the commit-and-push workflow with build and unit-test validation explicitly skipped. |
+| [Create specification](spec-create/SKILL.md) | Draft or amend platform/component requirements and create initial decision work. |
+| [Synchronize work plan](work-plan-sync/SKILL.md) | Bootstrap or reconcile work items from specification changes without executing them. |
+| [Edit work plan](work-plan-edit/SKILL.md) | Make bounded planning-only edits while preserving coverage, dependencies, and history. |
+| [Show work plan](work-plan-show/SKILL.md) | Display remaining work, blockers, review gates, and a dependency graph without modifying files. |
+| [Next specification decision](spec-next/SKILL.md) | Resolve one eligible decision and stop for review. |
+| [Specification readiness](spec-readiness/SKILL.md) | Assess a named scope and exact source snapshot for completeness and prerequisites. |
+| [Implementation plan](implementation-plan/SKILL.md) | Detail or revise concrete file, namespace, test, and dependency manifests for delivery slices. |
+| [Next implementation slice](implement-next/SKILL.md) | Implement and validate one approved eligible slice, then stop for delivery review. |
+
+The [specification-driven workflow](../../docs/development/spec-driven-workflow.md)
+owns the lifecycle and artifact contracts. The skills reuse its
+[templates](../../work/templates/); they do not define parallel policy.
+`work-plan-sync` handles first-time extraction as well as later reconciliation.
+Existing specifications are not migrated until requested. These are AI-led
+procedures; deterministic work-plan validation and CI enforcement are not yet
+implemented.

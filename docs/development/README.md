@@ -21,3 +21,5 @@ Current guidance:
   restore, format, build, and test commands.
 - [Git hooks](git-hooks.md) documents local commit-trailer enforcement and
   its regression checks.
+- [Specification-driven work](spec-driven-workflow.md) defines work plans,
+  decision and implementation items, readiness, review gates, and workflow skills.
