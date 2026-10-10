@@ -4,7 +4,7 @@ kind: decision
 title: Define capability and conformance declarations
 status: open
 spec: SPEC-0008
-requirements: [R-0000-009, R-0008-006, R-0008-007]
+requirements: [R-0000-009, R-0008-006, R-0008-007, R-0008-008]
 depends_on: [D-0008-004, D-0008-005]
 artifacts:
   - specs/0008-multi-language-conformance-and-repository-organization.md

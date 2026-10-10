@@ -6,7 +6,7 @@ change_kind: requirement
 title: Deliver conformance profiles, declarations, and evidence artifacts
 status: open
 spec: SPEC-0008
-requirements: [R-0008-006, R-0008-007]
+requirements: [R-0008-006, R-0008-007, R-0008-008]
 depends_on:
   - D-0008-004
   - D-0008-005
