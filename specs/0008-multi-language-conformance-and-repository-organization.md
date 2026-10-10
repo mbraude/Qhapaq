@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; taxonomy, policy ownership, normative-content separation, and initial profile boundaries resolved; remaining decisions unresolved
-> **Version:** 0.5
+> **Status:** Draft; taxonomy, policy ownership, normative-content separation, initial profile boundaries, and profile version compatibility resolved; remaining decisions unresolved
+> **Version:** 0.6
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -13,12 +13,13 @@ that are not runtime implementations, such as a website, editor integrations,
 and development tools.
 
 The artifact taxonomy, source-layout, engineering-policy ownership,
-normative-content separation, and initial conformance-profile boundaries in
-sections 4 through 6 are resolved in normative requirement blocks and await
-review of the exact specification snapshot where not already approved. Other
-proposals remain subject to decision work and review. This draft does not
-publish a conformance profile, add a language runtime, or authorize
-implementation. Discussion and open questions do not receive requirement IDs.
+normative-content separation, initial conformance-profile boundaries, and
+profile version compatibility in sections 4 through 6 are resolved in
+normative requirement blocks and await review of the exact specification
+snapshot where not already approved. Other proposals remain subject to
+decision work and review. This draft does not publish a conformance profile,
+add a language runtime, or authorize implementation. Discussion and open
+questions do not receive requirement IDs.
 
 Existing specifications and engineering policies remain in force. In
 particular, this draft does not relocate source, rename assemblies, change
@@ -288,9 +289,9 @@ artifact can implement either without implementing the other. Remote CLI,
 MCP, or other protocol clients do not satisfy these host profiles and receive
 no initial profile until their protocol and client obligations are specified.
 
-### Candidate profile contents
+### Profile contents and version identity
 
-A future profile definition could identify:
+A profile definition identifies:
 
 - Exact identity, version, applicability, and referenced specification snapshot.
 - Required requirement IDs and prerequisite profiles.
@@ -300,8 +301,40 @@ A future profile definition could identify:
 - Review, publication, support, and compatibility-change rules.
 
 Implementation release versions, profile versions, document versions, protocol
-versions, and requirement fingerprints represent different things. Their
-relationships remain to be specified rather than assumed to move together.
+versions, and requirement fingerprints represent different things.
+
+**[R-0008-008]** A published profile version has the immutable identity
+`<profile-id>@<major>.<minor>`. `major` is a positive decimal integer without
+leading zeroes, `minor` is a non-negative decimal integer without leading
+zeroes, and the first publishable version of a profile is `1.0`. Draft
+revisions are not profile versions and cannot support conformance claims.
+
+Each profile version binds its exact profile identity and applicability, each
+prerequisite profile at an exact version, the exact authoritative
+specification revisions, and the complete ordered set of mandatory requirement
+ID and fingerprint pairs. It also identifies optional capabilities and other
+non-mandatory profile metadata without treating them as mandatory obligations.
+An implementation release, document revision, protocol version, or requirement
+fingerprint must not be substituted for or inferred to be a profile version.
+
+After publication, a profile-version definition and the meaning of a claim
+against it are immutable. A later version within the same major version is
+compatible with an earlier version only when it preserves every mandatory
+obligation and prerequisite of the earlier version. A minor version may make a
+reviewed semantics-preserving correction, including the resulting exact
+fingerprint update, or add optional capabilities or other non-mandatory
+metadata. Adding or removing a mandatory obligation; changing mandatory
+behavior, applicability, or a prerequisite identity or version; weakening an
+obligation; or making a previously optional capability mandatory requires a
+new major version.
+
+Retirement, supersession, support status, and withdrawal do not alter a
+profile version or an existing claim. Version numbers imply no support period.
+Conformance to one version never creates or migrates a claim for another
+version automatically, including a compatible minor version; a new exact
+claim requires evidence against the newly claimed version. Publication,
+support-window, retention, and withdrawal procedures are defined separately
+from these compatibility rules.
 
 ### Profiles versus capabilities
 
@@ -348,8 +381,8 @@ candidate model does not treat a self-declared manifest or a passing vector
 suite alone as proof of every security and concurrency obligation.
 
 A machine-readable declaration and release conformance report are proposed
-artifacts, not defined formats. Profile versioning, declaration formats,
-evidence sufficiency, and claim publication remain unresolved.
+artifacts, not defined formats. Declaration formats, evidence sufficiency, and
+claim publication remain unresolved.
 
 ## 7. Proposed Terminology and Architecture Clarification
 
@@ -433,7 +466,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-002 | Decided by R-0008-004: common policy remains in `docs/development/coding-conventions.md`; real language and artifact specializations live beneath `docs/development/conventions/`; applicability is cumulative and path instructions link rather than duplicate policy. |
 | Q-0008-003 | Decided by R-0008-005: portable requirements remain implementation-neutral; normative language contracts belong in explicitly scoped numbered implementation specifications; block boundaries and required labels distinguish normative from illustrative examples. |
 | Q-0008-004 | Decided by R-0008-006 and R-0008-007: the initial profiles are the portable runtime, local CLI, MCP host, and in-process .NET API; every execution-bearing surface profile requires the runtime baseline; dependencies are cumulative; partial and unqualified conformance claims are prohibited; remote-client profiles are deferred. |
-| Q-0008-005 | How are profile versions tied to exact specification revisions and requirement fingerprints, and what constitutes a compatible change? |
+| Q-0008-005 | Decided by R-0008-008: immutable `MAJOR.MINOR` profile versions begin at `1.0`, bind exact authoritative obligations and prerequisite versions, permit only semantics-preserving or non-mandatory minor changes, require major versions for mandatory or prerequisite changes, and never migrate claims automatically. |
 | Q-0008-006 | What capability and conformance declaration formats are needed, and how are partial support and unsupported behavior reported? |
 | Q-0008-007 | Which shared vectors, language-specific tests, reviews, and release evidence are sufficient for each conformance claim? |
 | Q-0008-008 | What language-native traceability placements and checker support are needed without weakening existing traceability and waiver rules? |
@@ -450,6 +483,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.6 | 2026-10-10 | Defined immutable profile-version identities and exact obligation bindings, compatible minor changes, breaking major changes, retirement and supersession behavior, and explicit claim migration. |
 | 0.5 | 2026-10-10 | Defined the four initial conformance profiles, cumulative runtime prerequisites, applicability boundaries, and precise claim restrictions while deferring remote-client profiles. |
 | 0.4 | 2026-10-10 | Separated portable requirements, explicitly scoped language-specific contracts, non-normative prose, illustrative examples, and normative examples while preserving requirement identifiers and fingerprint boundaries. |
 | 0.3 | 2026-10-10 | Assigned common, language-specific, artifact-specific, architectural, and product-policy ownership; defined cumulative applicability, specialization precedence, and path-instruction linkage. |
