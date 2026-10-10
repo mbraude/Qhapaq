@@ -11,6 +11,30 @@ Normative product behavior remains in [SPEC.md](../../SPEC.md) and numbered
 [specifications](../../specs/). When these conventions conflict with a product
 specification, the specification wins.
 
+## Policy ownership and applicability
+
+This file is the common engineering-policy baseline for every maintained
+artifact and contributor workflow in the repository. It owns cross-cutting
+requirements and defaults; it does not restate normative product behavior or
+replace architectural decisions.
+
+Add a specialized policy beneath `docs/development/conventions/` only when a
+maintained language or artifact needs rules that do not apply repository-wide.
+The specialized guide must declare its scope and link this file plus the
+applicable specifications and ADRs. Applicable common and specialized policies
+are cumulative. A specialized guide may explicitly replace a common Default or
+Recommendation within its scope, but it cannot weaken a common Required rule
+or override a specification or ADR. Resolve such a conflict in the
+higher-authority source before proceeding.
+
+Path-specific files under `.github/instructions/` route agents to the applicable
+policy and may contain path or tool-execution guidance. They do not own
+repository engineering policy or duplicate normative product behavior.
+
+Existing specialized content remains here until approved delivery work moves
+it without changing meaning. Do not create empty specialization documents or
+directories in anticipation of future consumers.
+
 ## 1. Requirement levels
 
 - **Required:** the rule must be followed.
