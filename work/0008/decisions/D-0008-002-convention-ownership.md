@@ -2,7 +2,7 @@
 id: D-0008-002
 kind: decision
 title: Assign convention ownership and applicability
-status: ready-for-review
+status: complete
 spec: SPEC-0008
 requirements:
   - R-0008-004
@@ -81,4 +81,9 @@ Exact ready-for-review snapshot:
 | `work/0008/implementation/I-0008-001-engineering-policy-separation.md` | SHA-256 `c81da6f4bb7277569ae783220c49043b3e3ce86393bbdb3bcf1d63fc2c1f09d8` |
 | `work/0008/plan.md` | SHA-256 `a1f512cba7f6c8d5b086ed580d1c2c7808d6b33bdcacfce9e18f9270e36e5874` |
 
-Human review and approval of this exact material outcome are pending.
+Approved explicitly in this session on 2026-10-10 for the exact snapshot above.
+The approved scope is the common engineering-policy baseline, specialized
+policy location and precedence, authority boundaries, and path-specific
+instruction routing role defined by R-0008-004. Detailed rules for unselected
+languages, frameworks, and platforms; extraction of existing .NET content;
+implementation; workspace creation; and publication remain excluded.
