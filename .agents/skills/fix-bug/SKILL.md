@@ -29,6 +29,12 @@ an `amendment` and this skill stops.
 
 ## Workflow
 
+Before reproducing or editing, inspect branch context and the complete
+worktree. For a multi-commit or disruptive fix on the default branch, require
+an explicitly selected work branch through
+[work-branch-start](../work-branch-start/SKILL.md). Never carry unrelated
+changes onto the fix branch.
+
 ### 1. Reproduce
 
 Locate the code involved and reproduce the defect, preferably with a unit

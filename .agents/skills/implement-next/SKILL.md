@@ -16,9 +16,12 @@ future slices.
 
 ## Procedure
 
-1. Inspect worktree changes and source snapshots. Resolve prerequisite items
-   across plans. Report absent/stale plans, missing artifacts, cycles, or
-   cancelled dependencies before execution.
+1. Inspect branch context, worktree changes, and source snapshots. For
+   multi-commit or disruptive work on the default branch, require an explicitly
+   selected work branch through
+   [work-branch-start](../work-branch-start/SKILL.md) before mutation. Resolve
+   prerequisite items across plans. Report absent/stale plans, missing
+   artifacts, cycles, or cancelled dependencies before execution.
 2. Surface any preceding delivery review gate. Record completion only if the
    user explicitly approves its exact unchanged material snapshot and its exit
    criteria pass. Otherwise ask whether to review it or work independently.

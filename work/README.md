@@ -12,6 +12,8 @@ permission to override them.
 
 ## Starting and resuming
 
+- Use `work-branch-start <spec-id>` before the first mutation when work will
+  span multiple commits, move files, or disrupt shared repository surfaces.
 - Use `spec-create` for a new specification and initial decision work.
 - Use `work-plan-sync <spec-id>` to create a missing companion plan or reconcile
   it after source changes.
@@ -21,6 +23,11 @@ permission to override them.
 - Use `implementation-plan` to approve concrete slices and `implement-next` to
   deliver one at a time.
 - Use `work-plan-edit` for planning-only changes.
+
+Branches contain delivery work but do not own work-item identity or status.
+Commits, pushes, pull requests, and merges do not imply approval or completion.
+The workflow guide defines how branch integration affects exact review
+snapshots.
 
 No existing specification backlog has been extracted as part of scaffolding.
 Owner directories are created on demand. Git records their change history.

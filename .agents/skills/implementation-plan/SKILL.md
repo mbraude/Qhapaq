@@ -17,9 +17,13 @@ commit, or invent unresolved contracts.
 
 ## Procedure
 
-1. Resolve the requested phase/milestone, source currentness, scoped readiness,
-   existing implementation items, and cross-plan dependencies. Inspect current
-   code and documented toolchain so the plan reflects reality.
+1. Inspect branch context and worktree, then resolve the requested
+   phase/milestone, source currentness, scoped readiness, existing
+   implementation items, and cross-plan dependencies. For multi-commit or
+   disruptive work on the default branch, require an explicitly selected work
+   branch through [work-branch-start](../work-branch-start/SKILL.md) before
+   mutation. Inspect current code and documented toolchain so the plan reflects
+   reality.
 2. Require approved/current relevant specification readiness before declaring
    concrete slices implementation-ready. If unresolved decisions remain,
    document blocked milestones and needed decisions; do not imply execution
