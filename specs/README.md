@@ -12,6 +12,7 @@ implementation.
 | [SPEC-0005](0005-build-release-and-website-delivery.md) | CI, edge builds, releases, provenance, and website delivery. |
 | [SPEC-0006](0006-dotnet-layered-architecture.md) | .NET layers, dependency direction, visibility, service versioning, and initial component plan. |
 | [SPEC-0007](0007-portable-pipeline-definitions-and-binding.md) | Canonical pipeline JSON, execution-frame dataflow, transforms, operation contracts, validation, and plan binding. |
+| [SPEC-0008](0008-multi-language-conformance-and-repository-organization.md) | Draft discussion of multi-language conformance profiles, source organization, and language/artifact conventions; requirements remain unresolved. |
 
 Platform specifications define the platform. Individual components that work
 within platform contracts, such as operations, connectors, decorators, and

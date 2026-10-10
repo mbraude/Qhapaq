@@ -283,25 +283,106 @@ These defaults apply when the .NET 10 projects are created.
 
 ### Naming and layout
 
-- Use `PascalCase` for namespaces, types, methods, properties, events, constants,
-  and public members.
+- Use `PascalCase` for namespaces, types, methods, properties, events, and
+  public members other than constants.
 - Use `camelCase` for parameters and local variables.
 - Use `camelCase` for instance fields; do not prefix field names with an
   underscore.
 - Qualify instance field, property, and method references with `this.`.
-- Prefix interfaces with `I`.
-- Suffix asynchronous methods returning `Task`, `Task<T>`, `ValueTask`, or
-  `ValueTask<T>` with `Async`, except language- or framework-mandated members.
+- **Required:** prefix interface names with `I`, followed by a `PascalCase`
+  descriptive name; for example, `IMyInterface`.
+- **Required:** prefix enumeration names with `E`, followed by a `PascalCase`
+  descriptive name; for example, `EMyEnumeration`.
+- **Required:** suffix methods that return `Task`, `Task<T>`, `ValueTask`, or
+  `ValueTask<T>` with `Async`, except members whose names are mandated by the
+  language, an implemented interface, an overridden member, or a framework.
+- **Required:** do not declare `async void` methods, including event handlers.
+  Asynchronous methods must return `Task`, `Task<T>`, `ValueTask`, or
+  `ValueTask<T>`. When a synchronous framework callback must initiate
+  asynchronous work, use a framework-supported task-returning callback or
+  explicitly coordinate the returned task through an owning component; do not
+  discard it.
 - Keep all parameters or arguments on the same line when there are five or
   fewer and the complete declaration or invocation is no longer than 100
   characters.
 - When a declaration or invocation exceeds five parameters or 100 characters,
   put every parameter or argument on its own line. Do not partially wrap a
   parameter or argument list.
-- Default to one public top-level type per file and match the file name to that
-  type.
+- **Required:** define each class in its own file and match the file name to the
+  class name, regardless of the class's accessibility or whether it is
+  top-level or nested. Partial classes are the only exception to the
+  one-class-to-one-file mapping.
+- Name the primary partial-class file `<ClassName>.cs`. Name each additional
+  partial-class file `<ClassName>.<Section>.cs`, where `<Section>` is a concise,
+  unique `PascalCase` description of the declarations defined by that part.
+  For example, define `Class1` in `Class1.cs` and a nested class named `Inner`
+  in `Class1.Inner.cs`; both files declare `Class1` as `partial`.
+- Do not use partial classes merely to avoid organizing a large class. Each
+  additional part must have a cohesive purpose that its `<Section>` suffix
+  communicates.
 - Choose names that describe domain behavior; avoid abbreviations that are not
   established Qhapaq vocabulary.
+
+### Class member layout
+
+The following rules apply independently within every class declaration,
+including each part of a partial class.
+
+- **Required:** wrap each nonempty member category in a `#region` whose name
+  matches the category below. Omit empty regions.
+- Place member categories in this order:
+  1. `Fields`
+  2. `Constructors`
+  3. `Disposal`
+  4. `Properties`
+  5. `Events`
+  6. `Methods`
+  7. `Explicit Interface Implementations`
+  8. `Nested Types`
+  9. `Static Methods`
+- The `Disposal` region contains the finalizer, `IDisposable.Dispose`,
+  `IAsyncDisposable.DisposeAsync`, and local disposal helpers such as
+  `Dispose(bool isDisposing)`. Within this region, place the finalizer first,
+  followed by the public disposal methods, explicit disposal interface
+  implementations, and then local disposal helpers. This lifecycle-specific
+  placement takes precedence over the general method-placement rules. Omit
+  the region when the class has no finalization or disposal members.
+- Sort fields first by accessibility in this order: `public`, `internal`,
+  `protected internal`, `protected`, `private protected`, and `private`.
+  Within each accessibility group, sort fields by category in this order:
+  constants, static read-only fields, other static fields, instance read-only
+  fields, and other instance fields. Sort fields alphabetically within the
+  same category.
+- Name constants with `UPPER_SNAKE_CASE`, for example
+  `THIS_IS_A_CONSTANT`.
+- Place a static constructor first in the `Constructors` region. Sort instance
+  constructors by accessibility using the field accessibility order. Within
+  the same accessibility, place the parameterless constructor first, then sort
+  by parameter count and parameter-type signature.
+- Sort properties first by accessibility using the field accessibility order,
+  then alphabetically by property name. Apply the property's declared
+  accessibility; a more restrictive accessor does not create a separate
+  ordering group. Treat indexers as properties and place them after named
+  properties of the same accessibility.
+- Put events in the `Events` region. Sort them first by accessibility using the
+  field accessibility order, then alphabetically by event name.
+- Put instance methods in the `Methods` region. Sort them first by
+  accessibility using the field accessibility order, then alphabetically by
+  method name. Keep overloads together and sort overloads by parameter count
+  and parameter-type signature.
+- Put explicit interface implementations in the `Explicit Interface
+  Implementations` region and sort them alphabetically by fully qualified
+  interface member name. Explicit interface implementations do not declare an
+  accessibility modifier; for example,
+  `void IOperation.MyMethod(...)`, not
+  `public void IOperation.MyMethod(...)`.
+- Put static methods in the final `Static Methods` region. Sort them first by
+  accessibility using the field accessibility order, then alphabetically by
+  method name, with overloads ordered as for instance methods. Place operators
+  after named static methods and sort them by operator token.
+- Put nested type declarations in the `Nested Types` region. Keep a nested
+  class in its own partial-class file as described above. Within the nested
+  class itself, apply this class member layout recursively.
 
 ### Types and APIs
 
