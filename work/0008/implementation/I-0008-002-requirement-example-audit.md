@@ -6,9 +6,13 @@ change_kind: editorial
 title: Audit portable requirements, language contracts, and examples
 status: open
 spec: SPEC-0008
-requirements: []
+requirements:
+  - R-0008-005
 depends_on: [D-0008-003]
-artifacts: []
+artifacts:
+  - SPEC.md
+  - specs
+  - docs/architecture/decisions/0003-enforce-specification-traceability.md
 ---
 
 # I-0008-002: Audit Portable Requirements, Language Contracts, and Examples
@@ -16,8 +20,9 @@ artifacts: []
 ## Objective and coverage
 
 Review affected specifications and examples, then apply the approved separation
-of portable requirements, language-specific contracts, rationale, and
-non-normative examples. Exact requirement coverage and files are pending.
+of portable requirements, language-specific contracts, rationale, illustrative
+examples, and normative examples defined by R-0008-005. Exact audit files are
+pending.
 
 ## Entry gates
 
@@ -26,13 +31,17 @@ scope are known; readiness for each edited specification is approved.
 
 ## File and ownership manifest
 
-Pending a bounded audit inventory. Concrete slices must name every edited
+Pending a bounded audit inventory across `SPEC.md`, numbered specifications,
+and affected traceability guidance. Concrete slices must name every edited
 specification, reference, example, and test.
 
 ## Design and integration
 
-Preserve stable requirement identifiers and update every fingerprint reference
-when requirement-block text changes.
+Keep portable requirements implementation-neutral, keep language contracts in
+explicitly scoped implementation specifications, and apply the required
+illustrative or normative example labels. Preserve stable requirement
+identifiers and update every fingerprint reference when requirement-block text
+changes.
 
 ## Tests and validation
 

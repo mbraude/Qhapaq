@@ -4,7 +4,8 @@ kind: decision
 title: Define language-native traceability placement and checking
 status: open
 spec: SPEC-0008
-requirements: []
+requirements:
+  - R-0008-005
 depends_on: [D-0008-002, D-0008-003]
 artifacts:
   - specs/0008-multi-language-conformance-and-repository-organization.md
@@ -21,9 +22,9 @@ existing waiver and reverse-impact rules.
 
 ## Scope and exclusions
 
-No SPEC-0008 requirement exists yet, so the requirement list is empty. This
-item does not require C# XML documentation in every language or waive current
-traceability obligations.
+R-0008-005 separates portable requirements from explicitly scoped language
+contracts. This item does not revisit that ownership model, require C# XML
+documentation in every language, or waive current traceability obligations.
 
 ## Questions to resolve
 

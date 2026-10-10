@@ -2,8 +2,8 @@
 spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 42dc037d42dc380253915c325a1f28c3c84470d3
-    content_sha256: ad41d1afbc3c94b7cb5f7e9d6fe42a397cf32c30f0d885836a3ae43d12fa37de
+    revision: f84c895d0bdcdf7d7c8c515e341a159d75433609
+    content_sha256: d9f5fe531c6dcd139329c847e994d0d15f6329115ef27b77572f276622c73760
   - path: SPEC.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
@@ -23,8 +23,8 @@ sources:
     revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
     content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
-    revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
-    content_sha256: 461eb3aeb9e8a7dd1f1418b3765edfece911a113daeb58e1d13d89ca1aab56af
+    revision: f84c895d0bdcdf7d7c8c515e341a159d75433609
+    content_sha256: d384fa75572c08d86a46911a54c4792905511c01c3cb047d01774a0132cf6704
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
@@ -220,3 +220,24 @@ consumer and approved scope.
   requirement draft but lacks review and approval; unrelated SPEC-0008 scopes
   and the approved D-0008-001 snapshot are unaffected. Reconciliation is
   complete for D-0008-002 and its downstream milestone.
+- Date: 2026-10-10. D-0008-003 resolved the normative-content categories in
+  R-0008-005. Portable requirements remain implementation-neutral; normative
+  language contracts belong in explicitly scoped numbered implementation
+  specifications; and requirement-block boundaries plus required labels
+  distinguish normative examples from non-normative illustrative examples.
+  ADR-0003 records the corresponding labeling clarification without changing
+  identifier or fingerprint algorithms.
+- Downstream impact: I-0008-002 now covers R-0008-005 and inventories the
+  specification and traceability surfaces for a future bounded audit.
+  D-0008-008 now treats the accepted content-ownership model as an input while
+  retaining its separate marker-placement and checker decision. D-0008-004
+  remains open and blocked on review and completion of D-0008-003; no
+  conformance profile semantics were resolved.
+- Source baseline: the edited SPEC-0008 and ADR-0003 inputs use committed
+  baseline `f84c895d0bdcdf7d7c8c515e341a159d75433609` and record the exact
+  reviewed working-copy byte hashes. Other source records remain unchanged
+  because their bytes and impact are unchanged.
+- Readiness remains not assessed. This reconciliation does not approve the
+  D-0008-003 snapshot, authorize the content audit, alter implementation code,
+  or publish any contract. D-0008-001 and D-0008-002 approvals remain
+  unaffected.
