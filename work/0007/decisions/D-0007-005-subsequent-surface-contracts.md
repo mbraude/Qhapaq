@@ -4,7 +4,7 @@ kind: decision
 title: Minimal subsequent Service, CLI and MCP contracts
 status: open
 spec: SPEC-0007
-requirements: [R-0007-344, R-0007-368, R-0007-369, R-0007-399]
+requirements: [R-0007-344, R-0007-368, R-0007-369, R-0007-399, R-0007-400, R-0007-401, R-0007-402, R-0007-403]
 depends_on: [D-0007-004, D-0007-006]
 artifacts: [specs/0007-portable-pipeline-definitions-and-binding.md]
 ---

@@ -2,8 +2,8 @@
 spec: SPEC-0007
 sources:
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: 28ebb07edd36ebbc601fb21a381badb1233e42e2
-    content_sha256: a9b6fbc797c0134a5aacfc77792c1d48d22f25c92c33fe0ca760f6fa7b68b520
+    revision: 5f0a1cfcce38d35417f3627ea7e1c91f3ca7dc77
+    content_sha256: 73cfabd8e5fcc8d010ad8036ab53324dd1947bd7e8c485c8098ed99b29b12b3d
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: e5a35871ce14aa37d7169ac35d824c910bb0494a01e419dc7895a69dd0092eb9
@@ -606,3 +606,26 @@ Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920
 - Validation and exact reviewed snapshots are recorded in D-0007-003. This
   reconciliation is not human approval, completion, implementation,
   publication, or permission to execute.
+
+## D-0007-006 stage-aware conclusion reconciliation
+
+- Date: 2026-10-09. Baseline
+  `5f0a1cfcce38d35417f3627ea7e1c91f3ca7dc77` supplies the committed
+  SPEC-0007 input. The source record hashes the current working-copy bytes
+  containing D-0007-006's accepted decisions; it does not claim those bytes are
+  committed.
+- New R-0007-400 through R-0007-403 define the closed three-state conclusion
+  model, stable unavailability reasons, exact early-slice matrix, normal-result
+  versus structured-error boundary, adapter preservation, and negative
+  conformance coverage.
+- D-0007-006 is the only decision resolved by this reconciliation. D-0007-004
+  now depends on it for retrieval conclusion semantics; D-0007-005 retains its
+  existing dependency. I-0007-011, I-0007-012, and I-0007-024 now reference
+  the exact requirements, and inert parsing now depends on D-0007-006.
+- The changes do not name public APIs or commands, implement a surface, create
+  schemas or vectors, publish a contract, grant execution or disclosure
+  authority, or establish readiness. D-0007-004, D-0007-005, and every affected
+  implementation milestone remain open.
+- Validation and exact ready-for-review snapshots remain to be recorded in
+  D-0007-006. This reconciliation is not human approval, completion,
+  implementation, publication, or permission to execute.

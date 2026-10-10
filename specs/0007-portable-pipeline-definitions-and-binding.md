@@ -4486,6 +4486,72 @@ hosts may continue to accept `v1` and `v2` side by side.
 Changes to the effective registry, host profile, policy, connections, or
 implementation integrity invalidate affected cached plans.
 
+### 14.1 Stage-aware conclusions
+
+**[R-0007-400]** Every non-executing result that reports validation conclusions contains
+exactly these four named conclusions: `documentValidity`, `hostBindability`,
+`policyEligibility`, and `executionPermission`. Each conclusion has exactly one
+state:
+
+- `satisfied`: the use case evaluated the complete conclusion and it holds;
+- `notSatisfied`: the use case evaluated enough of the conclusion to prove that
+  it does not hold; or
+- `unavailable`: the use case did not establish either outcome.
+
+An `unavailable` conclusion includes exactly one stable reason code from
+`useCaseDoesNotEvaluate`, `prerequisiteNotSatisfied`, `hostContextAbsent`,
+`policyContextAbsent`, or `invocationContextAbsent`. A `satisfied` or
+`notSatisfied` conclusion has no unavailability reason. `notSatisfied` is
+accompanied by at least one applicable structured diagnostic. There is no
+implicit, omitted, boolean, `unknown`, or success-shaped substitute for these
+states.
+
+**[R-0007-401]** Supported non-executing use cases establish conclusions as follows:
+
+| Use case and outcome | Document validity | Host bindability | Policy eligibility | Execution permission |
+| --- | --- | --- | --- | --- |
+| Exact descriptor retrieval | `unavailable` / `useCaseDoesNotEvaluate` | `unavailable` / `useCaseDoesNotEvaluate` | `unavailable` / `useCaseDoesNotEvaluate` | `unavailable` / `useCaseDoesNotEvaluate` |
+| Inert parsing finds a parse, schema, identity, structural, scope, dominance, or bounded-control-flow error | `notSatisfied` | `unavailable` / `prerequisiteNotSatisfied` | `unavailable` / `prerequisiteNotSatisfied` | `unavailable` / `prerequisiteNotSatisfied` |
+| Inert parsing succeeds | `unavailable` / `useCaseDoesNotEvaluate` | `unavailable` / `useCaseDoesNotEvaluate` | `unavailable` / `useCaseDoesNotEvaluate` | `unavailable` / `useCaseDoesNotEvaluate` |
+| Full non-executing validation finds a document-validity failure | `notSatisfied` | `unavailable` / `prerequisiteNotSatisfied` | `unavailable` / `prerequisiteNotSatisfied` | `unavailable` / `prerequisiteNotSatisfied` |
+| Full non-executing validation finds a host-bindability failure after document validity succeeds | `satisfied` | `notSatisfied` | `unavailable` / `prerequisiteNotSatisfied` | `unavailable` / `prerequisiteNotSatisfied` |
+| Full non-executing validation finds a policy denial after document validity and host bindability succeed | `satisfied` | `satisfied` | `notSatisfied` | `unavailable` / `prerequisiteNotSatisfied` |
+| Full non-executing validation succeeds | `satisfied` | `satisfied` | `satisfied` | `unavailable` / `invocationContextAbsent` |
+
+An explanation preserves the conclusion set from the validation result it
+explains and cannot upgrade any conclusion. A later invocation-specific
+preflight contract may establish `executionPermission`, but non-executing
+retrieval, parsing, validation, and explanation do not. Negative evidence
+establishes only the conclusion it disproves; it does not convert dependent or
+unevaluated conclusions to `notSatisfied`.
+
+**[R-0007-402]** A use-case contract declares which conclusions it evaluates and the context
+required to do so. Deliberately unevaluated, context-absent, and
+`prerequisiteNotSatisfied` conclusions are normal result data. If a use case
+cannot evaluate a conclusion that its contract promises to evaluate for the
+supplied context, it returns a structured operation error rather than a normal
+result containing `unavailable`. Cancellation and internal or dependency
+failures likewise do not return a partial success result. Invalid definitions,
+unavailable native bindings, and policy denials that were evaluated normally
+remain `notSatisfied` conclusions with safe diagnostics; they are not transport
+failures.
+
+**[R-0007-403]** Service is authoritative for the complete conclusion set. CLI and MCP adapters
+preserve all four names, states, unavailability reasons, diagnostic safety, and
+ordering semantics without recomputing or upgrading them. Machine-readable CLI
+and MCP results use the exact values in R-0007-400; human-readable CLI output
+labels all four conclusions. Command exit-status mappings distinguish evaluated
+`notSatisfied` conclusions from deliberately unavailable conclusions and never
+map unexpected unavailability or a structured operation error to success. An
+MCP tool result, a `satisfied` conclusion, or an unavailable conclusion grants
+neither execution nor payload-disclosure permission.
+
+Language-neutral conformance covers every row in R-0007-401; every
+unavailability reason; ordinary invalid, unbindable, and denied results;
+unexpected inability to evaluate a promised conclusion; cancellation; adapter
+preservation; and attempts to omit a conclusion, invent a state or reason,
+upgrade an explanation, or infer execution or disclosure authority.
+
 ## 15. Structured Diagnostics and Failures
 
 ### 15.1 Validation diagnostics

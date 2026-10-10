@@ -6,8 +6,8 @@ change_kind: requirement
 title: Inert parsing and portable structural validation
 status: open
 spec: SPEC-0007
-requirements: [R-0007-353]
-depends_on: [I-0007-001, I-0007-002, I-0007-004, I-0007-005, I-0007-007]
+requirements: [R-0007-353, R-0007-400, R-0007-401, R-0007-402, R-0007-403]
+depends_on: [D-0007-006, I-0007-001, I-0007-002, I-0007-004, I-0007-005, I-0007-007]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
 

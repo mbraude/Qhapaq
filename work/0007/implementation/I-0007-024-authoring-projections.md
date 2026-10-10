@@ -6,7 +6,7 @@ change_kind: requirement
 title: Incremental Service, CLI, MCP and Mermaid authoring projections
 status: open
 spec: SPEC-0007
-requirements: [R-0007-368]
+requirements: [R-0007-368, R-0007-400, R-0007-401, R-0007-402, R-0007-403]
 depends_on: [D-0007-005, D-0007-006, I-0007-011]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
