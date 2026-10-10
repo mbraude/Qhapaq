@@ -6,7 +6,7 @@ change_kind: requirement
 title: Deliver conformance profiles, declarations, and evidence artifacts
 status: open
 spec: SPEC-0008
-requirements: []
+requirements: [R-0008-006, R-0008-007]
 depends_on:
   - D-0008-004
   - D-0008-005
@@ -21,8 +21,10 @@ artifacts: []
 ## Objective and coverage
 
 Deliver approved profile definitions, declaration schemas, shared evidence
-contracts, reports, vectors, and publication integration. No governing
-SPEC-0008 requirements exist yet, so this milestone is not executable.
+contracts, reports, vectors, and publication integration for the four initial
+profiles and their cumulative prerequisites. The profile boundaries and claim
+restrictions are governed, but this milestone remains non-executable until its
+remaining decisions and planning gates are complete.
 
 ## Entry gates
 
