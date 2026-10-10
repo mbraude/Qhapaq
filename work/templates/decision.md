@@ -31,9 +31,11 @@ Identify specific choices, alternatives, and unresolved consequential decisions.
 - [ ] Accepted behavior is recorded in the authoritative specification or ADR.
 - [ ] Related semantics, examples, and required conformance expectations agree.
 - [ ] Item-specific criteria and required artifacts exist.
-- [ ] Validation and explicit human review cover the exact outcome.
+- [ ] Required validation passes and the exact input/output snapshot is recorded
+  for review.
 
 Replace or extend these with concrete criteria; do not weaken normative gates.
+Keep human approval as a separate lifecycle gate, not an acceptance criterion.
 
 ## Resolution
 

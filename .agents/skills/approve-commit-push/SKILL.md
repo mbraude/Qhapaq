@@ -153,6 +153,14 @@ Use `ask_user` to request one explicit choice:
 - Approve this exact snapshot and continue to commit and push.
 - Do not approve; stop for changes or further review.
 
+Before asking, verify every substantive acceptance criterion is already
+satisfied and recorded; do not leave an approval checkbox or other material
+acceptance criterion to be changed afterward. Finalize all material content,
+compute the material hash from that finalized snapshot, and copy the exact hash
+and full-byte hashes into the approval request and target evidence. Compare the
+displayed material hash character-for-character with the computed value before
+submitting the request.
+
 The approval applies only to the displayed snapshot and the named scope. If
 the user declines, stop without changing approval status or committing. If
 material files change after approval, stop and request renewed approval.
@@ -166,6 +174,14 @@ After explicit approval, record in the target's prescribed review section:
 - the date;
 - exact scope and exclusions; and
 - the reviewed snapshot hashes.
+
+Only update lifecycle metadata and review-evidence sections excluded from the
+material hash. Before relying on the approval, recompute the material hash and
+verify it still equals the value shown to the user; also verify every full-byte
+hash. If a displayed hash was transcribed incorrectly or any material differs,
+do not record approval or complete the item. Correct the evidence, return the
+item to ready-for-review if necessary, and request approval again for the
+corrected exact snapshot.
 
 For a work item, set `status: complete` only if its acceptance criteria,
 persistent outputs, and required validation are satisfied. For a readiness

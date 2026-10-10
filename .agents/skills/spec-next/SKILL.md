@@ -45,9 +45,14 @@ Do not implement future slices, commit, publish, or infer approval.
    [spec-trace-check](../spec-trace-check/SKILL.md) and applicable documented
    artifact checks. Failures or missing required outputs prevent a successful
    ready-for-review claim.
-9. Record actual validation and the reviewed output/input snapshot. Set
-   ready-for-review when criteria and checks are satisfied. Complete only after
-   explicit human approval of that exact material outcome.
+9. Before requesting review, complete every substantive acceptance criterion,
+   run required checks, and record the exact output/input snapshot. Acceptance
+   criteria cover the outcome and validation, not the reviewer’s approval.
+   Set ready-for-review only after those gates pass; do not edit material
+   content or mark the item complete while waiting for review. Complete only
+   after explicit human approval of that exact material outcome, using the
+   [approve-commit-push](../approve-commit-push/SKILL.md) workflow when delivery
+   is requested.
 
 ## Output and stop
 
