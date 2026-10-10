@@ -4005,19 +4005,27 @@ offline by its stable `$id`; validation never requires network access.
   enumeration; and
 - is packaged with source when source packages are produced.
 
-**[R-0007-252]** The implementation and descriptor use exact, case-sensitive basename matching
-and reside in the same physical source directory:
+**[R-0007-252]** By default, the marked implementation source and descriptor use exact,
+case-sensitive basename matching and reside in the same physical source
+directory:
 
 ```text
 HttpOperation.cs
 HttpOperation.descriptor.json
 ```
 
+An explicit marker argument may instead select a different descriptor basename
+in that same directory. It must be a filename ending in `.descriptor.json`,
+not a rooted path, relative path, `.` or `..`; it is matched exactly and does
+not become a generated source identifier.
+
 **[R-0007-253]** An operation cannot obtain its descriptor from an orthogonal descriptor tree,
 a parent directory, a linked file outside its source directory, or recursive
-filesystem discovery. The generator rejects a missing descriptor, more than one
-matching descriptor, basename or case mismatch, reuse by another operation, or
-an association outside the operation's physical directory.
+filesystem discovery. Exactly one partial declaration carries the marker and
+associates exactly one descriptor. The generator rejects a missing descriptor,
+more than one matching descriptor, basename or case mismatch in the inferred
+form, invalid explicit basename, reuse by another operation, or an association
+outside the marked declaration's physical directory.
 
 **[R-0007-254]** The contract digest excludes its own field and is computed from the canonical
 normative descriptor portion defined in Section 13. A supplied digest must
@@ -4035,10 +4043,10 @@ compiler input to associate the implementation class with exactly one descriptor
 document. The marker may carry the descriptor build-input identity or path, but
 it does not carry portable contract fields.
 
-**[R-0007-257]** The intended authoring shape is conceptually:
+**[R-0007-257]** The supported authoring shapes are:
 
 ```csharp
-[QhapaqOperation("GetCustomerOperation.descriptor.json")]
+[QhapaqOperation]
 public sealed partial class GetCustomerOperation :
     IOperation<GetCustomerInput, GetCustomerOutput>
 {
@@ -4049,13 +4057,27 @@ public sealed partial class GetCustomerOperation :
         // Operation behavior.
     }
 }
+
+[QhapaqOperation("legacy-customer-get.descriptor.json")]
+public sealed partial class LegacyCustomerOperation :
+    IOperation<GetCustomerInput, GetCustomerOutput>
+{
+    // Operation behavior.
+}
 ```
 
-**[R-0007-258]** The exact attribute name, constructor shape, generated type names, and namespace
-layout remain implementation API details. Registry-visible implementation
-classes must be compatible with partial source generation. Internal
-combinators, test delegates, and non-catalog operations need not declare
-portable descriptors and are not included in the generated manifest.
+**[R-0007-258]** The public marker is the sealed, non-inherited, single-use
+`Qhapaq.Abstractions.Operations.Declarations.QhapaqOperationAttribute`. It has
+the constructors `QhapaqOperationAttribute()` and
+`QhapaqOperationAttribute(string descriptorFileName)` and exposes the supplied
+value through the nullable read-only `DescriptorFileName` property.
+
+The parameterless form infers
+`<marked-source-basename>.descriptor.json`; the string form follows R-0007-252.
+Registry-visible implementation classes must be compatible with partial source
+generation. Internal combinators, test delegates, and non-catalog operations
+need not declare portable descriptors and are not included in the generated
+manifest.
 
 ### 12.3 Build-time discovery and validation
 
@@ -4080,11 +4102,30 @@ than as a runtime dependency.
    compilation.
 8. Emits deterministic source only when the required inputs are valid.
 
-**[R-0007-261]** Generator diagnostics are build diagnostics. Missing or ambiguous descriptor
-inputs, invalid JSON or schemas, digest mismatches, unsupported class shapes,
-operation/declaration generic mismatches, and duplicate identities are errors.
-Diagnostics identify source locations and stable diagnostic codes without
-including operation payloads, credentials, or protected host configuration.
+**[R-0007-261]** Generator diagnostics are build errors with these stable codes:
+
+| Code | Error category |
+| --- | --- |
+| `QHPG0001` | Descriptor input missing |
+| `QHPG0002` | Descriptor input ambiguous or reused |
+| `QHPG0003` | Descriptor association invalid |
+| `QHPG0004` | Descriptor format unknown or unsupported |
+| `QHPG0005` | Descriptor JSON malformed |
+| `QHPG0006` | Descriptor schema or semantic validation failed |
+| `QHPG0007` | Contract digest missing, malformed, or mismatched |
+| `QHPG0008` | Operation declaration shape unsupported |
+| `QHPG0009` | Operation and declaration generic types incompatible or ambiguous |
+| `QHPG0010` | Operation ID and contract-version pair duplicated |
+| `QHPG0011` | Generated registration contract unsupported |
+| `QHPG0012` | Manifest closure or canonicalization failed |
+
+A code's category does not change across generator releases; a different
+category receives a new code. Diagnostics may identify source locations, JSON
+pointers, expected and actual version identities, and bounded structural
+details. They never include descriptor examples, operation payloads,
+credentials, absolute paths, or protected host configuration. Multiple
+diagnostics are emitted in deterministic source-location, code, and JSON-pointer
+order. The generator emits no source when required inputs are invalid.
 
 **[R-0007-262]** Incremental caching is an optimization only. Changing an operation declaration,
 descriptor document, descriptor schema, or generator version must invalidate all
@@ -4093,28 +4134,35 @@ affected generated outputs.
 ### 12.4 Generated declaration and registration
 
 **[R-0007-263]** For each valid operation, the generator emits a partial declaration that
-implements the static descriptor-declaration contract and exposes the descriptor
-represented by the authoritative JSON. The generated implementation must not
-instantiate the operation.
+implements
+`Qhapaq.Abstractions.Operations.Declarations.V1Alpha1.IDeclaredOperation<TInput,
+TOutput>`. That interface requires the static abstract read-only property
+`Qhapaq.Abstractions.Operations.Descriptors.OperationDescriptor Descriptor`.
+The generated property exposes an immutable descriptor represented by the
+authoritative JSON and must not instantiate the operation.
 
 **[R-0007-264]** Conceptually, generated source includes:
 
 ```csharp
 partial class GetCustomerOperation :
-    IDeclaredOperation<GetCustomerInput, GetCustomerOutput>
+    Qhapaq.Abstractions.Operations.Declarations.V1Alpha1
+        .IDeclaredOperation<GetCustomerInput, GetCustomerOutput>
 {
     public static OperationDescriptor Descriptor =>
         GeneratedOperationDescriptors.GetCustomer;
 }
 ```
 
-**[R-0007-265]** The generator also emits an explicit registration table containing closed
-generic references:
+**[R-0007-265]** The generator emits the public assembly-root entry point
+`<RootNamespace>.Generated.V1Alpha1.QhapaqOperationRegistration`, containing
+closed generic references and exactly these public members:
 
 ```csharp
-internal static class GeneratedOperationRegistration
+public static class QhapaqOperationRegistration
 {
-    internal static void Register(OperationRegistryBuilder builder)
+    public static ReadOnlyMemory<byte> ManifestBytes { get; }
+
+    public static void Register(OperationRegistryBuilder builder)
     {
         builder.Add<
             GetCustomerOperation,
@@ -4123,6 +4171,11 @@ internal static class GeneratedOperationRegistration
     }
 }
 ```
+
+`OperationRegistryBuilder` is the V1Alpha1 authoring-runtime builder contract.
+`Register` rejects a null builder before adding entries. The generated root
+namespace is the compilation's declared root namespace and must be a valid
+namespace; a missing, invalid, or ambiguous root is `QHPG0008`.
 
 **[R-0007-266]** Generated registration is ordinary compiled code. Runtime registration invokes
 this table directly; it does not enumerate assemblies, types, attributes, or
@@ -4136,9 +4189,26 @@ culture, and filesystem enumeration order.
 ### 12.5 Generated portable manifest
 
 **[R-0007-268]** The generator produces one canonical portable operation manifest for its
-compilation. The manifest contains the complete generated descriptors in stable
-operation-ID and contract-version order. It does not contain CLR type names or
-implementation factories.
+compilation. `qhapaq.operation-manifest/v1alpha1` is a closed JSON object with
+exactly these members:
+
+```json
+{
+  "format": "qhapaq.operation-manifest/v1alpha1",
+  "registrationContract": "qhapaq.dotnet-operation-registration/v1alpha1",
+  "descriptors": []
+}
+```
+
+`descriptors` contains every complete generated descriptor and no other entry.
+Entries are ordered first by operation ID using ordinal Unicode-scalar
+comparison, then by Semantic Versioning precedence of the exact contract
+version, then by the ordinal exact contract-version string as a total-order
+tie-breaker. Each descriptor retains its exact format identity. The complete
+envelope is serialized as RFC 8785 canonical JSON. It contains no generator,
+assembly, package, CLR type, implementation-factory, source-path, or
+host-availability metadata. An empty valid compilation emits the same envelope
+with an empty `descriptors` array.
 
 **[R-0007-269]** The canonical manifest bytes are embedded into the compiled operation assembly
 as deterministic data reachable through its explicit generated registration
@@ -4294,6 +4364,14 @@ versions are independent:
 format, manifest envelope, and registration-contract version it accepts or
 emits. Generator and schema versions are not one-to-one.
 
+The initial matrix is:
+
+| Axis | Accepted input | Emitted output |
+| --- | --- | --- |
+| Descriptor format | `qhapaq.operation-descriptor/v1alpha1` | The same exact format in every manifest entry |
+| Manifest envelope | Not an input to generation | `qhapaq.operation-manifest/v1alpha1` |
+| Registration contract | `qhapaq.dotnet-operation-registration/v1alpha1` | `qhapaq.dotnet-operation-registration/v1alpha1` |
+
 **[R-0007-292]** For each supported descriptor format, the generator uses a format-specific
 parser and validator and then maps valid content into a common internal
 generation model. Normalization must preserve every normative field and the
@@ -4322,6 +4400,41 @@ manifest envelopes, and registration-contract versions supported by that host.
 It rejects an unsupported combination before making any operation available.
 A package that compiled successfully with a newer generator is therefore not
 assumed to be loadable by an older host.
+
+**[R-0007-397]** The initial generator accepts a compilation only when every associated
+descriptor is `qhapaq.operation-descriptor/v1alpha1`; any set mixing that format
+with an unknown or unsupported format fails with `QHPG0004` and emits no source
+or manifest. The initial host accepts only the exact triple
+`qhapaq.operation-descriptor/v1alpha1`,
+`qhapaq.operation-manifest/v1alpha1`, and
+`qhapaq.dotnet-operation-registration/v1alpha1`. It rejects the entire package,
+before adding any operation, when any entry or axis is unknown, unsupported, or
+incompatible. There is no compatible-version substitution.
+
+A later generator may accept multiple descriptor formats only by publishing a
+matrix that names every accepted format and an emitted envelope that preserves
+each one exactly as required by R-0007-293. A later host similarly declares
+each accepted exact combination; successful generation never implies host
+support.
+
+**[R-0007-398]** The stable handwritten marker is independent from a generated registration
+contract version. Version-specific generated declaration interfaces, builders,
+and registration entry points use side-by-side namespaces such as
+`Qhapaq.Abstractions.Operations.Declarations.V1Alpha1` and
+`<RootNamespace>.Generated.V1Alpha1`. A later generator may project the same
+unchanged operation implementation into another explicitly supported generated
+contract without copying its behavior. The generator compatibility matrix and
+manifest identify the exact generated contract; they do not make an operation
+available through a Service or catalog version.
+
+**[R-0007-399]** Membership in a host, Service, or catalog version is explicit trusted host
+configuration over exact operation contract references. It is not descriptor
+content, marker metadata, manifest metadata, or generated registration metadata.
+The same exact operation may be included in multiple catalog versions, omitted
+from a later version, or replaced there by a different exact operation contract
+version without duplicating its implementation. Public Service contracts must
+define that membership and its policy-filtered projection before advertising a
+versioned catalog surface.
 
 **[R-0007-297]** Business and Service layers expose a stable versioned summary model for common
 catalog fields and may also return the exact versioned portable descriptor when
@@ -4723,12 +4836,13 @@ changes.
 **[R-0007-335]** The .NET reference implementation additionally tests:
 
 - descriptor JSON as the sole authoritative descriptor source;
-- exact same-directory and basename association between an operation and its
-  descriptor;
+- default exact same-directory/basename association, explicit same-directory
+  basename override, and rejection of invalid or ambiguous associations;
 - structural validation against every supported offline descriptor schema;
 - static descriptor declarations without operation construction or project-code
   execution during generation;
-- required generator diagnostics and invalid-build-input rejection;
+- every `QHPG0001` through `QHPG0012` category, deterministic diagnostic order,
+  safe diagnostic fields, and invalid-build-input rejection;
 - generated source and canonical manifest reproducibility across machines,
   cultures, paths, and input enumeration orders;
 - byte equality between embedded and packaged manifests;
@@ -5200,7 +5314,4 @@ an exact pipeline reference.
 
 ## 23. Open Questions
 
-1. What are the exact public .NET declaration-contract and marker-attribute type
-   names, generated API names, stable generator diagnostic codes, and initial
-   generator compatibility matrix?
-2. What are the exact CLI commands and MCP tool request and response schemas?
+1. What are the exact CLI commands and MCP tool request and response schemas?

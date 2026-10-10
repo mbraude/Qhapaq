@@ -2,8 +2,8 @@
 spec: SPEC-0007
 sources:
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: dd56a136e2b381b6c44cc05a2a803bf00e4d7dfb
-    content_sha256: 7cc2dcd95281961244fd747f009820bd1f75ef3d3a41a7d124ed7f28ea37fa6e
+    revision: 28ebb07edd36ebbc601fb21a381badb1233e42e2
+    content_sha256: a9b6fbc797c0134a5aacfc77792c1d48d22f25c92c33fe0ca760f6fa7b68b520
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: e5a35871ce14aa37d7169ac35d824c910bb0494a01e419dc7895a69dd0092eb9
@@ -579,5 +579,30 @@ Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920
   approval of this decision and D-0007-015, then on concrete implementation
   planning. No readiness record or approval is created.
 - Validation and exact reviewed snapshots are recorded in D-0007-002. This
+  reconciliation is not human approval, completion, implementation,
+  publication, or permission to execute.
+
+## D-0007-003 declaration-contract reconciliation
+
+- Date: 2026-10-09. Baseline
+  `28ebb07edd36ebbc601fb21a381badb1233e42e2` supplied the committed
+  SPEC-0007 input. The source record hashes the reviewed working-copy bytes
+  containing D-0007-003's accepted contract decisions; it does not claim those
+  bytes are committed.
+- R-0007-252, R-0007-253, R-0007-257, R-0007-258, R-0007-261, R-0007-263,
+  R-0007-265, R-0007-268, R-0007-291, and new R-0007-397 through R-0007-399
+  close the marker, static declaration, generated registration, manifest,
+  diagnostic, compatibility, generated-contract versioning, and catalog
+  separation questions. The remaining Section 23 question concerns CLI and MCP
+  contracts only.
+- D-0007-003 is the only decision resolved by this reconciliation. D-0007-005
+  now explicitly owns the downstream Service/host catalog-membership contract
+  required by R-0007-399; it remains open and retains its existing dependencies.
+  D-0007-009 and D-0007-012 retain model-ownership and algorithm-reuse decisions
+  without becoming artificial prerequisites of D-0007-003.
+- Descriptor `v1alpha1` is preserved. No schema, manifest artifact, generator,
+  implementation type, conformance vector, Service surface, catalog
+  configuration, publication, or implementation readiness is created.
+- Validation and exact reviewed snapshots are recorded in D-0007-003. This
   reconciliation is not human approval, completion, implementation,
   publication, or permission to execute.
