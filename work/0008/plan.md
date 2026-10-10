@@ -20,8 +20,8 @@ sources:
     revision: 79fd70dc972b6cbd12b17268316f31641ca89eaf
     content_sha256: 4a220949c98bbedd805f376409a6ff65b05a59fe49be37f4e336b213c1ce6533
   - path: docs/development/spec-driven-workflow.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: 2f04cd9e4cc28dbae1cc55593ef7fe29b293911f34175c85faab19c061c8743b
+    revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
+    content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: 461eb3aeb9e8a7dd1f1418b3765edfece911a113daeb58e1d13d89ca1aab56af
@@ -196,3 +196,13 @@ consumer and approved scope.
 - Readiness remains not assessed. This reconciliation resolves no other
   decision, approves no specification snapshot, creates no workspace, and
   authorizes no relocation.
+- Date: 2026-10-10. Reconciled the workflow guide from
+  `34fbe88fb9d4857adc6db5390cc623c210c71540` to
+  `b8271f0f10cab61831ea6bcba81e801224a8fca3`. The source change separates
+  branch and Git delivery from work-item lifecycle and adds the branch-start
+  entry point; it does not change product requirements, phase membership,
+  item scope, dependencies, acceptance criteria, readiness, or approval
+  evidence. The current named branch already satisfies the added coordination
+  guidance. No item was created, changed, cancelled, approved, or executed.
+  Reconciliation is complete for this source change, and readiness remains not
+  assessed.
