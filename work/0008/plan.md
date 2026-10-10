@@ -2,8 +2,8 @@
 spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 79fd70dc972b6cbd12b17268316f31641ca89eaf
-    content_sha256: 21c6c203c228218a67a076545513b31cc3d5a737e6d3078a935a620a5c50d8fa
+    revision: 42dc037d42dc380253915c325a1f28c3c84470d3
+    content_sha256: ad41d1afbc3c94b7cb5f7e9d6fe42a397cf32c30f0d885836a3ae43d12fa37de
   - path: SPEC.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
@@ -17,8 +17,8 @@ sources:
     revision: 8fbf725e0fda9697c3eff44435481d7755141272
     content_sha256: 7b3c946a9fd554e9b7129bc391dc68957633716f6a3264cdd659954704413249
   - path: docs/development/coding-conventions.md
-    revision: 79fd70dc972b6cbd12b17268316f31641ca89eaf
-    content_sha256: 4a220949c98bbedd805f376409a6ff65b05a59fe49be37f4e336b213c1ce6533
+    revision: 42dc037d42dc380253915c325a1f28c3c84470d3
+    content_sha256: 782e590a86419f9001469bc9faa0c2491e93a11728c0da1df0eaf4bbf70f7305
   - path: docs/development/spec-driven-workflow.md
     revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
     content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
@@ -40,11 +40,12 @@ sources:
 
 ## Scope and authority
 
-This plan extracts the unresolved decisions and future delivery milestones from
+This plan extracts unresolved decisions and future delivery milestones from
 [SPEC-0008](../../specs/0008-multi-language-conformance-and-repository-organization.md).
-The specification remains a discussion draft: this plan does not accept its
-proposals, allocate requirement identifiers, authorize implementation, relocate
-source, rename assemblies, publish profiles, or promise another runtime.
+The specification remains a partially resolved draft: this plan does not
+accept remaining proposals, allocate requirement identifiers outside reviewed
+decisions, authorize implementation, relocate source, rename assemblies,
+publish profiles, or promise another runtime.
 
 [SPEC.md](../../SPEC.md), [SPEC-0005](../../specs/0005-build-release-and-website-delivery.md),
 [SPEC-0006](../../specs/0006-dotnet-layered-architecture.md), and
@@ -206,3 +207,16 @@ consumer and approved scope.
   guidance. No item was created, changed, cancelled, approved, or executed.
   Reconciliation is complete for this source change, and readiness remains not
   assessed.
+- Date: 2026-10-10. D-0008-002 accepted common and specialized engineering
+  policy ownership in R-0008-004. The common baseline remains
+  `docs/development/coding-conventions.md`; real specializations belong beneath
+  `docs/development/conventions/`; applicability is cumulative; and
+  path-specific instructions route to policy rather than becoming a competing
+  authority. I-0008-001 now covers R-0008-004 and records this target structure
+  while remaining a non-executable milestone blocked by D-0008-003,
+  D-0008-008, readiness, and concrete slice planning. No item was added,
+  cancelled, approved, or executed, and no dependency changed.
+- Readiness remains not assessed. The policy-ownership scope has a resolved
+  requirement draft but lacks review and approval; unrelated SPEC-0008 scopes
+  and the approved D-0008-001 snapshot are unaffected. Reconciliation is
+  complete for D-0008-002 and its downstream milestone.

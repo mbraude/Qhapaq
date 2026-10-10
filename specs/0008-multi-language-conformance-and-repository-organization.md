@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; artifact taxonomy resolved, remaining decisions unresolved
-> **Version:** 0.2
+> **Status:** Draft; artifact taxonomy and engineering-policy ownership resolved, remaining decisions unresolved
+> **Version:** 0.3
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -12,12 +12,12 @@ implementations in multiple languages while accommodating software artifacts
 that are not runtime implementations, such as a website, editor integrations,
 and development tools.
 
-The artifact taxonomy and source-layout decision in section 4 is resolved in
-normative requirement blocks and is awaiting review of the exact specification
-snapshot. Other proposals remain subject to decision work and review. This
-draft introduces no conformance profiles, additional language runtimes, or
-implementation authorization. Discussion and open questions do not receive
-requirement IDs.
+The artifact taxonomy, source-layout, and engineering-policy ownership
+decisions in sections 4 and 5 are resolved in normative requirement blocks and
+await review of the exact specification snapshot. Other proposals remain
+subject to decision work and review. This draft introduces no conformance
+profiles, additional language runtimes, or implementation authorization.
+Discussion and open questions do not receive requirement IDs.
 
 Existing specifications and engineering policies remain in force. In
 particular, this draft does not relocate source, rename assemblies, change
@@ -162,29 +162,37 @@ The physical relocation of the existing .NET workspace and related path
 updates require separately reviewed migration work. This decision does not move
 files, rename namespaces, assemblies, or packages, or change runtime behavior.
 
-## 5. Proposed Engineering Policy Structure
+## 5. Engineering Policy Ownership and Applicability
 
 ### Common and specialized conventions
 
-The proposed common conventions cover correctness, boundary validation,
-portable contracts, security, privacy, determinism, traceability, observable
-testing, documentation, generated artifacts, and dependency review.
+**[R-0008-004]** Engineering policy uses a common baseline with scoped
+specializations:
 
-Language conventions would own naming, syntax, API idioms, compiler settings,
-package management, and language-specific tooling. Artifact conventions would
-own additional concerns such as website accessibility or editor-extension
-lifecycle behavior.
+- `docs/development/coding-conventions.md` owns repository-wide engineering
+  requirements and defaults, including correctness, boundary validation,
+  security, privacy, determinism, traceability, testing, documentation,
+  generated artifacts, and dependency review.
+- A language- or artifact-specific guide is added beneath
+  `docs/development/conventions/` only when a maintained consumer needs it.
+  Each guide declares its applicability, links the common policy and relevant
+  specifications and ADRs, and owns only concerns specific to that scope, such
+  as syntax, naming, API idioms, compiler or package tooling, accessibility, or
+  integration lifecycle.
+- All applicable policies are cumulative. A specialized guide may explicitly
+  replace a common Default or Recommendation within its declared scope. It
+  must not weaken a common Required rule or override a specification or ADR;
+  such a conflict requires changing the higher-authority source first.
+- Portable product behavior remains in specifications, architectural choices
+  remain in ADRs, and specialized guides link those authorities rather than
+  copying their normative rules.
+- Path-specific agent instructions link the applicable common and specialized
+  policies and contain only path routing or tool-execution guidance that does
+  not create a competing policy source.
 
-For .NET, potential extraction includes namespace and assembly layout, C#
-member organization, nullable types, task and cancellation idioms, Microsoft
-dependency injection, serialization-library selection, and NuGet tooling.
-Portable behavior would remain in specifications rather than be copied into
-each language guide. Path-specific agent instructions would link to the
-applicable common and specialized sources.
-
-Exact document locations and policy applicability remain open. Architecture
-choices would be recorded in ADRs; detailed engineering rules would remain in
-engineering documentation.
+No empty specialized guide or directory is created speculatively. Moving the
+existing .NET-specific material and removing duplicated instruction text is
+separate delivery work and does not change product behavior.
 
 ### Language-neutral traceability
 
@@ -368,7 +376,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Question | Unresolved decision |
 | --- | --- |
 | Q-0008-001 | Decided by R-0008-001 through R-0008-003: responsibility-based software categories under `src/`, lifecycle-based root exceptions, self-contained workspaces, and public cross-artifact boundaries. |
-| Q-0008-002 | Which conventions are common, language-specific, or artifact-specific, and where will they live? |
+| Q-0008-002 | Decided by R-0008-004: common policy remains in `docs/development/coding-conventions.md`; real language and artifact specializations live beneath `docs/development/conventions/`; applicability is cumulative and path instructions link rather than duplicate policy. |
 | Q-0008-003 | How will normative portable requirements, language-specific contracts, and non-normative examples be labeled and separated? |
 | Q-0008-004 | Which initial profiles are needed, what is the mandatory runtime baseline, and how do profile dependencies work? |
 | Q-0008-005 | How are profile versions tied to exact specification revisions and requirement fingerprints, and what constitutes a compatible change? |
@@ -388,5 +396,6 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.3 | 2026-10-10 | Assigned common, language-specific, artifact-specific, architectural, and product-policy ownership; defined cumulative applicability, specialization precedence, and path-instruction linkage. |
 | 0.2 | 2026-10-10 | Adopted the artifact taxonomy, maintained-software boundary, self-contained workspace rule, root exceptions, cross-artifact dependency rule, and explicit migration exclusion. |
 | 0.1 | 2026-10-10 | Recorded multi-language conformance, illustrative examples, source organization, engineering policy separation, and open questions; requirements and work-item creation remain deferred. |

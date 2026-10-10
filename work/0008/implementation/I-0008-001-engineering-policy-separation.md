@@ -6,7 +6,8 @@ change_kind: maintenance
 title: Separate common and specialized engineering policy
 status: open
 spec: SPEC-0008
-requirements: []
+requirements:
+  - R-0008-004
 depends_on: [D-0008-002, D-0008-003, D-0008-008]
 artifacts:
   - docs/development/coding-conventions.md
@@ -17,9 +18,10 @@ artifacts:
 
 ## Objective and coverage
 
-Deliver the approved common, language-specific, and artifact-specific policy
-structure and applicable instruction links. Requirement coverage is pending the
-governing decisions; this milestone is not executable.
+Deliver the common, language-specific, and artifact-specific policy structure
+defined by R-0008-004 and applicable instruction links. D-0008-003 and
+D-0008-008 still govern normative-content separation and language-native
+traceability, so this milestone is not executable.
 
 ## Entry gates
 
@@ -28,13 +30,21 @@ and ADR amendments are approved; scope readiness is approved.
 
 ## File and ownership manifest
 
-Exact policy files and instruction patterns are pending decision closure and
-must be supplied by concrete slices.
+The common source remains `docs/development/coding-conventions.md`.
+Specialized guides, if required by real consumers, belong beneath
+`docs/development/conventions/`, and path routing remains under
+`.github/instructions/`. Concrete slices must name the actual guides and
+instruction files after the remaining decisions close; no empty guide or
+directory is delivered.
 
 ## Design and integration
 
-Preserve authority order, link portable requirements instead of copying them,
-and keep architecture and detailed engineering practice in their proper sources.
+Apply common and specialized policies cumulatively. A specialized guide may
+explicitly replace a common Default or Recommendation within its declared
+scope, but it cannot weaken a common Required rule or override a specification
+or ADR. Link portable requirements instead of copying them, and keep
+path-specific instructions as routing and tool-execution guidance rather than
+a competing policy source.
 
 ## Tests and validation
 
