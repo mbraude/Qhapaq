@@ -2,8 +2,8 @@
 spec: SPEC-0007
 sources:
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: 6fa79545b7bfa9d4253439dc315cda55d12b0f43
-    content_sha256: 89cd50096b1cac49160fd67dbc97aad10207a11b1f950ddbbbbec6e9da86cadf
+    revision: dd56a136e2b381b6c44cc05a2a803bf00e4d7dfb
+    content_sha256: 7cc2dcd95281961244fd747f009820bd1f75ef3d3a41a7d124ed7f28ea37fa6e
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: e5a35871ce14aa37d7169ac35d824c910bb0494a01e419dc7895a69dd0092eb9
@@ -553,5 +553,31 @@ Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920
   specification blocker but does not establish mapping-v1 readiness; D-0007-002,
   required schemas and vectors, and scoped readiness review remain outstanding.
 - Validation and exact reviewed snapshots are recorded in D-0007-001. This
+  reconciliation is not human approval, completion, implementation,
+  publication, or permission to execute.
+
+## D-0007-002 mapping-completeness reconciliation
+
+- Date: 2026-10-09. Baseline
+  `dd56a136e2b381b6c44cc05a2a803bf00e4d7dfb` supplied the committed
+  SPEC-0007 input. The source record hashes the reviewed working-copy bytes
+  containing D-0007-002's accepted resolution; it does not claim those bytes
+  are committed.
+- The all-operator audit found no selected or rejected capability mismatch and
+  no shape, typing, state, failure, evaluation, or accounting gap in the
+  specialized collection, string, regex, object-shaping, or numeric groups.
+  It found that the foundational operators relied on distributed generic
+  clauses without a complete result-and-conformance matrix, and that R-0007-334
+  omitted the numeric, regex, and object-shaping groups from its aggregate
+  inventory.
+- R-0007-392 through R-0007-396 close only those core semantic and conformance
+  gaps. R-0007-334 now inventories every specialized group. No operator,
+  operand shape, capability selection, dependency, phase membership, schema,
+  vector, implementation slice, or publication state changes.
+- D-0007-002 is the only decision resolved by this reconciliation. Its
+  downstream mapping-artifact milestone remains blocked on exact-snapshot
+  approval of this decision and D-0007-015, then on concrete implementation
+  planning. No readiness record or approval is created.
+- Validation and exact reviewed snapshots are recorded in D-0007-002. This
   reconciliation is not human approval, completion, implementation,
   publication, or permission to execute.

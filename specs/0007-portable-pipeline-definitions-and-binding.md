@@ -1268,7 +1268,7 @@ its input is JSON `null`, does not handle missing, and otherwise passes the
 value through. Their inferred result types remove only the state each operator
 checks.
 
-**[R-0007-064]** Sections 8.5 through 8.16 define the v1 operators,
+**[R-0007-064]** Sections 8.5 through 8.17 define the v1 operators,
 semantics have been closed to date, including their operand shapes, evaluation
 order, result typing, value-state behavior, runtime failure behavior, and
 required conformance coverage. The normative schema must enumerate exactly
@@ -2726,7 +2726,7 @@ Section 8.16 defines their required conformance coverage.
 
 **[R-0007-132]** Every selected capability is part of `qhapaq.mapping/v1`, not a future
 mapping-language version. The v1 operator set is closed by Sections 8.5 through
-8.16. The corresponding schema and conformance artifacts must encode that
+8.17. The corresponding schema and conformance artifacts must encode that
 exact set before publication.
 
 **[R-0007-133]** The following capabilities remain outside v1 and are non-normative
@@ -2909,6 +2909,110 @@ normative coverage does not establish that those artifacts exist.
    recursive produced-value limits, boundaries immediately below and at the
    work and value-size limits, failed preflight before emission, and counter
    overflow as exhaustion.
+
+### 8.17 Core-operator closure and conformance requirements
+
+**[R-0007-392]** The foundational construction and selection operators have these exact
+successful results:
+
+- `literal` returns its `value` unchanged. `input` returns the portable value
+  bound to its exact declared name. `variable` returns the current item or
+  original source index bound to its exact active lexical name.
+- `property` returns the exact named member when present and `missing` when
+  absent. `item` returns the element at its zero-based index and returns
+  `missing` for a negative or out-of-range index. `last` and `slice` return the
+  results defined by R-0007-075 and R-0007-076.
+- `object` evaluates each field expression and returns one object containing
+  exactly those named results. `array` evaluates each item expression and
+  returns those results in listed order. Neither constructor can contain
+  `missing`.
+- `length` returns the decoded Unicode scalar count of a string or the element
+  count of an array.
+
+Selection does not copy, coerce, normalize, or materialize a different JSON
+type. Construction produces a portable value subject to the recursive
+collection, string, and value-size limits in Section 8.10.
+
+**[R-0007-393]** The state and control operators have these exact results. `is-missing` and
+`is-null` use the truth table in R-0007-106. `coalesce-missing`,
+`coalesce-null`, `require-present`, and `require-non-null` handle exactly the
+one state assigned to each by R-0007-062, R-0007-063, and R-0007-106.
+
+`not` returns Boolean negation. `and` returns `true` exactly when every value
+is true, and `or` returns `true` exactly when at least one value is true.
+`if` returns the result of `then` when `condition` is true and the result of
+`else` otherwise. Their short-circuit order is R-0007-098; an unselected
+operand or branch is not evaluated and cannot fail or consume runtime budget.
+
+**[R-0007-394]** The remaining scalar operators have these exact successful results:
+
+- `negate`, `add`, `multiply`, `subtract`, `divide`, and `remainder` apply the
+  corresponding mathematical operation. `add` and `multiply` are the ordered
+  left folds required by R-0007-098. `remainder` uses the quotient rule in
+  R-0007-108. Numeric representation, per-operation rounding, failure, and
+  negative-zero normalization follow R-0007-107 and R-0007-108.
+- `equal`, `not-equal`, and `deep-equal` return the relations in R-0007-095.
+  The ordered comparisons return the corresponding mathematical numeric
+  relation under R-0007-096.
+- `concat` returns the listed strings concatenated in operand order. `trim`,
+  `stringify`, `parse-number`, and `parse-boolean` return the results defined
+  by R-0007-068 through R-0007-070.
+- `assert-integer`, `assert-number-range`, `assert-length`, and `assert-format`
+  return their input unchanged when it satisfies the asserted constraint.
+  Otherwise they fail with their exact stable code from Section 15.2.
+  `assert-format` applies the exact validator for its literal format in
+  Sections 9.2 through 9.5.
+
+No scalar operator performs an implicit conversion or handles `missing` or
+JSON `null` unless Sections 8.2 through 8.10 explicitly say it does.
+
+**[R-0007-395]** `map` evaluates its source once, evaluates `expression` once for each source
+item in ascending source-index order, and returns the expression results in
+that order. `filter` evaluates its source once, evaluates `predicate` once for
+each attempted source item in ascending source-index order, and returns exactly
+the items whose predicate is true, preserving their relative source order.
+Both operators bind `itemName` and optional `indexName` as defined by
+R-0007-083. An empty source returns an empty array. A body, predicate, resource,
+or produced-value failure returns no partial array.
+
+Immediately before each body or predicate, the evaluator debits one array
+element examination and one collection visit, in that order. Each emitted
+result item incurs one element emission. Unevaluated items after a failure
+incur no debit. Source and result limits, nested shared budgets, operator
+invocation charges, and complete produced-value preflight follow
+R-0007-117 through R-0007-123.
+
+**[R-0007-396]** The normative `qhapaq.mapping/v1` conformance suite must include all of the
+following core-operator vector groups:
+
+1. Valid and invalid structure and static-inference vectors for every operator
+   in R-0007-392 through R-0007-395, including exact names, unknown members,
+   operand counts and domains, lexical scope, alternative joins, narrowing,
+   missing and nullable operands, and checked partial operations.
+2. Construction and selection vectors for exact literal and bound values,
+   present and absent properties, negative and out-of-range indices, empty and
+   nonempty arrays and objects, constructor ordering, missing-result rejection,
+   and exact string-scalar and array lengths.
+3. State and control vectors for every missing/null truth-table row,
+   coalescing and requirement distinctions, Boolean truth tables, guard
+   narrowing, branch selection, and suppression of unselected failures and
+   budget charges.
+4. Scalar vectors for arithmetic and comparison results, ordered folds,
+   numeric cross-type equality, deep composite equality, division and
+   remainder by zero, finite and safe-integer boundaries, canonical
+   stringification, exact parsing grammars, concatenation and trimming, and
+   pass-through and failure behavior for every assertion and allowed format.
+5. `map` and `filter` vectors for empty and nonempty sources, item and original
+   index binding, nested lexical scope, result ordering, retained-item
+   ordering, missing body results, non-Boolean predicates, and no partial
+   result.
+6. Evaluation, first-failure, and exact-accounting vectors proving every
+   required operand order and evaluate-once rule, short-circuit behavior,
+   canonical object-field order, selected-element work, constructor and
+   produced-value preflight, one examination and one shared collection visit
+   per attempted `map` or `filter` item, emitted-element charges, all relevant
+   collection, string, value-size, operator-count, and work boundaries, and
+   counter overflow as exhaustion.
 
 ## 9. Schema Profile and Compatibility
 
@@ -4563,6 +4667,9 @@ changes.
   ordered aggregation, concurrency ceilings, nested scopes, failure,
   cancellation, and aggregate budgets;
 - transform parsing, type inference, nullability, conversion, and failure tests;
+- core mapping-operator structure, inference, construction, selection, state,
+  control, scalar result, evaluation-order, and exact accounting vectors
+  required by Section 8.17;
 - `last` and `slice` vectors covering empty and non-empty sources, null items,
   omitted and zero counts, starts at and beyond the source length, truncated
   windows, non-negative-bound validation, inferred length bounds, single source
@@ -4578,6 +4685,13 @@ changes.
   ASCII-insensitive, and Unicode-insensitive comparison,
   split/join/replacement, evaluation-order, bounded matching, and exact
   accounting vectors required by Section 8.14;
+- numeric-helper and reduction structure, inference, result, failure-order,
+  and exact accounting vectors required by Section 8.12;
+- regex-helper structure, inference, selection, iteration, empty-match,
+  evaluation-order, bounded matching, and exact accounting vectors required
+  by Section 8.15;
+- object-shaping structure, inference, result, evaluation-order, and exact
+  accounting vectors required by Section 8.16;
 - mixed mapping-language-version pipelines, including independent transform and
   output-projection versions;
 - rejection of mapping languages not permitted by the exact pipeline format,
@@ -4657,7 +4771,8 @@ deterministic evaluation order, portable resource accounting, and required
 conformance vectors. Section 8.12 explicitly selects
 absolute/minimum/maximum/clamp and rounding helpers, fixes their numeric-domain
 behavior and exact rounding modes, and defines selected array reductions with
-empty-array, accumulation-order, and overflow semantics.
+empty-array, accumulation-order, and overflow semantics. Section 8.17 closes
+the foundational operators and requires their complete conformance matrix.
 
 **[R-0007-341]** Mapping capabilities extend the constrained,
 declarative mapping language rather than add inline executable code or a general
