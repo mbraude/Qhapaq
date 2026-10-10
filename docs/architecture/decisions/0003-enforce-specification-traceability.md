@@ -91,10 +91,14 @@ identifier of the form `R-<spec>-<sequence>`, for example `R-0001-012`.
 - Goals, non-goals, summaries, terminology, rationale, alternatives, open
   questions, future-only direction, and revision history do not receive
   requirement identifiers. Content that precedes the first identifier in a
-  section is outside every block. Examples and rationale that appear inside a
-  block's range are part of that block; place them before the block's
-  identifier or under a separate heading if edits to them should not affect
-  references.
+  section is outside every block. As clarified by
+  [SPEC-0008 R-0008-005](../../../specs/0008-multi-language-conformance-and-repository-organization.md#normative-content-categories),
+  an example inside a block is normative, is labeled **Normative example**, and
+  forms part of the block fingerprint and conformance expectations. An example
+  outside a block is labeled **Illustrative example**, is non-normative, and
+  cannot add, relax, or contradict required behavior. Rationale and merely
+  illustrative examples belong before the block identifier or under a separate
+  heading.
 
 ### Requirement fingerprints
 

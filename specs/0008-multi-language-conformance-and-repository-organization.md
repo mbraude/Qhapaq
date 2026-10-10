@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; artifact taxonomy and engineering-policy ownership resolved, remaining decisions unresolved
-> **Version:** 0.3
+> **Status:** Draft; artifact taxonomy, engineering-policy ownership, and normative-content separation resolved, remaining decisions unresolved
+> **Version:** 0.4
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -12,12 +12,13 @@ implementations in multiple languages while accommodating software artifacts
 that are not runtime implementations, such as a website, editor integrations,
 and development tools.
 
-The artifact taxonomy, source-layout, and engineering-policy ownership
-decisions in sections 4 and 5 are resolved in normative requirement blocks and
-await review of the exact specification snapshot. Other proposals remain
-subject to decision work and review. This draft introduces no conformance
-profiles, additional language runtimes, or implementation authorization.
-Discussion and open questions do not receive requirement IDs.
+The artifact taxonomy, source-layout, engineering-policy ownership, and
+normative-content separation decisions in sections 4 and 5 are resolved in
+normative requirement blocks and await review of the exact specification
+snapshot. Other proposals remain subject to decision work and review. This
+draft introduces no conformance profiles, additional language runtimes, or
+implementation authorization. Discussion and open questions do not receive
+requirement IDs.
 
 Existing specifications and engineering policies remain in force. In
 particular, this draft does not relocate source, rename assemblies, change
@@ -194,6 +195,34 @@ No empty specialized guide or directory is created speculatively. Moving the
 existing .NET-specific material and removing duplicated instruction text is
 separate delivery work and does not change product behavior.
 
+### Normative content categories
+
+**[R-0008-005]** Specification content is separated by authority, declared
+scope, and requirement-block boundaries:
+
+- Portable product requirements belong in `SPEC.md`, a numbered platform
+  specification, or an implementation-neutral component specification. Their
+  requirement blocks must remain independent of implementation language.
+- A normative language-specific API or runtime contract belongs in a numbered
+  implementation specification whose status or introductory scope explicitly
+  names the language and runtime. Its normative rules use requirement blocks
+  and must not be embedded in a portable requirement block. SPEC-0006 is the
+  current .NET implementation specification; no implementation specification
+  is created for a language or runtime that has not been approved.
+- Rationale, alternatives, goals, non-goals, open questions, and future-only
+  direction remain outside requirement blocks and are non-normative.
+- An example outside a requirement block is non-normative, is introduced as an
+  **Illustrative example**, and cannot add, relax, or contradict required
+  behavior.
+- An example inside a requirement block is normative, is introduced as a
+  **Normative example**, and forms part of that block's fingerprint and
+  conformance expectations. A merely explanatory example must be moved outside
+  the block rather than labeled non-normative within it.
+
+Mixed content is split at headings or requirement-block boundaries so readers
+and tooling can determine its category without interpreting programming
+language syntax. Labels do not replace stable requirement identifiers.
+
 ### Language-neutral traceability
 
 The proposed portable marker is the payload
@@ -205,12 +234,12 @@ Future tooling could separate marker parsing from comment syntax. Existing
 identifier, fingerprint, invariant-placement, reverse-impact, and explicit
 waiver rules would remain the baseline pending any reviewed amendment.
 
-### Illustrative language-specific examples
+### Illustrative language-specific example
 
-Language-specific examples are useful for explaining portable behavior. Under
-the proposed distinction, an example is clearly labeled non-normative and
-separated from the requirement block so changing illustrative syntax does not
-change the requirement's fingerprint.
+**Illustrative example (non-normative).** A language-specific example can
+explain portable behavior without defining a portable or language-specific
+contract. Because this example is outside a requirement block, changing its
+syntax does not change a requirement fingerprint.
 
 For example, the following illustrates an asynchronous input-to-output mapping;
 it is not a proposed mandatory API for every language and does not fully
@@ -377,7 +406,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | --- | --- |
 | Q-0008-001 | Decided by R-0008-001 through R-0008-003: responsibility-based software categories under `src/`, lifecycle-based root exceptions, self-contained workspaces, and public cross-artifact boundaries. |
 | Q-0008-002 | Decided by R-0008-004: common policy remains in `docs/development/coding-conventions.md`; real language and artifact specializations live beneath `docs/development/conventions/`; applicability is cumulative and path instructions link rather than duplicate policy. |
-| Q-0008-003 | How will normative portable requirements, language-specific contracts, and non-normative examples be labeled and separated? |
+| Q-0008-003 | Decided by R-0008-005: portable requirements remain implementation-neutral; normative language contracts belong in explicitly scoped numbered implementation specifications; block boundaries and required labels distinguish normative from illustrative examples. |
 | Q-0008-004 | Which initial profiles are needed, what is the mandatory runtime baseline, and how do profile dependencies work? |
 | Q-0008-005 | How are profile versions tied to exact specification revisions and requirement fingerprints, and what constitutes a compatible change? |
 | Q-0008-006 | What capability and conformance declaration formats are needed, and how are partial support and unsupported behavior reported? |
@@ -396,6 +425,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.4 | 2026-10-10 | Separated portable requirements, explicitly scoped language-specific contracts, non-normative prose, illustrative examples, and normative examples while preserving requirement identifiers and fingerprint boundaries. |
 | 0.3 | 2026-10-10 | Assigned common, language-specific, artifact-specific, architectural, and product-policy ownership; defined cumulative applicability, specialization precedence, and path-instruction linkage. |
 | 0.2 | 2026-10-10 | Adopted the artifact taxonomy, maintained-software boundary, self-contained workspace rule, root exceptions, cross-artifact dependency rule, and explicit migration exclusion. |
 | 0.1 | 2026-10-10 | Recorded multi-language conformance, illustrative examples, source organization, engineering policy separation, and open questions; requirements and work-item creation remain deferred. |
