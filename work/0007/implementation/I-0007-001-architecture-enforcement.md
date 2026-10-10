@@ -31,6 +31,10 @@ production types. Exact test files and scope must be approved before execution.
 ## Design and integration
 
 Preserve SPEC-0006's adjacent-layer boundaries and test existing real collaborators.
+For D-0007-008, enumerate handwritten production C# files and compare each
+declared namespace with the owning project's `RootNamespace` plus every
+project-relative directory segment. Keep generated-namespace contract checks
+separate.
 
 ## Tests and validation
 
@@ -40,6 +44,8 @@ traceability and build-and-test when delivered.
 ## Exit criteria
 
 - [ ] R-0007-346 ownership map and relationships have applicable enforcing tests.
+- [ ] Handwritten production source uses exact project-relative namespaces and
+  generated namespace contracts are tested separately.
 - [ ] Checks pass and exact delivered scope receives human approval.
 
 ## Plan approval

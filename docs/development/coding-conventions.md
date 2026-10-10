@@ -232,6 +232,38 @@ Folders and namespaces must make the owning layer unambiguous. Shared code does
 not bypass a layer: place it in the lowest layer that owns its semantics or
 define a boundary contract when two adjacent layers genuinely collaborate.
 
+### Production feature folders and namespaces
+
+- **Required:** every handwritten C# source file in a production project uses
+  the namespace obtained by appending each source-directory segment below the
+  project directory to the project's `RootNamespace`, preserving exact casing.
+  A handwritten source file in the project directory uses the
+  `RootNamespace` itself.
+- **Required:** no handwritten-source exception may omit, add, or rename a
+  folder-derived namespace segment. Organizational grouping therefore uses a
+  real namespace boundary rather than a namespace-neutral folder.
+- Representative mappings include:
+
+  | Project-relative source path | Namespace |
+  | --- | --- |
+  | `Qhapaq.Abstractions/Operations/` | `Qhapaq.Abstractions.Operations` |
+  | `Qhapaq.Service.V1/DependencyInjection/` | `Qhapaq.Service.V1.DependencyInjection` |
+  | `Qhapaq.Business/Validation/` | `Qhapaq.Business.Validation` |
+  | `Qhapaq.DAL/Operations/` | `Qhapaq.DAL.Operations` |
+  | `Qhapaq.Implementations.Hosting/DependencyInjection/` | `Qhapaq.Implementations.Hosting.DependencyInjection` |
+
+The rule applies to handwritten production source physically located beneath
+`implementations/dotnet/src/`. SDK- and compiler-generated files outside those
+project source directories are not handwritten source and are excluded.
+Qhapaq-generated source follows the generated namespace contract in its
+governing specification; generator tests must verify that contract separately.
+
+Architecture tests must enumerate handwritten production C# files, derive the
+expected namespace from the owning project's `RootNamespace` and relative
+directory, and fail for a missing or non-exact declaration. Generated-source
+contract tests remain separate so this file-layout rule does not silently
+replace a specified generated namespace.
+
 ## 5. C# and .NET
 
 These defaults apply when the .NET 10 projects are created.

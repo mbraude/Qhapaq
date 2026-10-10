@@ -15,7 +15,7 @@ sources:
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
   - path: docs/development/coding-conventions.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: a56e921915f25eab627cf3d4fbbe8d32028f99f965a3dd67fac6c166d10691bc
+    content_sha256: a83462c164858646583ac9137e20f7ab4f047648be9663790a23a50ae1f66867
   - path: docs/development/spec-driven-workflow.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 2f04cd9e4cc28dbae1cc55593ef7fe29b293911f34175c85faab19c061c8743b
@@ -689,4 +689,27 @@ Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920
   existing prerequisites.
 - Validation and exact ready-for-review snapshots remain to be recorded in
   D-0007-005. This reconciliation is not human approval, completion,
+  implementation, publication, or permission to execute.
+
+## D-0007-008 folder and namespace reconciliation
+
+- Date: 2026-10-10. Baseline
+  `34fbe88fb9d4857adc6db5390cc623c210c71540` supplies the committed coding
+  conventions. The updated source record hashes the working-copy bytes that
+  add the accepted production feature-folder and namespace policy; it does not
+  claim those bytes are committed.
+- D-0007-008 is the only decision resolved by this reconciliation. The policy
+  requires exact project-relative folder-to-namespace mapping for handwritten
+  production C# source and permits no handwritten-source exception. Generated
+  namespace contracts remain separately governed.
+- No item is added, split, cancelled, or moved between phases. I-0007-001
+  retains its existing dependencies and now identifies the exact handwritten
+  source mapping check required after all Phase 0A decisions receive approval
+  and a concrete implementation plan.
+- The change creates no production type, folder, namespace, project dependency,
+  schema, conformance vector, or implementation approval. D-0007-009 through
+  D-0007-014 remain independent or blocked only by their recorded prerequisites;
+  I-0007-001 remains an open milestone blocked by all seven Phase 0A decisions.
+- Validation and the exact ready-for-review snapshot are recorded in
+  D-0007-008. This reconciliation is not human approval, completion,
   implementation, publication, or permission to execute.
