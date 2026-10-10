@@ -4,7 +4,7 @@
 >
 > **Target:** Qhapaq v1
 >
-> **Last updated:** 2026-10-09
+> **Last updated:** 2026-10-10
 
 ## 1. Summary
 
@@ -4683,6 +4683,289 @@ every exit status; rejection of unknown values; and proof that no retrieval path
 executes an operation or reveals protected registry, policy, implementation, or
 credential state.
 
+### 14.3 Subsequent Service, CLI, and MCP surfaces
+
+This subsection closes the remaining initial public-surface question. It defines
+separate typed operations for each use case and common versioned primitives; it
+does not define a generic action envelope.
+
+**[R-0007-411]** `Qhapaq.Abstractions.Service.V1` defines immutable request, result,
+structured-error, diagnostic, catalog-selector, capability, conclusion, and
+response-envelope contracts for these exact surface identities:
+
+| Surface ID | Service operation |
+| --- | --- |
+| `qhapaq.capabilities/v1` | `GetCapabilitiesAsync` |
+| `qhapaq.operation-get/v1` | `GetOperationDescriptorAsync` |
+| `qhapaq.operation-list/v1` | `ListOperationDescriptorsAsync` |
+| `qhapaq.pipeline-parse/v1` | `ParsePipelineAsync` |
+| `qhapaq.pipeline-validate/v1` | `ValidatePipelineAsync` |
+| `qhapaq.pipeline-explain/v1` | `ExplainPipelineAsync` |
+| `qhapaq.pipeline-mermaid/v1` | `RenderPipelineMermaidAsync` |
+| `qhapaq.pipeline-compare/v1` | `ComparePipelineContractsAsync` |
+| `qhapaq.pipeline-execute-definition/v1` | `ExecutePipelineDefinitionAsync` |
+| `qhapaq.pipeline-execute-reference/v1` | `ExecutePipelineReferenceAsync` |
+
+Every asynchronous operation accepts cancellation and returns one versioned
+response containing exactly one normal result or one structured error. The
+response format is `qhapaq.service.<surface-name>-response/v1`. Shared
+primitives retain one meaning across operations, but a request or result for one
+surface is not accepted as another surface's contract.
+
+**[R-0007-412]** A pipeline-document request carries bounded raw UTF-8 JSON bytes with media
+type `application/json`; it does not carry a pre-parsed JSON object. Service
+performs encoding, duplicate-member, format, and structural checks
+authoritatively, including reading the exact `qhapaq.pipeline/v1` format from
+the document. Parsing accepts no catalog selector and establishes only the
+R-0007-401 inert-parsing conclusions. Validation, explanation, Mermaid
+projection, comparison, and definition execution additionally require an exact
+catalog selector containing `CatalogId`, exact `CatalogVersion`, and an
+optional `ExpectedCatalogDigest`. They return the resolved catalog digest.
+For every catalog-aware operation, an absent catalog and one hidden by catalog
+disclosure policy produce the same `unavailable` normal outcome without
+existence-revealing detail. A catalog digest mismatch is returned only after
+catalog disclosure is permitted.
+
+CLI adapters may obtain document bytes only from one explicit file or standard
+input. MCP requests carry the document as a bounded JSON-text string rather
+than an arbitrary server-side path. Adapters reject invalid UTF-8, an oversized
+document, or multiple uses of standard input before Service invocation; they do
+not parse the document into a lossy intermediate JSON value.
+
+**[R-0007-413]** A catalog identity is an immutable catalog ID, exact Semantic Versioning
+version, and SHA-256 membership digest. The digest is computed over RFC 8785
+canonical JSON containing the ID, exact version, and an ordered array of exact
+operation ID, exact contract version, and contract digest triples. Members use
+the ordering in R-0007-268. A catalog ID/version pair identifies exactly one
+membership digest; different membership requires a different catalog version.
+The same exact operation contract may be included in several catalog versions,
+omitted from a later version, or replaced by another exact contract in a new
+version without duplicating the operation implementation.
+
+Contract membership and implementation provenance remain separate. A contract
+ID/version pair identifies exactly one immutable contract digest; a changed
+contract digest requires a new contract version. Replacing an implementation
+artifact without changing its portable contract changes the separately
+versioned implementation provenance and integrity record, invalidates affected
+cached plans at the host reload boundary, and does not change pipeline
+references, operation contract versions, or catalog membership.
+
+**[R-0007-414]** `ListOperationDescriptorsAsync` requires an exact catalog ID/version,
+optionally checks its expected digest, and returns only descriptors the caller
+may discover. A page contains at most the requested `PageSize`; omission means
+`100`, values greater than `1000` are invalid, and zero or negative values are
+invalid. Entries use the R-0007-268 ordering. The response contains no total
+unfiltered count and an empty page does not distinguish an empty catalog from
+one whose entries are all hidden by disclosure policy.
+
+When another visible entry remains, the response contains one opaque
+continuation token bound to the catalog ID, version, membership digest, ordering
+position, and policy-projection snapshot. Reusing a token with any different
+selector or projection returns `qhapaq.operation-list.invalid-continuation`;
+the server never resumes against changed membership or visibility. The policy
+projection does not alter the catalog membership digest and does not duplicate
+operation implementations or descriptor-generation logic.
+
+**[R-0007-415]** `GetCapabilitiesAsync` returns one bounded
+`qhapaq.capabilities/v1` document. Each entry contains a surface ID from
+R-0007-411, its exact contract version, and exactly one state: `enabled` or
+`disabled`. A disabled entry contains exactly one reason from
+`notImplemented`, `hostConfigurationDisabled`, `prerequisiteUnavailable`, or
+`conformanceNotClaimed`, plus optional bounded payload-safe remediation text.
+It contains no secret, protected policy rule, credential, implementation type,
+or untrusted metadata presented as instructions.
+
+The document also reports the positive integer host limits applicable to each
+enabled surface, including maximum pipeline-document UTF-8 bytes, boundary-input
+UTF-8 bytes, diagnostics, explanation bytes, Mermaid bytes, comparison
+diagnostics, page size, and disclosed execution-output bytes. A request outside
+an advertised limit is `invalid-request`; a host does not truncate a semantic
+result and report success.
+
+Capability state says whether the host offers the surface; it is not
+invocation authorization. Enabling a disabled surface requires the applicable
+trusted host configuration/reload, implementation release, prerequisite, and
+conformance gate. Authoring, CLI, and MCP requests cannot enable a surface,
+install an extension, mutate a trusted profile, or broaden policy.
+`qhapaq.capabilities/v1` and `qhapaq.operation-get/v1` are enabled whenever a
+host advertises any Section 14.3 surface.
+
+**[R-0007-416]** The non-executing operations have these closed normal results:
+
+- parsing returns `parsed` or `invalid`, inert definition data when safe, the
+  complete R-0007-400 conclusion set, and bounded structural diagnostics;
+- validation returns `evaluated`, the complete conclusion set, bounded
+  diagnostics, and contract-normalized identity only when document validity and
+  host bindability are both `satisfied`;
+- explanation returns `explained`, preserves the validation conclusion set
+  without upgrading it, and contains resolved bounded dataflow, exact contract,
+  effect, capability, resource, and prerequisite projections permitted by
+  disclosure policy;
+- Mermaid returns `rendered` or `notRendered`; `rendered` contains deterministic
+  Mermaid derived only from the validated definition and promised schema
+  analysis, while `notRendered` contains the authoritative conclusions and
+  diagnostics that prevented rendering; and
+- comparison returns `compatible` or `breaking`, compares two independently
+  validated pipeline boundary contracts under the same exact catalog, and
+  treats unsupported or indeterminate comparison as `breaking` with diagnostics.
+
+Parsing performs no catalog, policy, credential, or external-resource access.
+None of these operations constructs or executes an operation, resolves a
+credential, grants execution, or grants payload disclosure. Explanation and
+Mermaid omit protected descriptors and host details rather than weakening
+Service disclosure decisions.
+
+**[R-0007-417]** Public execution remains separate. Definition execution accepts the raw
+document input from R-0007-412, an exact catalog selector, and one boundary
+input JSON value. Reference execution instead accepts an exact pipeline ID,
+exact pipeline version, required expected canonical definition digest, exact
+catalog selector, and one boundary input JSON value. It never selects
+`latest`, follows an alias, substitutes a compatible version, or patches the
+definition. Reference absence and reference non-disclosure produce one
+indistinguishable `unavailable` normal outcome.
+
+Before any operation starts, Service completes the full parse-to-permission
+path, validates the boundary input, and establishes all four R-0007-400
+conclusions for this invocation. `executionPermission` is `satisfied` or
+`notSatisfied`, never `unavailable`, in a normal execution result. A denied
+invocation returns `permissionDenied` with safe diagnostics and starts no
+operation. A started run returns `completed` or `failed`; `failed` contains one
+R-0007-304 failure envelope and no success-shaped partial output.
+
+Result-payload disclosure is evaluated independently and reported as exactly
+`permitted` or `denied`. A permitted completed result contains the validated
+final output. A denied completed result has outcome `completed`, contains no
+output or payload-derived diagnostic, and states that output was withheld.
+Disclosure denial does not change a permitted execution into a denial and does
+not imply rollback, compensation, or durability.
+
+**[R-0007-418]** The stable subsequent CLI grammar is:
+
+```text
+qhapaq capabilities [--output text|json]
+qhapaq operation list --catalog-id <id> --catalog-version <exact-version>
+  [--catalog-digest <expected-digest>] [--page-size <1..1000>]
+  [--continuation <token>] [--output text|json]
+qhapaq pipeline parse --file <path|-> [--output text|json]
+qhapaq pipeline validate|explain|mermaid --file <path|->
+  --catalog-id <id> --catalog-version <exact-version>
+  [--catalog-digest <expected-digest>] [--output text|json]
+qhapaq pipeline compare --baseline-file <path|-> --candidate-file <path|->
+  --catalog-id <id> --catalog-version <exact-version>
+  [--catalog-digest <expected-digest>] [--output text|json]
+qhapaq pipeline run --file <path|-> --input-file <path|->
+  --catalog-id <id> --catalog-version <exact-version>
+  [--catalog-digest <expected-digest>] [--output text|json]
+qhapaq pipeline run --reference-id <id> --reference-version <exact-version>
+  --reference-digest <expected-digest> --input-file <path|->
+  --catalog-id <id> --catalog-version <exact-version>
+  [--catalog-digest <expected-digest>] [--output text|json]
+```
+
+Each option occurs at most once. Exactly one `pipeline run` source form is
+required, and at most one file option in a command may use standard input.
+`text` is the default. Machine output is one
+`qhapaq.cli.<surface-name>-response/v1` envelope; human diagnostics go only to
+standard error. Mermaid text mode writes only the Mermaid projection to
+standard output after success. A text response labels all four conclusions when
+its Service result contains them; capability and listing responses do not
+invent conclusions. Adapters preserve Service ordering, diagnostics, outcomes,
+disclosure decisions, and errors without recomputing them.
+
+**[R-0007-419]** All subsequent CLI commands use this stable exit-status mapping:
+
+| Status | Meaning |
+| --- | --- |
+| `0` | The requested positive normal outcome, including `completed` with output withheld. |
+| `1` | Dependency/internal failure, or a started run's `failed` outcome. |
+| `2` | CLI parse failure, `invalid-request`, or `invalid-continuation`. |
+| `3` | A negative domain result: `invalid`, `notRendered`, `breaking`, `unavailable`, or an evaluated `notSatisfied` validation conclusion. |
+| `4` | Catalog, pipeline-reference, or other expected-digest mismatch. |
+| `5` | Catalog, registry, or exact-identity conflict. |
+| `6` | `permissionDenied`. |
+| `7` | `capability-unavailable`. |
+| `130` | `cancelled`. |
+
+No other result maps to zero. A deliberately unavailable conclusion that the
+use case does not promise to evaluate does not by itself make an otherwise
+positive result negative. A JSON-mode CLI parse failure emits one valid error
+envelope and status `2`; cancellation never becomes a run failure.
+
+**[R-0007-420]** An MCP server that exposes these contracts uses exactly these tool names:
+
+`qhapaq_capabilities`, `qhapaq_get_operation`, `qhapaq_list_operations`,
+`qhapaq_parse_pipeline`, `qhapaq_validate_pipeline`,
+`qhapaq_explain_pipeline`, `qhapaq_render_pipeline_mermaid`,
+`qhapaq_compare_pipeline_contracts`,
+`qhapaq_execute_pipeline_definition`, and
+`qhapaq_execute_pipeline_reference`.
+
+Each tool has distinct closed request and result schemas identified as
+`qhapaq.mcp.<surface-name>-request/v1` and
+`qhapaq.mcp.<surface-name>-response/v1`; there is no generic action tool.
+`qhapaq_capabilities` is present whenever this MCP surface is hosted. Every
+other tool is registered only while its corresponding capability is enabled;
+a disabled tool is not advertised as a callable placeholder. MCP accepts raw
+pipeline JSON as a bounded string, never an arbitrary server-side file path.
+Normal negative outcomes remain tool results. Malformed requests, structured
+Service errors, and cancellation map to MCP errors without becoming successful
+content. Untrusted descriptions, examples, diagnostics, and Mermaid labels are
+delimited from authoritative tool instructions.
+
+**[R-0007-421]** Structured errors use
+`qhapaq.<surface-token>.<reason>`, where `surface-token` is the middle component
+of an R-0007-411 surface ID, such as `pipeline-validate`, and the closed
+applicable reasons are `invalid-request`, `invalid-continuation`,
+`catalog-digest-mismatch`, `pipeline-digest-mismatch`, `identity-conflict`,
+`registry-conflict`, `capability-unavailable`, `cancelled`,
+`dependency-failure`, and `internal-failure`. A surface rejects a reason that
+is not applicable to its contract. Permission denial, invalid definitions,
+validation conclusions, comparison breakage, unavailable exact references, run
+failure, and withheld output are normal results, not structured operation
+errors.
+
+Errors contain one bounded payload-safe message and no partial result,
+conclusion set, definition or operation payload, protected host detail,
+exception, stack trace, credential information, or secret. Cancellation
+propagates through every adapter and layer and is returned only when observed
+before a terminal normal result was established.
+
+**[R-0007-422]** Service remains authoritative for catalog membership projection, parsing,
+validation, binding, comparison, Mermaid generation, execution, permission, and
+payload disclosure. CLI, MCP, and third-party adapters consume Service V1 and
+do not call Business, DAL, generator, manifest, registry implementation,
+credential, or trusted-profile internals. Authoring and introspection cannot
+install or load code, persist or mutate a definition, modify a trusted profile,
+reload a registry, resolve a credential, or start execution.
+
+No initial contract is advertised for pipeline creation or transformation,
+persisted-definition listing or administration, profile or extension
+administration, arbitrary filesystem access through MCP, skill-bundle
+generation, streaming execution, run history, durable execution, resume,
+compensation, or transactional rollback. Invocation-skill and companion
+protocols remain governed by their owning specifications. A later surface
+requires its own exact versioned contract and capability entry; implementations
+must not expose a placeholder schema in the meantime.
+
+**[R-0007-423]** Language-neutral conformance covers every surface, request, normal result,
+structured error, conclusion set, CLI envelope and exit status, and MCP schema
+defined in this subsection. It includes invalid UTF-8, duplicate members,
+oversized input, conflicting file/stdin sources, malformed and mismatched exact
+selectors, immutable catalog membership, implementation-only replacement,
+policy-filtered listing, page bounds, continuation replay against changed
+membership or visibility, capability enablement and omission, adapter
+preservation, safe diagnostics, cancellation at every boundary, and rejection
+of unknown members and values.
+
+Execution coverage additionally proves definition/reference equivalence,
+reference absence/non-disclosure indistinguishability, complete preflight
+before side effects, permission denial without execution, completed output
+present and withheld, runtime failure without partial success, and independent
+execution and disclosure decisions. Architecture and security tests prove that
+adapters do not bypass Service and that authoring, capability discovery, and
+listing cannot execute, resolve credentials, mutate trusted state, or reveal
+protected metadata.
+
 ## 15. Structured Diagnostics and Failures
 
 ### 15.1 Validation diagnostics
@@ -5511,5 +5794,6 @@ an exact pipeline reference.
 
 ## 23. Open Questions
 
-1. Beyond the exact descriptor-retrieval CLI contract in Section 14.2, what are
-   the exact subsequent CLI commands and MCP tool request and response schemas?
+No open question remains for the initial Service, CLI, or MCP contracts in
+Sections 14.2 and 14.3. Later optional surfaces require a new exact versioned
+contract rather than an implicit extension of these v1 contracts.

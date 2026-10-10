@@ -6,7 +6,7 @@ change_kind: requirement
 title: Public policy-gated execution and claimed conformance
 status: open
 spec: SPEC-0007
-requirements: [R-0007-337, R-0007-369]
+requirements: [R-0007-337, R-0007-369, R-0007-411, R-0007-412, R-0007-413, R-0007-415, R-0007-417, R-0007-418, R-0007-419, R-0007-420, R-0007-421, R-0007-422, R-0007-423]
 depends_on: [D-0007-005, I-0007-017, I-0007-023, I-0007-024]
 artifacts: [implementations/dotnet, docs]
 ---
@@ -17,7 +17,8 @@ artifacts: [implementations/dotnet, docs]
 
 Phase 9: separate execution Service; normative CLI requests/results/diagnostics/
 exit status; MCP independent execution/disclosure; complete claimed conformance,
-generator/registry/native/cache/architecture/security/AOT tests and capability docs.
+inline-definition and exact-reference modes; withheld-output results; generator/
+registry/native/cache/architecture/security/AOT tests and capability docs.
 
 ## Entry gates
 

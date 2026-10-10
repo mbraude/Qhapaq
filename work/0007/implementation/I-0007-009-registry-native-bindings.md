@@ -6,8 +6,8 @@ change_kind: requirement
 title: Registry core and explicit native bindings
 status: open
 spec: SPEC-0007
-requirements: [R-0007-350]
-depends_on: [I-0007-008, I-0007-007]
+requirements: [R-0007-350, R-0007-413]
+depends_on: [D-0007-005, I-0007-008, I-0007-007]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
 
@@ -17,7 +17,8 @@ artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 
 Phase 3: immutable exact ID/version/digest lookup; separate implementation/native
 identities; explicit generated ingestion; runtime revalidation; conflict/version/
-generic agreement; safe availability states and registry generation identity.
+generic agreement; safe availability states and registry generation identity;
+and separate immutable contract and implementation-artifact identities.
 
 ## Entry gates
 

@@ -6,7 +6,7 @@ change_kind: requirement
 title: Incremental Service, CLI, MCP and Mermaid authoring projections
 status: open
 spec: SPEC-0007
-requirements: [R-0007-368, R-0007-400, R-0007-401, R-0007-402, R-0007-403]
+requirements: [R-0007-368, R-0007-400, R-0007-401, R-0007-402, R-0007-403, R-0007-411, R-0007-412, R-0007-414, R-0007-415, R-0007-416, R-0007-418, R-0007-419, R-0007-420, R-0007-421, R-0007-422, R-0007-423]
 depends_on: [D-0007-005, D-0007-006, I-0007-011]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
@@ -17,7 +17,8 @@ artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 
 Phase 8: remaining public authoring contracts; descriptor listing; early structural
 conclusions; full four-conclusion validation; resolved dataflow/effect/prerequisite
-explanation; deterministic Mermaid; conservative contract comparison; CLI/MCP.
+explanation; deterministic Mermaid; conservative contract comparison;
+capability introspection; bounded raw-document and catalog selectors; CLI/MCP.
 
 ## Entry gates
 
@@ -39,7 +40,8 @@ rules or access to Business/DAL/generator/manifest internals.
 ## Tests and validation
 
 Versioned consumer/adapter tests, unavailable-conclusion cases, comparison vectors,
-Mermaid goldens and architecture checks.
+Mermaid goldens, catalog pagination, capability omission, exit-status/MCP
+projection, cancellation, safe diagnostics and architecture checks.
 
 ## Exit criteria
 

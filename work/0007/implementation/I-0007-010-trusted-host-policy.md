@@ -6,8 +6,8 @@ change_kind: requirement
 title: Trusted host configuration, sources and independent policy boundaries
 status: open
 spec: SPEC-0007
-requirements: [R-0007-351]
-depends_on: [I-0007-009, I-0007-007]
+requirements: [R-0007-351, R-0007-399, R-0007-413, R-0007-414, R-0007-415]
+depends_on: [D-0007-005, I-0007-009, I-0007-007]
 artifacts: [specs/0002-operation-catalogs-and-host-configuration.md, specs/0004-ai-assisted-connections.md, schemas, conformance, implementations/dotnet]
 ---
 
@@ -18,6 +18,8 @@ artifacts: [specs/0002-operation-catalogs-and-host-configuration.md, specs/0004-
 Phase 3A: exact trusted profile/source/connection/policy contracts and vectors,
 provider/cache/integrity/reload decisions, fail-closed effective registry,
 descriptor filtering, bind/invocation policies, credentials and immutable snapshots.
+It also owns immutable catalog-version membership, policy-projection snapshots,
+capability availability, and trusted enablement/reload boundaries.
 
 ## Entry gates
 

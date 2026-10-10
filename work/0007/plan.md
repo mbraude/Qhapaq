@@ -3,7 +3,7 @@ spec: SPEC-0007
 sources:
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 07073fe16ae1b6f64feaeedb01557d6f5b9731fd
-    content_sha256: 1abf378410e3d9563f39ec37baf46757998ee029e55e86fdd5c78539f020a1f3
+    content_sha256: 7b3c946a9fd554e9b7129bc391dc68957633716f6a3264cdd659954704413249
   - path: specs/0002-operation-catalogs-and-host-configuration.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
@@ -330,7 +330,8 @@ execution suite. No rollback, partial-success or early public enablement.
 ### Entry gates
 
 Exact contracts, the first Service slice, and use-case-specific prerequisites
-support R-0007-368. Non-executing work does not depend on the whole runner.
+support R-0007-368 and R-0007-411 through R-0007-423. Non-executing work does
+not depend on the whole runner.
 
 ### Ordered items
 
@@ -344,6 +345,8 @@ Each supported adapter consumes common versioned Service behavior without
 duplicating domain/policy rules. Plan narrower slices with explicit dependencies:
 listing after 3/3A; structural conclusions after 4; full validation/explanation
 after 6B; comparison after 5A/exact sources; Mermaid after required analysis.
+Capability advertisement, bounded inputs, catalog pagination, CLI/MCP mappings,
+and unavailable-surface omission must remain consistent across those slices.
 
 ## Phase 9: Enable policy-gated execution
 
@@ -363,7 +366,9 @@ conformance, and required verification.
 
 No execution enablement until all applicable gates and suites pass. Document
 enabled capabilities and unavailable optional surfaces; optional conformance
-claims do not remove required v1 deliverables.
+claims do not remove required v1 deliverables. Inline-definition and
+exact-reference modes remain separate, and execution permission never implies
+result-payload disclosure.
 
 ## Companion milestones and delivery boundaries
 
@@ -657,4 +662,31 @@ Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920
   implementation planning and all existing prerequisites.
 - Validation and exact ready-for-review snapshots remain to be recorded in
   D-0007-004. This reconciliation is not human approval, completion,
+  implementation, publication, or permission to execute.
+
+## D-0007-005 subsequent-surface reconciliation
+
+- Date: 2026-10-10. Baseline
+  `07073fe16ae1b6f64feaeedb01557d6f5b9731fd` supplies the committed
+  SPEC-0007 input. The source record hashes the reviewed working-copy bytes
+  containing D-0007-005's accepted contract decisions; it does not claim those
+  bytes are committed.
+- New R-0007-411 through R-0007-423 define distinct typed Service operations,
+  bounded raw-document inputs, immutable catalog identity and policy-filtered
+  pagination, capability introspection, non-executing and execution outcomes,
+  exact CLI and MCP mappings, shared exit statuses, structured errors,
+  deferrals, cancellation, and conformance.
+- D-0007-005 is the only decision resolved by this reconciliation. I-0007-009
+  and I-0007-010 now depend on it for the contract/implementation identity
+  separation and trusted catalog/capability contracts. I-0007-024 and
+  I-0007-025 retain their existing phase ownership and now reference the exact
+  authoring and execution requirements. No item is added, split, cancelled, or
+  moved between phases.
+- The change creates no implementation, schema, conformance vector, catalog,
+  registry, policy, execution capability, payload-disclosure authority,
+  publication, or readiness approval. All four affected implementation items
+  remain open milestones requiring narrower implementation planning and their
+  existing prerequisites.
+- Validation and exact ready-for-review snapshots remain to be recorded in
+  D-0007-005. This reconciliation is not human approval, completion,
   implementation, publication, or permission to execute.
