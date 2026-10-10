@@ -2,10 +2,10 @@
 spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: f84c895d0bdcdf7d7c8c515e341a159d75433609
-    content_sha256: d9f5fe531c6dcd139329c847e994d0d15f6329115ef27b77572f276622c73760
+    revision: d6cf2c053ee259d51f641da3c27cdbcea4a2c243
+    content_sha256: d1649a3335e0034049538af508b6c7712cfa4ae3d1271a3a5fa73edcf55f0915
   - path: SPEC.md
-    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
+    revision: 733f879fb7872fd692c0661af8e6eb62708a7e38
     content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
   - path: specs/0005-build-release-and-website-delivery.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
@@ -17,13 +17,13 @@ sources:
     revision: 8fbf725e0fda9697c3eff44435481d7755141272
     content_sha256: 7b3c946a9fd554e9b7129bc391dc68957633716f6a3264cdd659954704413249
   - path: docs/development/coding-conventions.md
-    revision: 42dc037d42dc380253915c325a1f28c3c84470d3
+    revision: 9df3f2d89fd255132a3c6122bd41890212409060
     content_sha256: 782e590a86419f9001469bc9faa0c2491e93a11728c0da1df0eaf4bbf70f7305
   - path: docs/development/spec-driven-workflow.md
     revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
     content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
-    revision: f84c895d0bdcdf7d7c8c515e341a159d75433609
+    revision: d6cf2c053ee259d51f641da3c27cdbcea4a2c243
     content_sha256: d384fa75572c08d86a46911a54c4792905511c01c3cb047d01774a0132cf6704
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
@@ -241,3 +241,26 @@ consumer and approved scope.
   D-0008-003 snapshot, authorize the content audit, alter implementation code,
   or publish any contract. D-0008-001 and D-0008-002 approvals remain
   unaffected.
+- Date: 2026-10-10. D-0008-004 drafted the initial profile boundaries in
+  R-0008-006 and the corresponding claim restrictions in R-0008-007. The
+  initial set is `qhapaq.runtime`, `qhapaq.cli.local`, `qhapaq.mcp.host`, and
+  `qhapaq.dotnet.in-process`; each surface profile requires the portable runtime
+  baseline. CLI and MCP are independent siblings, and remote-client profiles
+  remain deferred.
+- Downstream impact: D-0008-005 through D-0008-007 and D-0008-013 now reference
+  the applicable profile or claim requirements while retaining their existing
+  scopes and dependencies. I-0008-003 now covers R-0008-006 and R-0008-007 but
+  remains a non-executable milestone blocked by the four downstream decisions,
+  publication policy, readiness, and concrete slice planning. No item was
+  created, cancelled, approved, or executed, and no dependency changed.
+- Source baseline: SPEC-0008 uses committed baseline
+  `d6cf2c053ee259d51f641da3c27cdbcea4a2c243` and exact reviewed working-copy
+  byte hash
+  `d1649a3335e0034049538af508b6c7712cfa4ae3d1271a3a5fa73edcf55f0915`.
+  The unchanged SPEC.md, coding-conventions, and ADR-0003 byte snapshots now
+  record their newer exact committed baselines; other source records remain
+  unchanged because their bytes and provenance are unchanged.
+- Readiness remains not assessed. This reconciliation does not approve
+  D-0008-004, define profile versions or declaration and evidence formats,
+  publish a profile or conformance claim, authorize remote clients, or alter
+  implementation code. Earlier completed decisions remain unaffected.

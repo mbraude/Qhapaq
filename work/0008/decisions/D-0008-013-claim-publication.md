@@ -4,7 +4,7 @@ kind: decision
 title: Define profile and conformance claim publication
 status: open
 spec: SPEC-0008
-requirements: [R-0005-027, R-0005-029, R-0005-032]
+requirements: [R-0005-027, R-0005-029, R-0005-032, R-0008-007]
 depends_on: [D-0008-005, D-0008-006, D-0008-007]
 artifacts:
   - specs/0005-build-release-and-website-delivery.md

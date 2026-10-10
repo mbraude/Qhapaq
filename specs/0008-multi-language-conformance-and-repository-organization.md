@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; artifact taxonomy, engineering-policy ownership, and normative-content separation resolved, remaining decisions unresolved
-> **Version:** 0.4
+> **Status:** Draft; taxonomy, policy ownership, normative-content separation, and initial profile boundaries resolved; remaining decisions unresolved
+> **Version:** 0.5
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -12,13 +12,13 @@ implementations in multiple languages while accommodating software artifacts
 that are not runtime implementations, such as a website, editor integrations,
 and development tools.
 
-The artifact taxonomy, source-layout, engineering-policy ownership, and
-normative-content separation decisions in sections 4 and 5 are resolved in
-normative requirement blocks and await review of the exact specification
-snapshot. Other proposals remain subject to decision work and review. This
-draft introduces no conformance profiles, additional language runtimes, or
-implementation authorization. Discussion and open questions do not receive
-requirement IDs.
+The artifact taxonomy, source-layout, engineering-policy ownership,
+normative-content separation, and initial conformance-profile boundaries in
+sections 4 through 6 are resolved in normative requirement blocks and await
+review of the exact specification snapshot where not already approved. Other
+proposals remain subject to decision work and review. This draft does not
+publish a conformance profile, add a language runtime, or authorize
+implementation. Discussion and open questions do not receive requirement IDs.
 
 Existing specifications and engineering policies remain in force. In
 particular, this draft does not relocate source, rename assemblies, change
@@ -258,7 +258,7 @@ An exact .NET interface could separately be normative in an explicitly
 .NET-specific requirement. Another language could use a different API while
 preserving the applicable portable behavior.
 
-## 6. Proposed Conformance Model
+## 6. Conformance Model
 
 ### Meaning of a profile
 
@@ -268,13 +268,25 @@ promises when it says it conforms to a particular Qhapaq surface.
 
 A profile selects a coherent set of authoritative requirements; it does not
 create another executable format or permit a different interpretation of
-portable semantics. Profiles would be defined by Qhapaq, not invented by each
+portable semantics. Profiles are defined by Qhapaq, not invented by each
 implementation to excuse omissions.
 
-Potential profiles include a portable runtime baseline, CLI, MCP, and a .NET
-authoring API. These names and boundaries are illustrative only. Dependencies
-would be explicit: for example, a local execution CLI profile might require
-the runtime baseline, while a remote client could have different obligations.
+**[R-0008-006]** The initial conformance profiles have these identities,
+applicability boundaries, and prerequisites:
+
+| Profile ID | Applies to | Required scope | Prerequisite profiles |
+| --- | --- | --- | --- |
+| `qhapaq.runtime` | A runtime implementation that validates, binds, and executes portable pipeline definitions | Applicable language-neutral canonical-model, validation, binding, execution, exact-version, policy-before-side-effect, cancellation, and failure-preservation obligations | None |
+| `qhapaq.cli.local` | A locally installed CLI distribution that hosts Qhapaq execution | The complete portable CLI contract and local adapter behavior, including every applicable `qhapaq.runtime` obligation | `qhapaq.runtime` |
+| `qhapaq.mcp.host` | An MCP server that hosts Qhapaq tools | The complete portable MCP contract, host policy and payload-disclosure boundaries, and every applicable `qhapaq.runtime` obligation | `qhapaq.runtime` |
+| `qhapaq.dotnet.in-process` | The supported public in-process .NET API for constructing, validating, and executing pipelines | Applicable .NET API and architecture contracts plus every applicable `qhapaq.runtime` obligation | `qhapaq.runtime` |
+
+Profile obligations are cumulative with all transitive prerequisites. A
+dependent profile cannot replace, reinterpret, or make optional an obligation
+from `qhapaq.runtime`. The CLI and MCP profiles are independent siblings; an
+artifact can implement either without implementing the other. Remote CLI,
+MCP, or other protocol clients do not satisfy these host profiles and receive
+no initial profile until their protocol and client obligations are specified.
 
 ### Candidate profile contents
 
@@ -296,10 +308,23 @@ relationships remain to be specified rather than assumed to move together.
 A profile is a compatibility baseline. A capability identifies a supported
 feature or installed facility, such as a particular operation family.
 
-Two runtimes could satisfy the same profile while exposing different operation
-catalogs. Capability declarations would not turn mandatory profile obligations
-into optional behavior. An implementation missing required cancellation
-semantics, for example, would not satisfy a profile that includes them.
+Two runtimes can satisfy the same profile while exposing different operation
+catalogs.
+
+**[R-0008-007]** A conformance claim must name an exact Qhapaq profile identity
+and, once profile versioning is defined, its exact profile version. A claim for
+a dependent profile is valid only when the same artifact set satisfies that
+profile and every transitive prerequisite; prerequisite identities need not be
+repeated in human-readable claim text.
+
+An implementation must not claim a profile with exclusions, exceptions,
+partial support, substituted behavior, or missing mandatory obligations.
+Unqualified claims such as "Qhapaq conformant" or "Qhapaq compatible" are not
+conformance claims. Progress toward a profile and capabilities outside its
+required scope may be reported separately, but must not use conformance
+language or downgrade any profile obligation. An implementation missing
+required cancellation semantics, for example, does not satisfy a profile that
+includes them.
 
 ### Intended uses
 
@@ -323,7 +348,7 @@ candidate model does not treat a self-declared manifest or a passing vector
 suite alone as proof of every security and concurrency obligation.
 
 A machine-readable declaration and release conformance report are proposed
-artifacts, not defined formats. Profile composition, partial-support claims,
+artifacts, not defined formats. Profile versioning, declaration formats,
 evidence sufficiency, and claim publication remain unresolved.
 
 ## 7. Proposed Terminology and Architecture Clarification
@@ -407,7 +432,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-001 | Decided by R-0008-001 through R-0008-003: responsibility-based software categories under `src/`, lifecycle-based root exceptions, self-contained workspaces, and public cross-artifact boundaries. |
 | Q-0008-002 | Decided by R-0008-004: common policy remains in `docs/development/coding-conventions.md`; real language and artifact specializations live beneath `docs/development/conventions/`; applicability is cumulative and path instructions link rather than duplicate policy. |
 | Q-0008-003 | Decided by R-0008-005: portable requirements remain implementation-neutral; normative language contracts belong in explicitly scoped numbered implementation specifications; block boundaries and required labels distinguish normative from illustrative examples. |
-| Q-0008-004 | Which initial profiles are needed, what is the mandatory runtime baseline, and how do profile dependencies work? |
+| Q-0008-004 | Decided by R-0008-006 and R-0008-007: the initial profiles are the portable runtime, local CLI, MCP host, and in-process .NET API; every execution-bearing surface profile requires the runtime baseline; dependencies are cumulative; partial and unqualified conformance claims are prohibited; remote-client profiles are deferred. |
 | Q-0008-005 | How are profile versions tied to exact specification revisions and requirement fingerprints, and what constitutes a compatible change? |
 | Q-0008-006 | What capability and conformance declaration formats are needed, and how are partial support and unsupported behavior reported? |
 | Q-0008-007 | Which shared vectors, language-specific tests, reviews, and release evidence are sufficient for each conformance claim? |
@@ -425,6 +450,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.5 | 2026-10-10 | Defined the four initial conformance profiles, cumulative runtime prerequisites, applicability boundaries, and precise claim restrictions while deferring remote-client profiles. |
 | 0.4 | 2026-10-10 | Separated portable requirements, explicitly scoped language-specific contracts, non-normative prose, illustrative examples, and normative examples while preserving requirement identifiers and fingerprint boundaries. |
 | 0.3 | 2026-10-10 | Assigned common, language-specific, artifact-specific, architectural, and product-policy ownership; defined cumulative applicability, specialization precedence, and path-instruction linkage. |
 | 0.2 | 2026-10-10 | Adopted the artifact taxonomy, maintained-software boundary, self-contained workspace rule, root exceptions, cross-artifact dependency rule, and explicit migration exclusion. |
