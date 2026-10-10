@@ -15,8 +15,11 @@ Do not implement future slices, commit, publish, or infer approval.
 
 ## Procedure
 
-1. Inspect worktree and source currentness. If no plan exists or affected
-   sources are stale, report the need for
+1. Inspect branch context, worktree, and source currentness. For multi-commit
+   or disruptive work on the default branch, require an explicitly selected
+   work branch through [work-branch-start](../work-branch-start/SKILL.md)
+   before mutation. If no plan exists or affected sources are stale, report
+   the need for
    [work-plan-sync](../work-plan-sync/SKILL.md) before selection. Do not silently
    bootstrap or expand the requested scope.
 2. Surface pending review of the preceding item. If explicit approval of its

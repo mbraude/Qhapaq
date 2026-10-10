@@ -21,8 +21,10 @@ Do not commit, publish, implement production code, or mark work approved.
 
 ## Procedure
 
-1. Inspect the worktree and read related specifications and architectural
-   decisions. Preserve unrelated changes. A clearly governed defect belongs to
+1. Inspect the branch and worktree, then read related specifications and
+   architectural decisions. For multi-commit or disruptive work on the default
+   branch, use [work-branch-start](../work-branch-start/SKILL.md) before
+   mutation. Preserve unrelated changes. A clearly governed defect belongs to
    [fix-bug](../fix-bug/SKILL.md), not a new specification.
 2. Identify platform capability, component extension, or behavioral amendment.
    A component requiring a new platform contract records that prerequisite

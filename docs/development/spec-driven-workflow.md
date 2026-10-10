@@ -150,6 +150,33 @@ open -> in-progress -> ready-for-review -> complete
 open / in-progress / blocked / ready-for-review -> cancelled
 ```
 
+### Branches and Git delivery
+
+Work-item status, approval, and Git delivery are separate lifecycles. A branch,
+commit, push, pull request, or merge does not approve or complete an item, and
+item completion does not imply merge to the default branch. Exact material
+snapshots and source revisions remain the review authority.
+
+Use a named work branch when a specification effort is expected to span
+multiple commits, move files, or disrupt shared repository surfaces. Prefer one
+branch for a coordinated specification or delivery scope, with independently
+reviewed commits for its bounded work items. Use `work-branch-start` before the
+first mutation when branch setup is needed. Mutating skills inspect branch
+context but do not silently switch branches.
+
+Branch names and topology are operational and must not become work-item status
+or plan-frontmatter authority. A work item may move between branches without
+changing its ID, dependencies, or lifecycle. Record temporary coordination in
+the pull request or reconciliation evidence only when it materially helps
+review.
+
+Do not carry unrelated working-tree changes onto a new branch. Coherent
+uncommitted changes for the selected scope may move with an explicitly
+confirmed branch creation; never stash, commit, reset, or discard them
+implicitly. Integrating the default branch into a work branch requires source
+and snapshot impact review. Materially changed files require renewed approval;
+unaffected approvals remain valid.
+
 Move `ready-for-review` back to `in-progress` when review requires edits.
 Complete means acceptance criteria, persistent outputs, required validation,
 and explicit human approval all exist. A skill may record completion only when
@@ -263,6 +290,7 @@ deterministic validator. Arguments in the examples are requests interpreted by
 the skill, not a standalone command-line parser.
 
 ```text
+/work-branch-start SPEC-0007
 /spec-create <idea or target> [kind=platform|component|amendment]
 /work-plan-sync SPEC-0007
 /work-plan-show SPEC-0007 [phase=0] [remaining]

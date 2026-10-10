@@ -17,9 +17,13 @@ resolve new product decisions.
 
 ## Procedure
 
-1. Read the governing specification, related requirements/ADRs, plan/items,
-   existing readiness evidence, and required artifacts. If relevant plan sources
-   are stale, report the need for `work-plan-sync` before approval.
+1. Inspect branch context and worktree, then read the governing specification,
+   related requirements/ADRs, plan/items, existing readiness evidence, and
+   required artifacts. For multi-commit or disruptive work on the default
+   branch, require an explicitly selected work branch through
+   [work-branch-start](../work-branch-start/SKILL.md) before mutation. If
+   relevant plan sources are stale, report the need for `work-plan-sync`
+   before approval.
 2. Check known decisions and normative entry/exit gates. Open blocking decisions,
    unverified approval, or missing required artifacts remain explicit blockers.
 3. Independently inspect completeness: closed shapes and contracts, typing,
