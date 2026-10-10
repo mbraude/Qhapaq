@@ -4,7 +4,7 @@ kind: decision
 title: Assign generator and integration ownership boundaries
 status: open
 spec: SPEC-0008
-requirements: []
+requirements: [R-0008-003]
 depends_on: [D-0008-001]
 artifacts:
   - specs/0008-multi-language-conformance-and-repository-organization.md
@@ -14,12 +14,13 @@ artifacts:
 
 ## Objective
 
-Define ownership and public dependency boundaries for the Roslyn generator,
-future product integrations, contributor tools, and runtime workspaces.
+Apply the adopted public dependency boundary to decide concrete ownership for
+the Roslyn generator, future product integrations, contributor tools, and
+runtime workspaces.
 
 ## Scope and exclusions
 
-No SPEC-0008 requirement exists yet, so the requirement list is empty. Language
+R-0008-003 already prohibits private cross-workspace dependencies. Language
 alone does not determine artifact ownership, and this item does not create a
 new integration or generator API.
 

@@ -6,7 +6,14 @@ change_kind: maintenance
 title: Update dependent automation, instructions, documentation, and plans
 status: open
 spec: SPEC-0008
-requirements: []
+requirements:
+  - R-0000-017
+  - R-0000-019
+  - R-0000-020
+  - R-0000-031
+  - R-0008-001
+  - R-0008-002
+  - R-0008-003
 depends_on: [D-0008-011, D-0008-012, I-0008-004]
 artifacts: []
 ---

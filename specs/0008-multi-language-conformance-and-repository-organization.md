@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft discussion; requirements unresolved
-> **Version:** 0.1
+> **Status:** Draft; artifact taxonomy resolved, remaining decisions unresolved
+> **Version:** 0.2
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -12,20 +12,20 @@ implementations in multiple languages while accommodating software artifacts
 that are not runtime implementations, such as a website, editor integrations,
 and development tools.
 
-The direction has received initial support for further drafting, not approval
-of an exact requirements snapshot. Every proposal below remains subject to
-decision work and review. This draft introduces no accepted requirement blocks,
-conformance profiles, architecture decisions, or implementation authorization.
-Requirement identifiers will be allocated when proposals become normative
-requirements; discussion and open questions do not receive requirement IDs.
+The artifact taxonomy and source-layout decision in section 4 is resolved in
+normative requirement blocks and is awaiting review of the exact specification
+snapshot. Other proposals remain subject to decision work and review. This
+draft introduces no conformance profiles, additional language runtimes, or
+implementation authorization. Discussion and open questions do not receive
+requirement IDs.
 
 Existing specifications and engineering policies remain in force. In
 particular, this draft does not relocate source, rename assemblies, change
 portable behavior, or promise additional language runtimes in v1.
 
-Work plans, decision items, and implementation slices are intentionally deferred
-at the author's request. The open questions here are inputs for later planning,
-not completed decisions or an executable delivery plan.
+The [SPEC-0008 work plan](../work/0008/plan.md) tracks decision and future
+delivery work. It is not an executable delivery plan until the applicable
+requirements, readiness, and implementation-slice gates are approved.
 
 ## 2. Existing Foundations
 
@@ -34,9 +34,8 @@ reference implementation:
 
 - [SPEC.md](../SPEC.md), particularly R-0000-007 and R-0000-009, establishes
   language-neutral contracts, shared vectors, and conformance declarations.
-  R-0000-009 currently places new implementations under
-  `implementations/<language>/`; moving that location requires an explicit
-  amendment, not an interpretation of this draft.
+  R-0000-009 places new implementations under
+  `src/implementations/<language>/`.
 - [SPEC-0006](0006-dotnet-layered-architecture.md) defines the initial .NET
   architecture, including its current Service Implementations layer.
 - [SPEC-0007](0007-portable-pipeline-definitions-and-binding.md) defines
@@ -78,11 +77,11 @@ artifact types.
 - Replace detailed engineering conventions or architectural ADRs with this
   discussion document.
 
-## 4. Proposed Artifact Taxonomy and Source Layout
+## 4. Artifact Taxonomy and Source Layout
 
 ### Terminology
 
-For discussion, an **implementation** is a runtime that consumes portable
+An **implementation** is a runtime that consumes portable
 Qhapaq contracts and implements a declared set of conformance obligations.
 
 An **integration** connects Qhapaq to an external product or ecosystem through
@@ -96,11 +95,10 @@ contributors, builds, or validation rather than pipeline execution.
 Artifact purpose and source language are separate classifications. C# source
 could belong to a runtime, an integration, or a contributor tool.
 
-### Proposed top-level source directory
+### Top-level source directory
 
-The preferred direction for review is a top-level `src/` containing
-responsibility-based artifact categories. The following is an illustrative
-taxonomy, not an implementation file manifest or a list of existing paths:
+**[R-0008-001]** Maintained software is classified by responsibility beneath the top-level
+`src/` directory:
 
 ```text
 src/
@@ -108,11 +106,9 @@ src/
     dotnet/
       src/
       tests/
-    rust/                    # possible future implementation
   integrations/
-    visual-studio/           # possible future integration
-  website/                   # future website source
-  tools/                     # future maintained software tools
+  website/
+  tools/
 
 SPEC.md
 specs/
@@ -124,21 +120,30 @@ scripts/
 build/
 ```
 
-Under this proposal, `src/` groups maintained software artifacts and their
-build, test, and packaging inputs, not every file containing executable syntax.
-Specifications, portable schemas, shared conformance vectors, curated
-documentation, user-facing examples, automation entry points, and
-cross-artifact build configuration remain outside it.
+The categories classify artifact purpose independently of implementation
+language. They are ownership groupings, not shared build workspaces. Directories
+are added only for real content; this target does not require empty scaffolds.
 
-Each artifact would retain its own build workspace, tests, dependency
-manifests, and pinned toolchain. The repeated
-`src/implementations/dotnet/src/` preserves the current distinction between
-production projects and tests. Renaming that inner directory is a separate,
-cosmetic choice.
+**[R-0008-002]** A maintained artifact belongs under `src/` when it has an independently
+buildable, testable, packageable, or distributable software lifecycle. Each
+implementation or independently maintained integration, website, or development
+tool keeps a self-contained workspace containing its source, tests, dependency
+manifests, and pinned toolchain where applicable. The repeated
+`src/implementations/dotnet/src/` preserves the distinction between production
+projects and tests; it does not require another artifact to use the same inner
+layout.
+
+Specifications, portable schemas, shared conformance vectors, curated
+documentation, user-facing examples, automation entry points under `scripts/`,
+and cross-artifact orchestration under `build/` remain outside `src/`. Executable
+syntax alone does not make an example or automation entry point a software
+workspace.
 
 ### Ownership and dependencies
 
-The proposed dependency model separates portable assets from their consumers:
+**[R-0008-003]** Software workspaces consume portable root assets and interact with other
+workspaces only through documented public contracts, protocols, packages, or
+release artifacts:
 
 - Implementations consume portable specifications, schemas, and vectors.
 - Integrations consume supported public contracts, protocols, or packages
@@ -146,13 +151,16 @@ The proposed dependency model separates portable assets from their consumers:
 - Website generation consumes curated content and release metadata without
   making the deployed site authoritative for product semantics.
 - Build tools may inspect source without becoming runtime dependencies.
-- Cross-artifact dependencies use documented boundaries rather than another
-  workspace's private build output.
+- A workspace must not consume another workspace's private build output.
 
-A Roslyn generator tied to .NET operation authoring could remain within the
-.NET implementation workspace. An independently distributed ecosystem
-integration could instead belong under integrations. Its ownership remains
-open; this draft does not infer a boundary from its language alone.
+Generated outputs remain ignored or in an explicitly documented generated
+location unless a version-controlled consumer requires them. Generated output
+does not become authoritative over its source, and a deployed or generated
+website does not become authoritative for product semantics.
+
+The physical relocation of the existing .NET workspace and related path
+updates require separately reviewed migration work. This decision does not move
+files, rename namespaces, assemblies, or packages, or change runtime behavior.
 
 ## 5. Proposed Engineering Policy Structure
 
@@ -353,13 +361,13 @@ The discussed preference is responsibility categories beneath `src/`,
 self-contained workspaces, and a small set of coherent profiles rather than
 unnecessary abstractions or speculative scaffolding.
 
-## 11. Open Questions for Later Decision Work
+## 11. Decision Questions
 
 These labels identify discussion questions, not requirement IDs or work items.
 
 | Question | Unresolved decision |
 | --- | --- |
-| Q-0008-001 | What exact artifact taxonomy and top-level source layout will be adopted, including exceptions for examples, scripts, and tools? |
+| Q-0008-001 | Decided by R-0008-001 through R-0008-003: responsibility-based software categories under `src/`, lifecycle-based root exceptions, self-contained workspaces, and public cross-artifact boundaries. |
 | Q-0008-002 | Which conventions are common, language-specific, or artifact-specific, and where will they live? |
 | Q-0008-003 | How will normative portable requirements, language-specific contracts, and non-normative examples be labeled and separated? |
 | Q-0008-004 | Which initial profiles are needed, what is the mandatory runtime baseline, and how do profile dependencies work? |
@@ -380,4 +388,5 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.2 | 2026-10-10 | Adopted the artifact taxonomy, maintained-software boundary, self-contained workspace rule, root exceptions, cross-artifact dependency rule, and explicit migration exclusion. |
 | 0.1 | 2026-10-10 | Recorded multi-language conformance, illustrative examples, source organization, engineering policy separation, and open questions; requirements and work-item creation remain deferred. |
