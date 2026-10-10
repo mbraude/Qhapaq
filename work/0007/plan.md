@@ -2,8 +2,11 @@
 spec: SPEC-0007
 sources:
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: 5f0a1cfcce38d35417f3627ea7e1c91f3ca7dc77
-    content_sha256: 73cfabd8e5fcc8d010ad8036ab53324dd1947bd7e8c485c8098ed99b29b12b3d
+    revision: 07073fe16ae1b6f64feaeedb01557d6f5b9731fd
+    content_sha256: 1abf378410e3d9563f39ec37baf46757998ee029e55e86fdd5c78539f020a1f3
+  - path: specs/0002-operation-catalogs-and-host-configuration.md
+    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
+    content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: e5a35871ce14aa37d7169ac35d824c910bb0494a01e419dc7895a69dd0092eb9
@@ -60,9 +63,10 @@ preferred order, not dependency edges. Broad milestones carry common dependencie
 plus explicit per-capability entry gates; concrete planning must split them into
 exact dependencies, not execute them as omnibus tasks.
 
-No item is marked complete and no readiness record or approval is inferred.
+Item lifecycle and approval evidence are recorded only in item files; this plan
+does not infer completion, readiness, or approval.
 Use `work-plan-show SPEC-0007` for a derived graph and `spec-next SPEC-0007`
-for one eligible decision. The preferred first open decision is numeric helpers.
+for one eligible decision.
 
 ## Phase 0: Close required normative decisions
 
@@ -227,8 +231,8 @@ SPEC-0002/0004 contract decisions must be extracted before capability implementa
 
 ### Entry gates
 
-Reviewed retrieval contracts, Phase 0A, registry, trusted selection and
-descriptor-disclosure policy support R-0007-352.
+Reviewed R-0007-404 through R-0007-410 retrieval contracts, Phase 0A, registry,
+trusted selection and descriptor-disclosure policy support R-0007-352.
 
 ### Ordered items
 
@@ -628,4 +632,29 @@ Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920
   implementation milestone remain open.
 - Validation and exact ready-for-review snapshots remain to be recorded in
   D-0007-006. This reconciliation is not human approval, completion,
+  implementation, publication, or permission to execute.
+
+## D-0007-004 exact descriptor-retrieval reconciliation
+
+- Date: 2026-10-10. Baseline
+  `07073fe16ae1b6f64feaeedb01557d6f5b9731fd` supplies the committed
+  SPEC-0007 input. The source record hashes the current working-copy bytes
+  containing D-0007-004's accepted contract decisions; it does not claim those
+  bytes are committed. SPEC-0002 is now an explicit source because effective
+  registry construction and disclosure policy govern this use case.
+- New R-0007-404 through R-0007-410 define the exact Service selector and
+  response, indistinguishable absent/non-disclosable result, digest
+  precondition, structured errors, `qhapaq operation get` grammar and output,
+  stable exit statuses, adjacent-layer/non-executing boundaries, and
+  language-neutral conformance coverage.
+- D-0007-004 is the only decision resolved by this reconciliation. I-0007-011
+  now references the exact requirements it must implement. D-0007-005 remains
+  open for subsequent CLI and MCP contracts and retains its existing
+  dependencies. No item or dependency is added, removed, split, or cancelled.
+- The change creates no implementation, schema, vector, registry, policy,
+  descriptor publication, execution or payload-disclosure authority, or
+  readiness approval. I-0007-011 remains a milestone that requires concrete
+  implementation planning and all existing prerequisites.
+- Validation and exact ready-for-review snapshots remain to be recorded in
+  D-0007-004. This reconciliation is not human approval, completion,
   implementation, publication, or permission to execute.

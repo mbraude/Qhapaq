@@ -4552,6 +4552,137 @@ unexpected inability to evaluate a promised conclusion; cancellation; adapter
 preservation; and attempts to omit a conclusion, invent a state or reason,
 upgrade an explanation, or infer execution or disclosure authority.
 
+### 14.2 Exact descriptor retrieval
+
+This subsection defines the .NET reference Service surface and its
+language-neutral observable Service and CLI behavior.
+
+**[R-0007-404]** The first public Service V1 use case is exact operation-descriptor retrieval.
+`Qhapaq.Abstractions.Service.V1.Operations` contains the immutable
+`GetOperationDescriptorRequest`, `GetOperationDescriptorResponse`,
+`GetOperationDescriptorResult`, `GetOperationDescriptorError`, and
+`IOperationDescriptorService` contracts. The service exposes:
+
+```csharp
+Task<GetOperationDescriptorResponse> GetOperationDescriptorAsync(
+    GetOperationDescriptorRequest request,
+    CancellationToken cancellationToken = default);
+```
+
+The request contains required `OperationId` and `ContractVersion` values and an
+optional `ExpectedContractDigest`. The ID, semantic version, and digest use the
+exact grammars of the selected descriptor format. The version is always exact;
+there is no range, implicit latest, compatible substitution, or digest-only
+selector. The optional digest is a precondition on the selected ID and version,
+not an alternate lookup key.
+
+**[R-0007-405]** A response contains exactly one normal result or one structured error. A
+normal result has exactly one outcome:
+
+- `retrieved` contains the immutable
+  `Qhapaq.Abstractions.Operations.Descriptors.OperationDescriptor`;
+- `unavailable` contains no descriptor and does not distinguish an absent
+  contract from one that current disclosure policy does not permit the caller
+  to discover; or
+- `digestMismatch` contains no descriptor and occurs only when the exact
+  ID/version contract is disclosure-authorized and its digest differs from the
+  supplied `ExpectedContractDigest`.
+
+Every normal result echoes the validated selector values unchanged and
+contains the complete conclusion set from R-0007-400. Exact retrieval evaluates
+none of those conclusions, so all four are `unavailable` with
+`useCaseDoesNotEvaluate`. A digest-mismatch result includes the expected and
+actual contract digests because disclosure authorization has already
+succeeded. An unavailable result includes neither an actual digest nor any
+diagnostic, provenance, policy, profile, source, implementation, or conflict
+detail that would reveal whether the selected contract exists.
+
+**[R-0007-406]** Service validates the complete selector before lookup, resolves only the exact
+ID/version pair from the immutable effective registry, and applies descriptor
+disclosure policy before returning descriptor content, its actual digest, or an
+existence-revealing outcome. It then applies the optional digest precondition.
+The stable structured-error codes are:
+
+| Code | Meaning |
+| --- | --- |
+| `qhapaq.descriptor-retrieval.invalid-request` | The request is null, malformed, incomplete, or contains an unsupported selector value. |
+| `qhapaq.descriptor-retrieval.registry-conflict` | The trusted registry cannot identify one non-conflicting contract for the exact selector. |
+| `qhapaq.descriptor-retrieval.cancelled` | Cancellation was observed before a normal result was established. |
+| `qhapaq.descriptor-retrieval.dependency-failure` | A required registry or policy dependency failed unexpectedly. |
+| `qhapaq.descriptor-retrieval.internal-failure` | The use case failed for another unexpected internal reason. |
+
+Errors contain their code and one bounded, payload-safe message and contain no
+descriptor, partial result, conclusion set, protected host detail, exception,
+stack trace, credential information, or operation payload. Registry conflicts,
+cancellation, and dependency or internal failures never become `unavailable`
+normal results. Implementations reject unknown outcomes, error codes, and
+response members rather than treating them as success.
+
+**[R-0007-407]** The initial CLI command is:
+
+```text
+qhapaq operation get \
+  --id <operation-id> \
+  --version <exact-contract-version> \
+  [--digest <expected-contract-digest>] \
+  [--output text|json]
+```
+
+Each option occurs at most once. `text` is the default. `--digest` maps only to
+`ExpectedContractDigest`; it does not select by digest. The CLI invokes only
+`IOperationDescriptorService`, preserves its result or error without recomputing
+lookup, policy, digest, or conclusions, and writes diagnostics only to standard
+error.
+
+JSON output is one versioned
+`qhapaq.cli.operation-get-response/v1` envelope that contains exactly one result
+or error and, for a request that reached Service, the validated selector. It
+uses the exact outcome, error-code, conclusion-name, conclusion-state, and
+unavailability-reason values defined by this specification. A retrieved result
+contains the immutable descriptor projection; other outcomes and errors do not.
+A CLI parse failure in JSON mode omits the selector and contains only an
+`invalid-request` error. Text output labels the outcome and all four conclusions.
+It renders descriptor documentation as untrusted metadata and never as
+instructions.
+
+**[R-0007-408]** `qhapaq operation get` uses these stable exit statuses:
+
+| Status | Meaning |
+| --- | --- |
+| `0` | `retrieved` |
+| `1` | `dependency-failure` or `internal-failure` |
+| `2` | CLI parse failure or `invalid-request` |
+| `3` | `unavailable` |
+| `4` | `digestMismatch` |
+| `5` | `registry-conflict` |
+| `130` | `cancelled` |
+
+No other result maps to zero. JSON mode emits one valid response envelope for
+every Service result or structured error that reached the adapter and for every
+CLI parse failure. A parse failure occurs before Service invocation, uses the
+JSON or text error projection in R-0007-407, and returns status `2`.
+
+**[R-0007-409]** Service coordinates Business and DAL only through
+constructor-injected adjacent-layer ports. Descriptor lookup and policy
+evaluation have one authoritative implementation below Service; CLI and
+third-party Service consumers cannot access Business, DAL, generator, manifest,
+registration, implementation, credential, or trusted-profile internals.
+Cancellation propagates through every asynchronous boundary. Retrieval performs
+no operation construction or execution, credential resolution, extension
+installation, profile mutation, registry reload, contract substitution, or
+grant of execution or payload-disclosure authority.
+
+**[R-0007-410]** Language-neutral Service and CLI conformance covers valid selectors with and
+without a matching digest; malformed IDs, versions, and digests; duplicate or
+unknown CLI options; disclosure-authorized retrieval; absent and
+disclosure-denied contracts producing indistinguishable unavailable envelopes;
+authorized digest mismatch; conflicting contracts; cancellation before and
+during lookup or policy evaluation; dependency and internal failure; safe
+diagnostics; all four unavailable conclusions; exact JSON and text projection;
+every exit status; rejection of unknown values; and proof that no retrieval path
+executes an operation or reveals protected registry, policy, implementation, or
+credential state.
+
 ## 15. Structured Diagnostics and Failures
 
 ### 15.1 Validation diagnostics
@@ -5380,4 +5511,5 @@ an exact pipeline reference.
 
 ## 23. Open Questions
 
-1. What are the exact CLI commands and MCP tool request and response schemas?
+1. Beyond the exact descriptor-retrieval CLI contract in Section 14.2, what are
+   the exact subsequent CLI commands and MCP tool request and response schemas?

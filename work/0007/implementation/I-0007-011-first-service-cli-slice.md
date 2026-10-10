@@ -6,7 +6,7 @@ change_kind: requirement
 title: First non-executing Service and CLI vertical slice
 status: open
 spec: SPEC-0007
-requirements: [R-0007-352, R-0007-400, R-0007-401, R-0007-402, R-0007-403, R-0006-033]
+requirements: [R-0007-352, R-0007-400, R-0007-401, R-0007-402, R-0007-403, R-0007-404, R-0007-405, R-0007-406, R-0007-407, R-0007-408, R-0007-409, R-0007-410, R-0006-033]
 depends_on: [D-0007-004, D-0007-006, I-0007-001, I-0007-009, I-0007-010]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
