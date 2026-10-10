@@ -1,8 +1,8 @@
 # Qhapaq Project Specification
 
 > **Status:** Draft  
-> **Version:** 0.11
-> **Last updated:** 2026-10-06
+> **Version:** 0.12
+> **Last updated:** 2026-10-10
 
 ## 1. Purpose
 
@@ -127,7 +127,7 @@ than a claim that one binary runs everywhere.
 
 **[R-0000-009]** If another implementation is added, it must declare its conformance level and
 pass the shared language-neutral test vectors. A new implementation belongs
-under `implementations/<language>/`; it must not fork the document format or
+under `src/implementations/<language>/`; it must not fork the document format or
 redefine common execution semantics.
 
 ### 1.4 Product Evolution
@@ -209,7 +209,7 @@ The repository should be:
 7. **Prefer open standards and portable tooling where practical.**
 8. **Never commit secrets, generated credentials, or private user data.**
 
-## 4. Proposed Repository Structure
+## 4. Target Repository Structure
 
 **[R-0000-017]** The following is the target structure. Directories and files should be added when
 they have real content rather than being committed as empty placeholders.
@@ -248,16 +248,19 @@ Qhapaq/
 |   |-- reference/
 |   `-- wiki/
 |-- examples/
-|-- implementations/
-|   `-- dotnet/
-|       |-- src/
-|       `-- tests/
-|           |-- integration/
-|           `-- unit/
 |-- schemas/
 |-- scripts/
 |-- specs/
-|-- tools/
+|-- src/
+|   |-- implementations/
+|   |   `-- dotnet/
+|   |       |-- src/
+|   |       `-- tests/
+|   |           |-- integration/
+|   |           `-- unit/
+|   |-- integrations/
+|   |-- tools/
+|   `-- website/
 |-- .editorconfig
 |-- .gitattributes
 |-- .gitignore
@@ -303,19 +306,26 @@ Qhapaq/
 
 | Path | Purpose |
 | --- | --- |
-| `implementations/dotnet/src/` | .NET reference implementation, CLI, and MCP source. |
-| `implementations/dotnet/tests/unit/` | Fast, isolated tests for .NET behavior. |
-| `implementations/dotnet/tests/integration/` | Tests across .NET components and external boundaries. |
+| `src/implementations/dotnet/src/` | .NET reference implementation, CLI, and MCP source. |
+| `src/implementations/dotnet/tests/unit/` | Fast, isolated tests for .NET behavior. |
+| `src/implementations/dotnet/tests/integration/` | Tests across .NET components and external boundaries. |
+| `src/integrations/` | Independently maintained integrations with external products and ecosystems. |
+| `src/tools/` | Project-owned development utilities maintained as software artifacts. |
+| `src/website/` | Website source, build inputs, and website-specific tests. |
 | `schemas/` | Normative language-neutral document and protocol schemas. |
 | `conformance/` | Shared valid, invalid, and execution test vectors for every implementation. |
 | `examples/` | Small, executable examples that demonstrate supported use cases. |
 | `scripts/` | Maintained developer and CI automation entry points. |
-| `tools/` | Tool configuration or project-owned development utilities. |
 | `build/` | Build orchestration files only; generated output remains ignored. |
 
-**[R-0000-020]** Language-specific conventions remain within each implementation directory.
-Normative schemas, conformance vectors, and specifications remain at the
-repository root so no implementation owns the portable contract.
+**[R-0000-020]** Maintained software artifacts belong under the responsibility-based categories
+in `src/` when they have an independently buildable, testable, packageable, or
+distributable lifecycle. Each implementation or independently maintained
+artifact keeps a self-contained workspace with its source, tests, dependency
+manifests, and pinned toolchain where applicable. Language-neutral
+specifications, schemas, conformance vectors, curated documentation, user-facing
+examples, automation entry points, and cross-artifact build configuration remain
+at the repository root so no software workspace owns the portable contract.
 
 ### 4.3 Specifications and Documentation
 
@@ -400,8 +410,8 @@ implementation:
 - `.vscode/mcp.json` contains safe, portable MCP server definitions used by
   VS Code. It must not contain credentials or machine-specific private values.
 - User-specific or private MCP configuration remains outside the repository.
-- `tools/mcp/<server-name>/` contains MCP servers owned as development tooling by
-  this project.
+- `src/tools/mcp/<server-name>/` contains MCP servers maintained as development
+  software by this project.
 - A first-class, published Qhapaq MCP product should use the repository's future
   implementation convention instead of being hidden under `tools/`.
 
@@ -644,6 +654,7 @@ These conventions should be revisited before the first public release.
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| 0.12 | 2026-10-10 | Adopted responsibility-based software categories under `src/`, self-contained artifact workspaces, and root exceptions for portable assets, curated content, examples, automation, and build configuration. |
 | 0.11 | 2026-10-06 | Defined bounded item-mode and chunk-mode collection execution, ordered aggregation, concurrency, failure, cancellation, scope, and resource-budget semantics. |
 | 0.10 | 2026-10-04 | Defined operation/descriptor file co-location, the initial `v1alpha1` descriptor schema, and independent compatibility rules for schemas, generators, manifests, registration, and metadata surfaces. |
 | 0.9 | 2026-10-04 | Defined authoritative operation descriptor JSON and deterministic Roslyn generation of static declarations, explicit registrations, and embedded canonical manifests. |

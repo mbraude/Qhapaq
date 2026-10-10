@@ -4,7 +4,13 @@ kind: decision
 title: Define migration sequencing, validation, and recovery
 status: open
 spec: SPEC-0008
-requirements: [R-0000-009, R-0005-030, R-0006-032]
+requirements:
+  - R-0000-009
+  - R-0005-030
+  - R-0006-032
+  - R-0008-001
+  - R-0008-002
+  - R-0008-003
 depends_on:
   - D-0008-001
   - D-0008-002

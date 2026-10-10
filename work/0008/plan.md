@@ -3,10 +3,10 @@ spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 79fd70dc972b6cbd12b17268316f31641ca89eaf
-    content_sha256: e6fa068f6312bd89ec47ad2035746c9346a4fc8547cc3a5fa8bf2e3a04d4f240
+    content_sha256: 21c6c203c228218a67a076545513b31cc3d5a737e6d3078a935a620a5c50d8fa
   - path: SPEC.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: f63283c1cf6318066151987b8b77b544c2393157a72da4e57ebd37b16458b00d
+    content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
   - path: specs/0005-build-release-and-website-delivery.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 5186656c64c3f4d651d8236bd416d7cf29659669737cc65013136cbf9bc3fdc4
@@ -58,7 +58,8 @@ when an accepted outcome would change them.
 ### Entry gates
 
 R-0000-007 and R-0000-009 preserve language-neutral semantics, shared vectors,
-declared conformance, and the current `implementations/<language>/` location.
+declared conformance, and the target `src/implementations/<language>/` location.
+Existing software remains unmoved until separately approved migration work.
 R-0006-001 through R-0006-034 continue to govern the .NET architecture and
 names until explicitly amended.
 
@@ -75,9 +76,10 @@ names until explicitly amended.
 ### Exit gates
 
 Accepted outcomes are recorded in authoritative requirement blocks and, where
-architectural, ADRs. R-0000-009 and affected SPEC-0006 requirements are amended
-before a conflicting source move or rename can be planned. No directory or
-placeholder is created merely to demonstrate the taxonomy.
+architectural, ADRs. The R-0000-009 amendment must complete review, and affected
+SPEC-0006 requirements must be amended, before a conflicting source move or
+rename can be planned. No directory or placeholder is created merely to
+demonstrate the taxonomy.
 
 ## Phase 1: Define conformance and traceability claims
 
@@ -178,3 +180,19 @@ consumer and approved scope.
 - Reconciliation is complete for the current draft and sources. Human review
   of this exact planning snapshot is still required and is not inferred from
   synchronization.
+- Date: 2026-10-10. D-0008-001 accepted a responsibility-based `src/` taxonomy,
+  lifecycle-based root exceptions, self-contained workspaces, public
+  cross-artifact boundaries, and generated-output rules in R-0008-001 through
+  R-0008-003. R-0000-009, R-0000-017, R-0000-019, R-0000-020, and R-0000-031
+  were amended consistently. The recorded hashes for `SPEC.md` and SPEC-0008
+  now cover the reviewed working-copy bytes while retaining their committed
+  baseline revisions.
+- Downstream impact: D-0008-010 remains open for concrete generator and
+  integration ownership; D-0008-012 remains open for migration sequencing;
+  I-0008-004 through I-0008-006 now reference the adopted taxonomy requirements
+  but remain non-executable milestones. Existing .NET paths, SPEC-0006,
+  path-specific instructions, automation, and work-plan snapshots are migration
+  inputs, not silently updated implementation.
+- Readiness remains not assessed. This reconciliation resolves no other
+  decision, approves no specification snapshot, creates no workspace, and
+  authorizes no relocation.

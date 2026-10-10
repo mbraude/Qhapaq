@@ -6,7 +6,10 @@ change_kind: requirement
 title: Add future artifact workspaces for approved consumers
 status: open
 spec: SPEC-0008
-requirements: []
+requirements:
+  - R-0008-001
+  - R-0008-002
+  - R-0008-003
 depends_on: [I-0008-005]
 artifacts: []
 ---

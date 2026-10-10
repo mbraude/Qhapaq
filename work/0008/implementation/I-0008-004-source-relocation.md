@@ -6,7 +6,14 @@ change_kind: refactor
 title: Relocate maintained software into the approved taxonomy
 status: open
 spec: SPEC-0008
-requirements: []
+requirements:
+  - R-0000-009
+  - R-0000-017
+  - R-0000-019
+  - R-0000-020
+  - R-0008-001
+  - R-0008-002
+  - R-0008-003
 depends_on: [D-0008-001, D-0008-009, D-0008-010, D-0008-012]
 artifacts:
   - src
@@ -17,8 +24,8 @@ artifacts:
 ## Objective and coverage
 
 Relocate approved software workspaces without implicitly changing namespaces,
-assemblies, packages, public behavior, or portable contracts. Governing
-requirements and the exact move manifest are pending.
+assemblies, packages, public behavior, or portable contracts. The exact move
+manifest remains pending.
 
 ## Entry gates
 
