@@ -6,7 +6,7 @@ change_kind: requirement
 title: Portable instance validation and conservative compatibility
 status: open
 spec: SPEC-0007
-requirements: [R-0007-354, R-0007-355]
+requirements: [R-0007-354, R-0007-355, R-0006-039]
 depends_on: [I-0007-002, I-0007-005, I-0007-007]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
@@ -28,7 +28,8 @@ Pending approved concrete engine/test files under decided helper ownership.
 
 ## Design and integration
 
-Reuse bounded pattern/format algorithms; no host-specific acceptance extensions.
+Reuse bounded pattern/format algorithms owned by Business under R-0006-039; no
+host-specific acceptance extensions.
 
 ## Tests and validation
 

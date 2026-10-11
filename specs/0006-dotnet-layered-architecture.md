@@ -241,6 +241,33 @@ parsing, non-executing descriptor retrieval, safe failure/conclusion projection,
 and offline non-executing generation. Required tests are delivered with real
 models and collaborators, not speculative placeholder types.
 
+### 5.3 Portable helper semantic ownership
+
+The portable behavior in SPEC-0007 R-0007-348 remains authoritative. This map
+assigns .NET semantic ownership and permitted consumers; it does not select a
+project, assembly, or package boundary.
+
+**[R-0006-039]** Business owns the .NET semantics for strict JSON parsing and
+duplicate-member rejection; RFC 8785 canonicalization and digest computation;
+exact offline document-schema selection; the embedded schema profile,
+reference, cycle, and complexity validation; bounded patterns and closed
+formats; descriptor and vocabulary validation; canonical contract-digest
+verification; and portable validation findings. Runtime callers use these
+semantics through Business behavior and adjacent-layer contracts: Service and
+Entry Points do not call helper implementations directly, and DAL supplies or
+stores metadata without deciding its domain validity. All consumers preserve
+the deterministic, culture/path-independent outcomes required by SPEC-0007
+R-0007-348. Build-time tooling may consume the same semantics only through an
+explicit, reviewed dependency boundary, without a second implementation of the
+algorithms, network access, operation construction, or project-code execution.
+Portable findings remain bounded and payload-safe; build tooling maps them to
+build diagnostics, while runtime callers preserve the distinct Business,
+Service, and transport
+diagnostic envelopes. Architecture and consumer tests enforce the ownership,
+permitted-consumer, and no-layer-bypass rules. The physical dependency boundary
+for build-time tooling is decided separately and must preserve this ownership
+map.
+
 ## 6. Dependency and Composition Rules
 
 **[R-0006-013]** Each component receives required collaborators through constructor injection.

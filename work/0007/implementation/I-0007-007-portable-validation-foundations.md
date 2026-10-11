@@ -6,7 +6,7 @@ change_kind: requirement
 title: Shared portable validation foundations
 status: open
 spec: SPEC-0007
-requirements: [R-0007-348]
+requirements: [R-0007-348, R-0006-039]
 depends_on: [I-0007-001, I-0007-002, I-0007-005]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
@@ -30,8 +30,11 @@ Pending splitting into concrete algorithm slices under decided reuse boundaries.
 
 ## Design and integration
 
-Generator/runtime consumers share tested semantics without host dependencies,
-network, operation construction, project-code execution, or duplicate runtimes.
+Business owns runtime validation semantics under R-0006-039. Generator/runtime
+consumers share tested semantics through the approved dependency boundary without
+host dependencies, network, operation construction, project-code execution, or
+duplicate implementations; the physical build-tooling boundary remains gated by
+D-0007-012.
 
 ## Tests and validation
 

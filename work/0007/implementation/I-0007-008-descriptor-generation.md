@@ -6,7 +6,7 @@ change_kind: requirement
 title: .NET descriptor authoring and deterministic generation
 status: open
 spec: SPEC-0007
-requirements: [R-0007-349, R-0007-335, R-0008-019, R-0006-035, R-0006-036, R-0006-037, R-0006-038]
+requirements: [R-0007-349, R-0007-335, R-0008-019, R-0006-035, R-0006-036, R-0006-037, R-0006-038, R-0006-039]
 depends_on: [D-0007-003, D-0007-012, D-0008-010, I-0007-001, I-0007-002, I-0007-003, I-0007-007]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
@@ -35,8 +35,10 @@ No source execution or runtime scanning. Preserve format support matrix and
 equal embedded/package manifest bytes.
 Keep compiler-symbol, source-location, and build-diagnostic models tooling-local;
 public descriptor projections expose only supported immutable nested values.
-SPEC-0006's ownership map does not select the shared algorithm or tooling-library
-boundary still gated by D-0007-011/012.
+SPEC-0006 R-0006-039 and D-0007-011 assign logical ownership of portable
+validation semantics to Business and require the generator to consume those
+semantics without a parallel implementation. The physical tooling/library
+boundary remains gated by D-0007-012.
 
 ## Tests and validation
 
