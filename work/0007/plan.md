@@ -3,28 +3,28 @@ spec: SPEC-0007
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: fcab9707ea09d78eb569e8b1194f10dc1cfda597
-    content_sha256: 1da16621958bc02f12f3903592660de6e4fbc4dfce3cc54c2ba76e52fdd9e57a
+    content_sha256: e212841e5af69e06dba739222f0696f793436e391e7dbf66c0e047d8596a2e12
   - path: specs/0005-build-release-and-website-delivery.md
     revision: ffbae7cb66e4773e57a646822bb0b03b614ca200
-    content_sha256: 42bc95d2ef871b191b09242561fed3fa812670f4eb410482d557c0413c193a3f
+    content_sha256: 8259be3d7e256d77ab18e96c35906ce64c01d25eb7a22f45a911c0727d1a1679
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 8fbf725e0fda9697c3eff44435481d7755141272
-    content_sha256: 1e66c0780d5c9cc271007d0d838f32d287782c45f75bb2927d6433e0596ff4a9
+    content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
   - path: specs/0002-operation-catalogs-and-host-configuration.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
   - path: specs/0006-dotnet-layered-architecture.md
-    revision: 5c166ff223ad2d5c57824de534d409bcac22b090
-    content_sha256: 62c8990987dbaa6b49fcecb864216685405ce518dea320bf3db69a115f7a0653
+    revision: 637015dc481f2d1e5b764b0deaad38828f2cc35e
+    content_sha256: 8bdfab494c48cbdddfcb458bea9e71bc63dc6fc0709bbaf63325e58fb600ae10
   - path: specs/0001-core-pipeline-model.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
   - path: docs/development/coding-conventions.md
     revision: a3028eddae623df0fd7420bb9644363b8344cdb3
-    content_sha256: 5bd85f4a6e7ef33da2f53bb821583ccc9f3afdde4b5953550ad3b42da9fdb73b
+    content_sha256: 0d4a23e0cf96ef3d3ab9e575ad7b65899403989d95317d5339434a7717270fa6
   - path: docs/development/spec-driven-workflow.md
     revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
-    content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
+    content_sha256: 55c10d072e97d305ced1591c365ef65e61e5564df3f3d29e6e9d84a99ef7b127
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
@@ -45,13 +45,29 @@ sources:
     content_sha256: 62eafc81acf00d7bf15390aa110119e0be3d6e4a7cf0988193e9bb664e40eb4a
   - path: docs/development/conventions/dotnet.md
     revision: a3028eddae623df0fd7420bb9644363b8344cdb3
-    content_sha256: 712c0ed6d05c230f28146b0f4447622c5c62214e4b85c4c2d53d83bac1879c24
+    content_sha256: 4a487e5d603895a0834733328055db0363e58d3b1ef49a0eb1d3b94a2b7e4a14
   - path: docs/development/conventions/schemas.md
     revision: 1c0b6e5b5195381e4cb985f4270d746e0f039817
-    content_sha256: a9a44c96d0ab48af49d3b7ea8ade8b13f3343814c36842519571f03046f0c33a
+    content_sha256: efdccc4b508826ba8302db9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
 ---
 
 # SPEC-0007: Work Plan
+
+## Source-byte reconciliation after branch integration
+
+- Date: 2026-10-11. Baseline: `637015dc481f2d1e5b764b0deaad38828f2cc35e`.
+- Eight recorded input hashes differed solely by LF/CRLF conversion after
+  integration into master. Reconstructing each alternate line-ending form
+  reproduces its recorded SHA-256 exactly; no source text or requirement changed.
+  Updated those hashes to current exact bytes and retained committed baseline
+  revisions. The other eight source records were already current.
+- No item identity, scope, status, dependency, acceptance criterion, or normative
+  gate changes. Historical approvals remain evidence for their original exact
+  snapshots, not newly issued approvals. No readiness or implementation authority
+  is inferred. D-0007-009 still requires its ownership decision and exact review;
+  Phase 1 still requires I-0008-012 before artifact production.
+- This bounded reconciliation permits current-source decision selection, not
+  implementation or publication.
 
 ## Scope and authority
 
@@ -79,6 +95,40 @@ Item lifecycle and approval evidence are recorded only in item files; this plan
 does not infer completion, readiness, or approval.
 Use `work-plan-show SPEC-0007` for a derived graph and `spec-next SPEC-0007`
 for one eligible decision.
+
+## D-0007-009 ownership reconciliation
+
+- Date: 2026-10-11. SPEC-0006 baseline:
+  `637015dc481f2d1e5b764b0deaad38828f2cc35e`. Its source record hashes the
+  reviewed working-copy refinement, not the committed baseline text.
+- R-0006-035 through R-0006-038 add the selected seven-family ownership map,
+  adjacent-port/public projection rules, representative retrieval/parsing/
+  generator flows, and their enforcing-test obligations. R-0006-001 through
+  R-0006-034 and all portable SPEC-0007 semantics are unchanged.
+- D-0007-009 is the only decision being resolved. I-0007-001 records architecture
+  enforcement coverage; I-0007-008, I-0007-011, and I-0007-012 record the
+  corresponding model and consumer/slice-test constraints. Their milestone
+  status, dependencies, and unapproved executable manifests remain unchanged.
+- D-0007-010/011/012 remain unresolved for type relationships, shared portable
+  helpers, and tooling/runtime dependencies. D-0007-009 must receive exact
+  human approval before its dependents become dependency-ready. No assembly,
+  package, class catalogue, schema, vector, or implementation is created.
+- The related SPEC-0008 plan records the SPEC-0006 source impact without
+  changing its identity-migration or engineering-policy scope. Existing
+  engineering-policy approval is not an approval of these new ownership
+  requirements. No new readiness approval is inferred; concrete delivery
+  still requires current scoped readiness and approved slice planning.
+- This decision's source-impact reconciliation is complete for SPEC-0007.
+  Its Phase 1 dependency on I-0008-012 is unchanged; no new cross-plan edge
+  or deadlock is introduced. The saved Mermaid export remains a historical
+  snapshot and is not regenerated as part of this decision.
+- Validation: 74 unique owned items and 199 prerequisite edges resolve with
+  no cycle or cancelled prerequisite; all 16 SPEC-0007 source hashes match
+  exact bytes. SPEC-0006 has 38 unique identifiers with all 34 original
+  fingerprints unchanged. Changed Markdown file targets resolve and
+  `git diff --check` passes. Specification trace check passes with the expected
+  implementation-specific naming warning; no code/test reference changed.
+  No build or unit tests apply to this specification/planning-only decision.
 
 ## Phase 0: Close required normative decisions
 
