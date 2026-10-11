@@ -1,11 +1,17 @@
 ---
 spec: SPEC-0008
 scope: engineering-policy
-assessment: blocked
+assessment: approved
 sources:
+  - path: AGENTS.md
+    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
+    content_sha256: 916d6c0094400b87ce1c99661b90590664be588ee1713c2d8b172377567f1272
+  - path: .agents/skills/spec-trace-check/SKILL.md
+    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
+    content_sha256: e0b7bc16c1cad5da3332293086c83a66421b0ffd8b29adac6347fec1a7eac486
   - path: work/0008/plan.md
-    revision: null
-    content_sha256: da3dcba5de8f6d65769ab5785d5dfe19af37a6cb3817eafcec11dd0efac9ed76
+    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
+    content_sha256: b4a945fe17c7f6dff5007c9300156377656127de18976a04f575bd96dbca2d49
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
     content_sha256: 1da16621958bc02f12f3903592660de6e4fbc4dfce3cc54c2ba76e52fdd9e57a
@@ -31,8 +37,8 @@ sources:
     revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
     content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
   - path: work/0008/implementation/I-0008-001-engineering-policy-separation.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
-    content_sha256: fc3128316dc5e0982d1931bcd74d4d139c3ee0d5333796934c211e2431d125a3
+    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
+    content_sha256: 581295daad8283bf22b5b8039053895acf672e561dc7e547f8954abac88a40a8
   - path: work/0008/decisions/D-0008-002-convention-ownership.md
     revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
     content_sha256: 6cd4c9a0740873953903e81617c7ad9e493f2321314dcca122465f8e32920afd
@@ -46,8 +52,11 @@ sources:
     revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
     content_sha256: 3f0fd4bb00e527cd3ed4f3325472edd9c75a82abbc80ed5de95ff743557a9639
   - path: work/0008/implementation/I-0008-007-trace-checker.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
-    content_sha256: dd0b4bb92f39a6c2b957747c68a92f47a21364bdd8fd12b7f0894c9a99fd66e4
+    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
+    content_sha256: 4f3f7c0e805d1ce515c692ccd49e752fd139d05f4c3ec18c41fa9107ea13e953
+  - path: work/0008/decisions/D-0008-014-policy-checker-delivery-boundary.md
+    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
+    content_sha256: ec527cd25f0550c436ee5276400344dfcb66982623fd71c787ad894a60ea2b35
   - path: .github/instructions/dotnet.instructions.md
     revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
     content_sha256: 18eb5accd0bd3f627f35d719ca43c66ac520c2765d27e18aad4a9195148acf7f
@@ -198,11 +207,135 @@ implementation plan, or authorization to execute a work item.
 
 ## Snapshot invalidation
 
-After this assessment, D-0008-014 was added and I-0008-001 and I-0008-007 were
-made dependent on it. The plan and those item snapshots therefore differ from
-the inputs assessed above. The assessed plan hash was
-`da3dcba5de8f6d65769ab5785d5dfe19af37a6cb3817eafcec11dd0efac9ed76`; the
-updated plan hash is
-`0cb0ef261b14915fa77ff3b5a852ec57f20b9e229aab919539a6931f0149d322`. This
-record preserves the earlier blocked result for its recorded snapshots; it is
-not current readiness evidence. Reassess after D-0008-014 is resolved.
+After this historical assessment, D-0008-014 was added and I-0008-001 and
+I-0008-007 were made dependent on it. The plan and those item snapshots
+therefore differed from the inputs assessed above. This prior blocked result
+applies only to its recorded snapshots and is superseded by the reassessment
+below.
+
+## Reassessment 2026-10-10
+
+This reassessment applies to the exact source snapshots recorded in the current
+frontmatter. It determines readiness to proceed to implementation planning for
+I-0008-001; it does not approve that milestone or authorize its execution.
+
+### Assessed scope
+
+The scope remains I-0008-001 and:
+
+- [R-0008-004](../../../specs/0008-multi-language-conformance-and-repository-organization.md#common-and-specialized-conventions):
+  common and specialized policy ownership, applicability, precedence, and the
+  routing-only role of path-specific instructions.
+- [R-0008-016](../../../specs/0008-multi-language-conformance-and-repository-organization.md#language-neutral-traceability):
+  portable reference payload, exact language-native invariant/member/test
+  placements, and the separate language-support gate.
+- [R-0008-017](../../../specs/0008-multi-language-conformance-and-repository-organization.md#language-neutral-traceability)
+  and [R-0008-018](../../../specs/0008-multi-language-conformance-and-repository-organization.md#language-neutral-traceability):
+  extractor/shared-engine ownership, explicit failure expectations, and
+  portable waiver scope and non-waivable checks.
+- Related authority: SPEC-0000 R-0000-033 and R-0000-034, ADR-0003 and
+  ADR-0004, and the completed decisions D-0008-002, D-0008-003, D-0008-008,
+  D-0008-011, and D-0008-014.
+
+### Exclusions
+
+This assessment does not cover checker implementation or extractor
+registration under I-0008-007, CI/root orchestration, conformance vectors,
+profiles or claims, new implementation languages, requirement/example
+migration, source relocation, or Entry Point identity migration. It makes no
+language traceability-support claim and grants no implementation plan
+approval.
+
+### Completeness and consistency
+
+- The applicable requirements define the policy authority hierarchy,
+  specialization and routing boundaries, exact portable payload, native
+  placement categories, checker responsibility, waiver syntax and scope, and
+  mandatory failure behavior. D-0008-008 records the C# statement/block,
+  whole-member, and test placements. D-0008-014 explicitly permits policy to
+  precede the checker without claiming language support.
+- The former sequencing blocker is resolved: D-0008-014 is complete with
+  explicit approval evidence for material snapshot
+  `b5acf1091308475010e929864fe7e063c30f95526a4b52868d4f2bba988e1f82`.
+  I-0008-001's transitive decision prerequisites are complete.
+- The current artifacts still have known delivery gaps for the planned policy
+  work: `.github/instructions/dotnet.instructions.md` permits `spec:` markers
+  at type, member, or block level, which does not match the common C# placement
+  rules. The documentation, schema, and specification path instructions also
+  contain substantive guidance beyond routing/tool execution. No specialized
+  conventions guide currently exists. These are concrete, requirement-governed
+  content migration and routing tasks for I-0008-001, not unresolved policy
+  choices. Implementation planning must inventory the affected files and
+  produce exact slices, including the .NET policy placement and instruction
+  link outcomes.
+- A specialized .NET policy guide is justified by the maintained .NET
+  consumer. No empty directory or guide for an unselected language should be
+  created speculatively.
+- No C# `spec:` or `spec-waive:` references were found under
+  `implementations/dotnet/`. No deterministic registered extractor/shared
+  checker is present. Under D-0008-014 this does not block policy-only
+  readiness, but C# remains unsupported for traceability until both approved
+  placements and a matching registered extractor exist.
+- SPEC-0008 R-0008-004 and R-0008-016 through R-0008-018 do not require a
+  schema or published vector for the policy documents. I-0008-007's future
+  checker cases and conformance tests remain required for that separate scope.
+- No new behavior, product decision, contradiction requiring specification
+  amendment, or additional decision work was found. The policy work can proceed
+  to concrete implementation planning; that planning must not be skipped.
+
+### Conformance and prerequisite artifacts
+
+Policy, placement, and waiver expectations are specified, but no checker or
+extractor evidence exists. This assessment treats that absence according to
+the approved policy-first boundary and makes no support claim. The common
+conventions and all four applicable path instruction files were inspected as
+migration inputs. No normative schema, vector, or checker artifact is a
+prerequisite for the policy-only planning scope.
+
+### Blockers
+
+None prevent readiness review for the named policy scope. Before implementation
+can execute, I-0008-001 must be decomposed or promoted to approved slices with
+an exact file manifest, policy/routing ownership, validation criteria, and
+separate plan approval. Scoped readiness approval is also required before
+implementation planning is approved. I-0008-007 remains a distinct future
+gate for extractor registration and traceability support.
+
+### Validation and approval
+
+Assessed on branch `spec/0008-repository-organization` at baseline commit
+`8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3`. All 12 source hashes recorded by
+[the SPEC-0008 plan](../plan.md) were compared with current file bytes and
+matched; no `work-plan-sync` is required for this scope. All inputs listed in
+the frontmatter were verified against their exact full-byte SHA-256 values at
+the assessed revision.
+
+Checks performed:
+
+- Reviewed the governing requirements and their SPEC-0000/SPEC-0006 context,
+  relevant ADRs, completed decisions and approval evidence, both affected
+  implementation milestones, common conventions, all four applicable path
+  instructions, and the prior readiness assessment.
+- Verified the transitive prerequisites of I-0008-001 and D-0008-014 are
+  complete and the dependency graph is acyclic.
+- Checked for native C# traceability markers and confirmed no specialized
+  conventions guide exists; distinguished the absent checker from the
+  policy-only scope.
+- Checked scope-specific conformance prerequisites; no schema or published
+  vector is required here.
+- No build or unit tests were run: this is a documentation/readiness
+  assessment, and no policy implementation was changed.
+- Specification trace check: `PASS`. The single changed file is scoped
+  readiness documentation (`maintenance`); no `Spec:` trailer applies. No
+  product or test code changed, so semantic code review is not applicable.
+- Approved explicitly in this session on 2026-10-10 for the
+  `engineering-policy` scope and exact assessed readiness-record snapshot
+  SHA-256 `f29795f91e3cc031f21030666dc34aa9eec4aa66e8df29147b4044146b29b3bf`,
+  including the 23 full-byte source hashes in the frontmatter. Exclusions are
+  unchanged from this assessment. This approval applies only to readiness for
+  implementation planning; it does not approve the implementation plan,
+  authorize execution, claim language traceability support, or publish a
+  contract.
+
+This scoped readiness is not publication, a full v1 conformance claim,
+approval of an implementation plan, or authorization to execute a work item.
