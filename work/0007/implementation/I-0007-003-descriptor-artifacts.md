@@ -7,7 +7,7 @@ title: Descriptor, manifest, digest and compatibility artifact family
 status: open
 spec: SPEC-0007
 requirements: [R-0007-347, R-0007-290, R-0007-291, R-0007-298]
-depends_on: [D-0007-003, D-0007-015, I-0007-005]
+depends_on: [D-0007-003, D-0007-015, I-0007-005, I-0008-012]
 artifacts: [schemas, conformance]
 ---
 

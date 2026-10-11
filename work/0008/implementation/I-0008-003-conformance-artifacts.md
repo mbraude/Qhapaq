@@ -14,6 +14,7 @@ depends_on:
   - D-0008-007
   - D-0008-013
   - D-0007-015
+  - I-0008-012
   - I-0007-002
   - I-0007-005
 artifacts: []
@@ -32,9 +33,10 @@ planning gates are complete.
 
 ## Entry gates
 
-All listed decisions are complete; accepted requirements, schemas, vector
-groups, exact publication gates, and scope readiness are approved. Link actual
-SPEC-0007 prerequisite items during concrete planning.
+All listed decisions and the I-0008-012 concrete delivery plan are complete;
+accepted requirements, schemas, vector groups, exact publication gates, and
+scope readiness are approved. The SPEC-0007 prerequisites are actual completed
+tooling and validation-foundation outputs, not merely planned work.
 
 ## File and ownership manifest
 

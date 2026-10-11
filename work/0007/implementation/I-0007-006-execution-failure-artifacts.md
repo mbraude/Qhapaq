@@ -7,7 +7,7 @@ title: Runtime failure and structural execution artifact family
 status: open
 spec: SPEC-0007
 requirements: [R-0007-347, R-0007-304, R-0007-307]
-depends_on: [D-0007-015]
+depends_on: [D-0007-015, I-0008-012]
 artifacts: [schemas, conformance]
 ---
 
