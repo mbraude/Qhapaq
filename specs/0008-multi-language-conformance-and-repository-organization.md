@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; taxonomy, artifact ownership, policy ownership, normative-content separation, profile, declaration, evidence, language-native traceability, and orchestration semantics resolved; remaining decisions unresolved
-> **Version:** 0.12
+> **Status:** Draft; taxonomy, artifact ownership, policy ownership, normative-content separation, profile, declaration, evidence, claim-publication, language-native traceability, and orchestration semantics resolved; migration sequencing remains unresolved
+> **Version:** 0.13
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -567,6 +567,68 @@ the declaration must no longer be presented as a verifiable claim or progress
 report, and the loss of verifiability must be explicit. Publication,
 withdrawal, and discoverability procedures are defined separately.
 
+### Profile and conformance-claim publication
+
+**[R-0008-023]** Publishing a profile version or implementation conformance
+claim requires the explicit approval of one identified authorized maintainer
+after all applicable validation succeeds. The approval records the approver,
+time, exact scope, and immutable identities and digests of the bytes approved.
+A profile approval covers its exact definition, prerequisite versions,
+authoritative specification revisions, requirement fingerprints, evidence
+matrix, and publication metadata. A claim approval covers its exact
+declaration, assessment manifest, evidence bundle, evaluated artifact set,
+profile version, and root release manifest.
+
+Work-item completion, a passing check, a commit or push, evidence-review
+authorship, component-contract publication, and approval of another snapshot
+do not grant publication authority. A publication gate must fail explicitly
+when approval, validation, an exact input, or a required digest binding is
+missing, unsuccessful, stale, or inconsistent.
+
+**[R-0008-024]** Each published profile version and conformance claim has an
+immutable, content-addressed publication record. The record binds the exact
+published object and its approval to the protected stable or prerelease root
+release manifest that promotes it, and it remains publicly discoverable by its
+stable identity. Profile publication records expose exactly one current
+support status: `supported`, `deprecated`, or `retired`. Claim publication
+records expose exactly one current status: `active`, `superseded`, or
+`withdrawn`.
+
+Status history is append-only metadata and must not mutate the published
+profile, declaration, assessment, evidence, artifact set, approval, or release
+manifest. A deprecated profile remains eligible for new claims only when the
+claim prominently reports the deprecation. A retired profile rejects new
+claims. Supersession does not withdraw or migrate an earlier claim.
+
+**[R-0008-025]** Published bytes and publication-record history are never
+rewritten to correct a profile or claim. A profile correction uses the new
+minor or major version required by R-0008-008. A claim correction publishes a
+new declaration, assessment, evidence bundle, approval, and publication record
+and marks the earlier claim `superseded` only by appending a status event that
+identifies the replacement.
+
+A claim must be withdrawn when it is materially false, its required evidence
+is invalid or unavailable, its evaluated artifact set or provenance is
+compromised, or continued presentation would violate security, privacy, or
+legal obligations. Withdrawal appends the actor, time, reason, and any
+replacement identity; it does not delete the claim or imply conformance for a
+replacement. A withdrawn claim must not be presented as active or verifiable.
+
+**[R-0008-026]** Publication records, approval records, complete status
+histories, and withdrawal tombstones are retained indefinitely, subject to
+legal requirements. Supporting evidence remains resolvable while a claim is
+`active` or otherwise presented as verifiable. Evidence may be removed after
+the claim becomes `superseded` or `withdrawn`, but the retained record must
+state that the claim is no longer verifiable and preserve the evidence
+identities and digests needed for audit.
+
+The publication audit history identifies every actor, event, time, object,
+prior and resulting status, release manifest, and destination. Discovery and
+human-readable renderings must expose current status, retained history, exact
+profile and implementation identities, and any deprecation, supersession,
+withdrawal, or loss-of-verifiability notice without broadening the underlying
+claim.
+
 ## 7. .NET Entry-Point Terminology
 
 The word "implementation" currently describes both a language runtime and the
@@ -693,7 +755,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-010 | Decided by R-0008-019: the .NET workspace owns the independently versioned Roslyn build-tooling package; product integrations and maintained contributor tools own separate responsibility-based workspaces; only supported public boundaries may cross workspaces; and build tooling does not enter runtime dependency closures. |
 | Q-0008-011 | Decided by R-0008-020 through R-0008-022 and SPEC-0005 R-0005-034: workspace-native capability commands sit behind maintained root adapters; a root-owned impact graph expands transitively and fails closed; immutable content-addressed evidence is aggregated by digest without rewriting; and one root manifest binds the exact independently versioned public artifacts and evidence promoted as a release. |
 | Q-0008-012 | What migration order, prerequisite amendments, ADRs, validation gates, and recovery steps are required? |
-| Q-0008-013 | What review and approval process permits publication of profiles and implementation conformance claims? |
+| Q-0008-013 | Decided by R-0008-023 through R-0008-026 and SPEC-0005 R-0005-035: one authorized maintainer approves exact immutable publication inputs; protected stable or prerelease manifests promote profiles and claims; closed append-only lifecycle states preserve meaning; corrections create new objects; and records and tombstones remain auditable indefinitely. |
 
 The next gate is decision work and human review of scoped requirement drafts.
 This document alone is neither specification readiness nor delivery approval.
@@ -702,6 +764,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.13 | 2026-10-10 | Defined exact-snapshot publication approval, protected-release promotion, immutable publication records, closed support and claim states, correction and withdrawal behavior, evidence availability, and indefinite audit tombstones. |
 | 0.12 | 2026-10-10 | Defined workspace capability contracts and root adapters, fail-closed transitive CI impact selection, immutable digest-bound evidence transport, and coordinated release assembly through one exact root manifest. |
 | 0.11 | 2026-10-10 | Assigned the Roslyn generator to the .NET implementation workspace as independently versioned build tooling, kept integrations and maintained contributor tools in separate responsibility-based workspaces, and prohibited private-output and accidental runtime dependencies. |
 | 0.10 | 2026-10-10 | Renamed the .NET top layer to Entry Points, adopted matched `Qhapaq.EntryPoints.*` source and compiled identities, and kept executable and package identities separate. |

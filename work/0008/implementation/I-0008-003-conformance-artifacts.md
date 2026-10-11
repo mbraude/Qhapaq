@@ -6,7 +6,7 @@ change_kind: requirement
 title: Deliver conformance profiles, declarations, and evidence artifacts
 status: open
 spec: SPEC-0008
-requirements: [R-0008-006, R-0008-007, R-0008-008, R-0008-009, R-0008-010, R-0008-011, R-0008-012, R-0008-013, R-0008-014, R-0008-015, R-0008-022]
+requirements: [R-0005-035, R-0008-006, R-0008-007, R-0008-008, R-0008-009, R-0008-010, R-0008-011, R-0008-012, R-0008-013, R-0008-014, R-0008-015, R-0008-022, R-0008-023, R-0008-024, R-0008-025, R-0008-026]
 depends_on:
   - D-0008-004
   - D-0008-005
@@ -21,10 +21,11 @@ artifacts: []
 ## Objective and coverage
 
 Deliver approved profile definitions, declaration schemas, shared evidence
-contracts, reports, vectors, and publication integration for the four initial
-profiles and their cumulative prerequisites. The profile boundaries and claim
-restrictions are governed, but this milestone remains non-executable until its
-remaining decisions and planning gates are complete.
+contracts, reports, vectors, publication records and status history, and
+protected-release integration for the four initial profiles and their
+cumulative prerequisites. The profile boundaries and claim restrictions are
+governed, but this milestone remains non-executable until its remaining
+planning gates are complete.
 
 ## Entry gates
 
@@ -45,7 +46,9 @@ exact-versioned, and missing evidence explicitly unsuccessful.
 ## Tests and validation
 
 Cover valid and invalid declarations, profile dependencies, compatibility,
-skips and failures, secret-free reports, reproducibility, and publication gates.
+skips and failures, secret-free reports, reproducibility, exact approval and
+release bindings, lifecycle transitions, correction, withdrawal, evidence
+availability, retention, audit history, and publication gates.
 
 ## Exit criteria
 
