@@ -6,8 +6,50 @@ change_kind: maintenance
 title: Plan conformance profile and evidence delivery
 status: open
 spec: SPEC-0008
-requirements: [R-0005-035, R-0007-347, R-0008-006, R-0008-007, R-0008-008, R-0008-009, R-0008-010, R-0008-011, R-0008-012, R-0008-013, R-0008-014, R-0008-015, R-0008-022, R-0008-023, R-0008-024, R-0008-025, R-0008-026]
-depends_on: [D-0008-004, D-0008-005, D-0008-006, D-0008-007, D-0008-011, D-0008-013, D-0007-013, D-0007-015]
+requirements:
+  - R-0005-034
+  - R-0005-035
+  - R-0006-035
+  - R-0006-036
+  - R-0006-037
+  - R-0006-038
+  - R-0006-039
+  - R-0007-347
+  - R-0007-348
+  - R-0008-006
+  - R-0008-007
+  - R-0008-008
+  - R-0008-009
+  - R-0008-010
+  - R-0008-011
+  - R-0008-012
+  - R-0008-013
+  - R-0008-014
+  - R-0008-015
+  - R-0008-019
+  - R-0008-020
+  - R-0008-021
+  - R-0008-022
+  - R-0008-023
+  - R-0008-024
+  - R-0008-025
+  - R-0008-026
+  - R-0008-027
+  - R-0008-028
+  - R-0008-029
+depends_on:
+  - D-0008-004
+  - D-0008-005
+  - D-0008-006
+  - D-0008-007
+  - D-0008-010
+  - D-0008-011
+  - D-0008-012
+  - D-0008-013
+  - D-0007-009
+  - D-0007-011
+  - D-0007-013
+  - D-0007-015
 artifacts:
   - work/0008/implementation/I-0008-003-conformance-artifacts.md
   - work/0008/plan.md
@@ -28,6 +70,12 @@ conventions.
 This item produces planning records only. It does not create or publish schemas,
 vectors, profiles, declarations, evidence reports, claims, tooling, or release
 integration.
+
+The plan must account for applicable SPEC-0001, SPEC-0002, SPEC-0005, and
+SPEC-0006 contracts, including profile ownership, validation, and release
+manifest responsibilities. It must also apply SPEC-0008's workspace ownership,
+orchestration, migration sequencing, immutable-input, recovery, and
+dedicated-branch gates where relevant.
 
 ## Entry gates
 

@@ -1,33 +1,50 @@
 ---
 spec: SPEC-0008
 sources:
-  - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 5c166ff223ad2d5c57824de534d409bcac22b090
-    content_sha256: 1da16621958bc02f12f3903592660de6e4fbc4dfce3cc54c2ba76e52fdd9e57a
   - path: SPEC.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
-    content_sha256: c68a0e3c08b3d6c1baa7b5753cf4d3630f94fe5f7936bfede002e2e9f662c908
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: cbb6cec07dff90ff9c8eef54b5cd3ae2c97da5d17ecd452f7e677664be99aa3d
+  - path: specs/0001-core-pipeline-model.md
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
+  - path: specs/0002-operation-catalogs-and-host-configuration.md
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
+  - path: specs/0008-multi-language-conformance-and-repository-organization.md
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: e212841e5af69e06dba739222f0696f793436e391e7dbf66c0e047d8596a2e12
   - path: specs/0005-build-release-and-website-delivery.md
-    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: 42bc95d2ef871b191b09242561fed3fa812670f4eb410482d557c0413c193a3f
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: 8259be3d7e256d77ab18e96c35906ce64c01d25eb7a22f45a911c0727d1a1679
   - path: specs/0006-dotnet-layered-architecture.md
-    revision: 637015dc481f2d1e5b764b0deaad38828f2cc35e
-    content_sha256: 8bdfab494c48cbdddfcb458bea9e71bc63dc6fc0709bbaf63325e58fb600ae10
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: c044679c4ca4255c75c835cadee8a194685a1206d11ff1aace8167d01db0a65d
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: 8fbf725e0fda9697c3eff44435481d7755141272
-    content_sha256: 1e66c0780d5c9cc271007d0d838f32d287782c45f75bb2927d6433e0596ff4a9
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
   - path: docs/development/coding-conventions.md
-    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
-    content_sha256: 5bd85f4a6e7ef33da2f53bb821583ccc9f3afdde4b5953550ad3b42da9fdb73b
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
+  - path: docs/development/conventions/dotnet.md
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: 72ac12a7ae56110729d011ecffe0c551961811dde30462ab2568647ccd6702f1
+  - path: docs/development/conventions/schemas.md
+    revision: 8a534afd2e4a4cbd28e30de9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
   - path: docs/development/spec-driven-workflow.md
-    revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
-    content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: c1045d2891c7ccbe00c833e247d7254c7e4161857dfe6884b47a644cb3e1c11e
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
-    revision: d6cf2c053ee259d51f641da3c27cdbcea4a2c243
-    content_sha256: 1d01ab049a9bd54dc26a1c3e110f54c2e0cd416c97a67f43b2baf07eb99b0b83
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: da233fb4acea9077ff49822111698c3d2484b67b69bca0f9b018eafe383d6411
   - path: docs/architecture/decisions/0001-use-microsoft-dependency-injection.md
-    revision: d3ff6bf9df744c63fc776775956ce41a907a5bcf
-    content_sha256: f7855b81e87db15f89326d7a297cc983eb8ba1a4f250aed380a999e5f87de217
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: 663bc361c4799b69e700c6161311d60e010b89c0f65a6065be5acf9d20358173
+  - path: conformance/README.md
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: 0fee06404af6fc9c5321b7b30bf990f1f28c42c777b334f7928db5d1ef806307
+  - path: schemas/README.md
+    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    content_sha256: 9735bf13164fda904d9d926a1ef896038360c7334e8ad831cac195dfc59ab0a1
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
@@ -222,6 +239,47 @@ consumer and approved scope.
   is not applicable.
 
 ## Reconciliation evidence
+
+- Date: 2026-10-11. Synchronized the SPEC-0008 planning inputs after the
+  conformance-artifact readiness assessment found stale source hashes and
+  incomplete requirement/dependency coverage. Refreshed the plan's source
+  records for the fully reviewed current inputs; the inventory now includes
+  SPEC-0005, SPEC-0006, SPEC-0007, SPEC-0008, repository policy, templates,
+  and the owned SPEC-0007 plans/items consumed by this scope.
+- Baseline: `8a534afd2e4a4cbd28e30de6e115967977862727`. Reviewed changed source
+  text against the recorded committed baselines and current working-copy bytes.
+  The plan now records 17 authoritative input snapshots; this excludes the
+  plan itself and generated views.
+- Extended I-0008-012 and I-0008-003 coverage to applicable SPEC-0005
+  release/recovery, SPEC-0006 .NET layer and validation, SPEC-0007 portable
+  validation, and SPEC-0008 ownership, orchestration, publication, and
+  migration requirements. Added the completed SPEC-0007 and SPEC-0008
+  decisions governing ownership, orchestration, sequencing, and architecture
+  as explicit prerequisites; the actual I-0007-002 and I-0007-005 outputs
+  remain execution prerequisites, not completed artifacts.
+- I-0008-003 now records its .NET ownership boundaries, protected release
+  responsibilities, exact-snapshot validation, recovery evidence, and the
+  requirement-specific dedicated-branch gate for migration work. These
+  constraints do not make branches mandatory for unrelated work.
+- The existing conformance-artifact readiness assessment is a pre-sync,
+  blocked snapshot and is not renewed by these planning edits. A fresh
+  assessment against the reconciled requirements and inputs is required
+  before plan approval or implementation. No requirement was amended, no
+  item was approved or executed, and no conformance artifact was produced.
+- I-0008-012 and I-0008-003 remain open, unapproved milestones. I-0007-002 and
+  I-0007-005 remain open and their required outputs are not present, so
+  conformance artifact delivery remains blocked pending those outputs and
+  approved, executable child planning.
+- Validation: all 17 recorded source hashes match exact current bytes and each
+  recorded full revision contains its source path; all 77 work-item IDs are
+  unique, dependency references resolve, and the combined graph is acyclic.
+  All 30 requirement references in each affected item resolve and prior
+  requirement coverage is retained. Local Markdown links, whitespace, and
+  `git diff --check` pass. The combined dependency diagram was regenerated and
+  its freshness check passes: 76 source files, 74 items, 208 dependencies, and
+  22 cross-specification edges. Specification trace check was not run for this
+  synchronization; the anticipated `maintenance` classification and absence
+  of applicable `Spec:` trailers remain unverified.
 
 - Date: 2026-10-10.
 - Baseline: `79fd70dc972b6cbd12b17268316f31641ca89eaf`; the worktree was clean
