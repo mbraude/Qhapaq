@@ -10,8 +10,8 @@ sources:
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: e0b7bc16c1cad5da3332293086c83a66421b0ffd8b29adac6347fec1a7eac486
   - path: work/0008/plan.md
-    revision: f5f3072fe6e82be65ae43ce6a911d0d300fcad7d
-    content_sha256: 8559b6347e3163b332bb1bcd1e213f191bf961b66e1e4400476ceb47a326293d
+    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
+    content_sha256: b58de6089af182bca9aefe9fd1df2953a88b31801b59ecd11c0b8e135d2c9d25
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: fcab9707ea09d78eb569e8b1194f10dc1cfda597
     content_sha256: 1da16621958bc02f12f3903592660de6e4fbc4dfce3cc54c2ba76e52fdd9e57a
@@ -28,8 +28,20 @@ sources:
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
   - path: docs/development/coding-conventions.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
-    content_sha256: 49bcf2352eacef3586a789cab06322e7916bf1d5563e8fe54528db1fb6fd8834
+    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
+    content_sha256: 5bd85f4a6e7ef33da2f53bb821583ccc9f3afdde4b5953550ad3b42da9fdb73b
+  - path: docs/development/conventions/dotnet.md
+    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
+    content_sha256: 712c0ed6d05c230f28146b0f4447622c5c62214e4b85c4c2d53d83bac1879c24
+  - path: docs/development/conventions/documentation.md
+    revision: null
+    content_sha256: ac934e59fe3f4349f2c5302a85c694160829d1f54df5f18ab85f76a79e61c4ce
+  - path: docs/development/conventions/schemas.md
+    revision: null
+    content_sha256: a9a44c96d0ab48af49d3b7ea8ade8b13f3343814c36842519571f03046f0c33a
+  - path: docs/development/conventions/specifications.md
+    revision: null
+    content_sha256: 8379c469032f87ba8f672b6ac614dd7c53cd0b4e0d4c72140802e61012469297
   - path: docs/development/spec-driven-workflow.md
     revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
     content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
@@ -40,11 +52,11 @@ sources:
     revision: f5f3072fe6e82be65ae43ce6a911d0d300fcad7d
     content_sha256: 9b17dc3774ea64c3c15b20b7f18f15a8b37b128ed791f45e2dbedbd83d0d71f4
   - path: work/0008/implementation/I-0008-010-dotnet-policy-extraction.md
-    revision: null
-    content_sha256: 227c41aec64bd7cb2904df774ae3e9b778c9e670c7884771dc2f1dc51760355f
+    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
+    content_sha256: 087441e531f8b82b13b8d945367fa2442c8ca684c405c830d5befd313a831f43
   - path: work/0008/implementation/I-0008-011-artifact-policy-routing.md
     revision: f5f3072fe6e82be65ae43ce6a911d0d300fcad7d
-    content_sha256: cbd63aa0cb4f47967c1d1a75ee6e16c997fd19d0f6ddaffac0d6f151f3cad7d4
+    content_sha256: d73f1ddf80ef6a351443a0b6defc892e5301dd6bb279465c24c4ba234a22f43b
   - path: work/0008/decisions/D-0008-002-convention-ownership.md
     revision: f84c895d0bdcdf7d7c8c515e341a159d75433609
     content_sha256: 6cd4c9a0740873953903e81617c7ad9e493f2321314dcca122465f8e32920afd
@@ -67,17 +79,17 @@ sources:
     revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
     content_sha256: ec527cd25f0550c436ee5276400344dfcb66982623fd71c787ad894a60ea2b35
   - path: .github/instructions/dotnet.instructions.md
-    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: 18eb5accd0bd3f627f35d719ca43c66ac520c2765d27e18aad4a9195148acf7f
+    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
+    content_sha256: 287898a2f49f45070fc700b977a04525b3e7bc49ea84b8a9bf8f12bf1f6ff645
   - path: .github/instructions/documentation.instructions.md
     revision: e20a65c7b1652c62408f7505119e644d7a4383aa
-    content_sha256: ab813b9414defa53852f6137383b2d0f36897e74903f231b86ef185c6999a477
+    content_sha256: 4e84a7e492ea2f86e1e120030882fe7778241b26b107efe703670a38ba0f5b4b
   - path: .github/instructions/schemas.instructions.md
     revision: e20a65c7b1652c62408f7505119e644d7a4383aa
-    content_sha256: 14a8d2de3283bfde7d94053f45e06bd53943d17ece2130f3ac85842520609b85
+    content_sha256: bee18c9090b555d6ad1e79105797b77da412fd9135315e290d44824901bcc8c7
   - path: .github/instructions/specifications.instructions.md
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
-    content_sha256: fd113cfea6cc774e500ddac0baf21de8d0be2684931faa96e22c7fa55bfcc03a
+    content_sha256: 693dd3fe6360afd6af56250260b4bbf97450e6127d7db9c1beb4805c7904438c
 ---
 
 # SPEC-0008: Engineering Policy Readiness
@@ -492,3 +504,98 @@ finding changed; the plan approval gate is now satisfied. The readiness source
 snapshot was refreshed to the exact current full-byte hash. The existing
 explicit readiness approval remains applicable; plan approval alone is not
 delivery approval.
+
+## Reassessment 2026-10-11 - after I-0008-010 delivery and source reconciliation
+
+This reassessment updates the approved `engineering-policy` scope for the
+current common and specialized policy surfaces, the completed I-0008-010
+delivery, the I-0008-011 policy-routing slice, and their I-0008-001 aggregate.
+The assessed requirement set remains R-0008-004 and R-0008-016 through
+R-0008-018. This record is `ready-for-review`; the earlier approval applies
+only to its exact historical snapshot and is not carried forward.
+
+### Source and plan reconciliation
+
+The revised plan now records the delivered common-conventions bytes from
+commit `a3028eddae623df0fd7420bb9644363b8344cdb3`. All 12 plan source hashes
+and committed baseline revisions match current bytes. The readiness inventory
+records 29 assessed inputs. The four policy-guide outputs are included because
+their contents were reviewed: the .NET guide is committed at the recorded
+baseline; the documentation, schema, and specification guides are new
+uncommitted I-0008-011 outputs and therefore use `revision: null`.
+
+The changed common guide removes only specialized .NET content, now owned by
+the committed .NET guide. No common rule or governing requirement changed.
+The readiness assessment found no impact requiring a new product decision,
+requirement amendment, or dependency. I-0008-011's scope, requirements,
+manifest, dependencies, and exit criteria remain applicable. The updated plan
+bytes require explicit approval of the current plan before I-0008-011 resumes.
+
+### Current policy assessment
+
+- The common guide owns cross-cutting engineering policy. Each applicable
+  specialization declares scope and links common policy and authoritative
+  sources; the `.NET`, documentation, schema, and specification guides own
+  their respective concerns without claiming authority over product behavior.
+- All substantive authoring rules from the three path instructions have a
+  specialized owner. The instructions retain their original `applyTo`
+  patterns and route to common, specialized, and applicable product policy;
+  they contain no competing engineering rules.
+- The .NET placement rules remain bounded to the constructs resolved by
+  D-0008-008 and requirements R-0008-016 through R-0008-018. No registered
+  extractor or deterministic C# traceability support is claimed. Checker and
+  extractor delivery remains with I-0008-007 and is explicitly excluded.
+- Schema, conformance, and product requirements remain subject to their
+  applicable specifications. No schema, published vector, or checker
+  artifact is a prerequisite for these policy-only slices.
+- No new decision, contradiction, or conformance prerequisite was found.
+  Readiness remains limited to engineering-policy delivery and is not a
+  publication or full v1 conformance claim.
+
+### Validation and approval
+
+Reviewed R-0008-004 and R-0008-016 through R-0008-018; D-0008-002,
+D-0008-003, D-0008-008, and D-0008-014; the common and four specialized
+policy guides; the affected path instructions; the revised plan and slice
+manifests; and the prior readiness evidence.
+
+- All 29 recorded readiness input hashes were verified against exact current
+  bytes. The plan's 12 source hashes and revisions were also verified.
+- Relative links and anchors resolve in all changed policy guides and the
+  reconciled plan. The path-instruction `applyTo` patterns match their
+  pre-change values, transfer checks pass, and the instructions are routing
+  only.
+- `git diff --check` passes. Git reports existing CRLF-to-LF normalization
+  warnings for edited Markdown files.
+- Specification trace check: `PASS` as `maintenance`. All changed files are
+  documentation or work artifacts; no requirement block, product code, or
+  test changed. No `Spec:` trailer applies, and semantic code review is not
+  applicable.
+- No build or unit-test command is documented for this documentation-only
+  scope; none was run.
+
+No blocker prevents review of this readiness snapshot. Execution remains
+blocked pending explicit approval of this exact readiness record and explicit
+approval of the current revised plan snapshot. The I-0008-011 delivery output
+still requires its own final validation and delivery review. No execution,
+publication, or traceability-support approval is inferred.
+
+Approved explicitly by the user on 2026-10-11 for the exact assessed readiness
+snapshot full-byte SHA-256
+`d7336321c16c11706defc78feb234168f0c4b1080438dfa0790993a2f37c6889`.
+This approval covers only the `engineering-policy` readiness scope. It does
+not approve the revised plan, authorize I-0008-011 execution, publish a
+contract, or claim traceability support.
+
+## Impact review 2026-10-11 - I-0008-011 review metadata
+
+After the approved readiness snapshot, I-0008-011 moved through execution to
+`complete` following explicit approval of its exact output snapshot. Its
+passing exit-criterion markers and validation and delivery evidence were
+recorded. The three policy guides and three path instructions match the exact
+content already included in this readiness snapshot. The item objective,
+requirement coverage, manifest, dependencies, criterion wording, and readiness
+findings are unchanged. The readiness input hash for I-0008-011 was refreshed
+to its current full-byte value above. Therefore the explicit readiness
+approval remains applicable to the same engineering-policy scope; this impact
+review records no new readiness or publication approval.
