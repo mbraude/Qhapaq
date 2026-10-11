@@ -1,9 +1,9 @@
 flowchart TB
-    subgraph SI["Service Implementations"]
-        CLI["Qhapaq.Implementations.CLI"]
-        MCP["Qhapaq.Implementations.MCP"]
+    subgraph SI["Entry Points"]
+        CLI["Qhapaq.EntryPoints.CLI"]
+        MCP["Qhapaq.EntryPoints.MCP"]
         THIRD["Third-party adapter"]
-        HOSTING["Qhapaq.Implementations.Hosting"]
+        HOSTING["Qhapaq.EntryPoints.Hosting"]
     end
 
     subgraph SC["Qhapaq.Service.V1"]

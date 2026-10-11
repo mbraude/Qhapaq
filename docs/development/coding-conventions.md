@@ -225,9 +225,9 @@ workflow. Reviewers remain responsible for anything the skills miss.
   accepted specification requires more.
 - `Qhapaq.Service.V1`, `Qhapaq.Business`, and `Qhapaq.DAL` must not depend on
   hosting, CLI, or MCP assemblies.
-- `Qhapaq.Implementations.Hosting` may integrate with .NET hosting and
+- `Qhapaq.EntryPoints.Hosting` may integrate with .NET hosting and
   dependency injection.
-- `Qhapaq.Implementations.MCP` remains a separately hosted adapter over shared
+- `Qhapaq.EntryPoints.MCP` remains a separately hosted adapter over shared
   application services.
 - CLI code may compose implementation packages but is not another reusable
   NuGet package boundary.
@@ -241,17 +241,17 @@ The .NET implementation follows the architecture specified by
 [SPEC-0006](../../specs/0006-dotnet-layered-architecture.md):
 
 ```text
-Service Implementations -> Service -> Business -> DAL
+Entry Points -> Service -> Business -> DAL
 ```
 
 - Production behavior calls only the next lower layer and only through a
   constructor-injected abstraction defined in `Qhapaq.Abstractions`.
 - Every production project uses its project name as both `AssemblyName` and
   `RootNamespace`: `Qhapaq.Service.V1`, `Qhapaq.Business`, `Qhapaq.DAL`, or
-  `Qhapaq.Implementations.<Implementation>`.
-- Service Implementation code must not reference Business or DAL code.
+  `Qhapaq.EntryPoints.<EntryPoint>`.
+- Entry Point code must not reference Business or DAL code.
 - Service code must not reference DAL code.
-- Business code must not reference Service or Service Implementation code.
+- Business code must not reference Service or Entry Point code.
 - DAL code must not reference a higher layer.
 - Composition uses Microsoft dependency injection and follows the same
   adjacent-layer direction: Hosting delegates to Service V1, Service V1 to
@@ -289,7 +289,7 @@ define a boundary contract when two adjacent layers genuinely collaborate.
   | `Qhapaq.Service.V1/DependencyInjection/` | `Qhapaq.Service.V1.DependencyInjection` |
   | `Qhapaq.Business/Validation/` | `Qhapaq.Business.Validation` |
   | `Qhapaq.DAL/Operations/` | `Qhapaq.DAL.Operations` |
-  | `Qhapaq.Implementations.Hosting/DependencyInjection/` | `Qhapaq.Implementations.Hosting.DependencyInjection` |
+  | `Qhapaq.EntryPoints.Hosting/DependencyInjection/` | `Qhapaq.EntryPoints.Hosting.DependencyInjection` |
 
 The rule applies to handwritten production source physically located beneath
 `implementations/dotnet/src/`. SDK- and compiler-generated files outside those
@@ -453,7 +453,7 @@ including each part of a partial class.
   - App-model-agnostic library code in `Qhapaq.Abstractions`,
     `Qhapaq.Service.V*`, `Qhapaq.Business`, and `Qhapaq.DAL` must use
     `ConfigureAwait(false)` on every applicable `await`.
-  - Service Implementation code in `Qhapaq.Implementations.*` must use plain
+  - Entry Point code in `Qhapaq.EntryPoints.*` must use plain
     `await` and must not use `ConfigureAwait(false)`. These adapters own
     application and transport context.
   - Unit and integration tests must use plain `await`. Test frameworks such as

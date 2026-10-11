@@ -7,6 +7,10 @@ spec: SPEC-0008
 requirements:
   - R-0000-009
   - R-0005-030
+  - R-0006-021
+  - R-0006-023
+  - R-0006-024
+  - R-0006-030
   - R-0006-032
   - R-0008-001
   - R-0008-002
@@ -42,9 +46,10 @@ history, destructively reset worktrees, or combine independent renames.
 
 ## Questions to resolve
 
-Sequence policy extraction, normative amendments, profile artifacts, source
-moves, consumer updates, release changes, and future workspaces; define
-recovery checkpoints and preservation of user changes.
+Sequence policy extraction, normative amendments, profile artifacts, the
+Entry Point identity migration, source moves, consumer updates, release
+changes, and future workspaces; define compatibility checks, recovery
+checkpoints, and preservation of user changes.
 
 ## Acceptance criteria
 

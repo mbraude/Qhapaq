@@ -39,7 +39,7 @@ reference implementation:
   R-0000-009 places new implementations under
   `src/implementations/<language>/`.
 - [SPEC-0006](0006-dotnet-layered-architecture.md) defines the initial .NET
-  architecture, including its current Service Implementations layer.
+  architecture, including its Entry Points layer.
 - [SPEC-0007](0007-portable-pipeline-definitions-and-binding.md) defines
   portable definitions, operation contracts, and binding semantics.
 - [SPEC-0005](0005-build-release-and-website-delivery.md) defines build,
@@ -540,19 +540,17 @@ the declaration must no longer be presented as a verifiable claim or progress
 report, and the loss of verifiability must be explicit. Publication,
 withdrawal, and discoverability procedures are defined separately.
 
-## 7. Proposed Terminology and Architecture Clarification
+## 7. .NET Entry-Point Terminology
 
 The word "implementation" currently describes both a language runtime and the
-.NET Service Implementations layer. The proposed clarification is to call the
-upper .NET layer **Adapters** while retaining its responsibilities and
-adjacent-layer dependency direction.
+.NET layer formerly called Service Implementations. SPEC-0006 names the upper
+.NET layer **Entry Points** while retaining its adapter responsibilities and
+adjacent-layer dependency direction. Its directories, projects, assemblies,
+root namespaces, and derived source namespaces use the matched
+`Qhapaq.EntryPoints.<EntryPoint>` identity. Executable filenames and
+distribution package IDs remain separate identities.
 
-Possible assembly naming approaches include short artifact names such as
-`Qhapaq.Hosting`, `Qhapaq.Mcp`, and `Qhapaq.Cli`, or explicitly role-qualified
-names such as `Qhapaq.Adapters.Hosting`. No naming option is selected here.
-
-A future decision would amend SPEC-0006 and record the architectural rationale
-in an ADR where appropriate. Source relocation and assembly/API renaming are
+Source relocation and the coordinated project, assembly, and namespace rename are
 separate changes: moving directories does not inherently change namespaces,
 package identities, dependencies, or portable behavior.
 
@@ -626,7 +624,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-006 | Decided by R-0008-009 and R-0008-010: one versioned closed envelope distinguishes full claims, exhaustive progress, and unsupported targets; declarations bind one exact profile and artifact set; assessment manifests retain requirement-level results and evidence mappings; capabilities are exact and non-partial; failures and unsupported reasons remain explicit. |
 | Q-0008-007 | Decided by R-0008-011 through R-0008-015: each immutable profile version carries closed evidence recipes over portable evidence kinds; recipes may use profile-fixed conjunctions and alternatives; exact executable bounds, reproducible build and test identity, explicit unsuccessful outcomes, synthetic data, payload-safe reports, auditable review approvals, and declaration-lifetime evidence availability determine sufficiency. |
 | Q-0008-008 | Decided by R-0008-016 through R-0008-018: exact portable marker and waiver payloads use policy-defined native placements; registered language-aware extractors feed one shared rules engine; diagnostics and unsupported placements fail explicitly; fingerprint, reverse-impact, and waiver limits remain intact. |
-| Q-0008-009 | Should the .NET Service Implementations layer be renamed to Adapters, and should assembly names change independently? |
+| Q-0008-009 | Decided by SPEC-0006 R-0006-001, R-0006-002, R-0006-021, R-0006-023, and related architecture requirements: the layer is Entry Points; directories, projects, assemblies, root namespaces, and derived source namespaces use `Qhapaq.EntryPoints.*`; executable and package identities remain separate. |
 | Q-0008-010 | Who owns the Roslyn generator and future integrations, and what public dependency boundaries apply? |
 | Q-0008-011 | How will artifact-local commands, CI impact selection, conformance reports, and consistent releases be orchestrated? |
 | Q-0008-012 | What migration order, prerequisite amendments, ADRs, validation gates, and recovery steps are required? |
@@ -639,6 +637,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.10 | 2026-10-10 | Renamed the .NET top layer to Entry Points, adopted matched `Qhapaq.EntryPoints.*` source and compiled identities, and kept executable and package identities separate. |
 | 0.9 | 2026-10-10 | Defined portable traceability and waiver payloads, language-native placement registration, language-aware extraction into one shared rules engine, explicit diagnostics, and preserved reverse-impact and waiver limits. |
 | 0.8 | 2026-10-10 | Defined profile-version evidence matrices, closed evidence kinds and recipes, bounded and independently reproducible evidence, review and provenance attestations, unsuccessful outcomes, sensitive-data exclusions, and declaration-lifetime evidence availability. |
 | 0.7 | 2026-10-10 | Defined the versioned declaration envelope, exact implementation and profile binding, exhaustive assessment manifests, capability dispositions, full-claim and progress rules, unsupported-target reasons, and explicit invalidity behavior. |

@@ -2,13 +2,13 @@
 
 > **Status:** Draft
 > **Target:** Initial .NET 10 implementation
-> **Last updated:** 2026-10-04
+> **Last updated:** 2026-10-10
 
 ## 1. Summary
 
 The .NET reference implementation uses four logical layers:
 
-1. **Service Implementations** provide user-facing entry points such as the CLI
+1. **Entry Points** provide user-facing adapters such as the CLI
    and MCP server.
 2. **Service** normalizes every entry point into a common, explicitly versioned
    application contract.
@@ -18,9 +18,9 @@ The .NET reference implementation uses four logical layers:
    registries, and low-level adapters used by the business layer.
 
 Production calls move down exactly one layer at a time and cross each boundary
-through constructor-injected contracts. The Service Implementations layer must
+through constructor-injected contracts. The Entry Points layer must
 not call Business or DAL components. Service must not call DAL components.
-Business must not call Service Implementations or Service components.
+Business must not call Entry Points or Service components.
 
 Each layer has one or more matching .NET assemblies rooted at `Qhapaq`.
 Assembly boundaries are independent from the smaller public NuGet package
@@ -57,13 +57,12 @@ may contain multiple Qhapaq assemblies.
 
 ## 4. Layer Responsibilities
 
-### 4.1 Service Implementations
+### 4.1 Entry Points
 
-Service Implementations are adapters at the top of the call graph. Initial
-implementations are the `qhapaq` CLI and MCP server, implemented by
-`Qhapaq.Implementations.CLI` and `Qhapaq.Implementations.MCP`; future
-implementations may include `Qhapaq.Implementations.GRPC` or
-application-specific adapters.
+Entry Points are transport and hosting adapters at the top of the call graph.
+Initial entry points are the `qhapaq` CLI and MCP server, implemented by
+`Qhapaq.EntryPoints.CLI` and `Qhapaq.EntryPoints.MCP`; future entry points may
+include `Qhapaq.EntryPoints.GRPC` or application-specific adapters.
 
 **[R-0006-001]** Each implementation:
 
@@ -73,7 +72,7 @@ application-specific adapters.
 - maps the Service result or structured failure to its own protocol; and
 - contains no pipeline construction, binding, policy, or execution rules.
 
-**[R-0006-002]** `Qhapaq.Implementations.Hosting` is the .NET hosting and composition adapter
+**[R-0006-002]** `Qhapaq.EntryPoints.Hosting` is the .NET hosting and composition adapter
 used by entry points. It invokes the public Service V1 composition entry point
 and must not reference or register Business or DAL components directly.
 
@@ -124,7 +123,7 @@ messages, or other transport envelopes.
 - external resource adapters used by operations.
 
 **[R-0006-009]** DAL does not make application-use-case decisions and does not call Business,
-Service, or Service Implementation components. A primitive operation package
+Service, or Entry Point components. A primitive operation package
 continues to depend only on `Qhapaq.Abstractions`.
 
 ## 5. Contract Placement and Visibility
@@ -134,7 +133,7 @@ continues to depend only on `Qhapaq.Abstractions`.
 
 | Contract category | Visibility | Consumers |
 | --- | --- | --- |
-| Versioned Service interfaces, requests, results, and structured errors | `public` | Built-in and third-party Service Implementations |
+| Versioned Service interfaces, requests, results, and structured errors | `public` | Built-in and third-party Entry Points |
 | Operation execution and static descriptor-authoring contracts and essential operation value types | `public` | Primitive operation and decorator authors |
 | Service-to-Business contracts and values | `internal` | Qhapaq implementation assemblies and tests |
 | Business-to-DAL contracts and values | `internal` | Qhapaq implementation assemblies and tests |
@@ -160,13 +159,13 @@ prohibited.
 **[R-0006-014]** The allowed runtime call graph is:
 
 ```text
-Service Implementation -> Service -> Business -> DAL
+Entry Point -> Service -> Business -> DAL
 ```
 
 **[R-0006-015]** The allowed contract dependencies are:
 
 ```text
-Service Implementation -> public Service contracts
+Entry Point             -> public Service contracts
 Service                -> internal Service-to-Business contracts
 Business               -> internal Business-to-DAL contracts
 DAL                    -> public operation contracts and platform abstractions
@@ -182,7 +181,7 @@ depend on `IServiceCollection`, `IServiceProvider`, or `IServiceScopeFactory`.
 **[R-0006-017]** Composition follows the same adjacent-layer direction as runtime behavior:
 
 ```text
-Qhapaq.Implementations.Hosting
+Qhapaq.EntryPoints.Hosting
     -> Qhapaq.Service.V1 registration
     -> Qhapaq.Business registration
     -> Qhapaq.DAL registration
@@ -203,7 +202,7 @@ than reflection-based assembly scanning. Hosts enable build and scope
 validation in development and automated tests.
 
 **[R-0006-020]** Cross-cutting concerns belong at the lowest layer that has the required
-context. Transport diagnostics stay in Service Implementations, use-case
+context. Transport diagnostics stay in Entry Points, use-case
 diagnostics stay in Service, domain diagnostics stay in Business, and
 operation-specific diagnostics stay in DAL. Policy enforcement must not be
 implemented only in a transport adapter.
@@ -219,9 +218,9 @@ name. Initial production assemblies are:
 | `Qhapaq.Service.V1` | Service V1 | Bundled in the `Qhapaq` NuGet package |
 | `Qhapaq.Business` | Business | Bundled in the `Qhapaq` NuGet package |
 | `Qhapaq.DAL` | DAL | Bundled in the `Qhapaq` NuGet package |
-| `Qhapaq.Implementations.Hosting` | Service Implementations and composition | `Qhapaq.Hosting` NuGet package |
-| `Qhapaq.Implementations.MCP` | Service Implementations | `Qhapaq.Mcp` NuGet package and MCP host distribution |
-| `Qhapaq.Implementations.CLI` | Service Implementations | Self-contained `qhapaq` executable distribution |
+| `Qhapaq.EntryPoints.Hosting` | Entry Points and composition | `Qhapaq.Hosting` NuGet package |
+| `Qhapaq.EntryPoints.MCP` | Entry Points | `Qhapaq.Mcp` NuGet package and MCP host distribution |
+| `Qhapaq.EntryPoints.CLI` | Entry Points | Self-contained `qhapaq` executable distribution |
 
 **[R-0006-022]** The `Qhapaq` NuGet package is a distribution package and does not require a
 `Qhapaq.dll` facade assembly. Similarly, package names may remain stable when
@@ -229,8 +228,12 @@ their contained implementation assembly has a more precise layer-aligned name.
 Adding a public package for an internal layer remains a separate compatibility
 decision.
 
-**[R-0006-023]** Future entry-point assemblies use the
-`Qhapaq.Implementations.<Implementation>` pattern. Future breaking Service
+**[R-0006-023]** Future entry-point directories, projects, assemblies, root
+namespaces, and derived source namespaces use the
+`Qhapaq.EntryPoints.<EntryPoint>` pattern. A production directory and project
+file use the same name as their assembly and root namespace. Executable file
+names and distribution package IDs are separate identities and need not match
+the project name. Future breaking Service
 versions use `Qhapaq.Service.V<Major>`. `CLI`, `MCP`, `DAL`, and similarly
 established initialisms retain their canonical uppercase spelling in assembly
 and root namespace names.
@@ -274,14 +277,14 @@ implementations/dotnet/
 |   |   |-- Decorators/
 |   |   |-- Registries/
 |   |   `-- Persistence/
-|   |-- Qhapaq.Implementations.Hosting/
-|   |   |-- Qhapaq.Implementations.Hosting.csproj
+|   |-- Qhapaq.EntryPoints.Hosting/
+|   |   |-- Qhapaq.EntryPoints.Hosting.csproj
 |   |   `-- DependencyInjection/
-|   |-- Qhapaq.Implementations.MCP/
-|   |   |-- Qhapaq.Implementations.MCP.csproj
+|   |-- Qhapaq.EntryPoints.MCP/
+|   |   |-- Qhapaq.EntryPoints.MCP.csproj
 |   |   `-- Service/
-|   `-- Qhapaq.Implementations.CLI/
-|       |-- Qhapaq.Implementations.CLI.csproj
+|   `-- Qhapaq.EntryPoints.CLI/
+|       |-- Qhapaq.EntryPoints.CLI.csproj
 |       |-- Commands/
 |       `-- Service/
 `-- tests/
@@ -291,9 +294,9 @@ implementations/dotnet/
     |   |-- Qhapaq.Business.Tests/
     |   `-- Qhapaq.DAL.Tests/
     `-- integration/
-        |-- Qhapaq.Implementations.Hosting.Tests/
-        |-- Qhapaq.Implementations.MCP.Tests/
-        `-- Qhapaq.Implementations.CLI.Tests/
+        |-- Qhapaq.EntryPoints.Hosting.Tests/
+        |-- Qhapaq.EntryPoints.MCP.Tests/
+        `-- Qhapaq.EntryPoints.CLI.Tests/
 ```
 
 **[R-0006-025]** Assembly references provide the primary structural boundary. Folder names and
@@ -308,9 +311,9 @@ protocol specifications created before implementation.
 
 | Layer | Initial component | Responsibility |
 | --- | --- | --- |
-| Service Implementations | `Qhapaq.Implementations.CLI` commands | Map command input and output to Service V1 |
-| Service Implementations | `Qhapaq.Implementations.MCP` handlers | Map MCP requests and results to Service V1 |
-| Service Implementations | `Qhapaq.Implementations.Hosting` registrations | Compose and expose the supported Service boundary |
+| Entry Points | `Qhapaq.EntryPoints.CLI` commands | Map command input and output to Service V1 |
+| Entry Points | `Qhapaq.EntryPoints.MCP` handlers | Map MCP requests and results to Service V1 |
+| Entry Points | `Qhapaq.EntryPoints.Hosting` registrations | Compose and expose the supported Service boundary |
 | Service | `IPipelineService` V1 | Public entry-point contract for pipeline use cases |
 | Service | `PipelineService` V1 | Coordinate validation, construction, visualization, and execution |
 | Business | `IPipelineValidator` | Apply semantic and type-compatibility validation |
@@ -338,11 +341,11 @@ and remain to be designed before implementation.
 
 ```mermaid
 flowchart TB
-    subgraph SI["Service Implementations"]
-        CLI["Qhapaq.Implementations.CLI"]
-        MCP["Qhapaq.Implementations.MCP"]
+    subgraph SI["Entry Points"]
+        CLI["Qhapaq.EntryPoints.CLI"]
+        MCP["Qhapaq.EntryPoints.MCP"]
         THIRD["Third-party adapter"]
-        HOSTING["Qhapaq.Implementations.Hosting"]
+        HOSTING["Qhapaq.EntryPoints.Hosting"]
     end
 
     subgraph SC["Qhapaq.Service.V1"]
@@ -395,10 +398,9 @@ delegation between adjacent layers and do not permit direct behavioral calls.
 
 **[R-0006-030]** The initial scaffold must include architecture tests that fail when:
 
-- `Qhapaq.Implementations.*` references `Qhapaq.Business` or `Qhapaq.DAL`;
+- `Qhapaq.EntryPoints.*` references `Qhapaq.Business` or `Qhapaq.DAL`;
 - `Qhapaq.Service.V1` references `Qhapaq.DAL`;
-- `Qhapaq.Business` references `Qhapaq.Service.*` or
-  `Qhapaq.Implementations.*`;
+- `Qhapaq.Business` references `Qhapaq.Service.*` or `Qhapaq.EntryPoints.*`;
 - `Qhapaq.DAL` references any higher-layer assembly;
 - a production assembly or root namespace does not match its project name;
 - a concrete lower-layer type is public;
@@ -410,7 +412,7 @@ delegation between adjacent layers and do not permit direct behavioral calls.
 - a complete graph fails Microsoft DI build or scope validation.
 
 **[R-0006-031]** Unit tests remain aligned to their owning layer. Integration tests begin at a
-supported Service Implementation or the public Service boundary and verify
+supported Entry Point or the public Service boundary and verify
 cross-layer behavior without bypassing a boundary. Package-consumer tests must
 prove that third-party operation libraries need only `Qhapaq.Abstractions` and
 that third-party entry points can consume Service V1 without accessing internal
@@ -420,7 +422,7 @@ Business or DAL contracts.
 
 **[R-0006-032]**
 
-- Every Service Implementation must preserve authentication, authorization,
+- Every Entry Point must preserve authentication, authorization,
   policy, and disclosure decisions returned by Service; it must not weaken them
   during protocol mapping.
 - Complete validation and policy checks occur before Business begins side
@@ -440,8 +442,8 @@ Business or DAL contracts.
 **[R-0006-033]**
 
 1. Scaffold `Qhapaq.Abstractions`, `Qhapaq.Service.V1`, `Qhapaq.Business`,
-   `Qhapaq.DAL`, `Qhapaq.Implementations.Hosting`,
-   `Qhapaq.Implementations.MCP`, `Qhapaq.Implementations.CLI`, and their test
+   `Qhapaq.DAL`, `Qhapaq.EntryPoints.Hosting`,
+   `Qhapaq.EntryPoints.MCP`, `Qhapaq.EntryPoints.CLI`, and their test
    projects.
 2. Add architecture tests before implementing cross-layer behavior.
 3. Define the smallest Service V1 use case and its public request, result, and
@@ -471,6 +473,15 @@ the layers and would provide weaker compile-time dependency enforcement.
 Rejected. Transport-specific behavior would become coupled to domain
 implementation details, and versioned Service compatibility could not protect
 entry points.
+
+### Service Implementations or Adapters as the top-layer name
+
+Rejected. "Service Implementations" overloads "implementation" between a
+language runtime and a .NET layer, while "Adapters" is too broad because DAL
+also owns low-level and external-resource adapters. "Entry Points" names the
+layer by its responsibility. The matched `Qhapaq.EntryPoints.*` project,
+assembly, root-namespace, and source-namespace identity keeps ownership
+apparent; executable and distribution package names remain separate identities.
 
 ### Put layer contracts beside their implementations
 

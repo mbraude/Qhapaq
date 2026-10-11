@@ -2,8 +2,8 @@
 spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 2a5f9e29ff61626bd6185e99df66722643781764
-    content_sha256: 4dab808ab9bd25ae591120a583e1b4d607fb8f28b66fdf2aa39ad711f7602d46
+    revision: 130919358da2c7c9918e0eff6caa82fd7bc9b44b
+    content_sha256: 3efd22dbdfea9783141fda61e8625340ea67224663b07ca63c32fb86155dba02
   - path: SPEC.md
     revision: 733f879fb7872fd692c0661af8e6eb62708a7e38
     content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
@@ -12,19 +12,22 @@ sources:
     content_sha256: 5186656c64c3f4d651d8236bd416d7cf29659669737cc65013136cbf9bc3fdc4
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: e5a35871ce14aa37d7169ac35d824c910bb0494a01e419dc7895a69dd0092eb9
+    content_sha256: 62c8990987dbaa6b49fcecb864216685405ce518dea320bf3db69a115f7a0653
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 8fbf725e0fda9697c3eff44435481d7755141272
     content_sha256: 7b3c946a9fd554e9b7129bc391dc68957633716f6a3264cdd659954704413249
   - path: docs/development/coding-conventions.md
-    revision: 9df3f2d89fd255132a3c6122bd41890212409060
-    content_sha256: 604a6173250960aabdf3fd7c16c60c111f9e36ceb946baff1c28033c2654e454
+    revision: 130919358da2c7c9918e0eff6caa82fd7bc9b44b
+    content_sha256: 8cd098f3f9bd877ef9f1c77a77c4b1a895b28ae92ace65299ff05daa4a859b05
   - path: docs/development/spec-driven-workflow.md
     revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
     content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
     revision: d6cf2c053ee259d51f641da3c27cdbcea4a2c243
     content_sha256: 1d01ab049a9bd54dc26a1c3e110f54c2e0cd416c97a67f43b2baf07eb99b0b83
+  - path: docs/architecture/decisions/0001-use-microsoft-dependency-injection.md
+    revision: d3ff6bf9df744c63fc776775956ce41a907a5bcf
+    content_sha256: f7855b81e87db15f89326d7a297cc983eb8ba1a4f250aed380a999e5f87de217
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
@@ -126,9 +129,10 @@ SPEC-0007 gates remain in force.
 | 4 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, .NET contracts, and examples |
 | 5 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
 | 6 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
-| 7 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
-| 8 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
-| 9 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
+| 7 | [I-0008-008](implementation/I-0008-008-entry-point-identity-migration.md) | Apply the matched .NET Entry Point identities |
+| 8 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
+| 9 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
+| 10 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
 
 ### Exit gates
 
@@ -359,3 +363,31 @@ consumer and approved scope.
 - Readiness remains not assessed. This reconciliation does not approve the
   D-0008-008 snapshot, implement or integrate the checker, authorize another
   runtime, migrate policy, or affect earlier completed decisions.
+- Date: 2026-10-10. D-0008-009 drafted the .NET **Entry Points** terminology
+  and matched `Qhapaq.EntryPoints.<EntryPoint>` directory, project, assembly,
+  root-namespace, and derived source-namespace identities across the affected
+  SPEC-0006 architecture requirements. Executable filenames and distribution
+  package IDs remain separate identities. SPEC-0008 records the resolved
+  question, ADR-0001 uses the new hosting identity, and the architecture
+  diagram and coding conventions remain consistent with the amended source.
+- Downstream impact: new I-0008-008 owns the coordinated identity migration
+  without conflating it with repository relocation. D-0008-012 now covers the
+  rename's sequencing, compatibility validation, and recovery. I-0008-005
+  depends on both the identity migration and source relocation before it closes
+  remaining consumer updates. No existing item was cancelled, approved, or
+  executed, and no implementation was changed.
+- Source baseline: SPEC-0008 and the coding conventions use committed baseline
+  `130919358da2c7c9918e0eff6caa82fd7bc9b44b`; SPEC-0006 uses
+  `66c43b3d030e84a4ac055b6853946c401d7a9b8c`; and ADR-0001 uses
+  `d3ff6bf9df744c63fc776775956ce41a907a5bcf`. Their exact reviewed
+  working-copy SHA-256 values are respectively
+  `3efd22dbdfea9783141fda61e8625340ea67224663b07ca63c32fb86155dba02`,
+  `8cd098f3f9bd877ef9f1c77a77c4b1a895b28ae92ace65299ff05daa4a859b05`,
+  `62c8990987dbaa6b49fcecb864216685405ce518dea320bf3db69a115f7a0653`,
+  and `f7855b81e87db15f89326d7a297cc983eb8ba1a4f250aed380a999e5f87de217`.
+  Other source records remain unchanged because their bytes and impact are
+  unchanged. Reconciliation is complete for D-0008-009 and its affected
+  downstream work.
+- Readiness remains not assessed. This reconciliation does not approve the
+  D-0008-009 snapshot, rename projects or namespaces, move source, change
+  package or executable identities, or authorize implementation.
