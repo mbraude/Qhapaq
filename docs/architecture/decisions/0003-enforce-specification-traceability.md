@@ -112,22 +112,35 @@ the wording, examples, or tables inside the block does.
 
 ### Source references
 
-Product code and tests reference requirements with one grammar:
+Product code and tests reference requirements with one language-neutral payload
+grammar:
 
 ```text
 spec: <requirement-id>@<fingerprint>[, <requirement-id>@<fingerprint>...]
 ```
 
-The `spec:` token may appear in an XML documentation `<remarks>` element or in
-a `//` line comment, followed optionally by a short explanation after an em
-dash. References are placed at the narrowest level that explains the code:
+As required by
+[SPEC-0008 R-0008-016 through R-0008-018](../../../specs/0008-multi-language-conformance-and-repository-organization.md#language-neutral-traceability),
+each maintained implementation language defines its permitted native comment
+or documentation constructs and exact attachment rules. A language-aware
+extractor parses those constructs and supplies the payload, source span,
+attachment target, and production-or-test classification to one shared rules
+engine. Marker-like text in strings, generated output, examples, unsupported
+files, or unregistered constructs does not create a reference. A language is
+not supported for traceability until both its placement policy and extractor
+are registered.
+
+The shared engine owns payload grammar, resolution, current fingerprints,
+placement categories, reverse-impact inspection, waiver scope, and diagnostics.
+Language extractors do not redefine those rules. References are placed at the
+narrowest level permitted by the applicable language policy that explains the
+code. The current C# binding is:
 
 | Level | Use when |
 | --- | --- |
-| Type `<remarks>` | The type as a whole realizes a specified concept, such as a composition form, binder, or policy evaluator. |
-| Member `<remarks>` | The member implements a specific rule or contract. This is the default level. |
-| Line comment before a block | The block encodes a non-obvious specified decision: validation or policy ordering, cancellation or failure semantics, limits, disclosure, or error mapping. |
-| Test line comment | The test verifies the requirement. |
+| Member `<remarks>` | The whole member enforces a requirement. |
+| `//` line comment immediately before a statement or block | The statement or block enforces an invariant such as validation or policy ordering, cancellation or failure semantics, limits, disclosure, or error mapping. |
+| `//` line comment immediately before a test method | The test verifies the requirement. |
 
 References are not required on dependency-injection registration, plumbing,
 private helpers whose containing member is already traced, or trivial members.
@@ -167,8 +180,13 @@ the same change.
 ### Mechanical enforcement
 
 A repository trace checker will enforce the following rules in local builds
-and as required CI status checks protecting the default branch. Until the
-checker and CI exist, the interim enforcement described below applies.
+and as required CI status checks protecting the default branch. Its
+language-aware extractors feed one shared validation engine and report the
+file, source span, stable rule, and offending marker or requirement identity.
+Malformed markers, unsupported placements, stale or unresolved references,
+missing required references, and extractor failures are errors rather than
+ignored input. Until the checker and CI exist, the interim enforcement
+described below applies.
 
 | Check | Rule | Severity |
 | --- | --- | --- |

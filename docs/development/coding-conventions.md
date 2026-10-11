@@ -105,11 +105,13 @@ conform to them.
   `Change-Kind:` is required even for intermediate commits. Enable the local
   [commit-message hook](git-hooks.md); it complements the commit skills but
   does not replace semantic review or future CI enforcement.
-- Mark code that enforces a requirement with an inline reference
+- Mark code that enforces a requirement with the language-neutral payload
   `spec: <requirement-id>@<fingerprint>`, for example
-  `spec: R-0001-012@44aa01`. Separate multiple references with commas.
-- Tests that verify a requirement reference it in a line comment on the test
-  method. A `bug` fix adds a regression test that references the requirement
+  `spec: R-0001-012@44aa01`. Separate multiple references with commas. Use only
+  native comment or documentation constructs registered by the applicable
+  language policy and deterministic checker extractor.
+- Tests that verify a requirement use the applicable language's registered test
+  placement. A `bug` fix adds a regression test that references the requirement
   it restores.
 - When any text in a requirement block changes, review every code and test
   location that references it and update the fingerprint in the same change.
@@ -132,10 +134,18 @@ Invariants include:
 - exact-version resolution and determinism rules; and
 - security and trust boundaries.
 
-Place the reference in a `//` comment immediately before the enforcing
+Each maintained implementation language must define unambiguous native
+placements for an enforcing statement or block, whole-member enforcement, and
+a verifying test. Its language-aware checker extractor must be registered
+before that language is supported for traceability. Marker-like text in a
+string, generated output, example, unsupported file, or unregistered construct
+does not satisfy a traceability obligation.
+
+For C#, place the reference in a `//` comment immediately before the enforcing
 statement or block. Add a short explanation after an em dash when the
 connection is not obvious. When a whole member is the enforcement, such as a
-dedicated validator, place it in the member's `<remarks>` instead.
+dedicated validator, place it in the member's `<remarks>` instead. Place a test
+reference in a `//` comment immediately before the test method.
 
 Do not add references to types, entry points, members that merely implement a
 feature, dependency-injection registration, or plumbing. The commit trailers
@@ -169,9 +179,10 @@ Waivable rules are the judgment findings of the semantic review:
 | `invariant-marker` | Code that enforces a requirement lacks an inline reference. |
 | `test-reference` | A test of a specified rule, an implemented requirement, or a bug fix lacks a test reference. |
 
-- Place the waiver where a reference would go. In a type's or member's
-  `<remarks>` it covers that type or member. In a `//` comment it covers the
-  statement or block that immediately follows.
+- Place the waiver in a registered native construct where a reference could
+  appear. It covers only that placement's attachment target. In C#, a member's
+  `<remarks>` covers that member, and a `//` comment covers the statement,
+  block, or test method immediately following it.
 - The justification is required and must explain why the finding does not
   apply or why it is accepted, for example by citing the requirement text or a
   tracking issue.
@@ -188,10 +199,14 @@ Waivable rules are the judgment findings of the semantic review:
 
 ### Enforcement
 
-A deterministic trace checker will verify that references resolve to
-non-retired requirements, that fingerprints are current, and that commit
-trailers are present and resolvable. It is planned and not yet available.
-Until it exists, the AI-led
+A deterministic trace checker will use registered language-aware extractors to
+read permitted native constructs and one shared rules engine to verify payload
+grammar, requirement resolution, current fingerprints, placement, changed-
+requirement reverse impact, waiver scope, and commit trailers. Each diagnostic
+will identify the file, source span, stable rule, and offending marker or
+requirement identity. Malformed markers, unsupported placements, missing
+required references, and extractor failures will fail explicitly. The checker
+is planned and not yet available. Until it exists, the AI-led
 [`spec-trace-check` skill](../../.agents/skills/spec-trace-check/SKILL.md)
 inspects files changed since `HEAD`, classifies the change, proposes its
 trailers, and reviews changed code against the requirements in scope. It runs

@@ -8,6 +8,9 @@ status: open
 spec: SPEC-0008
 requirements:
   - R-0008-004
+  - R-0008-016
+  - R-0008-017
+  - R-0008-018
 depends_on: [D-0008-002, D-0008-003, D-0008-008]
 artifacts:
   - docs/development/coding-conventions.md
@@ -19,9 +22,9 @@ artifacts:
 ## Objective and coverage
 
 Deliver the common, language-specific, and artifact-specific policy structure
-defined by R-0008-004 and applicable instruction links. D-0008-003 and
-D-0008-008 still govern normative-content separation and language-native
-traceability, so this milestone is not executable.
+defined by R-0008-004 and applicable instruction links, including registered
+language-native reference, waiver, invariant, whole-member, and test
+placements. This milestone does not implement the checker.
 
 ## Entry gates
 
@@ -42,9 +45,10 @@ directory is delivered.
 Apply common and specialized policies cumulatively. A specialized guide may
 explicitly replace a common Default or Recommendation within its declared
 scope, but it cannot weaken a common Required rule or override a specification
-or ADR. Link portable requirements instead of copying them, and keep
-path-specific instructions as routing and tool-execution guidance rather than
-a competing policy source.
+or ADR. Each maintained implementation language must define unambiguous native
+placements that match its registered checker extractor. Link portable
+requirements instead of copying them, and keep path-specific instructions as
+routing and tool-execution guidance rather than a competing policy source.
 
 ## Tests and validation
 
