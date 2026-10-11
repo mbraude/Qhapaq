@@ -11,8 +11,8 @@ sources:
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 42bc95d2ef871b191b09242561fed3fa812670f4eb410482d557c0413c193a3f
   - path: specs/0006-dotnet-layered-architecture.md
-    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: 62c8990987dbaa6b49fcecb864216685405ce518dea320bf3db69a115f7a0653
+    revision: 637015dc481f2d1e5b764b0deaad38828f2cc35e
+    content_sha256: 8bdfab494c48cbdddfcb458bea9e71bc63dc6fc0709bbaf63325e58fb600ae10
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 8fbf725e0fda9697c3eff44435481d7755141272
     content_sha256: 1e66c0780d5c9cc271007d0d838f32d287782c45f75bb2927d6433e0596ff4a9
@@ -40,6 +40,29 @@ sources:
 ---
 
 # SPEC-0008: Work Plan
+
+## D-0007-009 bounded source-impact review
+
+- Date: 2026-10-11. Reviewed SPEC-0006 at committed baseline
+  `637015dc481f2d1e5b764b0deaad38828f2cc35e` plus the working-copy ownership
+  refinement in R-0006-035 through R-0006-038. The source record hashes that
+  working copy. Earlier architecture requirements and layer identities are
+  unchanged; no SPEC-0008 item scope, status, dependency, or approved material
+  is changed.
+- The new ownership rules govern future real model/API delivery under
+  SPEC-0007, not the already scoped Entry Point identity migration or
+  engineering-policy extraction. Generator-local model separation does not
+  resolve D-0007-011/012's shared algorithm/library choices or change
+  SPEC-0008 generator workspace ownership.
+- Historical engineering-policy readiness remains evidence for its original
+  exact scope and snapshots, not approval of the new ownership requirements.
+  Current readiness must be checked before affected implementation; no
+  readiness source hash or approval is silently renewed here.
+- Only the SPEC-0006 impact is reconciled here. Other existing source-byte
+  drift in this plan is outside D-0007-009 and remains for a bounded
+  `work-plan-sync` before resuming affected SPEC-0008 work. This is not a
+  claim that the entire SPEC-0008 plan is current. No artifact-production
+  prerequisite or cross-plan edge changes.
 
 ## Scope and authority
 

@@ -2,7 +2,7 @@
 
 > **Status:** Draft
 > **Target:** Initial .NET 10 implementation
-> **Last updated:** 2026-10-10
+> **Last updated:** 2026-10-11
 
 ## 1. Summary
 
@@ -149,6 +149,97 @@ implementation types, dependency-injection container types, transport types,
 or mutable implementation state. Portable JSON and protocol semantics remain
 defined by schemas and language-neutral specifications rather than these CLR
 types.
+
+### 5.1 Definition-to-execution model ownership
+
+This map refines R-0006-010 through R-0006-012 for the model families required by
+[SPEC-0007 R-0007-346](0007-portable-pipeline-definitions-and-binding.md#net-organization-and-portable-validation).
+Ownership describes responsibility, not an exhaustive class catalogue. Portable
+JSON remains the contract authority; no public .NET syntax tree is implied.
+
+**[R-0006-035]** Model ownership and exposure follow this map:
+
+| Model family | Owning responsibility | Supported public values | Internal boundary values and layer-private representations |
+| --- | --- | --- | --- |
+| Definition | Business owns inert parsing, structural validation, construction, and normalization; DAL owns definition storage adapters. | Canonical JSON or a projection explicitly required by a versioned Service contract; no public parsed-definition object model. | Only the definition input, immutable snapshot, or storage value required by an adjacent port belongs in internal Abstractions. Parsed node graphs and normalization working state stay in Business; storage records stay in DAL. |
+| Schema | Business owns domain schema interpretation, propagation, and compatibility decisions. | Immutable schema content needed by the supported descriptor or Service projection; no public validation or inference engine model. | Adjacent ports carry only required immutable schema values. Normalized analysis forms, inference state, and native-binding analysis stay with their owning implementation. |
+| Expression | Business owns inert mapping syntax, scope/dominance analysis, inference, and bound evaluation representations. | Mapping JSON only where a supported public contract requires it; no public expression object model or internal missing-value sentinel. | Only required immutable expression inputs or analysis summaries cross internal ports. Syntax graphs, inferred value states, compiled accessors, and evaluation state remain layer-private. |
+| Descriptor | DAL owns effective-registry entries and exact metadata lookup; Business owns domain use of the selected contract; Service owns its disclosure-safe application projection. | The immutable `OperationDescriptor` and essential nested descriptor values required by static operation declarations and Service retrieval. | Registry selection, provenance, integrity, conflict, native-binding, factory, and policy context use internal port values. None becomes a public member merely because it accompanies a public descriptor internally. |
+| Bound plan | Business owns complete validation, binding, execution coordination, and compiled plans; DAL owns plan-cache adapters. | No public bound-plan, factory, serializer, or execution-frame model. A supported Service contract may return its specified safe analysis/result projection. | Any plan reference or cache value actually required by an adjacent port is an internal Abstractions contract. Concrete compiled graphs remain Business-owned; DAL treats cached derived state as opaque and cannot establish validity or execute it. |
+| Failure and diagnostic | Each layer owns failures arising from its context; Business owns runtime failure control, aggregate/recovery causality, and caught-failure projection. | Only essential values required by supported operation contracts and the specified safe Service diagnostic, runtime-failure, and structured-error projections. | Internal outcomes retain the context needed by adjacent collaborators. Exceptions, protected diagnostics, complete internal causal state, and run/frame state stay layer-private; they are not public error details. |
+| Service boundary | Service owns complete application requests, responses, conclusions, errors, and domain-to-Service translation. | Explicitly versioned immutable interfaces and values in public Service Abstractions, including the exact descriptor-retrieval contracts. | Service-to-Business requests and outcomes are internal Abstractions contracts, not the public Service DTOs reused as domain contracts. Transport envelopes stay in Entry Points; concrete Service types stay internal. |
+
+Here, layer-private means a representation not used as a cross-layer contract:
+its implementation type remains non-public in the owning assembly. It does not
+require a separate assembly or a particular nested-type syntax. A value actually
+crossing a layer boundary must instead satisfy R-0006-010 even when its contents
+are opaque. The map introduces no new operation failure-reporting API and does
+not expand the supported strongly typed operation-composition contracts.
+
+**[R-0006-036]** Boundary values expose only immutable data or narrowly scoped
+contracts needed by the receiving adjacent collaborator. Internal contracts are
+placed in `Qhapaq.Abstractions.Internal.Business` for Service-to-Business and
+`Qhapaq.Abstractions.Internal.DAL` for Business-to-DAL. Public descriptor,
+operation-authoring, and versioned Service values remain in their established
+public contract namespaces. Every nested type reachable through a public API
+must itself be a supported public contract; it must not expose an internal
+schema/expression graph, compiled plan, implementation type, or mutable state.
+
+Service translates internal outcomes into its specified public projections;
+Entry Points preserve those projections rather than recomputing domain rules.
+Runtime failures, validation diagnostics, Service operation errors, and the
+lexically scoped caught-failure projection remain distinct as required by
+SPEC-0007. Public visibility of a descriptor or failure value never authorizes
+lookup, execution, or payload disclosure. Private execution frames never become
+operation contexts or publicly inspectable result stores.
+
+### 5.2 Representative ownership and dependency flows
+
+**[R-0006-037]** The first model-dependent slices preserve these flows:
+
+- **Exact descriptor retrieval:** an Entry Point maps its transport selector to
+  the public Service request. Service validates the complete selector and calls
+  an internal Business port. Business coordinates exact metadata selection and
+  disclosure policy through internal DAL ports. DAL supplies immutable selected
+  metadata and required internal lookup context without constructing operations.
+  Business returns an internal outcome; Service projects the normal result or
+  structured error defined by SPEC-0007 R-0007-404 through R-0007-410. Entry
+  Points consume only that Service response. Protected lookup/policy context
+  never enters an unavailable response, and descriptor visibility does not
+  permit Entry Points to call the registry.
+- **Inert parsing:** Service passes the supplied definition input through an
+  internal Business port. Business constructs its inert definition, schema,
+  and expression representations and performs the promised structural checks
+  without registry resolution, operation construction, or execution. Only the
+  required internal snapshot or safe analysis outcome returns to Service;
+  Service projects diagnostics and the stage-aware conclusions required by
+  SPEC-0007 R-0007-400 through R-0007-403. Successful parsing is not complete
+  document validity, binding, normalization, or invocation permission.
+- **Descriptor generation:** the build-time generator reads explicit descriptor
+  inputs and compiler symbols, validates offline, and emits the established
+  public static declaration and registration projections. Its compiler-symbol,
+  source-location, and build-diagnostic models remain tooling-local, not
+  runtime layer contracts or public Service values. It neither instantiates
+  operations nor obtains a runtime Service, registry, plan, or execution frame.
+  Runtime registry verification still occurs independently through DAL.
+
+These flows assign model responsibilities only. Shared portable algorithm
+ownership and the generator/runtime shared-library dependency boundary require
+their separate reviewed decisions before implementation. They cannot be inferred
+from a model's owner, and no new project, package, or layer exception is selected
+here.
+
+**[R-0006-038]** Architecture and package-consumer tests for these model families
+must reject public signatures exposing internal or concrete engine types,
+cross-layer models outside Abstractions, transport or compiler models leaking
+into runtime contracts, and non-adjacent calls or dependencies. Tests cover
+recursive public-signature reachability, including nested descriptor and schema
+values and generic type arguments, not only top-level DTO visibility. Clean
+operation-authoring and third-party Service consumers must use only supported
+public contracts without friend access. Behavioral slice tests verify inert
+parsing, non-executing descriptor retrieval, safe failure/conclusion projection,
+and offline non-executing generation. Required tests are delivered with real
+models and collaborators, not speculative placeholder types.
 
 ## 6. Dependency and Composition Rules
 
