@@ -10,6 +10,7 @@ requirements:
   - R-0008-001
   - R-0008-002
   - R-0008-003
+  - R-0008-019
 depends_on: [I-0008-005]
 artifacts: []
 ---

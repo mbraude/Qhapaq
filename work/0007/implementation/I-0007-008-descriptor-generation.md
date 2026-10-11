@@ -6,8 +6,8 @@ change_kind: requirement
 title: .NET descriptor authoring and deterministic generation
 status: open
 spec: SPEC-0007
-requirements: [R-0007-349, R-0007-335]
-depends_on: [D-0007-003, I-0007-001, I-0007-002, I-0007-003, I-0007-007]
+requirements: [R-0007-349, R-0007-335, R-0008-019]
+depends_on: [D-0007-003, D-0007-012, D-0008-010, I-0007-001, I-0007-002, I-0007-003, I-0007-007]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
 
@@ -25,7 +25,9 @@ Exact authoring contracts, relevant Phase 0A/1/1A artifacts and approved readine
 
 ## File and ownership manifest
 
-Pending reviewed generator project, public API and test manifests.
+The generator is owned by the .NET implementation workspace as independently
+versioned build tooling. Exact project, package, public API, shared-library,
+and test manifests remain pending D-0007-012 and concrete slice planning.
 
 ## Design and integration
 

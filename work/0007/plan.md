@@ -1,6 +1,9 @@
 ---
 spec: SPEC-0007
 sources:
+  - path: specs/0008-multi-language-conformance-and-repository-organization.md
+    revision: 5c166ff223ad2d5c57824de534d409bcac22b090
+    content_sha256: 433b67c0cb12370756258192e57f5e42298eb7f8879160966cc3d52734f4cbbc
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 07073fe16ae1b6f64feaeedb01557d6f5b9731fd
     content_sha256: 7b3c946a9fd554e9b7129bc391dc68957633716f6a3264cdd659954704413249
@@ -713,3 +716,22 @@ Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920
 - Validation and the exact ready-for-review snapshot are recorded in
   D-0007-008. This reconciliation is not human approval, completion,
   implementation, publication, or permission to execute.
+
+## D-0008-010 generator-ownership input reconciliation
+
+- Date: 2026-10-10. SPEC-0008 at committed baseline
+  `5c166ff223ad2d5c57824de534d409bcac22b090` is now an explicit cross-plan
+  source. Its source record hashes the reviewed working-copy bytes containing
+  R-0008-019; it does not claim those bytes are committed or approved.
+- R-0008-019 assigns the independently versioned Roslyn generator package to
+  the .NET implementation workspace as build tooling and prohibits generator
+  or private tooling dependencies from entering runtime dependency closures.
+- D-0007-012 now depends on D-0008-010 and covers R-0008-019 while retaining
+  ownership of the exact generator/runtime algorithm-reuse, assembly, package,
+  and architecture-enforcement decisions. I-0007-008 now depends on both
+  decisions and records the accepted workspace ownership while leaving its
+  exact project, package, API, shared-library, and test manifests pending.
+- No SPEC-0007 requirement, phase, implementation artifact, runtime dependency,
+  package, workspace, or readiness state changes. This reconciliation resolves
+  no SPEC-0007 decision and does not approve D-0008-010 or authorize generator
+  implementation.

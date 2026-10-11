@@ -4,8 +4,8 @@ kind: decision
 title: Define build, CI, and release orchestration
 status: open
 spec: SPEC-0008
-requirements: [R-0005-030, R-0005-032, R-0005-033, R-0008-017]
-depends_on: [D-0008-001, D-0008-002, D-0008-004, D-0008-007, D-0008-008]
+requirements: [R-0005-030, R-0005-032, R-0005-033, R-0008-017, R-0008-019]
+depends_on: [D-0008-001, D-0008-002, D-0008-004, D-0008-007, D-0008-008, D-0008-010]
 artifacts:
   - specs/0005-build-release-and-website-delivery.md
   - specs/0008-multi-language-conformance-and-repository-organization.md

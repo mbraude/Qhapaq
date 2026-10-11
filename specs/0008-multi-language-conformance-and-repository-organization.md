@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; taxonomy, policy ownership, normative-content separation, profile, declaration, evidence, and language-native traceability semantics resolved; remaining decisions unresolved
-> **Version:** 0.9
+> **Status:** Draft; taxonomy, artifact ownership, policy ownership, normative-content separation, profile, declaration, evidence, and language-native traceability semantics resolved; remaining decisions unresolved
+> **Version:** 0.11
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -163,6 +163,33 @@ website does not become authoritative for product semantics.
 The physical relocation of the existing .NET workspace and related path
 updates require separately reviewed migration work. This decision does not move
 files, rename namespaces, assemblies, or packages, or change runtime behavior.
+
+### Concrete artifact ownership
+
+**[R-0008-019]** Artifact ownership follows the responsibility and supported
+contract of the artifact, not its implementation language:
+
+- The Roslyn incremental generator required by SPEC-0007 is owned by the .NET
+  implementation workspace because it supplies the .NET operation-authoring
+  build contract. It is independently versioned and packaged build tooling,
+  and consuming it must not add a generator assembly or its private
+  dependencies to a runtime application's dependency closure. The exact
+  reviewed package and shared-algorithm boundaries remain governed by the
+  SPEC-0007 generator/runtime reuse decision.
+- Each product integration is an independently maintained workspace beneath
+  `src/integrations/`, including when it uses the same language as an
+  implementation. It may consume only supported public contracts, protocols,
+  packages, or release artifacts and must not reference a runtime workspace's
+  private source or build output.
+- A project-owned contributor, validation, or build utility with its own
+  software lifecycle is an independently maintained workspace beneath
+  `src/tools/`. Root `scripts/` and `build/` remain automation entry points and
+  cross-artifact orchestration rather than owners of runtime libraries.
+- An implementation workspace may consume portable root assets and approved
+  public build-time tooling, but it must not take runtime dependencies on
+  integrations or contributor tools. Packaging and release assembly preserve
+  these ownership and dependency directions instead of merging private outputs
+  across workspaces.
 
 ## 5. Engineering Policy Ownership and Applicability
 
@@ -625,7 +652,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-007 | Decided by R-0008-011 through R-0008-015: each immutable profile version carries closed evidence recipes over portable evidence kinds; recipes may use profile-fixed conjunctions and alternatives; exact executable bounds, reproducible build and test identity, explicit unsuccessful outcomes, synthetic data, payload-safe reports, auditable review approvals, and declaration-lifetime evidence availability determine sufficiency. |
 | Q-0008-008 | Decided by R-0008-016 through R-0008-018: exact portable marker and waiver payloads use policy-defined native placements; registered language-aware extractors feed one shared rules engine; diagnostics and unsupported placements fail explicitly; fingerprint, reverse-impact, and waiver limits remain intact. |
 | Q-0008-009 | Decided by SPEC-0006 R-0006-001, R-0006-002, R-0006-021, R-0006-023, and related architecture requirements: the layer is Entry Points; directories, projects, assemblies, root namespaces, and derived source namespaces use `Qhapaq.EntryPoints.*`; executable and package identities remain separate. |
-| Q-0008-010 | Who owns the Roslyn generator and future integrations, and what public dependency boundaries apply? |
+| Q-0008-010 | Decided by R-0008-019: the .NET workspace owns the independently versioned Roslyn build-tooling package; product integrations and maintained contributor tools own separate responsibility-based workspaces; only supported public boundaries may cross workspaces; and build tooling does not enter runtime dependency closures. |
 | Q-0008-011 | How will artifact-local commands, CI impact selection, conformance reports, and consistent releases be orchestrated? |
 | Q-0008-012 | What migration order, prerequisite amendments, ADRs, validation gates, and recovery steps are required? |
 | Q-0008-013 | What review and approval process permits publication of profiles and implementation conformance claims? |
@@ -637,6 +664,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.11 | 2026-10-10 | Assigned the Roslyn generator to the .NET implementation workspace as independently versioned build tooling, kept integrations and maintained contributor tools in separate responsibility-based workspaces, and prohibited private-output and accidental runtime dependencies. |
 | 0.10 | 2026-10-10 | Renamed the .NET top layer to Entry Points, adopted matched `Qhapaq.EntryPoints.*` source and compiled identities, and kept executable and package identities separate. |
 | 0.9 | 2026-10-10 | Defined portable traceability and waiver payloads, language-native placement registration, language-aware extraction into one shared rules engine, explicit diagnostics, and preserved reverse-impact and waiver limits. |
 | 0.8 | 2026-10-10 | Defined profile-version evidence matrices, closed evidence kinds and recipes, bounded and independently reproducible evidence, review and provenance attestations, unsuccessful outcomes, sensitive-data exclusions, and declaration-lifetime evidence availability. |
