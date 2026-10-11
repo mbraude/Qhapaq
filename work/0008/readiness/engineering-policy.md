@@ -4,74 +4,80 @@ scope: engineering-policy
 assessment: approved
 sources:
   - path: AGENTS.md
-    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
+    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 916d6c0094400b87ce1c99661b90590664be588ee1713c2d8b172377567f1272
   - path: .agents/skills/spec-trace-check/SKILL.md
-    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
+    revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: e0b7bc16c1cad5da3332293086c83a66421b0ffd8b29adac6347fec1a7eac486
   - path: work/0008/plan.md
-    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
-    content_sha256: b4a945fe17c7f6dff5007c9300156377656127de18976a04f575bd96dbca2d49
+    revision: f5f3072fe6e82be65ae43ce6a911d0d300fcad7d
+    content_sha256: 8559b6347e3163b332bb1bcd1e213f191bf961b66e1e4400476ceb47a326293d
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: fcab9707ea09d78eb569e8b1194f10dc1cfda597
     content_sha256: 1da16621958bc02f12f3903592660de6e4fbc4dfce3cc54c2ba76e52fdd9e57a
   - path: SPEC.md
     revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
     content_sha256: c68a0e3c08b3d6c1baa7b5753cf4d3630f94fe5f7936bfede002e2e9f662c908
   - path: specs/0006-dotnet-layered-architecture.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: 5c166ff223ad2d5c57824de534d409bcac22b090
     content_sha256: 62c8990987dbaa6b49fcecb864216685405ce518dea320bf3db69a115f7a0653
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: 130919358da2c7c9918e0eff6caa82fd7bc9b44
     content_sha256: 1d01ab049a9bd54dc26a1c3e110f54c2e0cd416c97a67f43b2baf07eb99b0b83
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
   - path: docs/development/coding-conventions.md
     revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
     content_sha256: 49bcf2352eacef3586a789cab06322e7916bf1d5563e8fe54528db1fb6fd8834
   - path: docs/development/spec-driven-workflow.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
     content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
   - path: work/templates/readiness.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
   - path: work/0008/implementation/I-0008-001-engineering-policy-separation.md
-    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
-    content_sha256: 581295daad8283bf22b5b8039053895acf672e561dc7e547f8954abac88a40a8
+    revision: f5f3072fe6e82be65ae43ce6a911d0d300fcad7d
+    content_sha256: 9b17dc3774ea64c3c15b20b7f18f15a8b37b128ed791f45e2dbedbd83d0d71f4
+  - path: work/0008/implementation/I-0008-010-dotnet-policy-extraction.md
+    revision: null
+    content_sha256: 227c41aec64bd7cb2904df774ae3e9b778c9e670c7884771dc2f1dc51760355f
+  - path: work/0008/implementation/I-0008-011-artifact-policy-routing.md
+    revision: f5f3072fe6e82be65ae43ce6a911d0d300fcad7d
+    content_sha256: cbd63aa0cb4f47967c1d1a75ee6e16c997fd19d0f6ddaffac0d6f151f3cad7d4
   - path: work/0008/decisions/D-0008-002-convention-ownership.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: f84c895d0bdcdf7d7c8c515e341a159d75433609
     content_sha256: 6cd4c9a0740873953903e81617c7ad9e493f2321314dcca122465f8e32920afd
   - path: work/0008/decisions/D-0008-003-normative-content-labeling.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: d6cf2c053ee259d51f641da3c27cdbcea4a2c243
     content_sha256: 65a80afc49a365290ae9c366677e70bb7a46f7c770ab89961285b1b96ad531f5
   - path: work/0008/decisions/D-0008-008-language-native-traceability.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: 130919358da2c7c9918e0eff6caa82fd7bc9b44
     content_sha256: e9e6f9fb099ee08b82ddcf6ca491f178ef2099d6aab2109802223619212a89ae
   - path: work/0008/decisions/D-0008-011-build-ci-release-orchestration.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: 4142e52821e1f7466d8afb2dae689ed7a02e1aa6
     content_sha256: 3f0fd4bb00e527cd3ed4f3325472edd9c75a82abbc80ed5de95ff743557a9639
+  - path: work/0008/decisions/D-0008-012-migration-sequencing.md
+    revision: fcab9707ea09d78eb569e8b1194f10dc1cfda597
+    content_sha256: e0127638451b6afa9fcb493b786b5712b2e9c86a41d4a5fdb61e76eb3fbccf08
   - path: work/0008/implementation/I-0008-007-trace-checker.md
-    revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
-    content_sha256: 4f3f7c0e805d1ce515c692ccd49e752fd139d05f4c3ec18c41fa9107ea13e953
+    revision: f5f3072fe6e82be65ae43ce6a911d0d300fcad7d
+    content_sha256: 2ca12260c290f8a2ab984c078d68327b0ca57b70716a3d7742bb329cd33c21ba
   - path: work/0008/decisions/D-0008-014-policy-checker-delivery-boundary.md
     revision: 8e7bfd9b67d4fa5e14e9467296c7d1485d6233d3
     content_sha256: ec527cd25f0550c436ee5276400344dfcb66982623fd71c787ad894a60ea2b35
   - path: .github/instructions/dotnet.instructions.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 18eb5accd0bd3f627f35d719ca43c66ac520c2765d27e18aad4a9195148acf7f
   - path: .github/instructions/documentation.instructions.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: e20a65c7b1652c62408f7505119e644d7a4383aa
     content_sha256: ab813b9414defa53852f6137383b2d0f36897e74903f231b86ef185c6999a477
   - path: .github/instructions/schemas.instructions.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: e20a65c7b1652c62408f7505119e644d7a4383aa
     content_sha256: 14a8d2de3283bfde7d94053f45e06bd53943d17ece2130f3ac85842520609b85
   - path: .github/instructions/specifications.instructions.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: fd113cfea6cc774e500ddac0baf21de8d0be2684931faa96e22c7fa55bfcc03a
-  - path: .agents/skills/spec-trace-check/SKILL.md
-    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
-    content_sha256: e0b7bc16c1cad5da3332293086c83a66421b0ffd8b29adac6347fec1a7eac486
 ---
 
 # SPEC-0008: Engineering Policy Readiness
@@ -339,3 +345,150 @@ Checks performed:
 
 This scoped readiness is not publication, a full v1 conformance claim,
 approval of an implementation plan, or authorization to execute a work item.
+
+## Reassessment 2026-10-11
+
+This reassessment applies to the revised Phase 2 plan, the decomposed
+I-0008-001 aggregate, and both policy slices. It supersedes the prior readiness
+approval for execution gating because the aggregate and plan changed after
+that exact snapshot. It assesses readiness for the policy delivery scope; it
+does not approve the revised plan or authorize implementation.
+
+### Assessed scope
+
+The assessment covers:
+
+- [R-0008-004](../../../specs/0008-multi-language-conformance-and-repository-organization.md#common-and-specialized-conventions):
+  common and specialized policy ownership, applicability, precedence, and
+  instruction routing.
+- [R-0008-016](../../../specs/0008-multi-language-conformance-and-repository-organization.md#language-neutral-traceability):
+  portable traceability payloads, policy-defined native placements, and the
+  separate language-support gate.
+- [R-0008-017](../../../specs/0008-multi-language-conformance-and-repository-organization.md#language-neutral-traceability)
+  and [R-0008-018](../../../specs/0008-multi-language-conformance-and-repository-organization.md#language-neutral-traceability):
+  shared checker/extractor responsibilities and portable waiver boundaries.
+- [I-0008-010](../implementation/I-0008-010-dotnet-policy-extraction.md):
+  .NET policy extraction and .NET instruction routing.
+- [I-0008-011](../implementation/I-0008-011-artifact-policy-routing.md):
+  documentation, schema, and specification policy extraction and routing.
+- [I-0008-001](../implementation/I-0008-001-engineering-policy-separation.md):
+  the aggregate outcome over both slices.
+
+Related decisions D-0008-002, D-0008-003, D-0008-008, D-0008-011,
+D-0008-012, and D-0008-014 are complete. R-0000-033 and R-0000-034,
+SPEC-0006, ADR-0003, and ADR-0004 were reviewed for authority and consistency.
+
+### Exclusions
+
+This assessment excludes checker implementation and extractor registration
+under I-0008-007, policy for unselected languages or artifacts, requirement
+migration under I-0008-002, CI/root orchestration, conformance profiles or
+publication, source relocation, Entry Point identity migration, and product
+behavior changes. It makes no claim that C# or any language is supported for
+deterministic traceability.
+
+### Completeness and consistency
+
+- The authority model and specialization boundaries are explicit in R-0008-004
+  and D-0008-002. D-0008-003 defines normative-content labeling. The path
+  instructions can be reduced to routing and permitted tool-execution guidance
+  without changing those decisions.
+- D-0008-008 records C# placement for invariant statements/blocks, whole-member
+  enforcement, tests, and waivers. R-0008-016 through R-0008-018 define the
+  portable payloads and checker responsibilities. D-0008-014 permits policy
+  delivery before a matching extractor only when policy does not imply
+  language support.
+- I-0008-010 and I-0008-011 provide bounded manifests and validation criteria.
+  They preserve existing authoring and implementation rules rather than
+  selecting new product behavior. I-0008-001 remains an aggregate gate and
+  explicitly depends on both slices.
+- The known current-state gaps remain the intended work: .NET-specific
+  conventions and C# placements are mixed into the common guide; the .NET
+  instruction gives broader marker placements; and documentation, schema, and
+  specification instructions include substantive authoring policy. These are
+  scoped extraction/routing tasks, not unresolved product decisions.
+- The .NET JSON implementation guidance is an engineering specialization;
+  portable schema and serialization constraints remain common. Any discovered
+  conflict with SPEC-0006, R-0008-004, or a higher-authority source pauses the
+  slice rather than being resolved in the guide.
+- No additional decision, schema, published vector, or checker artifact is
+  required for these policy-only slices. The missing deterministic checker is
+  a separate I-0008-007 gate and does not block policy readiness under
+  D-0008-014.
+
+### Conformance and prerequisite artifacts
+
+The policy outcomes are governed by R-0008-004 and R-0008-016 through
+R-0008-018, with SPEC-0006 and ADR-0003/ADR-0004 retaining their authority.
+No schema or published vector is required for the policy documents. The
+deterministic extractor and checker evidence remains absent and is explicitly
+excluded; its absence cannot be represented as C# traceability support.
+
+### Blockers
+
+No unresolved requirement, decision, or conformance prerequisite was found
+that prevents readiness review for the policy-only scope. The following
+separate execution gates remain:
+
+1. Explicit human approval of this exact reassessed readiness snapshot.
+2. Explicit approval of the exact revised plan and slice snapshots. Both
+   slices currently record plan approval as absent.
+3. For completion of the aggregate, delivery review of each slice's exact
+   output snapshot and validation evidence.
+
+### Validation and approval
+
+Assessed on branch `spec/0008-repository-organization` at baseline commit
+`f5f3072fe6e82be65ae43ce6a911d0d300fcad7d`. The full-byte hashes for all
+listed inputs were verified. The revised plan's 12 recorded source hashes were
+also checked against current bytes: 12/12 match; no `work-plan-sync` is
+required. The ordered Phase 2 prerequisites D-0008-011, D-0008-012, and
+D-0008-014 are complete.
+
+Checks performed:
+
+- Reviewed governing requirement blocks, related SPEC-0000 and SPEC-0006
+  context, ADR-0003/ADR-0004, completed decisions, aggregate and slice
+  manifests, existing common policy, all four affected path instructions, and
+  the prior readiness assessment.
+- Confirmed the policy-only scope does not depend on a schema, published
+  vector, extractor, or checker artifact. No `work-plan-sync` is required.
+- No build or unit-test command was run: this is a readiness-documentation
+  change and no product implementation changed.
+- Specification trace check: `PASS`. The only changed file is readiness
+  documentation (`maintenance`); no `Spec:` trailer applies. No product or
+  test code changed, so semantic code review is not applicable. No waiver was
+  added.
+- Relative-link targets and all 25 full-byte source hashes were verified.
+  `git diff --check` passes; Git emitted its existing CRLF-to-LF normalization
+  warning.
+
+The prior approval record above remains historical evidence for its earlier
+snapshot only.
+
+Proposed trailer:
+
+```text
+Change-Kind: maintenance
+```
+
+Approved explicitly by the user on 2026-10-11 for the exact assessed readiness
+snapshot SHA-256
+`007ac35cc15a8a70ea74c97bee5b436f6a4071ebecd3a981d6d3a92a7c6f4218`.
+This approval applies only to the `engineering-policy` readiness scope for
+I-0008-010, I-0008-011, and their I-0008-001 aggregate. It does not approve the
+implementation plan, authorize execution, publish a contract, or claim
+traceability support.
+
+## Impact review 2026-10-11
+
+After readiness approval, the user-approved I-0008-010 plan approval evidence
+was recorded in that slice. The change is confined to the `Plan approval`
+section excluded from the workflow's material hash; the slice's material
+SHA-256 remains
+`c3be1c88bc4acaa9f971d0b452abd5a0f9e0ac1957d2eefecffc3c85873c20c0`. No
+scope, requirement coverage, manifest, dependency, gate criteria, or readiness
+finding changed; the plan approval gate is now satisfied. The readiness source
+snapshot was refreshed to the exact current full-byte hash. The existing
+explicit readiness approval remains applicable; plan approval alone is not
+delivery approval.
