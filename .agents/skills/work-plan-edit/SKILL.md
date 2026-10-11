@@ -16,10 +16,12 @@ Do not alter product behavior, infer approval, execute slices, commit, or push.
 ## Procedure
 
 1. Inspect branch context, worktree, source currentness, current scope,
-   dependencies, readiness, and approval evidence. For multi-commit or
-   disruptive work on the default branch, require an explicitly selected work
-   branch through [work-branch-start](../work-branch-start/SKILL.md) before
-   mutation. Ask for an unclear requested change. If sources changed, reconcile using
+   dependencies, readiness, and approval evidence. Continue on the current
+   attached branch when it is the user's intended delivery context, including
+   the default branch. Recommend
+   [work-branch-start](../work-branch-start/SKILL.md) for multi-commit or
+   disruptive work, but do not require or silently create a branch. Ask for an
+   unclear requested change. If sources changed, reconcile using
    [work-plan-sync](../work-plan-sync/SKILL.md) before trusting the affected plan.
 2. Classify the proposed edit. Planning-only work is normally maintenance.
    If it needs new behavior or architecture, stop and identify the required

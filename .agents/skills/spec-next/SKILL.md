@@ -15,10 +15,12 @@ Do not implement future slices, commit, publish, or infer approval.
 
 ## Procedure
 
-1. Inspect branch context, worktree, and source currentness. For multi-commit
-   or disruptive work on the default branch, require an explicitly selected
-   work branch through [work-branch-start](../work-branch-start/SKILL.md)
-   before mutation. If no plan exists or affected sources are stale, report
+1. Inspect branch context, worktree, and source currentness. Continue on the
+   current attached branch when it is the user's intended delivery context,
+   including the default branch. Recommend
+   [work-branch-start](../work-branch-start/SKILL.md) for multi-commit or
+   disruptive work, but do not require or silently create a branch. If no plan
+   exists or affected sources are stale, report
    the need for
    [work-plan-sync](../work-plan-sync/SKILL.md) before selection. Do not silently
    bootstrap or expand the requested scope.
@@ -53,9 +55,11 @@ Do not implement future slices, commit, publish, or infer approval.
    criteria cover the outcome and validation, not the reviewer’s approval.
    Set ready-for-review only after those gates pass; do not edit material
    content or mark the item complete while waiting for review. Complete only
-   after explicit human approval of that exact material outcome, using the
-   [approve-commit-push](../approve-commit-push/SKILL.md) workflow when delivery
-   is requested.
+   after explicit human approval of that exact material outcome, using
+   [approve](../approve/SKILL.md). Use
+   [approve-commit](../approve-commit/SKILL.md) or
+   [approve-commit-push](../approve-commit-push/SKILL.md) only when Git delivery
+   is also requested.
 
 ## Output and stop
 

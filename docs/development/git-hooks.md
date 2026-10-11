@@ -2,7 +2,7 @@
 
 [ADR-0004](../architecture/decisions/0004-classify-changes-and-trace-through-commits.md)
 requires a `Change-Kind:` trailer on every commit, including intermediate
-work. The commit skills generate it; the repository-managed
+work. The approval and commit skills generate it; the repository-managed
 [`commit-msg` hook](../../.githooks/commit-msg) checks it for direct Git commits
 as well.
 
