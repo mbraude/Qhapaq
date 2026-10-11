@@ -516,7 +516,9 @@ under `docs/architecture/decisions/`.
 - Use a protected default branch named `main`.
 - Develop through short-lived branches and pull requests.
 - Require automated checks and at least one approving review.
-- Prefer squash merges to keep the early history focused.
+- Prefer rebase merges so each independently validated commit and its
+  specification-traceability trailers remain distinct on the default branch.
+  Do not rewrite the source branch automatically when opening a pull request.
 - Use Conventional Commits only if release automation will consume them.
 - Adopt Semantic Versioning once a public API exists.
 - Treat breaking changes as explicit design decisions.
@@ -654,6 +656,7 @@ These conventions should be revisited before the first public release.
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| 0.13 | 2026-10-10 | Preferred rebase merges that preserve independently validated commits and specification-traceability trailers, without automatically rewriting pull-request branches. |
 | 0.12 | 2026-10-10 | Adopted responsibility-based software categories under `src/`, self-contained artifact workspaces, and root exceptions for portable assets, curated content, examples, automation, and build configuration. |
 | 0.11 | 2026-10-06 | Defined bounded item-mode and chunk-mode collection execution, ordered aggregation, concurrency, failure, cancellation, scope, and resource-budget semantics. |
 | 0.10 | 2026-10-04 | Defined operation/descriptor file co-location, the initial `v1alpha1` descriptor schema, and independent compatibility rules for schemas, generators, manifests, registration, and metadata surfaces. |

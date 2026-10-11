@@ -33,7 +33,8 @@ An invocation passes when it:
    validation needed before committing;
 3. stages all four changes and verifies the complete staged snapshot;
 4. creates exactly one commit whose message represents the complete change;
-5. pushes the feature branch to the same branch name on `origin`;
+5. invokes the `push` skill and pushes the feature branch to the same branch
+   name on `origin`;
 6. leaves the working tree clean; and
 7. reports the commit hash, subject, remote branch, and validation result.
 

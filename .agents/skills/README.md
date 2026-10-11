@@ -26,8 +26,10 @@ skills stored here by default.
 | [Fix bug](fix-bug/SKILL.md) | Fix a defect as a `bug` change: find the governing requirements, add a referencing regression test, apply a minimal fix, and validate. |
 | [Commit](commit/SKILL.md) | Review the selected staged snapshot, or all working-tree changes when nothing is staged, and create a representative local commit with specification trailers without pushing. |
 | [Commit without build and test](commit-without-build-and-test/SKILL.md) | Invoke the local commit workflow with build and unit-test validation explicitly skipped. |
+| [Push](push/SKILL.md) | Push existing commits from the current branch to the same-named branch on `origin` without committing, integrating, or changing lifecycle state. |
 | [Commit and push](commit-and-push/SKILL.md) | Review the selected staged snapshot, or all working-tree changes when nothing is staged, create a representative commit with specification trailers, and push the current branch to `origin`. |
 | [Commit and push without build and test](commit-and-push-without-build-and-test/SKILL.md) | Invoke the commit-and-push workflow with build and unit-test validation explicitly skipped. |
+| [Open pull request](open-pull-request/SKILL.md) | Validate and publish the current branch, then open one GitHub pull request to the remote default branch for rebase merge without rewriting the source branch. |
 | [Approve and commit](approve-commit/SKILL.md) | Resolve a unique ready-for-review target from an ID/path or prompt/editor context, require explicit snapshot approval, record it, and create a local commit without pushing. |
 | [Approve, commit, and push](approve-commit-push/SKILL.md) | Resolve a unique ready-for-review target from an ID/path or prompt/editor context, require explicit snapshot approval, default to trace-only validation for design work, and require build/tests for implementation/code before commit and push. |
 | [Start work branch](work-branch-start/SKILL.md) | Create or select a safe branch for disruptive or multi-commit work without changing work-item lifecycle state, committing, stashing, or pushing. |
