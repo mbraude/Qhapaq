@@ -126,15 +126,17 @@ SPEC-0007 gates remain in force.
 | 1 | [D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md) | Define workspace commands and cross-artifact orchestration |
 | 2 | [D-0008-012](decisions/D-0008-012-migration-sequencing.md) | Define migration order, validation, and recovery |
 | 3 | [D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md) | Resolve the policy and trace-checker delivery boundary |
-| 4 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy |
-| 5 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, .NET contracts, and examples |
-| 6 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
-| 7 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
-| 8 | [I-0008-009](implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration |
-| 9 | [I-0008-008](implementation/I-0008-008-entry-point-identity-migration.md) | Apply the matched .NET Entry Point identities |
-| 10 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
-| 11 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
-| 12 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
+| 4 | [I-0008-010](implementation/I-0008-010-dotnet-policy-extraction.md) | Extract .NET policy and route its path instructions |
+| 5 | [I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) | Separate artifact-authoring policy from path instructions |
+| 6 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Complete the aggregate common and specialized policy outcome |
+| 7 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, .NET contracts, and examples |
+| 8 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
+| 9 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
+| 10 | [I-0008-009](implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration |
+| 11 | [I-0008-008](implementation/I-0008-008-entry-point-identity-migration.md) | Apply the matched .NET Entry Point identities |
+| 12 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
+| 13 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
+| 14 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
 
 ### Exit gates
 
@@ -581,3 +583,26 @@ consumer and approved scope.
   --check` passes. The specification trace check passes as maintenance; only
   planning/work-item documentation changed, with no requirement block, code,
   or test edits. Exact review inputs and outputs are recorded in D-0008-014.
+- Date: 2026-10-10. Phase 2 implementation planning was requested after the
+  `engineering-policy` readiness record was approved and pushed. The recorded
+  baseline was `089ccbaca8e17bf89b3a53ec893d20389dba02e1` with a clean
+  worktree; all 12 recorded plan-source hashes match current bytes. The
+  readiness approval covered I-0008-001 at material SHA-256
+  `581295daad8283bf22b5b8039053895acf672e561dc7e547f8954abac88a40a8`;
+  the approved readiness-record bytes had SHA-256
+  `61388cb21205410af8f993e4c0c3f050f469e70632cd0af0d542bd5993ba9190`.
+  This plan now retains I-0008-001 as an aggregate gate over two policy
+  slices, so that readiness evidence requires impact review and reassessment
+  before the revised plan or either slice can be approved for execution.
+- I-0008-010 and I-0008-011 detail only the policy work covered by the scoped
+  readiness. The remaining Phase 2 milestones stay non-executable; each still
+  needs its own current scope readiness, exact slices, and plan approval. No
+  production files, policy guides, or implementation code were created, and
+  no plan approval or execution authorization is inferred.
+- Cross-plan validation also found that I-0008-007's dependency metadata had
+  not recorded the I-0008-001 prerequisite already required by D-0008-014 and
+  its entry gates. That dependency is restored in I-0008-007; checker scope
+  and acceptance criteria are unchanged.
+- Phase membership and dependency reconciliation are complete. Readiness
+  reassessment for the materially revised I-0008-001 snapshot and explicit
+  review/approval of this exact plan remain outstanding gates.
