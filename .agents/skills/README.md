@@ -37,6 +37,7 @@ skills stored here by default.
 | [Synchronize work plan](work-plan-sync/SKILL.md) | Bootstrap or reconcile work items from specification changes without executing them. |
 | [Edit work plan](work-plan-edit/SKILL.md) | Make bounded planning-only edits while preserving coverage, dependencies, and history. |
 | [Show work plan](work-plan-show/SKILL.md) | Display remaining work, blockers, review gates, and a dependency graph without modifying files. |
+| [Work-plan diagram](work-plan-diagram/SKILL.md) | Generate a validated, snapshot-stamped Mermaid dependency diagram from selected work plans without changing their status or dependencies. |
 | [Next specification decision](spec-next/SKILL.md) | Resolve one eligible decision and stop for review. |
 | [Specification readiness](spec-readiness/SKILL.md) | Assess a named scope and exact source snapshot for completeness and prerequisites. |
 | [Implementation plan](implementation-plan/SKILL.md) | Detail or revise concrete file, namespace, test, and dependency manifests for delivery slices. |

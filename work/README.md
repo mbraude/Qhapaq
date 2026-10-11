@@ -18,6 +18,9 @@ permission to override them.
 - Use `work-plan-sync <spec-id>` to create a missing companion plan or reconcile
   it after source changes.
 - Use `work-plan-show <spec-id>` to inspect remaining work and dependencies.
+- Use `work-plan-diagram <spec-id> [spec-id ...]` to export a snapshot-stamped
+  Mermaid dependency graph to [diagrams/](./diagrams/README.md). The graph is a
+  generated view, not another editable status source.
 - Use `spec-next <spec-id>` for one decision, then review and explicitly approve.
 - Assess a named scope with `spec-readiness` before detailed delivery.
 - Use `implementation-plan` to approve concrete slices and `implement-next` to
