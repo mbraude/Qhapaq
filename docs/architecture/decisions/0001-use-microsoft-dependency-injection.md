@@ -6,7 +6,7 @@
 ## Context
 
 The .NET reference implementation requires dependency injection to connect its
-Service Implementations, versioned Service, Business, and DAL assemblies. The
+Entry Points, versioned Service, Business, and DAL assemblies. The
 selected framework must support the .NET Generic Host used by the CLI, MCP, and
 future hosted entry points without exposing the container to behavioral code or
 weakening the adjacent-layer dependency rules in
@@ -36,13 +36,13 @@ injection framework for the initial .NET implementation.
   delegates composition only to the immediately lower layer:
 
   ```text
-  Qhapaq.Implementations.Hosting
+  Qhapaq.EntryPoints.Hosting
       -> Qhapaq.Service.V1
       -> Qhapaq.Business
       -> Qhapaq.DAL
   ```
 
-- `Qhapaq.Implementations.Hosting` invokes the public Service V1 composition
+- `Qhapaq.EntryPoints.Hosting` invokes the public Service V1 composition
   entry point. It does not reference Business or DAL.
 - Service V1 invokes only the Business composition entry point, and Business
   invokes only the DAL composition entry point. Lower-layer composition entry
