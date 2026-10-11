@@ -6,7 +6,7 @@ change_kind: requirement
 title: Exact-contract normalization and canonical definition identity
 status: open
 spec: SPEC-0007
-requirements: [R-0007-358, R-0007-359]
+requirements: [R-0007-358, R-0007-359, R-0006-039]
 depends_on: [I-0007-012, I-0007-013, I-0007-009, I-0007-004]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
@@ -31,7 +31,8 @@ Pending exact normalizer, identity, descriptor-source and test slices.
 
 ## Design and integration
 
-Normalize before hashing/persistence/review/binding. No operation activation or
+Normalize before hashing/persistence/review/binding using the Business-owned
+canonicalization and digest semantics in R-0006-039. No operation activation or
 credentials are needed to resolve exact contract metadata.
 
 ## Tests and validation

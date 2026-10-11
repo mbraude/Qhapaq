@@ -6,7 +6,7 @@ change_kind: requirement
 title: Registry core and explicit native bindings
 status: open
 spec: SPEC-0007
-requirements: [R-0007-350, R-0007-413]
+requirements: [R-0007-350, R-0007-413, R-0006-039]
 depends_on: [D-0007-005, I-0007-008, I-0007-007]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
@@ -32,6 +32,8 @@ Pending concrete registry/native binding and test slice manifests.
 
 No assembly scanning. Core registry is not a conforming trusted host;
 effective-source selection and policy are I-0007-010.
+Business applies the shared descriptor and digest semantics under R-0006-039;
+DAL registry/storage responsibilities do not decide domain validity.
 
 ## Tests and validation
 
