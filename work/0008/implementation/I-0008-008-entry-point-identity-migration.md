@@ -18,7 +18,17 @@ requirements:
   - R-0006-031
   - R-0006-032
   - R-0006-033
-depends_on: [D-0008-009, D-0008-012]
+  - R-0008-027
+  - R-0008-028
+  - R-0008-029
+depends_on:
+  - D-0008-009
+  - D-0008-012
+  - I-0008-001
+  - I-0008-002
+  - I-0008-003
+  - I-0008-007
+  - I-0008-009
 artifacts:
   - implementations/dotnet
 ---
@@ -35,7 +45,9 @@ public behavior, and adjacent-layer dependency direction.
 
 ## Entry gates
 
-D-0008-009 and D-0008-012 are complete; the affected SPEC-0006 amendment,
+D-0008-009 and D-0008-012 are complete; prerequisite policy separation,
+requirement and example audit, trace checking, conformance artifacts, and root
+migration orchestration are delivered; and the affected SPEC-0006 amendment,
 scope readiness, exact rename manifest, compatibility validation, and recovery
 plan are approved.
 

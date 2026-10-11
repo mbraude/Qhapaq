@@ -3,7 +3,7 @@ spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 5c166ff223ad2d5c57824de534d409bcac22b090
-    content_sha256: 5097e7f8921b5e865feccbb304f890840a9b929e33fc159d468c8b089212bdc1
+    content_sha256: 1da16621958bc02f12f3903592660de6e4fbc4dfce3cc54c2ba76e52fdd9e57a
   - path: SPEC.md
     revision: 733f879fb7872fd692c0661af8e6eb62708a7e38
     content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
@@ -129,10 +129,11 @@ SPEC-0007 gates remain in force.
 | 4 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, .NET contracts, and examples |
 | 5 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
 | 6 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
-| 7 | [I-0008-008](implementation/I-0008-008-entry-point-identity-migration.md) | Apply the matched .NET Entry Point identities |
-| 8 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
-| 9 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
-| 10 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
+| 7 | [I-0008-009](implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration |
+| 8 | [I-0008-008](implementation/I-0008-008-entry-point-identity-migration.md) | Apply the matched .NET Entry Point identities |
+| 9 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
+| 10 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
+| 11 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
 
 ### Exit gates
 
@@ -463,3 +464,24 @@ consumer and approved scope.
   profile or claim, implement release automation, assemble a release, or
   authorize implementation. Reconciliation is complete for D-0008-013 and
   its affected downstream work.
+- Date: 2026-10-10. D-0008-012 drafted staged migration, validation, impact
+  review, user-change preservation, and non-destructive recovery semantics in
+  R-0008-027 through R-0008-029. Prerequisite policy, audit, traceability,
+  conformance, and root-orchestration delivery precedes an Entry Point identity
+  migration at existing paths; separately approved source relocation follows
+  only after that identity snapshot passes validation and review.
+- Downstream impact: new I-0008-009 owns the previously untracked root
+  migration-validation and recovery orchestration prerequisite. I-0008-008 now
+  depends on I-0008-001, I-0008-002, I-0008-003, I-0008-007, and I-0008-009;
+  I-0008-004 now depends on I-0008-008. I-0008-004, I-0008-005, I-0008-006,
+  and I-0008-008 cover the applicable new migration requirements. Existing
+  item identities and unrelated dependencies remain unchanged.
+- Source baseline: SPEC-0008 retains committed baseline
+  `5c166ff223ad2d5c57824de534d409bcac22b090`; its exact reviewed working-copy
+  SHA-256 is recorded in the source header. Other authoritative source bytes
+  and records remain unchanged.
+- Readiness remains not assessed. This reconciliation does not approve the
+  D-0008-012 snapshot or any implementation plan, execute a rename or move,
+  alter public behavior or identity, assemble a release, publish a profile or
+  claim, or authorize future workspace creation. Reconciliation is complete
+  for D-0008-012 and its affected downstream work.
