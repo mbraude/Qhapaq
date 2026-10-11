@@ -5,8 +5,8 @@ sources:
     revision: 5c166ff223ad2d5c57824de534d409bcac22b090
     content_sha256: 1da16621958bc02f12f3903592660de6e4fbc4dfce3cc54c2ba76e52fdd9e57a
   - path: SPEC.md
-    revision: 733f879fb7872fd692c0661af8e6eb62708a7e38
-    content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
+    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    content_sha256: c68a0e3c08b3d6c1baa7b5753cf4d3630f94fe5f7936bfede002e2e9f662c908
   - path: specs/0005-build-release-and-website-delivery.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 42bc95d2ef871b191b09242561fed3fa812670f4eb410482d557c0413c193a3f
@@ -17,8 +17,8 @@ sources:
     revision: 8fbf725e0fda9697c3eff44435481d7755141272
     content_sha256: 7b3c946a9fd554e9b7129bc391dc68957633716f6a3264cdd659954704413249
   - path: docs/development/coding-conventions.md
-    revision: 130919358da2c7c9918e0eff6caa82fd7bc9b44b
-    content_sha256: 8cd098f3f9bd877ef9f1c77a77c4b1a895b28ae92ace65299ff05daa4a859b05
+    revision: 4e24e1b0e293691eb731bbc8429671aaf20cbb43
+    content_sha256: 49bcf2352eacef3586a789cab06322e7916bf1d5563e8fe54528db1fb6fd8834
   - path: docs/development/spec-driven-workflow.md
     revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
     content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
@@ -125,15 +125,16 @@ SPEC-0007 gates remain in force.
 | --- | --- | --- |
 | 1 | [D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md) | Define workspace commands and cross-artifact orchestration |
 | 2 | [D-0008-012](decisions/D-0008-012-migration-sequencing.md) | Define migration order, validation, and recovery |
-| 3 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy |
-| 4 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, .NET contracts, and examples |
-| 5 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
-| 6 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
-| 7 | [I-0008-009](implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration |
-| 8 | [I-0008-008](implementation/I-0008-008-entry-point-identity-migration.md) | Apply the matched .NET Entry Point identities |
-| 9 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
-| 10 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
-| 11 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
+| 3 | [D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md) | Resolve the policy and trace-checker delivery boundary |
+| 4 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy |
+| 5 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, .NET contracts, and examples |
+| 6 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
+| 7 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
+| 8 | [I-0008-009](implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration |
+| 9 | [I-0008-008](implementation/I-0008-008-entry-point-identity-migration.md) | Apply the matched .NET Entry Point identities |
+| 10 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
+| 11 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
+| 12 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
 
 ### Exit gates
 
@@ -485,3 +486,74 @@ consumer and approved scope.
   alter public behavior or identity, assemble a release, publish a profile or
   claim, or authorize future workspace creation. Reconciliation is complete
   for D-0008-012 and its affected downstream work.
+- Date: 2026-10-10. Reconciled the SPEC.md and common coding-conventions
+  snapshots after commit `4e24e1b0e293691eb731bbc8429671aaf20cbb43`. SPEC.md
+  now prefers rebase integration to preserve independently validated commits
+  and prohibits automatic source-branch rewriting when opening pull requests.
+  The common conventions require preserving every included commit's
+  traceability, describe rebase preservation, and retain complete `Spec:`
+  coverage if squash is explicitly selected. Entry Points terminology in the
+  conventions remains consistent with D-0008-009.
+- Impact review: these edits change repository integration and commit
+  traceability guidance, not SPEC-0008 requirements, profile semantics,
+  conformance claims, or migration requirements. I-0008-001 and I-0008-005
+  remain valid with unchanged scope, requirements, dependencies, and manifests;
+  no new item or dependency is needed. D-0008-009's approved Entry Points
+  wording is unchanged; its recorded conventions snapshot is retained as
+  historical approval evidence and is not extended to approve the separate
+  integration-policy change. No code/test references or SPEC-0008 requirement
+  fingerprints are affected. The R-0000-045 amendment is separately tracked
+  by the SPEC-0000 plan.
+- Source baseline: both changed inputs are committed at
+  `4e24e1b0e293691eb731bbc8429671aaf20cbb43`. Their exact current SHA-256
+  values are `c68a0e3c08b3d6c1baa7b5753cf4d3630f94fe5f7936bfede002e2e9f662c908`
+  for `SPEC.md` and
+  `49bcf2352eacef3586a789cab06322e7916bf1d5563e8fe54528db1fb6fd8834` for
+  `docs/development/coding-conventions.md`. The former uncommitted snapshots
+  are recoverable: the recorded SPEC.md hash matches the CRLF form of its
+  recorded baseline, and the recorded conventions hash matches the CRLF form
+  of the previously committed conventions file. The remaining delta is
+  reviewed against those exact texts.
+- Readiness remains not assessed; no implementation milestone gains execution
+  eligibility or plan approval. The separate SPEC-0007 plan also has stale
+  snapshots for SPEC-0008 and the coding conventions and needs its own bounded
+  synchronization. SPEC-0000's two shared-source hashes match the current
+  bytes. Reconciliation is complete for this SPEC-0008 source drift; no
+  duplicate R-0000-045 decision work is created here.
+- Validation: all 12 recorded source hashes match current bytes; all 22 work
+  items have unique identities and exactly one plan membership, with resolved
+  requirements and dependencies and no dependency cycle. All 28 relative
+  Markdown links resolve, and `git diff --check` passes (with Git's existing
+  CRLF-to-LF normalization warning). The specification trace check classified
+  this work-plan-only change as `maintenance` and passed; no normative
+  requirement block or code/test reference changed. Proposed trailer:
+  `Change-Kind: maintenance`; no `Spec:` trailer applies.
+- No readiness was reassessed and no approval was inferred. Human review of
+  this reconciled plan snapshot remains required.
+- Date: 2026-10-10. Added D-0008-014 after scoped engineering-policy readiness
+  identified an unresolved delivery boundary between policy authoring and the
+  matching trace-checker extractor. The item asks whether policy artifacts may
+  be delivered before the checker without claiming language support, assigns
+  policy/extractor registration ownership, and reconciles I-0008-001 and
+  I-0008-007 acceptance and dependency gates. It must preserve R-0008-016
+  through R-0008-018 and amend an authoritative source if review finds missing
+  semantics.
+- D-0008-014 depends on completed D-0008-008 and D-0008-011. I-0008-001 and
+  I-0008-007 now depend on D-0008-014 so neither can proceed with an
+  unreconciled delivery boundary. No requirement semantics were changed.
+- The engineering-policy readiness record remains blocked and is no longer
+  current for the modified plan and implementation-item snapshots; it must be
+  reassessed after D-0008-014 is resolved. No readiness or implementation-plan
+  approval is inferred. The plan source records remain current because none of
+  their authoritative inputs changed.
+- Validation: all 23 decision and implementation item IDs are unique and have
+  exactly one phase membership; every dependency resolves and the cross-plan
+  graph remains acyclic. All requirement references resolve, all relative
+  links in the edited plan, decision, and readiness record resolve, and
+  `git diff --check` passes with the existing CRLF normalization warnings.
+  Specification trace review classified the plan, work-item metadata, and
+  readiness record as documentation (`maintenance`); no requirement block or
+  code/test reference changed. Proposed trailer:
+  `Change-Kind: maintenance`; no `Spec:` trailer applies.
+- No implementation, readiness, or decision approval was granted. Exact
+  review of D-0008-014 is the next gate.
