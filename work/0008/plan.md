@@ -2,8 +2,8 @@
 spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: b874b547f9282fe4ee8366f946428894cd08b91e
-    content_sha256: f275062e9abf2c1ce67a23055549a26e98e33f1c1a7852851345fbdd1227ce5d
+    revision: 2a5f9e29ff61626bd6185e99df66722643781764
+    content_sha256: 7a1f61e8de54ba3dc9e789075c93445d4bd72703c0dd3b8bb41889120d32addb
   - path: SPEC.md
     revision: 733f879fb7872fd692c0661af8e6eb62708a7e38
     content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
@@ -310,3 +310,26 @@ consumer and approved scope.
   D-0008-006 snapshot, define evidence sufficiency or publication procedures,
   publish a schema, profile, declaration, or claim, authorize implementation,
   or affect earlier completed decisions.
+- Date: 2026-10-10. D-0008-007 drafted profile-version evidence matrices and
+  closed evidence recipes in R-0008-011 through R-0008-015. Portable evidence
+  kinds, profile-fixed conjunctions and alternatives, exact executable bounds,
+  independently rerunnable build and test identity, auditable self-review,
+  explicit unsuccessful outcomes, synthetic data, sensitive-data exclusions,
+  and declaration-lifetime evidence availability now define sufficiency.
+- Downstream impact: D-0008-013 now covers the remaining publication,
+  discoverability, withdrawal, and audit procedures within the evidence
+  availability rule. I-0008-003 now covers the five evidence requirements but
+  remains a non-executable milestone blocked by publication policy, readiness,
+  concrete profile matrices and schemas, and slice planning. No item was
+  created, cancelled, approved, or executed, and no dependency changed.
+- Source baseline: SPEC-0008 uses committed baseline
+  `2a5f9e29ff61626bd6185e99df66722643781764` and exact reviewed working-copy
+  byte hash
+  `7a1f61e8de54ba3dc9e789075c93445d4bd72703c0dd3b8bb41889120d32addb`.
+  Other source records remain unchanged because their bytes and impact are
+  unchanged. Reconciliation is complete for D-0008-007 and its affected
+  downstream work.
+- Readiness remains not assessed. This reconciliation does not approve the
+  D-0008-007 snapshot, publish a profile, declaration, evidence bundle, or
+  claim, impose independent review, authorize implementation, or affect
+  earlier completed decisions.

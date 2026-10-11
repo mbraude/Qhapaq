@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; taxonomy, policy ownership, normative-content separation, initial profile boundaries, and profile version compatibility resolved; remaining decisions unresolved
-> **Version:** 0.6
+> **Status:** Draft; taxonomy, policy ownership, normative-content separation, profile, declaration, and evidence semantics resolved; remaining decisions unresolved
+> **Version:** 0.8
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -13,13 +13,13 @@ that are not runtime implementations, such as a website, editor integrations,
 and development tools.
 
 The artifact taxonomy, source-layout, engineering-policy ownership,
-normative-content separation, initial conformance-profile boundaries, and
-profile version compatibility in sections 4 through 6 are resolved in
-normative requirement blocks and await review of the exact specification
-snapshot where not already approved. Other proposals remain subject to
-decision work and review. This draft does not publish a conformance profile,
-add a language runtime, or authorize implementation. Discussion and open
-questions do not receive requirement IDs.
+normative-content separation, initial conformance-profile boundaries, profile
+version compatibility, declarations, and evidence sufficiency in sections 4
+through 6 are resolved in normative requirement blocks and await review of the
+exact specification snapshot where not already approved. Other proposals
+remain subject to decision work and review. This draft does not publish a
+conformance profile, add a language runtime, or authorize implementation.
+Discussion and open questions do not receive requirement IDs.
 
 Existing specifications and engineering policies remain in force. In
 particular, this draft does not relocate source, rename assemblies, change
@@ -436,6 +436,80 @@ or evidence-free positive results are also invalid. Validation failure must be
 reported explicitly and must not produce a conformance claim, progress report,
 or unsupported-target result.
 
+### Conformance evidence
+
+Evidence sufficiency is part of an immutable profile version rather than a
+claimant-selected or assessor-selected threshold. This permits different
+obligations to require different proof while giving every implementation
+claiming the same profile version the same acceptance rules.
+
+**[R-0008-011]** Each published profile version must contain a complete evidence
+matrix covering every mandatory requirement ID and fingerprint pair and every
+optional capability that the profile permits a declaration to report as
+`supported`. Each matrix entry is a closed evidence recipe composed of
+non-empty `all-of` and `any-of` expressions whose leaves have stable identities
+and use exactly one of these portable evidence kinds:
+
+- `shared-vector`;
+- `implementation-test`;
+- `integration-test`;
+- `architecture-review`;
+- `security-review`; or
+- `build-provenance`.
+
+An evidence-recipe leaf defines the observable result required for that
+obligation or capability and identifies any exact vector group, test contract,
+or review scope that governs it. Each executable leaf also defines finite
+execution-time and resource bounds. An `all-of` expression requires every
+child; an `any-of` expression requires at least one child. Alternatives in an
+`any-of` expression must prove the same observable rule through
+profile-authorized evidence boundaries. A claimant must not omit a child,
+weaken a bound, add an alternative, or substitute an evidence kind that the
+exact profile version does not authorize.
+
+**[R-0008-012]** Evidence for one assessment is an immutable,
+content-addressed bundle. Every entry identifies its evidence kind, the exact
+recipe leaf it addresses, the evaluated implementation artifact-set digest,
+its immutable inputs, and its bounded result. Executable entries have the
+closed outcomes `passed`, `failed`, `skipped`, or `error`; only `passed`
+satisfies an executable leaf. Architecture-review and security-review entries
+have the outcomes `approved`, `rejected`, or `not-completed`; only `approved`
+satisfies a review leaf. A review approval identifies the reviewer, review
+time, exact scope, and reviewed artifact-set digest. The reviewer may be a
+contributor to the reviewed implementation; independent review and a
+predefined checklist are not required unless a future profile version
+expressly adds a different obligation.
+
+A `build-provenance` entry has the outcomes `verified` or `unverified`; only
+`verified` satisfies its leaf. It binds the source revision, dependency-lock
+inputs, toolchain and environment identity, build invocation, and produced
+artifact-set digest. Executable evidence also records the harness or command
+identity, toolchain and environment identity, expected result, and result
+digest needed for an independent rerun from the immutable inputs. Reproduction
+requires the same normative result, not byte-identical incidental logs.
+
+**[R-0008-013]** An assessment may mark a mandatory obligation `satisfied` or
+an optional capability `supported` only when its exact evidence recipe
+evaluates true and every selected evidence entry resolves with the recorded
+digest. Missing evidence, an unsatisfied recipe branch, a digest or
+artifact-set mismatch, a failed check, a skipped check, an execution error, a
+rejected or incomplete review, unverified provenance, or an exceeded bound
+must not satisfy a recipe. A mandatory obligation has no
+`not-applicable` evidence outcome; applicability is fixed by the profile.
+
+**[R-0008-014]** Conformance evidence uses synthetic, non-sensitive fixtures. Evidence bundles,
+reports, logs, and human-readable renderings must not contain credentials,
+resolved secrets, authentication material, sensitive environment values, or
+sensitive operation payload content. Discovery of prohibited material
+invalidates the affected evidence entry; correction requires a new immutable
+evidence bundle and assessment rather than mutation of the published bytes.
+
+**[R-0008-015]** Evidence must remain resolvable for as long as a declaration is published or
+otherwise presented as verifiable. If its evidence is no longer resolvable,
+the declaration must no longer be presented as a verifiable claim or progress
+report, and the loss of verifiability must be explicit. Publication,
+withdrawal, and discoverability procedures are defined separately.
+
 ## 7. Proposed Terminology and Architecture Clarification
 
 The word "implementation" currently describes both a language runtime and the
@@ -520,7 +594,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-004 | Decided by R-0008-006 and R-0008-007: the initial profiles are the portable runtime, local CLI, MCP host, and in-process .NET API; every execution-bearing surface profile requires the runtime baseline; dependencies are cumulative; partial and unqualified conformance claims are prohibited; remote-client profiles are deferred. |
 | Q-0008-005 | Decided by R-0008-008: immutable `MAJOR.MINOR` profile versions begin at `1.0`, bind exact authoritative obligations and prerequisite versions, permit only semantics-preserving or non-mandatory minor changes, require major versions for mandatory or prerequisite changes, and never migrate claims automatically. |
 | Q-0008-006 | Decided by R-0008-009 and R-0008-010: one versioned closed envelope distinguishes full claims, exhaustive progress, and unsupported targets; declarations bind one exact profile and artifact set; assessment manifests retain requirement-level results and evidence mappings; capabilities are exact and non-partial; failures and unsupported reasons remain explicit. |
-| Q-0008-007 | Which shared vectors, language-specific tests, reviews, and release evidence are sufficient for each conformance claim? |
+| Q-0008-007 | Decided by R-0008-011 through R-0008-015: each immutable profile version carries closed evidence recipes over portable evidence kinds; recipes may use profile-fixed conjunctions and alternatives; exact executable bounds, reproducible build and test identity, explicit unsuccessful outcomes, synthetic data, payload-safe reports, auditable review approvals, and declaration-lifetime evidence availability determine sufficiency. |
 | Q-0008-008 | What language-native traceability placements and checker support are needed without weakening existing traceability and waiver rules? |
 | Q-0008-009 | Should the .NET Service Implementations layer be renamed to Adapters, and should assembly names change independently? |
 | Q-0008-010 | Who owns the Roslyn generator and future integrations, and what public dependency boundaries apply? |
@@ -535,6 +609,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.8 | 2026-10-10 | Defined profile-version evidence matrices, closed evidence kinds and recipes, bounded and independently reproducible evidence, review and provenance attestations, unsuccessful outcomes, sensitive-data exclusions, and declaration-lifetime evidence availability. |
 | 0.7 | 2026-10-10 | Defined the versioned declaration envelope, exact implementation and profile binding, exhaustive assessment manifests, capability dispositions, full-claim and progress rules, unsupported-target reasons, and explicit invalidity behavior. |
 | 0.6 | 2026-10-10 | Defined immutable profile-version identities and exact obligation bindings, compatible minor changes, breaking major changes, retirement and supersession behavior, and explicit claim migration. |
 | 0.5 | 2026-10-10 | Defined the four initial conformance profiles, cumulative runtime prerequisites, applicability boundaries, and precise claim restrictions while deferring remote-client profiles. |
