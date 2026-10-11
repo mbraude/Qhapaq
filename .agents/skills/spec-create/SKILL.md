@@ -22,9 +22,11 @@ Do not commit, publish, implement production code, or mark work approved.
 ## Procedure
 
 1. Inspect the branch and worktree, then read related specifications and
-   architectural decisions. For multi-commit or disruptive work on the default
-   branch, use [work-branch-start](../work-branch-start/SKILL.md) before
-   mutation. Preserve unrelated changes. A clearly governed defect belongs to
+   architectural decisions. Continue on the current attached branch when it is
+   the user's intended delivery context, including the default branch.
+   Recommend [work-branch-start](../work-branch-start/SKILL.md) for multi-commit
+   or disruptive work, but do not require or silently create a branch. Preserve
+   unrelated changes. A clearly governed defect belongs to
    [fix-bug](../fix-bug/SKILL.md), not a new specification.
 2. Identify platform capability, component extension, or behavioral amendment.
    A component requiring a new platform contract records that prerequisite

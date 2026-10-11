@@ -19,9 +19,10 @@ resolve new product decisions.
 
 1. Inspect branch context and worktree, then read the governing specification,
    related requirements/ADRs, plan/items, existing readiness evidence, and
-   required artifacts. For multi-commit or disruptive work on the default
-   branch, require an explicitly selected work branch through
-   [work-branch-start](../work-branch-start/SKILL.md) before mutation. If
+   required artifacts. Continue on the current attached branch when it is the
+   user's intended delivery context, including the default branch. Recommend
+   [work-branch-start](../work-branch-start/SKILL.md) for multi-commit or
+   disruptive work, but do not require or silently create a branch. If
    relevant plan sources are stale, report the need for `work-plan-sync`
    before approval.
 2. Check known decisions and normative entry/exit gates. Open blocking decisions,

@@ -1,6 +1,6 @@
 ---
 name: work-branch-start
-description: "Create or select a safe Git work branch for a Qhapaq specification, implementation, or bug scope before disruptive or multi-commit work. Use when starting branched work, moving current scoped changes off the default branch, or checking branch suitability."
+description: "Optionally create or select a safe Git work branch for a Qhapaq specification, implementation, or bug scope. Use when the user wants branch isolation, pull-request review, or to move current scoped changes off the default branch."
 argument-hint: "<spec-id, work-item-id, bug, or branch-name>"
 ---
 
@@ -20,9 +20,10 @@ files.
 1. Inspect the current branch, configured upstream, `origin`, default branch,
    complete working-tree status, and unresolved Git operations. Stop for a
    merge, rebase, cherry-pick, or revert in progress.
-2. Resolve the target scope and whether a work branch is warranted. Recommend
-   one for multi-commit work, file moves, or disruption across shared surfaces.
-   A small isolated change may remain on an explicitly selected current branch.
+2. Resolve the target scope and confirm that the user wants a work branch.
+   Recommend one for multi-commit work, file moves, disruption across shared
+   surfaces, or pull-request review. Any change may remain on the explicitly
+   intended current branch, including the default branch.
 3. Derive a concise candidate such as `spec/0008-repository-organization` or
    `bug/<description>`. Never infer a different target when the user supplied
    an exact branch name. If the target or base branch is ambiguous, ask.

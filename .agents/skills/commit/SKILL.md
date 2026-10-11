@@ -14,13 +14,18 @@ the snapshot.
 
 - `skip-build-and-test` (optional boolean, default: `false`): When `true`, do
   not invoke the repository's `build-and-test` skill. Honor this argument only
-  when the user explicitly supplies it; do not infer it from context or prior
-  validation.
+  when the user explicitly supplies it or a calling approval workflow has
+  already performed and reported the target's required validation; do not infer
+  it from other context or prior validation.
 - `skip-semantic-review` (optional boolean, default: `false`): Passed through
   `build-and-test` to `spec-trace-check` to skip only the AI-led semantic
   review. Honor it only when the user explicitly supplies it.
 - `change-kind` (optional): The kind of change the user states, passed through
   `build-and-test` to `spec-trace-check`.
+- `message` (optional): A complete candidate commit message produced by a
+  preceding reviewed workflow such as `approve`. Verify it against the selected
+  snapshot and required trailers before use; do not regenerate it merely
+  because this skill normally generates messages.
 
 ## Preconditions
 
@@ -28,8 +33,9 @@ the snapshot.
 2. Confirm that `HEAD` is attached to a named branch.
 3. Inspect the branch, default branch, and complete working-tree status.
    Confirm that the current branch is the explicitly intended delivery branch.
-   For disruptive or multi-commit work on the default branch, stop and direct
-   the user to `work-branch-start`; this skill never creates or switches
+   Committing directly to the default branch is permitted when it is the user's
+   intended delivery context. Recommend `work-branch-start` when isolation or
+   pull-request review would be useful, but do not require, create, or switch
    branches.
 4. Stop without committing when:
    - there are no changes since `HEAD`;
@@ -126,8 +132,13 @@ Stop before committing if verification fails.
 
 ### 4. Generate the commit message
 
-Write a message that represents the entire staged snapshot, not only the most
-prominent file.
+Use a supplied `message` only when it represents the entire staged snapshot and
+matches the verified classification, trailers, attribution, and repository
+style. Otherwise stop and report the mismatch; never silently repair a message
+whose approved snapshot no longer matches.
+
+When no message was supplied, write one that represents the entire staged
+snapshot, not only the most prominent file.
 
 - Match the repository's established subject style. Use Conventional Commits
   only when repository guidance or established history requires it.

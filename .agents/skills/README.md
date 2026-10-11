@@ -30,9 +30,10 @@ skills stored here by default.
 | [Commit and push](commit-and-push/SKILL.md) | Review the selected staged snapshot, or all working-tree changes when nothing is staged, create a representative commit with specification trailers, and push the current branch to `origin`. |
 | [Commit and push without build and test](commit-and-push-without-build-and-test/SKILL.md) | Invoke the commit-and-push workflow with build and unit-test validation explicitly skipped. |
 | [Open pull request](open-pull-request/SKILL.md) | Validate and publish the current branch, then open one GitHub pull request to the remote default branch for rebase merge without rewriting the source branch. |
+| [Approve](approve/SKILL.md) | Resolve and explicitly approve one exact ready-for-review snapshot, record its evidence, and output a complete copy-ready commit message without staging, committing, or pushing. |
 | [Approve and commit](approve-commit/SKILL.md) | Resolve a unique ready-for-review target from an ID/path or prompt/editor context, require explicit snapshot approval, record it, and create a local commit without pushing. |
 | [Approve, commit, and push](approve-commit-push/SKILL.md) | Resolve a unique ready-for-review target from an ID/path or prompt/editor context, require explicit snapshot approval, default to trace-only validation for design work, and require build/tests for implementation/code before commit and push. |
-| [Start work branch](work-branch-start/SKILL.md) | Create or select a safe branch for disruptive or multi-commit work without changing work-item lifecycle state, committing, stashing, or pushing. |
+| [Start work branch](work-branch-start/SKILL.md) | Optionally create or select a safe branch when isolation or pull-request review is useful, without changing work-item lifecycle state, committing, stashing, or pushing. |
 | [Create specification](spec-create/SKILL.md) | Draft or amend platform/component requirements and create initial decision work. |
 | [Synchronize work plan](work-plan-sync/SKILL.md) | Bootstrap or reconcile work items from specification changes without executing them. |
 | [Edit work plan](work-plan-edit/SKILL.md) | Make bounded planning-only edits while preserving coverage, dependencies, and history. |

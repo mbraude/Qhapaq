@@ -157,12 +157,15 @@ commit, push, pull request, or merge does not approve or complete an item, and
 item completion does not imply merge to the default branch. Exact material
 snapshots and source revisions remain the review authority.
 
-Use a named work branch when a specification effort is expected to span
-multiple commits, move files, or disrupt shared repository surfaces. Prefer one
-branch for a coordinated specification or delivery scope, with independently
-reviewed commits for its bounded work items. Use `work-branch-start` before the
-first mutation when branch setup is needed. Mutating skills inspect branch
-context but do not silently switch branches.
+Work may proceed on the current attached branch, including the default branch,
+when that is the user's intended delivery context. A named work branch remains
+recommended when an effort is expected to span multiple commits, move files,
+disrupt shared repository surfaces, or benefit from pull-request review.
+Prefer one branch for a coordinated specification or delivery scope when that
+is useful, with independently reviewed commits for its bounded work items.
+Use `work-branch-start` only when branch setup is requested or selected.
+Mutating skills inspect and report branch context but do not require, create,
+or switch branches silently.
 
 Branch names and topology are operational and must not become work-item status
 or plan-frontmatter authority. A work item may move between branches without
@@ -299,6 +302,7 @@ the skill, not a standalone command-line parser.
 /spec-readiness SPEC-0007 scope=mapping-v1
 /implementation-plan SPEC-0007 phase=1A
 /implement-next SPEC-0007 [item=I-0007-001]
+/approve D-0007-001
 ```
 
 `spec-next` and `implement-next` stop after one bounded item. On a subsequent
@@ -307,6 +311,12 @@ dependent work. Record explicit approval if supplied; otherwise ask whether to
 review it or proceed with an independent eligible item. Never pick a blocked
 alternative silently. No decisions remaining means assess readiness, not assume
 the specification is complete.
+
+`approve` reviews and records approval of one exact ready-for-review snapshot,
+then outputs a complete commit message for use with Git tooling or the VS Code
+Source Control UI. It does not stage, commit, push, or open a pull request.
+`approve-commit` and `approve-commit-push` compose that same approval workflow
+with optional Git delivery.
 
 `work-plan-show` is read-only. Display counts by kind/status, phases, ready items,
 review gates, blockers, implementation milestones, and next eligible actions.

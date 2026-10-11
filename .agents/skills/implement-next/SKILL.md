@@ -16,10 +16,11 @@ future slices.
 
 ## Procedure
 
-1. Inspect branch context, worktree changes, and source snapshots. For
-   multi-commit or disruptive work on the default branch, require an explicitly
-   selected work branch through
-   [work-branch-start](../work-branch-start/SKILL.md) before mutation. Resolve
+1. Inspect branch context, worktree changes, and source snapshots. Continue on
+   the current attached branch when it is the user's intended delivery context,
+   including the default branch. Recommend
+   [work-branch-start](../work-branch-start/SKILL.md) for multi-commit or
+   disruptive work, but do not require or silently create a branch. Resolve
    prerequisite items across plans. Report absent/stale plans, missing
    artifacts, cycles, or cancelled dependencies before execution.
 2. Surface any preceding delivery review gate. Record completion only if the

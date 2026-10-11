@@ -30,10 +30,11 @@ an `amendment` and this skill stops.
 ## Workflow
 
 Before reproducing or editing, inspect branch context and the complete
-worktree. For a multi-commit or disruptive fix on the default branch, require
-an explicitly selected work branch through
-[work-branch-start](../work-branch-start/SKILL.md). Never carry unrelated
-changes onto the fix branch.
+worktree. Continue on the current attached branch when it is the user's intended
+delivery context, including the default branch. Recommend
+[work-branch-start](../work-branch-start/SKILL.md) for a multi-commit or
+disruptive fix, but do not require or silently create a branch. Never carry
+unrelated changes onto a newly selected fix branch.
 
 ### 1. Reproduce
 
