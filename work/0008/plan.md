@@ -3,13 +3,13 @@ spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 5c166ff223ad2d5c57824de534d409bcac22b090
-    content_sha256: 56ae226939c2378aa1949437f9864fbd3978b35ae33f5a9480e2b3f5ccbb7bb6
+    content_sha256: 5097e7f8921b5e865feccbb304f890840a9b929e33fc159d468c8b089212bdc1
   - path: SPEC.md
     revision: 733f879fb7872fd692c0661af8e6eb62708a7e38
     content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
   - path: specs/0005-build-release-and-website-delivery.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: da4d393724f268b03a21fe2e36beb1d4cd01c9c73ae0c9d370e6f8a6d33aefa2
+    content_sha256: 42bc95d2ef871b191b09242561fed3fa812670f4eb410482d557c0413c193a3f
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 62c8990987dbaa6b49fcecb864216685405ce518dea320bf3db69a115f7a0653
@@ -439,3 +439,27 @@ consumer and approved scope.
   select a toolchain, implement workflows, assemble a release, or authorize
   implementation. Reconciliation is complete for D-0008-011 and its affected
   downstream work.
+- Date: 2026-10-10. D-0008-013 drafted exact-snapshot approval and protected
+  release promotion for profile versions and conformance claims, immutable
+  publication records, closed append-only lifecycle states, correction and
+  withdrawal behavior, declaration-lifetime evidence availability, and
+  indefinite audit records in R-0008-023 through R-0008-026 and R-0005-035.
+- Downstream impact: D-0008-012 now covers the publication requirements when
+  sequencing profile artifacts, release changes, validation, and recovery.
+  I-0008-003 now covers publication records, status history, evidence
+  availability, withdrawal, audit, and protected-release integration. No item
+  was created, cancelled, approved, or executed, and no dependency changed.
+- Source baseline: SPEC-0008 retains committed baseline
+  `5c166ff223ad2d5c57824de534d409bcac22b090` and records exact reviewed
+  working-copy SHA-256
+  `5097e7f8921b5e865feccbb304f890840a9b929e33fc159d468c8b089212bdc1`.
+  SPEC-0005 retains committed baseline
+  `66c43b3d030e84a4ac055b6853946c401d7a9b8c` and records exact reviewed
+  working-copy SHA-256
+  `42bc95d2ef871b191b09242561fed3fa812670f4eb410482d557c0413c193a3f`.
+  Other authoritative source bytes and records remain unchanged.
+- Readiness remains not assessed. This reconciliation does not approve the
+  D-0008-013 snapshot, define publication schemas or storage, publish a
+  profile or claim, implement release automation, assemble a release, or
+  authorize implementation. Reconciliation is complete for D-0008-013 and
+  its affected downstream work.

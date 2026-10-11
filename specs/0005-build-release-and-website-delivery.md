@@ -166,6 +166,20 @@ exact bytes. Release assembly must not rebuild an artifact, rewrite evidence,
 merge private workspace outputs, or introduce a build-tooling dependency into
 a runtime artifact.
 
+**[R-0005-035]** A conformance profile version or implementation conformance
+claim may be publicly promoted only by a protected stable or prerelease event
+through the exact root release manifest required by R-0005-034. The manifest
+binds the immutable profile or claim publication record, its recorded approval,
+and every declaration, assessment, evidence, artifact, provenance, and status
+input required by SPEC-0008. Publication must consume those exact verified
+bytes and must fail rather than rebuild, rewrite, substitute, or omit an input.
+
+An edge build may publish an immutable progress declaration and its resolvable
+evidence, but it must not publish or imply a conformance claim. An authorized
+retry, correction, supersession, deprecation, retirement, or withdrawal uses
+the immutable records and append-only status history required by SPEC-0008; it
+does not overwrite a published profile, claim, release manifest, or artifact.
+
 ## 7. Published Outputs
 
 ### 7.1 Edge
