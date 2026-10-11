@@ -3,7 +3,7 @@ spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 2a5f9e29ff61626bd6185e99df66722643781764
-    content_sha256: 7a1f61e8de54ba3dc9e789075c93445d4bd72703c0dd3b8bb41889120d32addb
+    content_sha256: 4dab808ab9bd25ae591120a583e1b4d607fb8f28b66fdf2aa39ad711f7602d46
   - path: SPEC.md
     revision: 733f879fb7872fd692c0661af8e6eb62708a7e38
     content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
@@ -18,13 +18,13 @@ sources:
     content_sha256: 7b3c946a9fd554e9b7129bc391dc68957633716f6a3264cdd659954704413249
   - path: docs/development/coding-conventions.md
     revision: 9df3f2d89fd255132a3c6122bd41890212409060
-    content_sha256: 782e590a86419f9001469bc9faa0c2491e93a11728c0da1df0eaf4bbf70f7305
+    content_sha256: 604a6173250960aabdf3fd7c16c60c111f9e36ceb946baff1c28033c2654e454
   - path: docs/development/spec-driven-workflow.md
     revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
     content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
     revision: d6cf2c053ee259d51f641da3c27cdbcea4a2c243
-    content_sha256: d384fa75572c08d86a46911a54c4792905511c01c3cb047d01774a0132cf6704
+    content_sha256: 1d01ab049a9bd54dc26a1c3e110f54c2e0cd416c97a67f43b2baf07eb99b0b83
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
@@ -124,10 +124,11 @@ SPEC-0007 gates remain in force.
 | 2 | [D-0008-012](decisions/D-0008-012-migration-sequencing.md) | Define migration order, validation, and recovery |
 | 3 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy |
 | 4 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, .NET contracts, and examples |
-| 5 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
-| 6 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
-| 7 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
-| 8 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
+| 5 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
+| 6 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
+| 7 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
+| 8 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
+| 9 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
 
 ### Exit gates
 
@@ -333,3 +334,28 @@ consumer and approved scope.
   D-0008-007 snapshot, publish a profile, declaration, evidence bundle, or
   claim, impose independent review, authorize implementation, or affect
   earlier completed decisions.
+- Date: 2026-10-10. D-0008-008 drafted language-neutral traceability placement
+  and checking semantics in R-0008-016 through R-0008-018. Exact portable
+  marker and waiver payloads remain common; each maintained implementation
+  language registers native placements and a language-aware extractor; one
+  shared rules engine owns grammar, resolution, fingerprints, placement,
+  reverse-impact review, waiver scope, and explicit diagnostics.
+- Downstream impact: I-0008-001 now covers the placement-policy and extractor
+  registration requirements. D-0008-011 now depends on D-0008-008 and covers
+  R-0008-017 where root and CI orchestration invoke the checker. New
+  I-0008-007 owns deterministic checker delivery for R-0008-016 through
+  R-0008-018 but remains a non-executable milestone blocked by orchestration,
+  readiness, an exact manifest, and concrete slice planning. D-0008-012 retains
+  its existing dependency on D-0008-008. No item was cancelled, approved, or
+  executed.
+- Source baseline: SPEC-0008, ADR-0003, and the coding conventions retain their
+  recorded committed baselines and now record exact reviewed working-copy byte
+  hashes `4dab808ab9bd25ae591120a583e1b4d607fb8f28b66fdf2aa39ad711f7602d46`,
+  `1d01ab049a9bd54dc26a1c3e110f54c2e0cd416c97a67f43b2baf07eb99b0b83`,
+  and `604a6173250960aabdf3fd7c16c60c111f9e36ceb946baff1c28033c2654e454`
+  respectively. Other source records remain unchanged because their bytes and
+  impact are unchanged. Reconciliation is complete for D-0008-008 and its
+  affected downstream work.
+- Readiness remains not assessed. This reconciliation does not approve the
+  D-0008-008 snapshot, implement or integrate the checker, authorize another
+  runtime, migrate policy, or affect earlier completed decisions.

@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; taxonomy, policy ownership, normative-content separation, profile, declaration, and evidence semantics resolved; remaining decisions unresolved
-> **Version:** 0.8
+> **Status:** Draft; taxonomy, policy ownership, normative-content separation, profile, declaration, evidence, and language-native traceability semantics resolved; remaining decisions unresolved
+> **Version:** 0.9
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -226,14 +226,44 @@ language syntax. Labels do not replace stable requirement identifiers.
 
 ### Language-neutral traceability
 
-The proposed portable marker is the payload
-`spec: <requirement-id>@<fingerprint>`. Language conventions would define its
-placement in native comments or documentation constructs, including verifying
-tests. C# XML documentation would not be a universal requirement.
+**[R-0008-016]** Traceability markers use the language-neutral payload
+`spec: <requirement-id>@<fingerprint>[, <requirement-id>@<fingerprint>...]`.
+Each maintained implementation language defines, in its applicable engineering
+policy, the native comment or documentation constructs that may carry the
+payload and the exact attachment rules for invariants, whole-member
+enforcement, and verifying tests. A language is not supported for traceability
+until those placements and a matching checker extractor are registered.
+Language-specific documentation syntax, including C# XML documentation, is
+not required in another language.
 
-Future tooling could separate marker parsing from comment syntax. Existing
-identifier, fingerprint, invariant-placement, reverse-impact, and explicit
-waiver rules would remain the baseline pending any reviewed amendment.
+Marker-like text outside a registered comment or documentation construct,
+including text in string literals, generated output, examples, or unsupported
+files, is not a traceability marker and must not satisfy a traceability
+obligation.
+
+**[R-0008-017]** The deterministic trace checker separates language syntax
+from portable validation. A registered language-aware extractor parses only
+the native constructs permitted by that language's policy and emits the
+payload, source span, attachment target, and whether the target is production
+code or a test. One shared rules engine validates payload grammar, requirement
+resolution, current fingerprints, invariant and test placement, changed-
+requirement reverse impact, and waiver scope across all registered languages.
+Language extractors must not independently redefine those portable rules.
+
+For each diagnostic, the checker reports the file, source span, stable rule,
+and offending marker or requirement identity. Malformed markers, unsupported
+placements, stale fingerprints, unresolved or retired requirements, missing
+required references, and extractor failures are errors rather than ignored
+text or successful results.
+
+**[R-0008-018]** The portable waiver payload remains
+`spec-waive: <rule>[, <rule>...] — <justification>` and is recognized only in
+the same registered native constructs and attachment scopes in which a
+reference could appear. A waiver remains explicit, reviewable, and limited to
+the named judgment finding; it cannot waive marker grammar, requirement
+resolution, fingerprints, identifier integrity, reverse-impact inspection, or
+required commit trailers. Adding, broadening, or moving a waiver continues to
+require explicit human direction.
 
 ### Illustrative language-specific example
 
@@ -595,7 +625,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-005 | Decided by R-0008-008: immutable `MAJOR.MINOR` profile versions begin at `1.0`, bind exact authoritative obligations and prerequisite versions, permit only semantics-preserving or non-mandatory minor changes, require major versions for mandatory or prerequisite changes, and never migrate claims automatically. |
 | Q-0008-006 | Decided by R-0008-009 and R-0008-010: one versioned closed envelope distinguishes full claims, exhaustive progress, and unsupported targets; declarations bind one exact profile and artifact set; assessment manifests retain requirement-level results and evidence mappings; capabilities are exact and non-partial; failures and unsupported reasons remain explicit. |
 | Q-0008-007 | Decided by R-0008-011 through R-0008-015: each immutable profile version carries closed evidence recipes over portable evidence kinds; recipes may use profile-fixed conjunctions and alternatives; exact executable bounds, reproducible build and test identity, explicit unsuccessful outcomes, synthetic data, payload-safe reports, auditable review approvals, and declaration-lifetime evidence availability determine sufficiency. |
-| Q-0008-008 | What language-native traceability placements and checker support are needed without weakening existing traceability and waiver rules? |
+| Q-0008-008 | Decided by R-0008-016 through R-0008-018: exact portable marker and waiver payloads use policy-defined native placements; registered language-aware extractors feed one shared rules engine; diagnostics and unsupported placements fail explicitly; fingerprint, reverse-impact, and waiver limits remain intact. |
 | Q-0008-009 | Should the .NET Service Implementations layer be renamed to Adapters, and should assembly names change independently? |
 | Q-0008-010 | Who owns the Roslyn generator and future integrations, and what public dependency boundaries apply? |
 | Q-0008-011 | How will artifact-local commands, CI impact selection, conformance reports, and consistent releases be orchestrated? |
@@ -609,6 +639,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.9 | 2026-10-10 | Defined portable traceability and waiver payloads, language-native placement registration, language-aware extraction into one shared rules engine, explicit diagnostics, and preserved reverse-impact and waiver limits. |
 | 0.8 | 2026-10-10 | Defined profile-version evidence matrices, closed evidence kinds and recipes, bounded and independently reproducible evidence, review and provenance attestations, unsuccessful outcomes, sensitive-data exclusions, and declaration-lifetime evidence availability. |
 | 0.7 | 2026-10-10 | Defined the versioned declaration envelope, exact implementation and profile binding, exhaustive assessment manifests, capability dispositions, full-claim and progress rules, unsupported-target reasons, and explicit invalidity behavior. |
 | 0.6 | 2026-10-10 | Defined immutable profile-version identities and exact obligation bindings, compatible minor changes, breaking major changes, retirement and supersession behavior, and explicit claim migration. |
