@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; taxonomy, artifact ownership, policy ownership, normative-content separation, profile, declaration, evidence, and language-native traceability semantics resolved; remaining decisions unresolved
-> **Version:** 0.11
+> **Status:** Draft; taxonomy, artifact ownership, policy ownership, normative-content separation, profile, declaration, evidence, language-native traceability, and orchestration semantics resolved; remaining decisions unresolved
+> **Version:** 0.12
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -598,20 +598,58 @@ separate reviewed amendment intentionally changes them. Existing source paths,
 instruction patterns, architecture tests, build inputs, and work-plan snapshots
 would need coordinated impact review before a move.
 
-## 9. Proposed Validation, CI, and Release Direction
+## 9. Validation, CI, and Release Orchestration
 
-Each software workspace could expose documented restore, format, lint, build,
-test, and packaging entry points appropriate to its ecosystem. Root automation
-would orchestrate these rather than assume every source artifact is .NET.
+**[R-0008-020]** Each maintained software workspace must document the
+workspace-native commands that provide every applicable orchestration
+capability from this closed set: `restore`, `format-check`, `build`, `test`,
+`conformance`, `pack`, and `verify`. A workspace explicitly declares an
+inapplicable capability; omission must not be interpreted as success or
+inapplicability.
 
-Candidate CI validation groups are portable-contract checks, per-language
-builds and tests, shared conformance execution, integration validation, and
-website build and preview checks.
+Maintained root automation adapts those capabilities into stable repository
+entry points and dispatches to workspaces without reimplementing their
+toolchain-specific behavior. Local and CI execution use the same workspace
+commands, pinned toolchains, dependency locks, and validation policy. A
+workspace command may produce public artifacts only from that workspace and
+must not consume another workspace's private source or build output.
 
-Path filtering could avoid unrelated builds while changes to shared contracts
-and vectors trigger every affected implementation. Release assembly would
-preserve SPEC-0005's consistent source and provenance obligations. Exact
-filtering, evidence retention, and release gates remain open.
+**[R-0008-021]** Root orchestration owns a declarative impact graph that maps
+repository paths and portable root assets to affected workspace capabilities
+and repository validation groups. Selection expands transitively through
+public dependencies. A change to a specification, schema, shared conformance
+vector, profile, declaration or evidence contract, traceability rule, root
+automation contract, or other shared input must select every implementation,
+integration, tool, website surface, and portable check affected by that input.
+
+Path filtering is an optimization only. A missing, stale, conflicting, or
+ambiguous mapping selects the full required validation set and reports the
+mapping problem. Workspace-owned metadata may add affected work but must not
+suppress root-selected work. Event-required checks, the deterministic trace
+checker, applicable conformance recipes, and SPEC-0005 security, provenance,
+package, website, and release gates must not be bypassed by impact selection.
+Any selected required capability or validation group that fails, is skipped,
+cannot run, or lacks a declared mapping fails the gate.
+
+**[R-0008-022]** A workspace emits each conformance report and evidence bundle
+as an immutable, content-addressed artifact that identifies the workspace,
+command and toolchain identities, source revision, evaluated artifact-set
+digest, exact inputs, bounded outcome, and artifact digest. Root orchestration
+validates those artifacts and produces an aggregate manifest that references
+their exact identities and digests; it must not rewrite their evidentiary
+content. Missing, invalid, unsuccessful, unresolvable, or digest-mismatched
+required evidence fails the applicable gate.
+
+A coordinated build or release is defined by a root release manifest that
+binds one source revision to the exact identities, versions, and digests of
+every included public workspace artifact, portable asset, required report,
+evidence bundle, checksum, software bill of materials, and provenance record.
+Artifact versions may remain independently assigned; membership in the
+manifest, not a shared version number or private-output merge, defines the
+consistent release set. Verification, promotion, publication, and authorized
+retry use the same manifest and exact bytes. Retention, discoverability,
+approval, and withdrawal of published conformance claims remain governed by
+the separate publication decision.
 
 ## 10. Candidate Rollout and Alternatives
 
@@ -653,7 +691,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-008 | Decided by R-0008-016 through R-0008-018: exact portable marker and waiver payloads use policy-defined native placements; registered language-aware extractors feed one shared rules engine; diagnostics and unsupported placements fail explicitly; fingerprint, reverse-impact, and waiver limits remain intact. |
 | Q-0008-009 | Decided by SPEC-0006 R-0006-001, R-0006-002, R-0006-021, R-0006-023, and related architecture requirements: the layer is Entry Points; directories, projects, assemblies, root namespaces, and derived source namespaces use `Qhapaq.EntryPoints.*`; executable and package identities remain separate. |
 | Q-0008-010 | Decided by R-0008-019: the .NET workspace owns the independently versioned Roslyn build-tooling package; product integrations and maintained contributor tools own separate responsibility-based workspaces; only supported public boundaries may cross workspaces; and build tooling does not enter runtime dependency closures. |
-| Q-0008-011 | How will artifact-local commands, CI impact selection, conformance reports, and consistent releases be orchestrated? |
+| Q-0008-011 | Decided by R-0008-020 through R-0008-022 and SPEC-0005 R-0005-034: workspace-native capability commands sit behind maintained root adapters; a root-owned impact graph expands transitively and fails closed; immutable content-addressed evidence is aggregated by digest without rewriting; and one root manifest binds the exact independently versioned public artifacts and evidence promoted as a release. |
 | Q-0008-012 | What migration order, prerequisite amendments, ADRs, validation gates, and recovery steps are required? |
 | Q-0008-013 | What review and approval process permits publication of profiles and implementation conformance claims? |
 
@@ -664,6 +702,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.12 | 2026-10-10 | Defined workspace capability contracts and root adapters, fail-closed transitive CI impact selection, immutable digest-bound evidence transport, and coordinated release assembly through one exact root manifest. |
 | 0.11 | 2026-10-10 | Assigned the Roslyn generator to the .NET implementation workspace as independently versioned build tooling, kept integrations and maintained contributor tools in separate responsibility-based workspaces, and prohibited private-output and accidental runtime dependencies. |
 | 0.10 | 2026-10-10 | Renamed the .NET top layer to Entry Points, adopted matched `Qhapaq.EntryPoints.*` source and compiled identities, and kept executable and package identities separate. |
 | 0.9 | 2026-10-10 | Defined portable traceability and waiver payloads, language-native placement registration, language-aware extraction into one shared rules engine, explicit diagnostics, and preserved reverse-impact and waiver limits. |

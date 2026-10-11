@@ -156,6 +156,16 @@ destination. Publication steps must not rebuild packages independently.
 target platform, and destination. Checksums, SBOMs, signatures or attestations,
 and provenance refer to the exact published bytes.
 
+**[R-0005-034]** When a delivery includes independently built workspaces, one
+root release manifest binds the source revision and the exact identity,
+version, digest, provenance, and required validation or conformance evidence
+for every included public artifact and portable asset. Workspace artifacts may
+use independent versions, but verification, promotion, publication, and an
+authorized retry must consume the manifest's same verified artifact set and
+exact bytes. Release assembly must not rebuild an artifact, rewrite evidence,
+merge private workspace outputs, or introduce a build-tooling dependency into
+a runtime artifact.
+
 ## 7. Published Outputs
 
 ### 7.1 Edge
