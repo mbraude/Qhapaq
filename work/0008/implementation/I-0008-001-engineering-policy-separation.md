@@ -22,14 +22,16 @@ artifacts:
 ## Objective and coverage
 
 Deliver the common, language-specific, and artifact-specific policy structure
-defined by R-0008-004 and applicable instruction links, including registered
+defined by R-0008-004 and applicable instruction links, including explicit
 language-native reference, waiver, invariant, whole-member, and test
-placements. This milestone does not implement the checker.
+placements. Policy may be delivered before a matching checker, but does not
+register an extractor or claim language traceability support. This milestone
+does not implement or register the checker.
 
 ## Entry gates
 
-D-0008-002, D-0008-003, and D-0008-008 are complete; affected specification
-and ADR amendments are approved; scope readiness is approved.
+D-0008-002, D-0008-003, D-0008-008, and D-0008-014 are complete; affected
+specification and ADR amendments are approved; scope readiness is approved.
 
 ## File and ownership manifest
 
@@ -45,8 +47,10 @@ directory is delivered.
 Apply common and specialized policies cumulatively. A specialized guide may
 explicitly replace a common Default or Recommendation within its declared
 scope, but it cannot weaken a common Required rule or override a specification
-or ADR. Each maintained implementation language must define unambiguous native
-placements that match its registered checker extractor. Link portable
+or ADR. Policy owns each maintained implementation language's unambiguous
+native placements; I-0008-007 owns extractor registration and evidence that
+the registered extractor matches the approved policy. Policy delivery alone
+does not make a language supported for traceability. Link portable
 requirements instead of copying them, and keep path-specific instructions as
 routing and tool-execution guidance rather than a competing policy source.
 
@@ -58,6 +62,8 @@ rules, traceability checks, and any documented policy validation command.
 ## Exit criteria
 
 - [ ] Approved policy sources and instruction links exist.
+- [ ] Native placements and attachment rules are explicit, without claiming
+  traceability support before a matching extractor is registered.
 - [ ] No portable behavior is duplicated as language policy.
 - [ ] Required validation passes.
 - [ ] Explicit delivery review covers the exact implemented snapshot.

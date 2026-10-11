@@ -21,27 +21,34 @@ artifacts: []
 
 Deliver registered language-aware extractors and one shared rules engine for
 portable reference and waiver payloads, native placement, fingerprints,
-reverse-impact inspection, and explicit diagnostics. This milestone does not
-add another implementation language or define CI orchestration.
+reverse-impact inspection, and explicit diagnostics. This milestone owns
+extractor registration and evidence that registered extractors match the
+approved language-placement policies delivered by I-0008-001. A language is
+not supported for traceability until both its policy placements and matching
+extractor are registered. This milestone does not add another implementation
+language or define CI orchestration.
 
 ## Entry gates
 
-D-0008-008 and D-0008-011 are complete; the affected specification, ADR, and
-language-placement policies are approved; scope readiness and concrete slices
-are approved.
+D-0008-008, D-0008-011, D-0008-014, and I-0008-001 are complete; the affected
+specification, ADR, and language-placement policies are approved; scope
+readiness and concrete slices are approved.
 
 ## File and ownership manifest
 
 Pending an approved tool ownership decision, implementation language, and
 bounded inventory of the checker, extractor registrations, fixtures, and
-integration surfaces. Concrete slices must name every production and test file.
+integration surfaces. This milestone owns the registration and policy-match
+evidence outcomes; concrete slices must name every production and test file.
 
 ## Design and integration
 
 Keep native syntax parsing in registered language extractors. Feed normalized
 payload, span, attachment, and production-or-test information into one shared
-engine that owns all portable validation and waiver rules. Unsupported
-placements and extraction failures must remain explicit failures.
+engine that owns all portable validation and waiver rules. Verify that each
+registered extractor accepts exactly the native constructs and attachment
+rules in its approved policy. Unsupported placements and extraction failures
+must remain explicit failures.
 
 ## Tests and validation
 
@@ -53,6 +60,8 @@ failure, and stable diagnostics for every registered language.
 ## Exit criteria
 
 - [ ] Registered language extractors and the shared rules engine exist.
+- [ ] Each registered extractor is evidenced to match its approved placement
+  policy; support is claimed only when both are registered.
 - [ ] Portable validation and waiver behavior are not duplicated by extractors.
 - [ ] Required checks fail explicitly for every specified invalid condition.
 - [ ] Required validation passes.
