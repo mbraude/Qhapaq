@@ -1,7 +1,7 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
-> **Status:** Draft; taxonomy, artifact ownership, policy ownership, normative-content separation, profile, declaration, evidence, claim-publication, language-native traceability, and orchestration semantics resolved; migration sequencing remains unresolved
-> **Version:** 0.13
+> **Status:** Draft; decision questions resolved in normative requirements; exact snapshot review and readiness remain required
+> **Version:** 0.14
 > **Scope:** Future multi-language implementations and repository artifact organization
 > **Last updated:** 2026-10-10
 
@@ -12,14 +12,11 @@ implementations in multiple languages while accommodating software artifacts
 that are not runtime implementations, such as a website, editor integrations,
 and development tools.
 
-The artifact taxonomy, source-layout, engineering-policy ownership,
-normative-content separation, initial conformance-profile boundaries, profile
-version compatibility, declarations, and evidence sufficiency in sections 4
-through 6 are resolved in normative requirement blocks and await review of the
-exact specification snapshot where not already approved. Other proposals
-remain subject to decision work and review. This draft does not publish a
-conformance profile, add a language runtime, or authorize implementation.
-Discussion and open questions do not receive requirement IDs.
+The decision questions are resolved in normative requirement blocks and await
+review of the exact specification snapshot where not already approved. This
+draft does not publish a conformance profile, add a language runtime, authorize
+implementation, or approve a migration slice. Discussion and alternatives do
+not receive requirement IDs.
 
 Existing specifications and engineering policies remain in force. In
 particular, this draft does not relocate source, rename assemblies, change
@@ -713,22 +710,74 @@ retry use the same manifest and exact bytes. Retention, discoverability,
 approval, and withdrawal of published conformance claims remain governed by
 the separate publication decision.
 
-## 10. Candidate Rollout and Alternatives
+## 10. Migration Sequencing, Validation, and Recovery
 
-This is a discussion sequence, not an approved delivery plan:
+**[R-0008-027]** Repository migration must proceed through separately approved
+and reviewable stages in this order:
 
-1. Resolve terminology, profile boundaries, and source taxonomy.
-2. Record accepted requirements and any necessary ADRs.
-3. Separate common, language, and artifact conventions.
-4. Review mixed portable and .NET requirement blocks and illustrative examples.
-5. Define profile declarations and sufficient validation evidence.
-6. Plan coordinated source relocation and any independently approved renames.
-7. Update affected automation, instructions, documentation, and work plans.
-8. Add future artifact workspaces only when their consumers and scope exist.
+1. Approve every prerequisite specification amendment and ADR, then record the
+   exact source baseline, affected public identities, path consumers, and
+   preserved user-owned changes.
+2. Deliver approved common-policy separation, requirement and example audit,
+   deterministic trace checking, conformance artifacts, and root orchestration
+   prerequisites through their own concrete slices.
+3. Rename the .NET Entry Point directories, projects, assemblies, root
+   namespaces, derived source namespaces, tests, and direct consumers at their
+   existing workspace paths. This stage uses an exact rename manifest and must
+   preserve executable filenames, distribution package IDs, portable behavior,
+   and dependency direction unless a separate approved amendment explicitly
+   changes one of those contracts.
+4. After the identity stage passes validation and is approved, relocate the
+   consistently named .NET workspace to `src/implementations/dotnet/` through
+   an exact move manifest. Consumer changes required for build, test,
+   discovery, instruction applicability, traceability, or CI correctness land
+   atomically with the move. Relocation must not implicitly rename an identity
+   or change behavior.
+5. Update remaining non-atomic automation, documentation, release, and
+   work-plan consumers, then add another workspace only for an approved real
+   consumer and scope.
 
-Migration planning would include validation before and after relocation,
-preservation of user changes, and a scoped recovery path if build or discovery
-breaks. It would not rely on rewriting history or destructive worktree resets.
+Each stage requires scope readiness, concrete file and consumer manifests,
+recovery instructions, and explicit approval before execution. A public
+identity, compatibility, behavior, release, profile-publication, or
+conformance-claim change requires its own governing requirement and approval;
+it must not be hidden in a relocation or consumer-update stage. Completion of
+this decision does not approve or execute any migration stage.
+
+**[R-0008-028]** Every executable migration slice must record an exact input
+snapshot and establish a passing before-state with the same applicable
+workspace capabilities and repository validation groups that will be used for
+the after-state. Any accepted baseline exception must be identified before the
+slice begins and must not conceal a new regression.
+
+After the slice, validation must cover every affected restore, format check,
+build, test, conformance, package, verification, architecture, executable and
+package identity, discovery, instruction, link, automation, CI impact,
+documentation, release, and work-plan surface. The result must compare
+observable identities and behavior with the before-state, record the exact
+output snapshot and evidence, and fail closed when a required check is failed,
+skipped, unavailable, ambiguously mapped, or inconsistent. Required
+validation and impact selection remain governed by R-0008-020 through
+R-0008-022 and applicable SPEC-0005 and SPEC-0006 requirements.
+
+**[R-0008-029]** Before a migration slice mutates the repository, it must use a
+dedicated work branch and record a recovery checkpoint containing the exact
+starting commit, worktree state, move or rename manifest, and validation
+baseline. User-owned tracked and untracked changes must be preserved and
+excluded from slice-owned recovery; if they cannot be isolated safely, the
+slice stops before mutation.
+
+If validation fails, the slice stops dependent work, preserves diagnostics,
+and reverses only its own changes by applying the documented inverse moves or
+by reverting dedicated migration commits. Recovery must restore the recorded
+baseline and rerun its applicable checks. It must not rewrite history, use a
+destructive worktree reset, overwrite user changes, rebuild or replace an
+immutable published artifact, or silently continue from a partial migration.
+Release and publication recovery remains governed by SPEC-0005, including
+immutable-destination reporting and authorized retry with the same verified
+artifact set.
+
+### Alternatives
 
 Alternatives retained for review include keeping responsibility-based roots
 without `src/`, grouping all software under a generic products directory,
@@ -754,7 +803,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-009 | Decided by SPEC-0006 R-0006-001, R-0006-002, R-0006-021, R-0006-023, and related architecture requirements: the layer is Entry Points; directories, projects, assemblies, root namespaces, and derived source namespaces use `Qhapaq.EntryPoints.*`; executable and package identities remain separate. |
 | Q-0008-010 | Decided by R-0008-019: the .NET workspace owns the independently versioned Roslyn build-tooling package; product integrations and maintained contributor tools own separate responsibility-based workspaces; only supported public boundaries may cross workspaces; and build tooling does not enter runtime dependency closures. |
 | Q-0008-011 | Decided by R-0008-020 through R-0008-022 and SPEC-0005 R-0005-034: workspace-native capability commands sit behind maintained root adapters; a root-owned impact graph expands transitively and fails closed; immutable content-addressed evidence is aggregated by digest without rewriting; and one root manifest binds the exact independently versioned public artifacts and evidence promoted as a release. |
-| Q-0008-012 | What migration order, prerequisite amendments, ADRs, validation gates, and recovery steps are required? |
+| Q-0008-012 | Decided by R-0008-027 through R-0008-029: prerequisite policy, audit, traceability, conformance, and orchestration work precedes migration; Entry Point identities change at existing paths before a separately approved source relocation; each slice uses exact manifests, equivalent before-and-after validation, full consumer impact review, preserved user changes, and non-destructive scoped recovery. |
 | Q-0008-013 | Decided by R-0008-023 through R-0008-026 and SPEC-0005 R-0005-035: one authorized maintainer approves exact immutable publication inputs; protected stable or prerelease manifests promote profiles and claims; closed append-only lifecycle states preserve meaning; corrections create new objects; and records and tombstones remain auditable indefinitely. |
 
 The next gate is decision work and human review of scoped requirement drafts.
@@ -764,6 +813,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.14 | 2026-10-10 | Defined staged migration prerequisites, Entry Point rename-before-relocation ordering, separate public-change approval, exact before-and-after validation and impact review, preserved user changes, and non-destructive scoped recovery. |
 | 0.13 | 2026-10-10 | Defined exact-snapshot publication approval, protected-release promotion, immutable publication records, closed support and claim states, correction and withdrawal behavior, evidence availability, and indefinite audit tombstones. |
 | 0.12 | 2026-10-10 | Defined workspace capability contracts and root adapters, fail-closed transitive CI impact selection, immutable digest-bound evidence transport, and coordinated release assembly through one exact root manifest. |
 | 0.11 | 2026-10-10 | Assigned the Roslyn generator to the .NET implementation workspace as independently versioned build tooling, kept integrations and maintained contributor tools in separate responsibility-based workspaces, and prohibited private-output and accidental runtime dependencies. |

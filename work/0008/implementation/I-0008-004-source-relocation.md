@@ -15,7 +15,10 @@ requirements:
   - R-0008-002
   - R-0008-003
   - R-0008-019
-depends_on: [D-0008-001, D-0008-009, D-0008-010, D-0008-012]
+  - R-0008-027
+  - R-0008-028
+  - R-0008-029
+depends_on: [D-0008-001, D-0008-009, D-0008-010, D-0008-012, I-0008-008]
 artifacts:
   - src
 ---
@@ -31,8 +34,9 @@ manifest remains pending.
 ## Entry gates
 
 The taxonomy, terminology, ownership, and migration decisions are complete;
-R-0000-009 and affected SPEC-0006 requirements are amended; readiness and the
-concrete move plan are approved.
+the separately reviewed Entry Point identity migration is delivered and
+approved; R-0000-009 and affected SPEC-0006 requirements are amended; and
+readiness and the concrete move plan are approved.
 
 ## File and ownership manifest
 
