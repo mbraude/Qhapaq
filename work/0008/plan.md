@@ -15,7 +15,7 @@ sources:
     content_sha256: 62c8990987dbaa6b49fcecb864216685405ce518dea320bf3db69a115f7a0653
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 8fbf725e0fda9697c3eff44435481d7755141272
-    content_sha256: 7b3c946a9fd554e9b7129bc391dc68957633716f6a3264cdd659954704413249
+    content_sha256: 1e66c0780d5c9cc271007d0d838f32d287782c45f75bb2927d6433e0596ff4a9
   - path: docs/development/coding-conventions.md
     revision: a3028eddae623df0fd7420bb9644363b8344cdb3
     content_sha256: 5bd85f4a6e7ef33da2f53bb821583ccc9f3afdde4b5953550ad3b42da9fdb73b
@@ -532,6 +532,23 @@ consumer and approved scope.
   `Change-Kind: maintenance`; no `Spec:` trailer applies.
 - No readiness was reassessed and no approval was inferred. Human review of
   this reconciled plan snapshot remains required.
+
+## SPEC-0007 conformance-envelope reconciliation
+
+- Date: 2026-10-11. The committed SPEC-0007 baseline is
+  `8fbf725e0fda9697c3eff44435481d7755141272`; the source header records the
+  exact working-copy hash reviewed for the D-0007-015 decision.
+- D-0007-015 specifies the portable envelope conventions under R-0007-347
+  and awaits approval of its exact ready-for-review snapshot. I-0008-003 now
+  references R-0007-347 in addition to its existing SPEC-0005 and SPEC-0008
+  requirements, and retains the explicit prerequisites D-0007-015,
+  I-0007-002, and I-0007-005.
+- The prerequisite decision and artifact/tooling milestones remain open or
+  incomplete. I-0008-003 remains a non-executable milestone; no profile,
+  vector, evidence schema, claim, or publication is produced by this sync.
+- Readiness remains not assessed and approval of this changed plan/item
+  snapshot is pending. This reconciliation does not approve implementation
+  slices or delivery.
 - Date: 2026-10-10. Added D-0008-014 after scoped engineering-policy readiness
   identified an unresolved delivery boundary between policy authoring and the
   matching trace-checker extractor. The item asks whether policy artifacts may

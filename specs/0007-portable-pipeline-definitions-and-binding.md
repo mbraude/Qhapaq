@@ -4,7 +4,7 @@
 >
 > **Target:** Qhapaq v1
 >
-> **Last updated:** 2026-10-10
+> **Last updated:** 2026-10-11
 
 ## 1. Summary
 
@@ -5448,10 +5448,32 @@ diagnostics, canonical contract digests, and manifests. Embedded-profile
 validation and conservative contract comparison have portable vectors.
 
 Vectors use a versioned envelope, expected-result conventions, and capability
-groups. Shared test tooling consumes portable cases without duplicating them in
-.NET-specific fixtures, supports golden-file regeneration, and reports the exact
-versions and capabilities exercised. Every published portable rule needed by
-binding and execution has a versioned schema or vector independent of .NET.
+groups. Each case is a self-contained JSON envelope with `format` set to
+`qhapaq.conformance-vector/v1`, a `suite` containing the exact suite `id` and
+`version`, a stable case `id`, a non-empty `capabilities` array, raw JSON text
+in `input`, and a typed `expected` object. The envelope format version is
+independent of the suite version; the exact case identity is the suite ID,
+suite version, and case ID. A case ID is not reassigned to a different semantic
+case within its suite.
+
+The expected object's `outcome` is exactly `accepted`, `rejected`, `completed`,
+or `failed`; its `value` is the exact structured result defined by the suite
+for that outcome. Rejection values preserve diagnostic order. Behavioral
+results preserve the order of observable effects. Capability identifiers are
+stable, language-neutral group IDs from the conformance taxonomy in
+R-0001-072: `definition`, `visualization`, `execution`, and `host`. A case may
+belong to one or more groups.
+
+Shared test tooling consumes portable cases without duplicating them in
+.NET-specific fixtures, supports offline deterministic golden regeneration,
+and reports the exact suite versions and capabilities exercised. Regeneration
+emits proposed expected-result changes; ordinary conformance runs are
+read-only. A proposed golden change requires review against the normative
+requirements before it is accepted. Generated results do not make an
+implementation the semantic authority. Existing alpha descriptor fixtures
+remain unchanged and are not treated as conforming envelopes or digest goldens.
+Every published portable rule needed by binding and execution has a versioned
+schema or vector independent of .NET.
 Unrelated execution vectors do not block descriptor tooling.
 
 **[R-0007-348]** Shared portable validation covers strict JSON and duplicate-member rejection,
