@@ -6,8 +6,8 @@ change_kind: requirement
 title: Package composition and release-shaped distribution verification
 status: open
 spec: SPEC-0007
-requirements: [R-0007-370]
-depends_on: [I-0007-030]
+requirements: [R-0007-370, R-0005-035, R-0008-022]
+depends_on: [I-0007-030, D-0008-011, I-0008-003]
 artifacts: [specs/0005-build-release-and-website-delivery.md, build, implementations/dotnet, docs]
 ---
 

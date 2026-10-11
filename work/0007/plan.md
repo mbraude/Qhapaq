@@ -2,26 +2,29 @@
 spec: SPEC-0007
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 5c166ff223ad2d5c57824de534d409bcac22b090
-    content_sha256: 433b67c0cb12370756258192e57f5e42298eb7f8879160966cc3d52734f4cbbc
+    revision: fcab9707ea09d78eb569e8b1194f10dc1cfda597
+    content_sha256: 1da16621958bc02f12f3903592660de6e4fbc4dfce3cc54c2ba76e52fdd9e57a
+  - path: specs/0005-build-release-and-website-delivery.md
+    revision: ffbae7cb66e4773e57a646822bb0b03b614ca200
+    content_sha256: 42bc95d2ef871b191b09242561fed3fa812670f4eb410482d557c0413c193a3f
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: 07073fe16ae1b6f64feaeedb01557d6f5b9731fd
-    content_sha256: 7b3c946a9fd554e9b7129bc391dc68957633716f6a3264cdd659954704413249
+    revision: 8fbf725e0fda9697c3eff44435481d7755141272
+    content_sha256: 1e66c0780d5c9cc271007d0d838f32d287782c45f75bb2927d6433e0596ff4a9
   - path: specs/0002-operation-catalogs-and-host-configuration.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
   - path: specs/0006-dotnet-layered-architecture.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: e5a35871ce14aa37d7169ac35d824c910bb0494a01e419dc7895a69dd0092eb9
+    revision: 5c166ff223ad2d5c57824de534d409bcac22b090
+    content_sha256: 62c8990987dbaa6b49fcecb864216685405ce518dea320bf3db69a115f7a0653
   - path: specs/0001-core-pipeline-model.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
   - path: docs/development/coding-conventions.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: a83462c164858646583ac9137e20f7ab4f047648be9663790a23a50ae1f66867
+    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
+    content_sha256: 5bd85f4a6e7ef33da2f53bb821583ccc9f3afdde4b5953550ad3b42da9fdb73b
   - path: docs/development/spec-driven-workflow.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: 2f04cd9e4cc28dbae1cc55593ef7fe29b293911f34175c85faab19c061c8743b
+    revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
+    content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
@@ -40,6 +43,12 @@ sources:
   - path: implementations/dotnet/tests/unit/Qhapaq.Architecture.Tests/LayerDependencyTests.cs
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 62eafc81acf00d7bf15390aa110119e0be3d6e4a7cf0988193e9bb664e40eb4a
+  - path: docs/development/conventions/dotnet.md
+    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
+    content_sha256: 712c0ed6d05c230f28146b0f4447622c5c62214e4b85c4c2d53d83bac1879c24
+  - path: docs/development/conventions/schemas.md
+    revision: 1c0b6e5b5195381e4cb985f4270d746e0f039817
+    content_sha256: a9a44c96d0ab48af49d3b7ea8ade8b13f3343814c36842519571f03046f0c33a
 ---
 
 # SPEC-0007: Work Plan
@@ -735,3 +744,92 @@ Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920
   package, workspace, or readiness state changes. This reconciliation resolves
   no SPEC-0007 decision and does not approve D-0008-010 or authorize generator
   implementation.
+
+## SPEC-0008 source and cross-plan reconciliation
+
+- Date: 2026-10-11. Reconciled the SPEC-0008, SPEC-0005, SPEC-0006,
+  common-conventions, and workflow source records against their exact current
+  committed bytes. Added the specialized .NET and schema convention guides as
+  authoritative inputs for the affected SPEC-0007 work.
+- SPEC-0008's finalized R-0008-019 retains the previously recorded Roslyn
+  generator workspace ownership; D-0007-012 and I-0007-008 already cover that
+  boundary. R-0008-020 through R-0008-022 define workspace capabilities,
+  fail-closed root impact selection, and content-addressed evidence/release
+  manifests, which apply to I-0007-030 and I-0007-031. R-0008-023 through
+  R-0008-026 define publication and public claim lifecycle gates relevant to
+  I-0007-032. These milestones now record the applicable requirements and
+  depend on D-0008-011, D-0008-013, and I-0008-003 where their outputs or
+  publication rules are required.
+- SPEC-0006's accepted top-layer terminology is now Entry Points. Existing
+  SPEC-0007 items use the current identities; no further item change was
+  needed. The common coding policy transferred .NET-specific conventions to
+  `docs/development/conventions/dotnet.md`; D-0007-008's enforcement
+  expectation remains valid, and I-0007-001 still requires its implementation.
+  D-0007-008 retains a historical link to the former policy location; repairing
+  that link is deferred because it would alter an already approved completed
+  item's material snapshot. D-0007-013's output ownership remains unresolved
+  and must be decided before its policy artifact is authored.
+- I-0008-003 now records its SPEC-0007 prerequisites: D-0007-015 for the
+  portable vector envelope, I-0007-002 for shared vector tooling, and
+  I-0007-005 for validation foundation artifacts. These are open milestones or
+  an open decision, so their required outputs are not yet available. No
+  SPEC-0007 decision is resolved and no schema, vector, report, profile, or
+  claim is published by this reconciliation.
+- No SPEC-0007 implementation output or readiness approval is inferred.
+  Readiness and concrete slice planning remain required for affected
+  milestones. No cycle was introduced: the SPEC-0008 artifact milestone
+  consumes SPEC-0007 prerequisites, while the affected SPEC-0007 CI, release,
+  and website milestones consume SPEC-0008 publication/orchestration outputs.
+- Source and structural validation: all 16 recorded authoritative source hashes
+  match current bytes; all 73 SPEC-0007/SPEC-0008 work-item IDs are unique; all
+  dependency references resolve and the cross-plan graph has no cycle. The
+  newly linked requirement IDs R-0005-035 and R-0008-020 through R-0008-026
+  exist. `git diff --check` passes; Git reports only its existing CRLF-to-LF
+  normalization warnings. Specification trace check: PASS. All changed files
+  are planning/documentation artifacts classified as `maintenance`; no product
+  requirements, code, tests, or published artifacts changed, and no `Spec:`
+  trailer applies. No build or test command applies to these planning-only
+  updates.
+- Exact changed output snapshots:
+
+  | Path | SHA-256 |
+  | --- | --- |
+  | `work/0007/implementation/I-0007-030-shared-ci-checks.md` | `3752e63239e6086b22ff31477a6c9f2c4600fa7b872c8d19dfe20d5e1ba2f4e5` |
+  | `work/0007/implementation/I-0007-031-distribution-verification.md` | `c9dd33b093fe0936724f3febfbbf1c6db5d00c3c286f309d7ca1cfacac388c4f` |
+  | `work/0007/implementation/I-0007-032-website-release-gates.md` | `7d1e462ebab558e4e2be501fe15efeee4d77b87b92a7a83d9d04461cf42c295f` |
+  | `work/0008/implementation/I-0008-003-conformance-artifacts.md` | `739272db2384f773ffc28b98385743c8eea603a499634ce12ca4ff44614daf19` |
+
+## D-0007-015 portable conformance-envelope reconciliation
+
+- Date: 2026-10-11. The committed SPEC-0007 baseline is
+  `8fbf725e0fda9697c3eff44435481d7755141272`; the exact reviewed working-copy
+  hash, including the D-0007-015 decision, is recorded in the source header.
+- D-0007-015 specifies the selected self-contained per-case envelope, exact
+  suite/case identity, typed outcomes, multi-group capability metadata, and
+  reviewed offline golden regeneration under R-0007-347. The requirement
+  remains the only normative source; this record does not replace it.
+- D-0007-015 is the only decision outcome specified here and awaits approval
+  of its exact ready-for-review snapshot. D-0007-013 remains open for
+  .NET-specific loading and consumer-test conventions. I-0007-002 and
+  I-0007-005 remain open milestones with their existing D-0007-015 gates.
+- I-0008-003 now references R-0007-347 and retains its explicit dependencies
+  on D-0007-015, I-0007-002, and I-0007-005. These prerequisites remain
+  unresolved as implementation outputs; no vectors, schemas, tooling, or
+  publication are produced by this decision.
+- No readiness, executable slice, implementation, or delivery approval is
+  inferred. Exact review of the resulting decision and plan snapshots remains
+  required.
+
+  The user explicitly approved this exact reconciliation snapshot on
+  2026-10-11. The plan hash is its full-byte hash before this approval evidence
+  was recorded; that evidence-only update does not alter the reviewed material.
+  The approval covers this cross-plan reconciliation only, not readiness or any
+  implementation item.
+
+  | Reviewed artifact | SHA-256 |
+  | --- | --- |
+  | `work/0007/plan.md` before recording approval evidence | `533c0fb58356a6dd9a7ee45718bbcf5260a468bcc30fc2b3fd91ad3b95a100bb` |
+  | `work/0007/implementation/I-0007-030-shared-ci-checks.md` | `3752e63239e6086b22ff31477a6c9f2c4600fa7b872c8d19dfe20d5e1ba2f4e5` |
+  | `work/0007/implementation/I-0007-031-distribution-verification.md` | `c9dd33b093fe0936724f3febfbbf1c6db5d00c3c286f309d7ca1cfacac388c4f` |
+  | `work/0007/implementation/I-0007-032-website-release-gates.md` | `7d1e462ebab558e4e2be501fe15efeee4d77b87b92a7a83d9d04461cf42c295f` |
+  | `work/0008/implementation/I-0008-003-conformance-artifacts.md` | `739272db2384f773ffc28b98385743c8eea603a499634ce12ca4ff44614daf19` |

@@ -6,8 +6,8 @@ change_kind: maintenance
 title: Shared local and blocking CI validation
 status: open
 spec: SPEC-0007
-requirements: [R-0007-370]
-depends_on: []
+requirements: [R-0007-370, R-0008-020, R-0008-021]
+depends_on: [D-0008-011, I-0008-003]
 artifacts: [scripts, .github, docs/development]
 ---
 

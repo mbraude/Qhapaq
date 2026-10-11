@@ -6,8 +6,8 @@ change_kind: requirement
 title: Website delivery and public-release gates
 status: open
 spec: SPEC-0007
-requirements: [R-0007-370]
-depends_on: []
+requirements: [R-0007-370, R-0008-023, R-0008-024, R-0008-025, R-0008-026]
+depends_on: [D-0008-013, I-0008-003]
 artifacts: [specs/0005-build-release-and-website-delivery.md, docs]
 ---
 
