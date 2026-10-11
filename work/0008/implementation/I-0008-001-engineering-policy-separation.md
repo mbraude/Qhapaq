@@ -11,7 +11,7 @@ requirements:
   - R-0008-016
   - R-0008-017
   - R-0008-018
-depends_on: [D-0008-002, D-0008-003, D-0008-008]
+depends_on: [D-0008-002, D-0008-003, D-0008-008, D-0008-014]
 artifacts:
   - docs/development/coding-conventions.md
   - .github/instructions
