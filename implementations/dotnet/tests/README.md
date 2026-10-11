@@ -8,3 +8,5 @@
 
 Language-neutral cases belong in [conformance/](../../../conformance/) and are
 consumed by the appropriate .NET test harness rather than duplicated here.
+Vector loading, golden maintenance, and clean package-consumer test boundaries
+follow the [.NET test artifact conventions](../../../docs/development/conventions/dotnet.md#test-artifact-consumption).

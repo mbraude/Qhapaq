@@ -278,6 +278,9 @@ workflow. Reviewers remain responsible for anything the skills miss.
 - Golden files are appropriate for canonical JSON, Mermaid, schemas, manifests,
   and protocol envelopes when diffs are reviewable and regeneration is
   documented.
+- .NET-specific shared-vector loading, golden maintenance, and package-consumer
+  test conventions are defined in the
+  [.NET conventions](conventions/dotnet.md#test-artifact-consumption).
 - Test names describe the condition and expected outcome without encoding
   incidental implementation steps.
 

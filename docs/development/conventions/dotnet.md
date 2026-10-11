@@ -348,3 +348,40 @@ including each part of a partial class.
   unless an accepted decision selects otherwise.
 - Portable property names, schema, and canonicalization requirements remain in
   the [common JSON policy](../coding-conventions.md#6-portable-json-and-schemas).
+
+## Test artifact consumption
+
+Apply the .NET organization requirements in
+[R-0007-346](../../../specs/0007-portable-pipeline-definitions-and-binding.md#net-organization-and-portable-validation),
+the portable vector semantics in
+[R-0007-347](../../../specs/0007-portable-pipeline-definitions-and-binding.md#20-testing-and-conformance),
+and the consumer boundaries in
+[R-0006-031](../../../specs/0006-dotnet-layered-architecture.md#11-enforcement-and-testing).
+Reported capability groups follow
+[R-0001-072](../../../specs/0001-core-pipeline-model.md#16-compatibility-conformance-and-versioning).
+
+The versioned vector envelopes and their `expected` values in the repository's
+`conformance/` tree are authoritative. .NET tests consume those files rather
+than maintaining duplicate language-neutral cases. Test projects copy the
+required canonical files into test output while preserving their relative
+paths; harnesses locate them relative to the test output directory, not the
+process working directory. Selection uses exact suite IDs and versions and
+declared capability groups, with deterministic ordering. Test output reports
+the exact suite versions and capabilities exercised; it does not resolve an
+implicit `latest`.
+
+Ordinary conformance runs are read-only. Offline golden regeneration uses the
+canonical vector inputs and emits proposed expected-result changes as a
+reviewable diff outside the authoritative `conformance/` tree. Accepting a
+proposal requires review against the governing requirements; the reviewed
+expected values are then updated in the canonical vector envelopes. A .NET
+fixture or generated copy is never an alternate golden source.
+
+Package-consumer tests are integration tests. They pack the public Qhapaq
+packages into a temporary local feed and build a fresh external-style consumer
+project against those packages, without project references or access to
+implementation internals. The scenarios prove that a third-party operation
+library needs only `Qhapaq.Abstractions` and that a third-party entry point can
+consume Service V1 without Business or DAL contracts. Keep these tests
+separate from architecture tests, which enforce repository-internal project
+references, visibility, namespaces, and composition rules.

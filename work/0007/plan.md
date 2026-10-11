@@ -20,11 +20,11 @@ sources:
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
   - path: docs/development/coding-conventions.md
-    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
-    content_sha256: 0d4a23e0cf96ef3d3ab9e575ad7b65899403989d95317d5339434a7717270fa6
+    revision: 8f0082a220dcb36f848c5e9db05104787ee3b280
+    content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
   - path: docs/development/spec-driven-workflow.md
-    revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
-    content_sha256: 55c10d072e97d305ced1591c365ef65e61e5564df3f3d29e6e9d84a99ef7b127
+    revision: 801b57722055b3d1dd85dc95eaad9d775fe37f74
+    content_sha256: c1045d2891c7ccbe00c833e247d7254c7e4161857dfe6884b47a644cb3e1c11e
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
@@ -44,8 +44,8 @@ sources:
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 62eafc81acf00d7bf15390aa110119e0be3d6e4a7cf0988193e9bb664e40eb4a
   - path: docs/development/conventions/dotnet.md
-    revision: a3028eddae623df0fd7420bb9644363b8344cdb3
-    content_sha256: 4a487e5d603895a0834733328055db0363e58d3b1ef49a0eb1d3b94a2b7e4a14
+    revision: 8f0082a220dcb36f848c5e9db05104787ee3b280
+    content_sha256: 72ac12a7ae56110729d011ecffe0c551961811dde30462ab2568647ccd6702f1
   - path: docs/development/conventions/schemas.md
     revision: 1c0b6e5b5195381e4cb985f4270d746e0f039817
     content_sha256: efdccc4b508826ba8302db9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
@@ -69,7 +69,53 @@ sources:
 - This bounded reconciliation permits current-source decision selection, not
   implementation or publication.
 
+## Workflow-source and D-0007-015 approval reconciliation
+
+- Date: 2026-10-11. Baseline: `801b57722055b3d1dd85dc95eaad9d775fe37f74`.
+  The workflow-guide source record now reflects its exact current bytes. The
+  reviewed change makes work branches optional and documents the approval-only
+  workflow; it does not alter SPEC-0007 semantics, item identities, dependencies,
+  acceptance criteria, or implementation gates.
+- D-0007-015 is complete. Its decision file records explicit approval of the
+  exact decision snapshot. The earlier note that it awaited approval described
+  the prior state and is superseded by that evidence. This does not approve
+  readiness, artifact production, or implementation.
+- D-0007-013 remains open. I-0007-002 and I-0007-005 remain open artifact
+  milestones; no vector tooling, vectors, or publication evidence is inferred.
+- Validation: all 16 source hashes match current bytes; all 75 work-item IDs
+  and dependencies resolve without duplicates or cycles; `git diff --check`
+  and the specification trace check pass (`maintenance`).
+
+Approval recorded on 2026-10-11: the user approved this exact plan snapshot.
+Full-byte SHA-256 before recording this approval evidence:
+`cc68857353778a0c9bd6aa80856cf3aca684ef296f7a79a9c175bc84c7b05c11`.
+This approval covers plan reconciliation only, not D-0007-013, readiness, or
+implementation.
+
+## D-0007-013 test-artifact convention reconciliation
+
+- Date: 2026-10-11. Baseline: `801b57722055b3d1dd85dc95eaad9d775fe37f74`.
+  D-0007-013 is ready-for-review with its exact snapshot recorded in the item.
+  It records .NET vector loading, golden
+  maintenance, and clean package-consumer conventions under R-0007-346,
+  R-0007-347, R-0006-031, and R-0001-072. Its selected loader copies canonical
+  `conformance/` files into test output; consumer tests use temporary packed
+  public packages. Acceptance checks pass; explicit human approval is pending.
+  No product requirement, portable envelope, item identity, dependency, or
+  implementation gate changed.
+- The D-0007-015 impact review confirms its accepted portable envelope remains
+  authoritative and unchanged: D-0007-013 keeps `expected` values in canonical
+  vectors and does not introduce .NET-specific portable semantics. D-0007-015
+  remains complete; its recorded D-0007-013 hash identifies its historical
+  reviewed input and does not require reopening the decision.
+- D-0007-013 remains the required decision prerequisite for downstream
+  conformance tooling and I-0008-003. I-0007-002 and I-0007-005 remain open;
+  this decision produces no tooling, vectors, publication, or readiness
+  evidence.
+
 ## Scope and authority
+
+  ## Scope and authority
 
 Migrated development work for
 [SPEC-0007](../../specs/0007-portable-pipeline-definitions-and-binding.md),
