@@ -381,8 +381,60 @@ candidate model does not treat a self-declared manifest or a passing vector
 suite alone as proof of every security and concurrency obligation.
 
 A machine-readable declaration and release conformance report are proposed
-artifacts, not defined formats. Declaration formats, evidence sufficiency, and
-claim publication remain unresolved.
+artifacts. Evidence sufficiency and claim publication remain unresolved.
+
+### Capability and conformance declarations
+
+The exact profile version is the public identity of its immutable requirement
+set. A declaration therefore does not repeat Qhapaq requirement identifiers or
+fingerprints for ordinary consumers. Detailed obligation results remain
+available in a separately identified assessment manifest for validators and
+auditors.
+
+**[R-0008-009]** A capability and conformance declaration is a closed,
+machine-readable envelope with an exact declaration-format identity and
+version. Each envelope has exactly one of these kinds:
+`conformance-claim`, `progress`, or `unsupported-target`. It addresses exactly
+one published profile version and identifies exactly one evaluated
+implementation by implementation ID, declared implementation version, and an
+immutable digest of the evaluated artifact set. A source revision may be
+included as metadata but must not replace the artifact-set digest. The same
+artifact set may have separate declarations for multiple profiles.
+
+A declaration may report optional capabilities by their exact identities with
+the disposition `supported` or `unsupported`. Omission makes no assertion.
+Partial capability support must not be declared unless the applicable profile
+defines independently declarable, narrower capability identities. A
+human-readable rendering must preserve the declaration kind, exact profile and
+implementation identities, and capability dispositions; it must not broaden a
+machine-readable declaration or turn progress into conformance.
+
+**[R-0008-010]** A `conformance-claim` or `progress` declaration must bind an
+immutable assessment-manifest identity and digest. The assessment manifest
+identifies the target profile's complete ordered set of mandatory requirement
+ID and fingerprint pairs, including transitive prerequisites, and gives each
+pair exactly one disposition: `satisfied`, `failed`, or `not-evaluated`. It
+also maps every `satisfied` obligation and every declared `supported`
+capability to one or more exact evidence entries. The declaration exposes the
+profile identity and assessment reference rather than duplicating that
+requirement-level mapping. Evidence-sufficiency rules are defined separately.
+
+A `conformance-claim` is valid only when the assessment classifies every
+mandatory obligation as `satisfied`. A `progress` declaration may summarize
+the three dispositions, but any summary must equal the exhaustive assessment;
+it must not use conformance language. An `unsupported-target` declaration is
+valid only when the implementation does not target the profile and gives
+exactly one reason: `surface-absent`, `not-implemented`, or
+`platform-unsupported`. An attempted implementation with a failed or
+unevaluated obligation is progress, not an unsupported target.
+
+Unknown declaration formats, versions, kinds, profiles, capability identities,
+dispositions, or unsupported-target reasons are invalid. Missing required
+fields, duplicate obligation results, mismatched summaries, unresolvable or
+digest-mismatched assessment manifests, incomplete mandatory-obligation sets,
+or evidence-free positive results are also invalid. Validation failure must be
+reported explicitly and must not produce a conformance claim, progress report,
+or unsupported-target result.
 
 ## 7. Proposed Terminology and Architecture Clarification
 
@@ -467,7 +519,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 | Q-0008-003 | Decided by R-0008-005: portable requirements remain implementation-neutral; normative language contracts belong in explicitly scoped numbered implementation specifications; block boundaries and required labels distinguish normative from illustrative examples. |
 | Q-0008-004 | Decided by R-0008-006 and R-0008-007: the initial profiles are the portable runtime, local CLI, MCP host, and in-process .NET API; every execution-bearing surface profile requires the runtime baseline; dependencies are cumulative; partial and unqualified conformance claims are prohibited; remote-client profiles are deferred. |
 | Q-0008-005 | Decided by R-0008-008: immutable `MAJOR.MINOR` profile versions begin at `1.0`, bind exact authoritative obligations and prerequisite versions, permit only semantics-preserving or non-mandatory minor changes, require major versions for mandatory or prerequisite changes, and never migrate claims automatically. |
-| Q-0008-006 | What capability and conformance declaration formats are needed, and how are partial support and unsupported behavior reported? |
+| Q-0008-006 | Decided by R-0008-009 and R-0008-010: one versioned closed envelope distinguishes full claims, exhaustive progress, and unsupported targets; declarations bind one exact profile and artifact set; assessment manifests retain requirement-level results and evidence mappings; capabilities are exact and non-partial; failures and unsupported reasons remain explicit. |
 | Q-0008-007 | Which shared vectors, language-specific tests, reviews, and release evidence are sufficient for each conformance claim? |
 | Q-0008-008 | What language-native traceability placements and checker support are needed without weakening existing traceability and waiver rules? |
 | Q-0008-009 | Should the .NET Service Implementations layer be renamed to Adapters, and should assembly names change independently? |
@@ -483,6 +535,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.7 | 2026-10-10 | Defined the versioned declaration envelope, exact implementation and profile binding, exhaustive assessment manifests, capability dispositions, full-claim and progress rules, unsupported-target reasons, and explicit invalidity behavior. |
 | 0.6 | 2026-10-10 | Defined immutable profile-version identities and exact obligation bindings, compatible minor changes, breaking major changes, retirement and supersession behavior, and explicit claim migration. |
 | 0.5 | 2026-10-10 | Defined the four initial conformance profiles, cumulative runtime prerequisites, applicability boundaries, and precise claim restrictions while deferring remote-client profiles. |
 | 0.4 | 2026-10-10 | Separated portable requirements, explicitly scoped language-specific contracts, non-normative prose, illustrative examples, and normative examples while preserving requirement identifiers and fingerprint boundaries. |

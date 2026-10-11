@@ -4,7 +4,7 @@ kind: decision
 title: Define sufficient conformance evidence
 status: open
 spec: SPEC-0008
-requirements: [R-0000-007, R-0000-009, R-0008-006, R-0008-007, R-0008-008]
+requirements: [R-0000-007, R-0000-009, R-0008-006, R-0008-007, R-0008-008, R-0008-010]
 depends_on: [D-0008-004, D-0008-005]
 artifacts:
   - specs/0008-multi-language-conformance-and-repository-organization.md

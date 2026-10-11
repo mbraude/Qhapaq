@@ -2,8 +2,8 @@
 spec: SPEC-0008
 sources:
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: b940a05718427619bdbb24e8baec4e4e9b5c250c
-    content_sha256: 41646c6cc180d77734607990bf9aa9c836bfe7ec6e6916e19573529f326dc88d
+    revision: b874b547f9282fe4ee8366f946428894cd08b91e
+    content_sha256: f275062e9abf2c1ce67a23055549a26e98e33f1c1a7852851345fbdd1227ce5d
   - path: SPEC.md
     revision: 733f879fb7872fd692c0661af8e6eb62708a7e38
     content_sha256: 9f49ea636b86865933bdd4b175ca90287e470625d4be5e8db79751475817ca78
@@ -288,3 +288,25 @@ consumer and approved scope.
   D-0008-005 snapshot, publish a profile or conformance claim, define a
   declaration schema or evidence threshold, set a support duration, authorize
   implementation, or affect earlier completed decisions.
+- Date: 2026-10-10. D-0008-006 drafted the declaration envelope and assessment
+  semantics in R-0008-009 and R-0008-010. One versioned closed envelope
+  distinguishes exact full claims, exhaustive progress, and unsupported
+  targets; binds one exact profile and implementation artifact set; reports
+  optional capabilities without partial claims; and references an immutable
+  assessment manifest for requirement-level dispositions and evidence mappings.
+- Downstream impact: D-0008-007 now covers the assessment-manifest evidence
+  boundary; D-0008-013 now covers publication of declarations governed by
+  R-0008-009 and R-0008-010; and I-0008-003 covers both new requirements.
+  Their existing scope and dependencies remain correct. No item was created,
+  cancelled, approved, or executed, and no dependency changed.
+- Source baseline: SPEC-0008 uses committed baseline
+  `b874b547f9282fe4ee8366f946428894cd08b91e` and exact reviewed working-copy
+  byte hash
+  `f275062e9abf2c1ce67a23055549a26e98e33f1c1a7852851345fbdd1227ce5d`.
+  Other source records remain unchanged because their bytes and impact are
+  unchanged. Reconciliation is complete for D-0008-006 and its affected
+  downstream work.
+- Readiness remains not assessed. This reconciliation does not approve the
+  D-0008-006 snapshot, define evidence sufficiency or publication procedures,
+  publish a schema, profile, declaration, or claim, authorize implementation,
+  or affect earlier completed decisions.
