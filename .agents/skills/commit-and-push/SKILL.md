@@ -32,17 +32,12 @@ named remote branch.
    Do not duplicate or replace any part of its review, validation, staging,
    trailer verification, or commit workflow.
 2. After the local commit succeeds, verify that `HEAD` is still attached to the
-   same branch and that the push destination remains unchanged.
-3. Push the current branch to `origin`:
-   - use the configured upstream when it points to `origin` and the current
-     branch;
-   - otherwise set `origin/<current-branch>` as the upstream on the first push;
-   - never push to a differently named branch unless the user explicitly
-     requests it; and
-   - never use a force option.
-4. If the push is rejected, preserve the local commit and report the exact
-   rejection. Do not pull, rebase, merge, reset, retry with force, or invoke
-   `commit` again.
+   same branch and that the intended push destination remains unchanged.
+3. Invoke the repository's `push` skill. Do not duplicate or replace its
+   remote-state inspection, same-named destination, rejection handling,
+   verification, or reporting.
+4. If `push` fails, preserve the local commit and report the exact failure. Do
+   not invoke `commit` again.
 
 ## Output
 

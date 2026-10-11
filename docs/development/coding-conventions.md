@@ -101,7 +101,11 @@ conform to them.
   `Spec:` is required for `requirement`, `amendment`, `extension`, `bug`, and
   `editorial` changes and is omitted for `refactor`. A `requirement` or
   `extension` change may name a whole document, such as `SPEC-0007` or
-  `COMP-0001`. Squash merges must keep every `Spec:` trailer.
+  `COMP-0001`. Integration into the default branch must preserve the required
+  traceability of every included commit. Rebase merges retain each validated
+  commit and its trailers. If an explicitly selected squash merge combines
+  commits, its resulting commit must retain their complete required `Spec:`
+  coverage.
   `Change-Kind:` is required even for intermediate commits. Enable the local
   [commit-message hook](git-hooks.md); it complements the commit skills but
   does not replace semantic review or future CI enforcement.
