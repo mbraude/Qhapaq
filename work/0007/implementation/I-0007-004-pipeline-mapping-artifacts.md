@@ -7,7 +7,7 @@ title: Pipeline, mapping, scope and normalization artifact family
 status: open
 spec: SPEC-0007
 requirements: [R-0007-343, R-0007-347]
-depends_on: [D-0007-002, D-0007-015]
+depends_on: [D-0007-002, D-0007-015, I-0008-012]
 artifacts: [schemas, conformance]
 ---
 

@@ -7,7 +7,7 @@ title: Shared vector tooling and golden-file procedures
 status: open
 spec: SPEC-0007
 requirements: [R-0007-347]
-depends_on: [D-0007-013, D-0007-015]
+depends_on: [D-0007-013, D-0007-015, I-0008-012]
 artifacts: [conformance/README.md, implementations/dotnet/tests]
 ---
 

@@ -7,7 +7,7 @@ title: Schema profile, parsing, patterns, formats and diagnostic artifacts
 status: open
 spec: SPEC-0007
 requirements: [R-0007-347, R-0007-203, R-0007-204, R-0007-302, R-0007-303]
-depends_on: [D-0007-015]
+depends_on: [D-0007-015, I-0008-012]
 artifacts: [schemas, conformance]
 ---
 
