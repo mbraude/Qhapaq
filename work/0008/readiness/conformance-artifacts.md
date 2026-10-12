@@ -1,214 +1,319 @@
 ---
 spec: SPEC-0008
 scope: conformance-artifact-delivery
-assessment: blocked
+assessment: approved
 sources:
   - path: AGENTS.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 916d6c0094400b87ce1c99661b90590664be588ee1713c2d8b172377567f1272
   - path: SPEC.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: cbb6cec07dff90ff9c8eef54b5cd3ae2c97da5d17ecd452f7e677664be99aa3d
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e
+  - path: specs/0001-core-pipeline-model.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
+  - path: specs/0002-operation-catalogs-and-host-configuration.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
   - path: specs/0005-build-release-and-website-delivery.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 8259be3d7e256d77ab18e96c35906ce64c01d25eb7a22f45a911c0727d1a1679
+  - path: specs/0006-dotnet-layered-architecture.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: e212841e5af69e06dba739222f0696f793436e391e7dbf66c0e047d8596a2e12
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
+  - path: docs/architecture/decisions/0001-use-microsoft-dependency-injection.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 663bc361c4799b69e700c6161311d60e010b89c0f65a6065be5acf9d20358173
+  - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: da233fb4acea9077ff49822111698c3d2484b67b69bca0f9b018eafe383d6411
+  - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
+  - path: docs/architecture/decisions/0005-track-specification-and-delivery-work-in-the-repository.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 439ab896a425eca94d2addc99aff88db7897213cdcd3053cf50866e63b7c9825
   - path: docs/development/coding-conventions.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
-  - path: docs/development/conventions/schemas.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: efdccc4b508826ba8302db9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
   - path: docs/development/spec-driven-workflow.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: c1045d2891c7ccbe00c833e247d7254c7e4161857dfe6884b47a644cb3e1c11e
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
   - path: work/templates/readiness.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
-  - path: work/0008/plan.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: b5cfeb547e04ddc50c3ed6a181ab39d26a61a8f1067fee7e51d3eb5b1c0a2b4a
-  - path: work/0008/implementation/I-0008-003-conformance-artifacts.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 15a864812e59189ef7437066f2290b7802b85297b984520ad26763fe93e7e054
-  - path: work/0008/implementation/I-0008-012-conformance-artifact-planning.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: e4010bb029cbc9a8014f95543ce4d67db3063254232dd418cf10e3c8d148a615
-  - path: work/0008/decisions/D-0008-004-initial-conformance-profiles.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 0f6ac0516de4ba2a741dc3c568cfd7f0892d23719ae9579612589412e1241140
-  - path: work/0008/decisions/D-0008-005-profile-version-compatibility.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 4864946dd705614f0a78b37b11675a17be510fd26cd6cd44b718746d85a66a03
-  - path: work/0008/decisions/D-0008-006-conformance-declarations.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: b646aac5681b8fcc5cdf3b5588aeb8c99370ee9cf207989e12fdc9ca998a8846
-  - path: work/0008/decisions/D-0008-007-conformance-evidence.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 9f87e59e0462dbd12916e2d6976d6e35542eda9971232635d1e73e401919733f
-  - path: work/0008/decisions/D-0008-010-artifact-ownership-boundaries.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 7fc79f6b2fbd01841ad152c9e3bf9dc9d4cb08d150ca748ae36d10ff8c7c110c
-  - path: work/0008/decisions/D-0008-011-build-ci-release-orchestration.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 85eb2f440d89f38a77abe64ad4c76cdc926f34d6586e0b445920c57ea3643dc4
-  - path: work/0008/decisions/D-0008-012-migration-sequencing.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 5476cee96819aeb8295d8179cab9bcc8752a589b8ecf11ec671fbc15a1343376
-  - path: work/0008/decisions/D-0008-013-claim-publication.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 6adddf23f2a3e39564092de253e689bd81bcf759233ea82894bcfdf4aeb5725c
-  - path: work/0008/readiness/engineering-policy.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 883097968e359f70036e87ee907563369b93a2090ec8f124362184b7e773875e
   - path: work/0007/plan.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 9fcee23e6ad027d5cb8f1b898c4524c6f6de104ff76a61133f96731f5fe2561a
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 51aca30baf40c3a8e0823c99c3c87c33f77337bb3900f1c80e4cec7df023a732
+  - path: work/0007/decisions/D-0007-009-model-ownership.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: b18191e694df1d479ab827b192782ffc6271b780ccb06967e3a5b23bd4ac7565
+  - path: work/0007/decisions/D-0007-011-portable-helper-ownership.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 92835fb032bbf2a8dc71ddf958eb3534901c15476051abe96081646debc57732
   - path: work/0007/decisions/D-0007-013-test-artifact-conventions.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: dbf44d51e425cf4468b8795c747644e88cd315ac14d9ec6b6ef1d31d5bed5604
   - path: work/0007/decisions/D-0007-015-conformance-envelope.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 29259afce7c83d3358094baff874adcef2f755aa2701dc4e81889b089af801a5
   - path: work/0007/implementation/I-0007-002-conformance-tooling.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: ada27ff18527dda6fa583f1dd6b9d1d6c1a2a13c4d3ef84f5f8d006812593d6a
   - path: work/0007/implementation/I-0007-005-validation-foundation-artifacts.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 8d830acc7c1f4fc7de89f5e12baf54b88ab4330f5a2521e454cd4d6f93baca5d
+  - path: work/0008/plan.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 6a470ba804c17376b75db39598f5a7f6fd56121d60805e24f0508339e67b12bc
+  - path: work/0008/decisions/D-0008-004-initial-conformance-profiles.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 0f6ac0516de4ba2a741dc3c568cfd7f0892d23719ae9579612589412e1241140
+  - path: work/0008/decisions/D-0008-005-profile-version-compatibility.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 4864946dd705614f0a78b37b11675a17be510fd26cd6cd44b718746d85a66a03
+  - path: work/0008/decisions/D-0008-006-conformance-declarations.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: b646aac5681b8fcc5cdf3b5588aeb8c99370ee9cf207989e12fdc9ca998a8846
+  - path: work/0008/decisions/D-0008-007-conformance-evidence.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 9f87e59e0462dbd12916e2d6976d6e35542eda9971232635d1e73e401919733f
+  - path: work/0008/decisions/D-0008-008-language-native-traceability.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: a12c67a643de4a82cb75ecaa5c5130d31845ba2016faad2411dbf019ee93c8c5
+  - path: work/0008/decisions/D-0008-010-artifact-ownership-boundaries.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: e9ebd7831f81c6641b5f730d5c69a50b601f388813f9de11054760b0244dddb0
+  - path: work/0008/decisions/D-0008-011-build-ci-release-orchestration.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 85eb2f440d89f38a77abe64ad4c76cdc926f34d6586e0b445920c57ea3643dc4
+  - path: work/0008/decisions/D-0008-012-migration-sequencing.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 51f8160525272673826baac8418e87154986bf1cc172476617c21d1061dd43d3
+  - path: work/0008/decisions/D-0008-013-claim-publication.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 6adddf23f2a3e39564092de253e689bd81bcf759233ea82894bcfdf4aeb5725c
+  - path: work/0008/implementation/I-0008-003-conformance-artifacts.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 7a897e8169dad4412ed3717d24fecc23e4bb8e7fb5e4f9aef36fe16240c7351e
+  - path: work/0008/implementation/I-0008-007-trace-checker.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 74379cffa236025bf9057c684896fde61f135100a6cbc921d9c334ac89dcd4d7
+  - path: work/0008/implementation/I-0008-012-conformance-artifact-planning.md
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 216d8ea3a0e282678233faa8d991c8b0a28e31e0941101ece6b48d926c7bc665
   - path: conformance/README.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 0fee06404af6fc9c5321b7b30bf990f1f28c42c777b334f7928db5d1ef806307
+  - path: conformance/operation-descriptor-v1alpha1/valid/minimal-primitive.json
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 079a1d82274cefa9328824837ea0b4f7a40462af86195a39fa5f0471e432b928
+  - path: conformance/operation-descriptor-v1alpha1/invalid/missing-schemas.json
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: dcb80de5308b2f46b16563fff8c8514542ba473b187a13bb6a39059a42561c38
+  - path: conformance/operation-descriptor-v1alpha1/boundary/minimal-decorator.json
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: 38db9a019bc9544d294c12e9437065be2ed8df99f175c4b51fa2ca1f53971215
   - path: schemas/README.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 9735bf13164fda904d9d926a1ef896038360c7334e8ad831cac195dfc59ab0a1
+  - path: schemas/operation-descriptor-v1alpha1.schema.json
+    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
+    content_sha256: c11273e5a5c7eb8aad6e6473e8e27b0e2585050bffff0fe54e5cc3520e81acd8
 ---
 
 # SPEC-0008: Conformance Artifact Delivery Readiness
 
-> Historical snapshot: this blocked assessment predates the 2026-10-11
-> SPEC-0008 work-plan synchronization. Its scope, source hashes, and blocker
-> analysis are evidence for that earlier input set only. It is not current
-> readiness approval; reassess against the reconciled requirements and item
-> dependencies before approving a plan or starting implementation.
-
 ## Assessed scope
 
-Readiness of the conformance artifact delivery scope in I-0008-003 and its
-planning gate I-0008-012. The assessed requirements are R-0005-035,
-R-0007-347, R-0008-006 through R-0008-015, and R-0008-022 through R-0008-026.
-Related ownership, orchestration, and migration decisions D-0008-010 through
-D-0008-013 and SPEC-0007 decisions D-0007-013 and D-0007-015 are considered
-where they constrain artifact ownership, evidence, or publication.
+Readiness to plan the delivery milestone
+[I-0008-003](../implementation/I-0008-003-conformance-artifacts.md) through its
+planning gate
+[I-0008-012](../implementation/I-0008-012-conformance-artifact-planning.md).
+Coverage includes R-0005-034 and R-0005-035; R-0006-035 through R-0006-039;
+R-0007-347 and R-0007-348; and R-0008-006 through R-0008-018, R-0008-019
+through R-0008-026, and R-0008-027 through R-0008-029.
+
+The assessment includes decisions [D-0008-004](../decisions/D-0008-004-initial-conformance-profiles.md)
+through [D-0008-008](../decisions/D-0008-008-language-native-traceability.md)
+and [D-0008-010](../decisions/D-0008-010-artifact-ownership-boundaries.md)
+through [D-0008-013](../decisions/D-0008-013-claim-publication.md), plus
+[D-0007-009](../../0007/decisions/D-0007-009-model-ownership.md),
+[D-0007-011](../../0007/decisions/D-0007-011-portable-helper-ownership.md),
+[D-0007-013](../../0007/decisions/D-0007-013-test-artifact-conventions.md),
+and [D-0007-015](../../0007/decisions/D-0007-015-conformance-envelope.md).
+It checks the relevant
+[SPEC-0001](../../../specs/0001-core-pipeline-model.md) and
+[SPEC-0002](../../../specs/0002-operation-catalogs-and-host-configuration.md)
+contracts for runtime, CLI/MCP profiles, capability conformance, host policy,
+disclosure, security, and evidence tests.
+
+The readiness outcome is for producing and reviewing the concrete I-0008-003
+delivery plan. It does not establish implementation eligibility for I-0008-003.
 
 ## Exclusions
 
-This assessment does not claim whole-specification or v1 conformance readiness.
-It does not assess implementation-language support, detailed workspace
-toolchains, root impact-map implementation, release workflow implementation,
-or the content of unproduced profile matrices, schemas, vectors, declarations,
-reports, evidence bundles, and publication records. It does not approve the
-I-0008-012 plan, execute any implementation, publish any contract or claim, or
-relax the I-0007-002 and I-0007-005 execution prerequisites.
+This is not whole-specification, whole-release, or v1 conformance readiness.
+It does not approve I-0008-012's output, authorize any delivery slice, or claim
+that I-0007-002 or I-0007-005 outputs exist. It does not implement the trace
+checker, workspace commands, impact graph, release workflow, schemas, vectors,
+profiles, declarations, evidence bundles, or publication records. It does not
+publish a profile, claim, component contract, or release, and it does not amend
+product requirements or execute migration work.
 
-The existing `engineering-policy` readiness record applies to a different
-scope and does not establish conformance-artifact readiness.
+The engineering-policy readiness record is for a different scope and supplies
+no conformance-artifact readiness evidence.
 
 ## Completeness and consistency
 
-The product contract is substantially defined for planning:
+The normative contracts and completed decision outcomes are sufficiently
+specific to plan the artifact work:
 
-- R-0008-006 and R-0008-007 establish four initial profiles, cumulative
-  prerequisites, exact claim identity, and the prohibition on partial or
-  unqualified conformance claims. R-0008-008 fixes immutable profile-version
-  identity, exact specification and requirement-fingerprint binding, and
-  compatible versus breaking changes.
+- R-0008-006 through R-0008-008 identify four initial profiles, cumulative
+  prerequisites, exact immutable profile-version identities, mandatory
+  requirement/fingerprint bindings, and compatible versus breaking changes.
+  R-0008-007 prohibits partial, excluded, or unqualified conformance claims.
 - R-0008-009 and R-0008-010 define a closed declaration envelope, exact
-  implementation and artifact-set identity, exhaustive obligation
-  dispositions, and fail-closed handling of invalid or incomplete results.
-- R-0008-011 through R-0008-015 define profile-fixed evidence recipes,
-  immutable evidence bundles, bounded and explicit outcomes, synthetic
-  non-sensitive evidence, and evidence availability while claims remain
+  implementation and artifact-set identity, exhaustive mandatory-obligation
+  dispositions, evidence mappings, and explicit invalidity behavior.
+- R-0008-011 through R-0008-015 require a complete profile-fixed evidence
+  matrix, closed recipes and portable evidence kinds, finite execution bounds,
+  immutable rerunnable evidence and provenance, explicit unsuccessful results,
+  synthetic non-sensitive fixtures, and resolvability while claims remain
   verifiable.
-- R-0008-022 defines immutable workspace reports and evidence plus exact root
-  aggregation. R-0008-023 through R-0008-026 define exact-snapshot approval,
-  protected publication, immutable lifecycle records, correction and
-  withdrawal, and retained audit history. R-0005-035 supplies the protected
-  stable/prerelease promotion boundary. R-0007-347 requires exact versions
-  and expected results for portable artifact families.
+- [R-0008-016 through R-0008-018](../../../specs/0008-multi-language-conformance-and-repository-organization.md#language-neutral-traceability)
+  preserve portable traceability and waiver
+  semantics, registered language-aware extraction, one shared rules engine,
+  and explicit diagnostics. D-0008-008 is complete. I-0008-007 separately owns
+  trace-checker implementation; that implementation is not a prerequisite to
+  planning the conformance artifacts.
+- R-0008-019 through R-0008-022 assign artifact ownership, define workspace
+  command and root-orchestration boundaries, require fail-closed transitive
+  impact selection, and bind immutable workspace evidence and public artifacts
+  through an exact root release manifest.
+- R-0008-023 through R-0008-026 require explicit authorized approval of exact
+  inputs, protected promotion, immutable publication records, append-only
+  lifecycle history, correction and withdrawal semantics, and durable audit
+  evidence. R-0005-034 and R-0005-035 preserve exact-byte root-manifest and
+  stable/prerelease publication gates; edge builds may publish progress only.
+- R-0006-035 through R-0006-039 establish .NET model ownership, adjacent-layer
+  boundaries, validation ownership, and required architecture/package tests.
+  R-0007-347 and R-0007-348 require versioned portable artifacts with expected
+  results and shared offline validation semantics. D-0007-009 and D-0007-011
+  assign the relevant model and algorithm ownership; D-0007-013 and
+  D-0007-015 define .NET consumption and the language-neutral vector envelope.
+- SPEC-0001 R-0001-071 through R-0001-073 keep specifications, schemas, CLI/MCP
+  contracts, and vectors normative and require capability-specific claims to
+  be supported by shared tests. SPEC-0002 R-0002-031 through R-0002-035 retain
+  the MCP administration boundary, sensitive-data restrictions, and host
+  conformance tests.
+- R-0008-027 through R-0008-029 apply when a future migration slice is planned
+  or executed. This artifact-planning action performs no migration and cannot
+  bypass its separately approved sequence, validation, branch, or recovery
+  gates.
 
-The accepted decisions D-0008-004 through D-0008-007, D-0008-011, and
-D-0008-013, plus D-0007-013 and D-0007-015, are marked complete. The I-0008-012
-decision prerequisites are complete. No contradictory profile, declaration,
-evidence, or publication rule was identified in the reviewed sources.
-
-One planning-input reconciliation remains: I-0008-012 promises exact artifact
-ownership but does not list D-0008-010, the completed artifact-ownership
-decision, as a prerequisite. Work-plan synchronization should explicitly
-confirm whether that decision must be added as a dependency/source before the
-planning item is approved. Do not infer or silently modify the item here.
+The decision prerequisites listed by I-0008-012 are complete, including
+D-0008-010, which was absent from the historical readiness snapshot.
+SPEC-0007's I-0007-002 and I-0007-005 remain downstream artifact-producing
+prerequisites; I-0008-012 explicitly permits planning against their contracts
+without representing their outputs as delivered. No unresolved product
+decision or contradictory rule was found in this scoped review.
 
 ## Conformance and prerequisite artifacts
 
-The repository currently contains the operation-descriptor alpha schema and
-its three descriptor vectors. The conformance README states these cover
-structural descriptor behavior only. No profile definition, conformance
-declaration schema, profile evidence matrix, conformance report, claim
-publication record, or associated delivery evidence is present. These are
-expected outputs, not evidence that they can be skipped.
+The repository contains the
+[operation-descriptor alpha schema](../../../schemas/operation-descriptor-v1alpha1.schema.json)
+and three structural descriptor vectors:
+[valid](../../../conformance/operation-descriptor-v1alpha1/valid/minimal-primitive.json),
+[invalid](../../../conformance/operation-descriptor-v1alpha1/invalid/missing-schemas.json),
+and [boundary](../../../conformance/operation-descriptor-v1alpha1/boundary/minimal-decorator.json).
+The [conformance README](../../../conformance/README.md) explicitly says these
+vectors are structural only, not contract-digest goldens. The repository has
+no delivered profile definitions, conformance declaration or assessment
+schemas, profile evidence matrices, conformance reports, claim publication
+records, or evidence bundles. These are planned outputs, not evidence that
+their requirements can be omitted.
 
-I-0007-002 (shared vector tooling) and I-0007-005 (validation foundation
-artifacts) are open milestones with no approved executable plans or delivered
-outputs. I-0008-003 explicitly requires their actual completed outputs before
-artifact delivery. I-0008-012 may plan against their contracts without
-claiming that the outputs exist; it remains a prerequisite to both items.
+[I-0007-002](../../0007/implementation/I-0007-002-conformance-tooling.md)
+(shared vector tooling) and
+[I-0007-005](../../0007/implementation/I-0007-005-validation-foundation-artifacts.md)
+(validation foundation artifacts) are open milestones with no approved
+executable plans or delivered outputs. I-0008-003 requires those actual outputs
+before its delivery slices execute. I-0008-012 may plan the interfaces and
+ordering against their specified contracts, but cannot claim their outputs
+exist or remove them as later entry gates. I-0008-003 is also still a milestone
+without an approved concrete delivery plan or child slices.
 
 ## Blockers
 
-- The SPEC-0008 plan source snapshot is stale: 9 of its 12 recorded input
-  hashes differ from current bytes. The stale inputs include SPEC-0005,
-  SPEC-0006, SPEC-0007, SPEC-0008, SPEC.md, the coding conventions, the
-  specification-driven workflow, and ADR-0001 and ADR-0003. The plan itself
-  records that this source drift is outside its prior bounded impact review.
-  Run work-plan-sync for the affected scope and reassess before approving
-  readiness or the I-0008-012 plan.
-- I-0008-012 and I-0008-003 are both milestones, not executable slices, and
-  each records plan approval as absent. The present snapshot authorizes no
-  implementation. I-0008-012 must first be reconciled and turned into a
-  sufficiently concrete, explicitly approved plan; I-0008-003 requires
-  concrete child slices or a fully specified approved slice.
-- The actual I-0007-002 and I-0007-005 outputs required for I-0008-003 delivery
-  do not exist. They must be delivered and approved before I-0008-003 can
-  execute; planning must retain them as artifact prerequisites rather than
-  represent them as already produced.
+No specification-completeness blocker was identified for creating the
+I-0008-012 plan. Its exact slice decomposition, file ownership, prerequisite
+artifacts, test coverage, readiness gates, and publication evidence are the
+planning milestone's required outputs, not missing prerequisites to planning.
+
+Delivery execution remains blocked until I-0008-012 is concretely planned and
+explicitly approved, I-0007-002 and I-0007-005 deliver their actual approved
+outputs, and I-0008-003 is decomposed into approved executable slices. This
+readiness record grants none of those approvals and does not make I-0008-003
+eligible.
 
 ## Validation and approval
 
-Assessed against the exact source revisions and SHA-256 values listed above at
-HEAD `8a534afd2e4a4cbd28e30de6e115967977862727`. Direct prerequisite statuses
-and the repository artifact inventory were inspected. Hash comparison found
-9 stale entries in the SPEC-0008 plan's 12-source snapshot; see Blockers.
-Decision prerequisites D-0008-004 through D-0008-007, D-0008-011, D-0008-013,
-D-0007-013, and D-0007-015 are complete; the artifact-producing SPEC-0007
-milestones remain open.
+Assessed against the exact committed source bytes at HEAD
+`aba1065c108122ea5a575ec8baf0c7e0a9cf24d2`; each inventory entry records that
+revision and the corresponding SHA-256. The source inventory includes the
+governing specifications, completed decisions and plans, implementation
+milestones, and existing schema/vector inventory inspected for this scope.
+Relevant decision statuses and the I-0008-012/I-0008-003 dependency records
+were inspected directly.
 
 Validation performed:
 
-- All 28 readiness source entries resolve and their SHA-256 hashes match the
-  current source bytes. All entries identify the inspected HEAD revision.
-- The readiness document has no trailing whitespace or Markdown link targets.
-- `spec-trace-check`: PASS. The sole changed file is an `Other` work/readiness
-  record; the inferred kind is `maintenance`, no `Spec:` trailer applies, and
-  semantic review is not applicable to this file class.
-- No deterministic work-artifact validator or global graph check was run.
-  Affected plan-source staleness remains a blocker and must be reconciled
-  before relying on plan eligibility.
+- Confirmed the recorded requirements and decisions against their current
+  authoritative text; confirmed the listed decision prerequisites are
+  complete.
+- Inspected the existing schema/vector inventory and confirmed the absence of
+  the planned profile, declaration, evidence, report, and publication outputs.
+- Confirmed this assessment separates readiness to plan from implementation
+  eligibility and preserves the I-0007-002 and I-0007-005 execution gates.
+- Checked all 41 source hashes against the exact committed bytes at the
+  recorded revision. All 19 SPEC-0008 and 21 SPEC-0007 plan source records
+  match current bytes and resolve at their recorded committed revisions.
+- Checked local links in the readiness record and runbook; all resolve. The
+  refreshed runbook covers 34 real items and four workflow gates, has no source
+  digest mismatch, and records the review gate as its next action.
+- Specification trace check: PASS (AI-led). Both changed files are
+  documentation/work records (`Other`); inferred change kind is `maintenance`,
+  with no `Spec:` trailer required. No specification, product code, or test
+  code changed.
+- `git diff --check`: PASS. Git reported only the existing CRLF-to-LF
+  normalization warning for the two Markdown files.
+- No build or unit tests apply to this planning/readiness documentation.
 
-Assessment status is `blocked`; human approval is absent. This assessment
-neither publishes a profile or claim nor asserts a complete conformance
-release.
+The user explicitly approved this exact readiness snapshot in this session on
+2026-10-12. The approved scope is readiness to plan I-0008-003 through
+I-0008-012 only; it excludes implementation approval, delivery execution,
+profile or claim publication, and whole-v1 conformance readiness.
+
+The approved readiness-record snapshot is SHA-256
+`c630803e518188c36bf6b164834350fcdaaf94550f13a924b366d8b8e61b6310`, assessed
+at HEAD `aba1065c108122ea5a575ec8baf0c7e0a9cf24d2` with the 41 exact source
+hashes listed above. The associated generated runbook snapshot in the approved
+worktree is SHA-256
+`85fc61567f93071e2319f7b51b8d47aee9af727a49c3b00bd37bbfd0bdbbea3a`.
+Approval applies to this scope and its assessed input snapshot only; it does
+not authorize implementation or publish a profile or claim.
+
+The proposed commit trailer is `Change-Kind: maintenance` with no `Spec:`
+trailer. The prior blocked assessment is superseded only for this exact source
+snapshot. Its historical findings were stale plan sources and the missing
+D-0008-010 dependency; plan synchronization reconciled the sources and added
+that dependency. Git history retains the complete prior assessment. This
+scoped readiness is neither implementation approval nor profile/claim
+publication nor a full v1 conformance claim.
