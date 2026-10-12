@@ -1,6 +1,6 @@
 # .NET Conventions
 
-> **Applies to:** maintained .NET implementation projects and their tests
+> **Applies to:** maintained .NET implementation and common-library projects and their tests
 
 This guide supplements the
 [common coding conventions](../coding-conventions.md). The common policy
@@ -14,9 +14,13 @@ for the language-support condition.
 
 ## Repository and project organization
 
-- .NET production projects belong under `implementations/dotnet/src/`.
-- .NET unit and integration projects belong under the corresponding directories
-  in `implementations/dotnet/tests/`.
+- Until the approved R-0008-027 relocation, existing .NET implementation
+  projects remain under `implementations/dotnet/src/` with tests under
+  `implementations/dotnet/tests/`. Their target workspace paths are
+  `src/implementations/dotnet/src/` and `src/implementations/dotnet/tests/`.
+- Shared .NET library production projects belong under
+  `src/common/dotnet/src/`; their tests belong under
+  `src/common/dotnet/tests/`.
 - Primitive operation packages depend only on `Qhapaq.Abstractions` unless an
   accepted specification requires more.
 - `Qhapaq.Service.V1`, `Qhapaq.Business`, and `Qhapaq.DAL` must not depend on
@@ -71,10 +75,12 @@ Entry Points -> Service -> Business -> DAL
 Folders and namespaces must make the owning layer unambiguous. Shared code does
 not bypass a layer: place it in the lowest layer that owns its semantics or
 define a boundary contract when two adjacent layers genuinely collaborate.
-`Qhapaq.Portable.Validation` is a shared support assembly, not another runtime
-layer; it contains only the deterministic algorithms shared by Business and
-the build-time generator as specified by R-0006-041. It must not depend on
-runtime layers or generator tooling.
+`Qhapaq.Portable.Validation` is a shared support assembly in the
+`src/common/dotnet/` workspace, not another runtime layer; its source is under
+`src/common/dotnet/src/` and its tests under `src/common/dotnet/tests/`. It
+contains only the deterministic algorithms shared by Business and the
+build-time generator as specified by R-0006-041. It must not depend on runtime
+layers or generator tooling.
 
 ### Production feature folders and namespaces
 
@@ -97,8 +103,10 @@ runtime layers or generator tooling.
   | `Qhapaq.EntryPoints.Hosting/DependencyInjection/` | `Qhapaq.EntryPoints.Hosting.DependencyInjection` |
 
 The rule applies to handwritten production source physically located beneath
-`implementations/dotnet/src/`. SDK- and compiler-generated files outside those
-project source directories are not handwritten source and are excluded.
+the current `implementations/dotnet/src/` path until relocation, its target
+`src/implementations/dotnet/src/` path, and `src/common/dotnet/src/`. SDK- and
+compiler-generated files outside those project source directories are not
+handwritten source and are excluded.
 Qhapaq-generated source follows the generated namespace contract in its
 governing specification; generator tests must verify that contract separately.
 

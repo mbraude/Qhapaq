@@ -1,9 +1,9 @@
 # SPEC-0008: Multi-language Conformance and Repository Organization
 
 > **Status:** Draft; decision questions resolved in normative requirements; exact snapshot review and readiness remain required
-> **Version:** 0.14
+> **Version:** 0.15
 > **Scope:** Future multi-language implementations and repository artifact organization
-> **Last updated:** 2026-10-10
+> **Last updated:** 2026-10-11
 
 ## 1. Purpose and Decision Status
 
@@ -101,6 +101,10 @@ could belong to a runtime, an integration, or a contributor tool.
 
 ```text
 src/
+  common/
+    dotnet/
+      src/
+      tests/
   implementations/
     dotnet/
       src/
@@ -120,14 +124,20 @@ build/
 ```
 
 The categories classify artifact purpose independently of implementation
-language. They are ownership groupings, not shared build workspaces. Directories
-are added only for real content; this target does not require empty scaffolds.
+language. `common/<language>/` owns a self-contained language workspace for
+production libraries intentionally shared across Qhapaq workspaces; each such
+workspace has its own `src/` and `tests/` directories. It is not a general
+location for duplicated helpers, workspace-specific code, or orchestration.
+Directories are added only for real content; this target does not require
+empty scaffolds.
 
 **[R-0008-002]** A maintained artifact belongs under `src/` when it has an independently
 buildable, testable, packageable, or distributable software lifecycle. Each
-implementation or independently maintained integration, website, or development
-tool keeps a self-contained workspace containing its source, tests, dependency
-manifests, and pinned toolchain where applicable. The repeated
+implementation, common-library language workspace, or independently maintained
+integration, website, or development tool keeps a self-contained workspace
+containing its source, tests, dependency manifests, and pinned toolchain where
+applicable. A common-library workspace uses the layout
+`src/common/<language>/{src,tests}/`. The repeated
 `src/implementations/dotnet/src/` preserves the distinction between production
 projects and tests; it does not require another artifact to use the same inner
 layout.
@@ -142,7 +152,9 @@ workspace.
 
 **[R-0008-003]** Software workspaces consume portable root assets and interact with other
 workspaces only through documented public contracts, protocols, packages, or
-release artifacts:
+release artifacts, except that a common-library workspace may be consumed by
+other workspaces through an explicit project reference or documented package
+or release-artifact reference:
 
 - Implementations consume portable specifications, schemas, and vectors.
 - Integrations consume supported public contracts, protocols, or packages
@@ -150,7 +162,12 @@ release artifacts:
 - Website generation consumes curated content and release metadata without
   making the deployed site authoritative for product semantics.
 - Build tools may inspect source without becoming runtime dependencies.
-- A workspace must not consume another workspace's private build output.
+- Except for explicitly declared common-library dependencies below, a
+  workspace must not consume another workspace's private build output.
+- A common library may be shared across workspace responsibilities, but it
+  must not depend on implementation, integration, website, or tool workspaces.
+  Common-library project references must be explicit; they do not authorize
+  references to arbitrary private source or build outputs.
 
 Generated outputs remain ignored or in an explicitly documented generated
 location unless a version-controlled consumer requires them. Generated output
@@ -166,6 +183,13 @@ files, rename namespaces, assemblies, or packages, or change runtime behavior.
 **[R-0008-019]** Artifact ownership follows the responsibility and supported
 contract of the artifact, not its implementation language:
 
+- `Qhapaq.Portable.Validation` is a .NET common library owned by the
+  `src/common/dotnet/` workspace. Its production project is under
+  `src/common/dotnet/src/`, and its tests are under
+  `src/common/dotnet/tests/`. The .NET implementation and its build-time
+  generator may consume this shared library only through explicit dependency
+  references. Its assembly identity, runtime/build-time uses, and distribution
+  remain governed by SPEC-0006 R-0006-021, R-0006-024, and R-0006-041.
 - The Roslyn incremental generator required by SPEC-0007 is owned by the .NET
   implementation workspace because it supplies the .NET operation-authoring
   build contract. It is independently versioned and packaged build tooling,
@@ -728,11 +752,13 @@ and reviewable stages in this order:
    and dependency direction unless a separate approved amendment explicitly
    changes one of those contracts.
 4. After the identity stage passes validation and is approved, relocate the
-   consistently named .NET workspace to `src/implementations/dotnet/` through
-   an exact move manifest. Consumer changes required for build, test,
-   discovery, instruction applicability, traceability, or CI correctness land
-   atomically with the move. Relocation must not implicitly rename an identity
-   or change behavior.
+   consistently named .NET implementation workspace to
+   `src/implementations/dotnet/` and the shared portable-validation project
+   into `src/common/dotnet/src/`, with its tests under
+   `src/common/dotnet/tests/`, through exact move manifests. Consumer changes
+   required for build, test, discovery, instruction applicability,
+   traceability, or CI correctness land atomically with the affected moves.
+   Relocation must not implicitly rename an identity or change behavior.
 5. Update remaining non-atomic automation, documentation, release, and
    work-plan consumers, then add another workspace only for an approved real
    consumer and scope.
@@ -792,7 +818,7 @@ These labels identify discussion questions, not requirement IDs or work items.
 
 | Question | Unresolved decision |
 | --- | --- |
-| Q-0008-001 | Decided by R-0008-001 through R-0008-003: responsibility-based software categories under `src/`, lifecycle-based root exceptions, self-contained workspaces, and public cross-artifact boundaries. |
+| Q-0008-001 | Decided by R-0008-001 through R-0008-003: responsibility-based software categories under `src/`, including language-specific self-contained `common/` workspaces for shared production libraries, lifecycle-based root exceptions, and explicit cross-workspace dependency boundaries. |
 | Q-0008-002 | Decided by R-0008-004: common policy remains in `docs/development/coding-conventions.md`; real language and artifact specializations live beneath `docs/development/conventions/`; applicability is cumulative and path instructions link rather than duplicate policy. |
 | Q-0008-003 | Decided by R-0008-005: portable requirements remain implementation-neutral; normative language contracts belong in explicitly scoped numbered implementation specifications; block boundaries and required labels distinguish normative from illustrative examples. |
 | Q-0008-004 | Decided by R-0008-006 and R-0008-007: the initial profiles are the portable runtime, local CLI, MCP host, and in-process .NET API; every execution-bearing surface profile requires the runtime baseline; dependencies are cumulative; partial and unqualified conformance claims are prohibited; remote-client profiles are deferred. |
@@ -813,6 +839,7 @@ This document alone is neither specification readiness nor delivery approval.
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.15 | 2026-10-11 | Added language-specific common-library workspaces with separate source and test trees, permitted explicit common-library dependencies, assigned shared portable validation to `src/common/dotnet/`, and included its relocation in the staged migration. |
 | 0.14 | 2026-10-10 | Defined staged migration prerequisites, Entry Point rename-before-relocation ordering, separate public-change approval, exact before-and-after validation and impact review, preserved user changes, and non-destructive scoped recovery. |
 | 0.13 | 2026-10-10 | Defined exact-snapshot publication approval, protected-release promotion, immutable publication records, closed support and claim states, correction and withdrawal behavior, evidence availability, and indefinite audit tombstones. |
 | 0.12 | 2026-10-10 | Defined workspace capability contracts and root adapters, fail-closed transitive CI impact selection, immutable digest-bound evidence transport, and coordinated release assembly through one exact root manifest. |

@@ -30,9 +30,11 @@ artifacts: []
 
 ## Objective and coverage
 
-Update every consumer of changed paths and workspace boundaries, including
-builds, CI, releases, instructions, architecture tests, documentation, and
-work-plan snapshots. Exact files and requirements are pending.
+Update remaining non-atomic consumers of changed paths and workspace
+boundaries, including builds, CI, releases, instructions, architecture tests,
+documentation, and work-plan snapshots. Build/test entry points and path
+instructions required for a move belong atomically to I-0008-004. Exact files
+and requirements are pending.
 
 ## Entry gates
 

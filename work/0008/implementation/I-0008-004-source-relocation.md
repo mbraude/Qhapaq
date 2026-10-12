@@ -18,9 +18,11 @@ requirements:
   - R-0008-027
   - R-0008-028
   - R-0008-029
-depends_on: [D-0008-001, D-0008-009, D-0008-010, D-0008-012, I-0008-008]
+depends_on: [D-0008-001, D-0008-009, D-0008-010, D-0008-012, D-0008-015, I-0008-008]
 artifacts:
   - src
+  - .agents/skills/build-and-test/SKILL.md
+  - .github/instructions/dotnet.instructions.md
 ---
 
 # I-0008-004: Relocate Maintained Software into the Approved Taxonomy
@@ -28,15 +30,18 @@ artifacts:
 ## Objective and coverage
 
 Relocate approved software workspaces without implicitly changing namespaces,
-assemblies, packages, public behavior, or portable contracts. The exact move
-manifest remains pending.
+assemblies, packages, public behavior, or portable contracts. This includes
+moving the shared portable-validation project into
+`src/common/dotnet/src/` with its tests under `src/common/dotnet/tests/`.
+Exact move manifests remain pending.
 
 ## Entry gates
 
-The taxonomy, terminology, ownership, and migration decisions are complete;
-the separately reviewed Entry Point identity migration is delivered and
-approved; R-0000-009 and affected SPEC-0006 requirements are amended; and
-readiness and the concrete move plan are approved.
+The taxonomy, terminology, common-library ownership, and migration decisions
+are complete; the separately reviewed Entry Point identity migration is
+delivered and approved; R-0000-009, R-0000-019, R-0000-020, and affected
+SPEC-0006 requirements are amended; and readiness and the concrete move plan
+are approved.
 
 ## File and ownership manifest
 
@@ -46,7 +51,9 @@ including preserved files and excluded repository-root assets.
 ## Design and integration
 
 Use version-control-preserving moves, maintain self-contained workspaces, and
-keep cross-artifact dependencies on supported contracts.
+keep cross-artifact dependencies on supported contracts. Update the
+build-and-test skill, workspace build/test entry points, path instructions,
+and CI filters atomically where they must recognize the new workspace roots.
 
 ## Tests and validation
 

@@ -1,9 +1,12 @@
 ---
 spec: SPEC-0007
 sources:
+  - path: SPEC.md
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: fcab9707ea09d78eb569e8b1194f10dc1cfda597
-    content_sha256: e212841e5af69e06dba739222f0696f793436e391e7dbf66c0e047d8596a2e12
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
   - path: specs/0005-build-release-and-website-delivery.md
     revision: ffbae7cb66e4773e57a646822bb0b03b614ca200
     content_sha256: 8259be3d7e256d77ab18e96c35906ce64c01d25eb7a22f45a911c0727d1a1679
@@ -14,8 +17,8 @@ sources:
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
   - path: specs/0006-dotnet-layered-architecture.md
-    revision: 8c63f2df1b8950fc0e283810e21e1d59db81f867
-    content_sha256: 052fad91fa6781e84fe6d3c93491c067f7e35dd0c4e807d2ca472e1fffc08e6e
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: 785bc5aba6b82f1aa3e73a84d86d91fcf4c7d0a3bb0425f2a389d1d874940732
   - path: specs/0001-core-pipeline-model.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
@@ -44,14 +47,42 @@ sources:
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 62eafc81acf00d7bf15390aa110119e0be3d6e4a7cf0988193e9bb664e40eb4a
   - path: docs/development/conventions/dotnet.md
-    revision: 8f0082a220dcb36f848c5e9db05104787ee3b280
-    content_sha256: e3f7da320fba86a5ec2217607bbb35175fb905bfc91ee5e005a87a0d5d009d9f
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: 9389c4cf18b6674497f79e0caef7059928369a935aef5a6ced53046ea5295d36
+  - path: .github/instructions/dotnet.instructions.md
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: 97fa3163316d35c1a7ccac75293f896652f7f7b150cc4fbff83ab4d67ee9d05e
   - path: docs/development/conventions/schemas.md
     revision: 1c0b6e5b5195381e4cb985f4270d746e0f039817
     content_sha256: efdccc4b508826ba8302db9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
 ---
 
 # SPEC-0007: Work Plan
+
+## D-0008-015 common-library ownership reconciliation
+
+- Date: 2026-10-11. The user selected a common source workspace for portable
+  validation libraries, with language-specific `src/` and `tests/` trees.
+  SPEC-0006 R-0006-024 and R-0006-041 and SPEC-0008 R-0008-001 through
+  R-0008-003, R-0008-019, and R-0008-027 are amended; SPEC.md R-0000-019 and
+  R-0000-020 now identify the common .NET paths and category.
+- D-0007-012's prior approval remains historical and unchanged. Its
+  post-approval note records the location supersession; algorithm ownership,
+  assembly identity, permitted consumers, and distribution remain unchanged.
+- I-0007-001, I-0007-007, and I-0007-008 now identify common-project
+  ownership, tests, architecture checks, and the prerequisite decision
+  D-0008-015. Their implementation milestones remain open and unapproved.
+- Source reconciliation updates the exact working-copy hashes and records
+  committed baseline `7178f84c93d8393c30a5a5cf57f3c923d36274fc` for SPEC.md,
+  SPEC-0006, SPEC-0008, .NET conventions, and the applicable .NET path
+  instruction. The committed blobs were verified against their prior
+  snapshot hashes before advancing the baselines. No SPEC-0007 requirement or
+  behavior changed.
+- No implementation, common workspace, readiness approval, or package is
+  created. The build-and-test skill and remaining path consumers stay assigned
+  to the approved migration work after the target workspaces exist.
+- Validation and exact-snapshot evidence are recorded in D-0008-015. This
+  reconciliation does not approve that decision or any implementation work.
 
 ## Source-byte reconciliation after branch integration
 
@@ -1079,10 +1110,11 @@ Spec: R-0007-361@92d9bb, R-0007-362@78ddc6, R-0007-363@dca37b, R-0007-364@70d920
   R-0006-039 consumers retain Business as logical semantic owner; no unrelated
   milestone is reopened.
 - Adding the shared assembly amended R-0006-021 and R-0006-024 and added
-  R-0006-041. Current fingerprints are `R-0006-021@d969c8`,
-  `R-0006-024@c4e735`, and `R-0006-041@2c2d4a`. Historical references in
-  D-0007-008 and D-0008-009 were refreshed without changing their approved
-  material outcomes or carrying approval onto the new source snapshot.
+  R-0006-041. At that snapshot, the cited fingerprints were `d969c8` for
+  R-0006-021, `c4e735` for R-0006-024, and `2c2d4a` for R-0006-041.
+  Historical references in D-0007-008 and D-0008-009 were refreshed without
+  changing their approved material outcomes or carrying approval onto the new
+  source snapshot.
 - The D-0007-011 and D-0008-010 approvals remain scoped to their prior
   snapshots: their logical ownership and workspace-ownership decisions are
   unchanged, and both explicitly left the physical shared-library boundary to

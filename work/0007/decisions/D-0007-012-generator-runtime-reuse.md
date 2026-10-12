@@ -126,11 +126,12 @@ Exact ready-for-review snapshot:
 | `work/0008/decisions/D-0008-009-dotnet-adapter-terminology.md` | SHA-256 `770a1134b3e632dfbdd1b92ec9d10e502afbaed188793eaf361d3eb769730c42` |
 | `work/0008/plan.md` | SHA-256 `0e83a378bb760445bbd6442deac77024aa8e12d53ead1926669b0b03ef67767f` |
 
-Proposed commit trailers:
+Historical approved trailer evidence (recorded 2026-10-11):
 
 ```text
 Change-Kind: requirement
-Spec: R-0006-021@d969c8, R-0006-024@c4e735, R-0006-041@2c2d4a
+References at approval: R-0006-021 (fingerprint d969c8), R-0006-024
+(fingerprint c4e735), R-0006-041 (fingerprint 2c2d4a)
 ```
 
 Approval recorded on 2026-10-11: the user explicitly approved this exact
@@ -149,3 +150,15 @@ The approved material SHA-256 is
 approved full-byte input/output hashes are the exact values in the snapshot
 table above. Only status and this validation/review evidence changed after
 approval.
+
+Post-approval ownership correction (2026-10-11): SPEC-0006 R-0006-041's
+original approved project path under `implementations/dotnet/` is superseded
+by the separately reviewed common-library ownership amendment in
+[D-0008-015](../../0008/decisions/D-0008-015-common-library-workspaces.md).
+The current project location is
+`src/common/dotnet/src/Qhapaq.Portable.Validation/`, with tests under
+`src/common/dotnet/tests/`. This correction changes repository ownership and
+paths only; D-0007-012's approved algorithm-sharing, dependency, and
+distribution decisions remain in force. The historical approval and its
+exact-snapshot evidence above remain unchanged and do not approve the amended
+location.

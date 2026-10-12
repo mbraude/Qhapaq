@@ -106,8 +106,14 @@ Validated 2026-10-10:
 - Post-snapshot reference reconciliation (2026-10-11): D-0007-012 extended
   SPEC-0006 R-0006-021 and R-0006-024 to include `Qhapaq.Portable.Validation`.
   The exact 2026-10-10 approved snapshot remains historical and unchanged; the
-  approved Entry Points terminology outcome is unaffected. Current
-  fingerprints are `R-0006-021@d969c8` and `R-0006-024@c4e735`.
+  approved Entry Points terminology outcome is unaffected. At that snapshot,
+  the cited fingerprints were `d969c8` for R-0006-021 and `c4e735` for
+  R-0006-024.
+- Subsequent location amendment (2026-10-11): D-0008-015 amended
+  SPEC-0006 R-0006-024 and R-0006-041 to place the shared project and tests in
+  the common .NET workspace. The current fingerprint for R-0006-024 is
+  `7bba32`; the historical approval and this decision's Entry Points outcome
+  remain unchanged.
 - Specification trace review ran without a semantic-review skip and returned
   `PASS with warnings`, with no errors or waivers. It classified the change as
   `amendment` and reviewed all 16 changed SPEC-0006 blocks. The warning records

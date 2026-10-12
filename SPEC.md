@@ -306,6 +306,8 @@ Qhapaq/
 
 | Path | Purpose |
 | --- | --- |
+| `src/common/dotnet/src/` | Shared .NET production libraries consumed across Qhapaq workspaces. |
+| `src/common/dotnet/tests/` | Tests for shared .NET production libraries. |
 | `src/implementations/dotnet/src/` | .NET reference implementation, CLI, and MCP source. |
 | `src/implementations/dotnet/tests/unit/` | Fast, isolated tests for .NET behavior. |
 | `src/implementations/dotnet/tests/integration/` | Tests across .NET components and external boundaries. |
@@ -320,12 +322,14 @@ Qhapaq/
 
 **[R-0000-020]** Maintained software artifacts belong under the responsibility-based categories
 in `src/` when they have an independently buildable, testable, packageable, or
-distributable lifecycle. Each implementation or independently maintained
-artifact keeps a self-contained workspace with its source, tests, dependency
-manifests, and pinned toolchain where applicable. Language-neutral
-specifications, schemas, conformance vectors, curated documentation, user-facing
-examples, automation entry points, and cross-artifact build configuration remain
-at the repository root so no software workspace owns the portable contract.
+distributable lifecycle. Each implementation, common-library language
+workspace, or independently maintained artifact keeps a self-contained
+workspace with its source, tests, dependency manifests, and pinned toolchain
+where applicable. Common-library workspaces own production libraries shared
+across Qhapaq workspaces; language-neutral specifications, schemas, conformance
+vectors, curated documentation, user-facing examples, automation entry points,
+and cross-artifact build configuration remain at the repository root so no
+software workspace owns the portable contract.
 
 ### 4.3 Specifications and Documentation
 

@@ -106,11 +106,12 @@ Validated 2026-10-10:
   bytes, all relative links in the eight changed Markdown files resolve, and
   `git diff --check` passes. Git reported only the repository's existing
   line-ending normalization warnings.
-- Specification trace review ran without a semantic-review skip and returned
-  `PASS` with no errors, warnings, or waivers. It classified the change as
-  `requirement`, derived `R-0008-027@4468fb`,
-  `R-0008-028@881234`, and `R-0008-029@233dd2`, and confirmed that no existing
-  requirement fingerprint or code/test reference became stale.
+- The specification trace review at that snapshot ran without a
+  semantic-review skip and returned `PASS` with no errors, warnings, or
+  waivers. It classified the change as `requirement` and recorded
+  then-current fingerprint `4468fb` for R-0008-027, alongside R-0008-028 and
+  R-0008-029. It confirmed that no requirement fingerprint or code/test
+  reference was stale at that time.
 - No build or unit tests were run because this decision changes only
   specification and planning documentation and explicitly defers
   implementation.

@@ -7,8 +7,8 @@ title: .NET descriptor authoring and deterministic generation
 status: open
 spec: SPEC-0007
 requirements: [R-0007-349, R-0007-335, R-0008-019, R-0006-021, R-0006-024, R-0006-035, R-0006-036, R-0006-037, R-0006-038, R-0006-039, R-0006-041]
-depends_on: [D-0007-003, D-0007-012, D-0008-010, I-0007-001, I-0007-002, I-0007-003, I-0007-007]
-artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
+depends_on: [D-0007-003, D-0007-012, D-0008-010, D-0008-015, I-0007-001, I-0007-002, I-0007-003, I-0007-007]
+artifacts: [src/implementations/dotnet/src, src/implementations/dotnet/tests, src/common/dotnet/src, src/common/dotnet/tests]
 ---
 
 # I-0007-008: Descriptor Generation

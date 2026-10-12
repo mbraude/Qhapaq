@@ -272,9 +272,9 @@ map.
 implementation shares the portable algorithms in SPEC-0007 R-0007-348 through
 one narrowly scoped production project and library assembly named
 `Qhapaq.Portable.Validation`, located at
-`implementations/dotnet/src/Qhapaq.Portable.Validation/`. Its `AssemblyName`
-and `RootNamespace` match its project name. Business references this assembly
-for runtime behavior, and the Roslyn generator consumes the same implementation
+`src/common/dotnet/src/Qhapaq.Portable.Validation/`. Its `AssemblyName` and
+`RootNamespace` match its project name. Business references this assembly for
+runtime behavior, and the Roslyn generator consumes the same implementation
 only as build-time tooling. The assembly is bundled in the `Qhapaq` runtime
 distribution and as a private build-time asset of the generator package; it
 does not create a separate public package. The shared assembly does not depend
@@ -396,8 +396,9 @@ and root namespace names.
 
 ## 8. Initial .NET Project and File Plan
 
-The project tree below describes the initial runtime layers. It is complemented
-by the shared support project specified in R-0006-041.
+The project tree below describes the initial runtime layers. The shared
+validation project and its tests live in the separate common .NET workspace
+shown after the implementation tree and are specified in R-0006-041.
 
 **[R-0006-024]** The initial project structure is:
 
@@ -420,8 +421,6 @@ implementations/dotnet/
 |   |   `-- Internal/
 |   |       |-- Business/
 |   |       `-- DAL/
-|   |-- Qhapaq.Portable.Validation/
-|   |   `-- Qhapaq.Portable.Validation.csproj
 |   |-- Qhapaq.Service.V1/
 |   |   |-- Qhapaq.Service.V1.csproj
 |   |   `-- PipelineService.cs
@@ -458,6 +457,16 @@ implementations/dotnet/
         |-- Qhapaq.EntryPoints.Hosting.Tests/
         |-- Qhapaq.EntryPoints.MCP.Tests/
         `-- Qhapaq.EntryPoints.CLI.Tests/
+```
+
+The shared library has its own language workspace and tests:
+
+```text
+src/common/dotnet/
+|-- src/
+|   `-- Qhapaq.Portable.Validation/
+|       `-- Qhapaq.Portable.Validation.csproj
+`-- tests/
 ```
 
 **[R-0006-025]** Assembly references provide the primary structural boundary. Folder names and

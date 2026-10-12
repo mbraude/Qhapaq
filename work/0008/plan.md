@@ -2,8 +2,8 @@
 spec: SPEC-0008
 sources:
   - path: SPEC.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: cbb6cec07dff90ff9c8eef54b5cd3ae2c97da5d17ecd452f7e677664be99aa3d
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e
   - path: specs/0001-core-pipeline-model.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
@@ -11,14 +11,14 @@ sources:
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: e212841e5af69e06dba739222f0696f793436e391e7dbf66c0e047d8596a2e12
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
   - path: specs/0005-build-release-and-website-delivery.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: 8259be3d7e256d77ab18e96c35906ce64c01d25eb7a22f45a911c0727d1a1679
   - path: specs/0006-dotnet-layered-architecture.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 052fad91fa6781e84fe6d3c93491c067f7e35dd0c4e807d2ca472e1fffc08e6e
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: 785bc5aba6b82f1aa3e73a84d86d91fcf4c7d0a3bb0425f2a389d1d874940732
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
@@ -26,8 +26,11 @@ sources:
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
   - path: docs/development/conventions/dotnet.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: e3f7da320fba86a5ec2217607bbb35175fb905bfc91ee5e005a87a0d5d009d9f
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: 9389c4cf18b6674497f79e0caef7059928369a935aef5a6ced53046ea5295d36
+  - path: .github/instructions/dotnet.instructions.md
+    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
+    content_sha256: 97fa3163316d35c1a7ccac75293f896652f7f7b150cc4fbff83ab4d67ee9d05e
   - path: docs/development/conventions/schemas.md
     revision: 8a534afd2e4a4cbd28e30de9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
   - path: docs/development/spec-driven-workflow.md
@@ -116,6 +119,7 @@ names until explicitly amended.
 | 3 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) | Separate portable requirements, language contracts, and examples |
 | 4 | [D-0008-009](decisions/D-0008-009-dotnet-adapter-terminology.md) | Resolve .NET layer and assembly terminology |
 | 5 | [D-0008-010](decisions/D-0008-010-artifact-ownership-boundaries.md) | Assign generator and integration ownership boundaries |
+| 6 | [D-0008-015](decisions/D-0008-015-common-library-workspaces.md) | Define common-library workspace ownership and dependencies |
 
 ### Exit gates
 
@@ -175,7 +179,7 @@ SPEC-0007 gates remain in force.
 | 10 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
 | 11 | [I-0008-009](implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration |
 | 12 | [I-0008-008](implementation/I-0008-008-entry-point-identity-migration.md) | Apply the matched .NET Entry Point identities |
-| 13 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate source without implicit identity or behavior changes |
+| 13 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate implementation and common-library source without implicit identity or behavior changes |
 | 14 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
 | 15 | [I-0008-006](implementation/I-0008-006-future-workspaces.md) | Add future workspaces only for approved consumers |
 
@@ -793,3 +797,30 @@ consumer and approved scope.
   phase membership, or dependency edge changed in this reconciliation; the
   prior cross-plan dependency validation remains applicable. Readiness
   reassessment and explicit review of this exact plan snapshot remain pending.
+- Date: 2026-10-11. D-0008-015 amends the repository taxonomy and dependency
+  boundary to support language-specific common-library workspaces with
+  separate source and test trees. The shared portable-validation project is
+  assigned to `src/common/dotnet/`; the .NET implementation and generator
+  remain in the implementation workspace. SPEC.md, SPEC-0006, and SPEC-0008
+  are reconciled together because the root path map, .NET project plan, and
+  repository taxonomy all govern this ownership.
+- D-0008-015 is added to Phase 0 with prerequisites D-0008-001, D-0008-010,
+  D-0008-012, and D-0007-012. I-0008-004 now depends on D-0008-015 and includes
+  the shared library move; I-0008-005 explicitly includes both workspaces and
+  build-skill consumer updates. No existing milestone is approved or completed.
+- No existing migration-readiness approval covers this new workspace or move.
+  The engineering-policy readiness evidence remains limited to its former
+  scope; reassess migration readiness against concrete move and consumer
+  manifests before implementation. The build-and-test skill is deliberately
+  unchanged until the target workspaces exist.
+- Exact source hashes for SPEC.md, SPEC-0006, SPEC-0008, the .NET conventions,
+  and the .NET path instruction are refreshed to the reviewed working copies
+  in this plan's source list. Their committed baselines are advanced to
+  pre-change HEAD
+  `7178f84c93d8393c30a5a5cf57f3c923d36274fc` after verifying the blobs match
+  the prior source hashes. The impact review uses SPEC-0008 and the previously
+  approved shared-library decision D-0007-012; D-0008-015 does not carry
+  forward that approval.
+- Validation and exact-snapshot evidence are recorded in D-0008-015. This plan
+  reconciliation is not approval of the decision, migration, implementation,
+  or any readiness record.

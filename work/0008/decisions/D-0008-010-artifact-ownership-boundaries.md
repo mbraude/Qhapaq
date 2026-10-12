@@ -69,10 +69,11 @@ Validated 2026-10-10:
   plans record the exact SPEC-0008 source bytes, and `git diff --check` passes.
   Git reported only the repository's existing line-ending normalization
   warnings.
-- Specification trace review ran without a semantic-review skip and returned
-  `PASS with warnings`, with no errors or waivers. It classified the change as
-  `requirement`, derived `R-0008-019@571f96`, and confirmed that no existing
-  requirement fingerprint or code/test reference became stale. The warning
+- The specification trace review at that snapshot ran without a
+  semantic-review skip and returned `PASS with warnings`, with no errors or
+  waivers. It classified the change as `requirement` and recorded then-current
+  fingerprint `571f96` for R-0008-019. It confirmed that no requirement
+  fingerprint or code/test reference was stale at that time. The warning
   identifies the .NET, Roslyn, package, and workspace identities necessarily
   named by this repository-organization requirement.
 - No build or unit tests were run because this decision changes only
