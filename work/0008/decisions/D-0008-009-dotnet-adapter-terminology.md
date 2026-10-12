@@ -95,13 +95,19 @@ Validated 2026-10-10:
 - Confirmed all relative links in the ten changed Markdown files resolve and
   `git diff --check` passes. Git reported only the repository's existing
   line-ending normalization warnings.
-- Derived current fingerprints for all 16 amended SPEC-0006 blocks:
+- Derived fingerprints for all 16 SPEC-0006 blocks at the original review
+  snapshot:
   `R-0006-002@986093`, `R-0006-009@d7d6c5`, `R-0006-010@0bbcbc`,
   `R-0006-014@e5b3fd`, `R-0006-015@583f2e`, `R-0006-017@32c03d`,
-  `R-0006-020@19dcc3`, `R-0006-021@86e7dc`, `R-0006-023@5c84f0`,
-  `R-0006-024@adc42f`, `R-0006-026@5c802d`, `R-0006-028@6edbcf`,
+  `R-0006-020@19dcc3`, `R-0006-021`, `R-0006-023@5c84f0`,
+  `R-0006-024`, `R-0006-026@5c802d`, `R-0006-028@6edbcf`,
   `R-0006-030@e300b6`, `R-0006-031@3f2f97`, `R-0006-032@d0fa7c`, and
-  `R-0006-033@80ef20`. No active stale fingerprint references exist.
+  `R-0006-033@80ef20`.
+- Post-snapshot reference reconciliation (2026-10-11): D-0007-012 extended
+  SPEC-0006 R-0006-021 and R-0006-024 to include `Qhapaq.Portable.Validation`.
+  The exact 2026-10-10 approved snapshot remains historical and unchanged; the
+  approved Entry Points terminology outcome is unaffected. Current
+  fingerprints are `R-0006-021@d969c8` and `R-0006-024@c4e735`.
 - Specification trace review ran without a semantic-review skip and returned
   `PASS with warnings`, with no errors or waivers. It classified the change as
   `amendment` and reviewed all 16 changed SPEC-0006 blocks. The warning records

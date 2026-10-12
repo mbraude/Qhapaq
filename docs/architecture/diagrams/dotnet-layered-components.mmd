@@ -21,6 +21,10 @@ flowchart TB
         PROJECTOR["IPipelineProjector"]
     end
 
+    subgraph PV["Qhapaq.Portable.Validation"]
+        PORTABLE["Shared portable algorithms"]
+    end
+
     subgraph DC["Qhapaq.DAL"]
         DCOMP["DAL registration"]
         REGISTRY["IOperationRegistry"]
@@ -38,6 +42,7 @@ flowchart TB
     SERVICE --> BINDER
     SERVICE --> EXECUTOR
     SERVICE --> PROJECTOR
+    VALIDATOR --> PORTABLE
     BUILDER --> REGISTRY
     VALIDATOR --> REGISTRY
     BINDER --> REGISTRY

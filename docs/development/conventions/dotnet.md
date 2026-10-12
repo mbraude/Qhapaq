@@ -21,6 +21,9 @@ for the language-support condition.
   accepted specification requires more.
 - `Qhapaq.Service.V1`, `Qhapaq.Business`, and `Qhapaq.DAL` must not depend on
   hosting, CLI, or MCP assemblies.
+- `Qhapaq.Portable.Validation` is referenced by Business at runtime and by the
+  generator only as a build-time dependency; no other runtime layer references
+  it.
 - `Qhapaq.EntryPoints.Hosting` may integrate with .NET hosting and
   dependency injection.
 - `Qhapaq.EntryPoints.MCP` remains a separately hosted adapter over shared
@@ -40,11 +43,13 @@ The .NET implementation follows the architecture specified by
 Entry Points -> Service -> Business -> DAL
 ```
 
-- Production behavior calls only the next lower layer and only through a
-  constructor-injected abstraction defined in `Qhapaq.Abstractions`.
+- Production behavior calls only the next lower runtime layer through a
+  constructor-injected abstraction defined in `Qhapaq.Abstractions`. Business
+  may also call `Qhapaq.Portable.Validation` directly for the shared algorithms
+  required by SPEC-0006 R-0006-041.
 - Every production project uses its project name as both `AssemblyName` and
-  `RootNamespace`: `Qhapaq.Service.V1`, `Qhapaq.Business`, `Qhapaq.DAL`, or
-  `Qhapaq.EntryPoints.<EntryPoint>`.
+  `RootNamespace`: `Qhapaq.Portable.Validation`, `Qhapaq.Service.V1`,
+  `Qhapaq.Business`, `Qhapaq.DAL`, or `Qhapaq.EntryPoints.<EntryPoint>`.
 - Entry Point code must not reference Business or DAL code.
 - Service code must not reference DAL code.
 - Business code must not reference Service or Entry Point code.
@@ -66,6 +71,10 @@ Entry Points -> Service -> Business -> DAL
 Folders and namespaces must make the owning layer unambiguous. Shared code does
 not bypass a layer: place it in the lowest layer that owns its semantics or
 define a boundary contract when two adjacent layers genuinely collaborate.
+`Qhapaq.Portable.Validation` is a shared support assembly, not another runtime
+layer; it contains only the deterministic algorithms shared by Business and
+the build-time generator as specified by R-0006-041. It must not depend on
+runtime layers or generator tooling.
 
 ### Production feature folders and namespaces
 

@@ -6,7 +6,7 @@ change_kind: requirement
 title: .NET descriptor authoring and deterministic generation
 status: open
 spec: SPEC-0007
-requirements: [R-0007-349, R-0007-335, R-0008-019, R-0006-035, R-0006-036, R-0006-037, R-0006-038, R-0006-039]
+requirements: [R-0007-349, R-0007-335, R-0008-019, R-0006-021, R-0006-024, R-0006-035, R-0006-036, R-0006-037, R-0006-038, R-0006-039, R-0006-041]
 depends_on: [D-0007-003, D-0007-012, D-0008-010, I-0007-001, I-0007-002, I-0007-003, I-0007-007]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
@@ -26,8 +26,10 @@ Exact authoring contracts, relevant Phase 0A/1/1A artifacts and approved readine
 ## File and ownership manifest
 
 The generator is owned by the .NET implementation workspace as independently
-versioned build tooling. Exact project, package, public API, shared-library,
-and test manifests remain pending D-0007-012 and concrete slice planning.
+versioned build tooling. D-0007-012 and R-0006-041 establish
+`Qhapaq.Portable.Validation` as the shared algorithm assembly. Exact generator
+project, package, public API, and test manifests remain pending concrete slice
+planning.
 
 ## Design and integration
 
@@ -36,9 +38,11 @@ equal embedded/package manifest bytes.
 Keep compiler-symbol, source-location, and build-diagnostic models tooling-local;
 public descriptor projections expose only supported immutable nested values.
 SPEC-0006 R-0006-039 and D-0007-011 assign logical ownership of portable
-validation semantics to Business and require the generator to consume those
-semantics without a parallel implementation. The physical tooling/library
-boundary remains gated by D-0007-012.
+validation semantics to Business. Under R-0006-041, Business and the generator
+consume one shared implementation; the shared library has no dependency on
+runtime layers or generator tooling. Generator-only dependencies remain
+build-time-only, while the library may be a runtime dependency through
+Business.
 
 ## Tests and validation
 

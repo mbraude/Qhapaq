@@ -268,6 +268,27 @@ permitted-consumer, and no-layer-bypass rules. The physical dependency boundary
 for build-time tooling is decided separately and must preserve this ownership
 map.
 
+**[R-0006-041]** Consistent with R-0006-020 and R-0006-039, the .NET reference
+implementation shares the portable algorithms in SPEC-0007 R-0007-348 through
+one narrowly scoped production project and library assembly named
+`Qhapaq.Portable.Validation`, located at
+`implementations/dotnet/src/Qhapaq.Portable.Validation/`. Its `AssemblyName`
+and `RootNamespace` match its project name. Business references this assembly
+for runtime behavior, and the Roslyn generator consumes the same implementation
+only as build-time tooling. The assembly is bundled in the `Qhapaq` runtime
+distribution and as a private build-time asset of the generator package; it
+does not create a separate public package. The shared assembly does not depend
+on Business, DAL, Service, Entry Points, the generator, runtime hosting, or
+project code. Reviewed low-level dependencies are permitted when needed,
+provided they preserve deterministic offline behavior and do not introduce
+network access, operation construction, credential resolution, or project-code
+execution. Generator packaging keeps the generator and dependencies used only
+by it out of a consuming application's runtime dependency closure; the shared
+assembly may be present through runtime references such as Business.
+Architecture and clean package-consumer tests enforce dependency direction and
+build-time/runtime asset separation. This physical boundary does not transfer
+logical semantic ownership or diagnostic responsibilities from Business.
+
 ### 5.4 Representative type relationships
 
 **[R-0006-040]** Business models pipeline-node syntax and mapping-expression
@@ -340,12 +361,16 @@ implemented only in a transport adapter.
 
 ## 7. Assemblies and Distribution Packages
 
+The table below describes the initial runtime-layer assemblies. The shared
+portable-validation support assembly is specified separately by R-0006-041.
+
 **[R-0006-021]** Every production project sets `AssemblyName` and `RootNamespace` to its project
 name. Initial production assemblies are:
 
 | Assembly and root namespace | Layer | Distribution |
 | --- | --- | --- |
 | `Qhapaq.Abstractions` | Contracts shared across adjacent layers | `Qhapaq.Abstractions` NuGet package |
+| `Qhapaq.Portable.Validation` | Shared portable-validation support | Bundled in `Qhapaq`; private build-time asset of the generator package |
 | `Qhapaq.Service.V1` | Service V1 | Bundled in the `Qhapaq` NuGet package |
 | `Qhapaq.Business` | Business | Bundled in the `Qhapaq` NuGet package |
 | `Qhapaq.DAL` | DAL | Bundled in the `Qhapaq` NuGet package |
@@ -371,6 +396,9 @@ and root namespace names.
 
 ## 8. Initial .NET Project and File Plan
 
+The project tree below describes the initial runtime layers. It is complemented
+by the shared support project specified in R-0006-041.
+
 **[R-0006-024]** The initial project structure is:
 
 ```text
@@ -392,6 +420,8 @@ implementations/dotnet/
 |   |   `-- Internal/
 |   |       |-- Business/
 |   |       `-- DAL/
+|   |-- Qhapaq.Portable.Validation/
+|   |   `-- Qhapaq.Portable.Validation.csproj
 |   |-- Qhapaq.Service.V1/
 |   |   |-- Qhapaq.Service.V1.csproj
 |   |   `-- PipelineService.cs

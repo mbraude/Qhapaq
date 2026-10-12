@@ -6,7 +6,7 @@ change_kind: requirement
 title: Shared portable validation foundations
 status: open
 spec: SPEC-0007
-requirements: [R-0007-348, R-0006-039]
+requirements: [R-0007-348, R-0006-021, R-0006-024, R-0006-039, R-0006-041]
 depends_on: [I-0007-001, I-0007-002, I-0007-005]
 artifacts: [implementations/dotnet/src, implementations/dotnet/tests]
 ---
@@ -30,11 +30,13 @@ Pending splitting into concrete algorithm slices under decided reuse boundaries.
 
 ## Design and integration
 
-Business owns runtime validation semantics under R-0006-039. Generator/runtime
-consumers share tested semantics through the approved dependency boundary without
-host dependencies, network, operation construction, project-code execution, or
-duplicate implementations; the physical build-tooling boundary remains gated by
-D-0007-012.
+Business owns runtime validation semantics under R-0006-039. The single
+implementation resides in `Qhapaq.Portable.Validation`, selected by D-0007-012
+and required by R-0006-041; Business references it at runtime and the generator
+uses it only as build-time tooling. Reviewed low-level dependencies must
+preserve deterministic offline behavior. Generator-only dependencies must not
+add runtime assets to consuming applications. No host dependencies, network,
+operation construction, project-code execution, or duplicate implementations.
 
 ## Tests and validation
 

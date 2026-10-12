@@ -115,5 +115,10 @@ component contract.
 
 ```text
 Change-Kind: maintenance
-Spec: R-0007-346@c13709, R-0006-021@03d83e, R-0006-025@f80822
+Spec: R-0007-346@c13709, R-0006-021@d969c8, R-0006-025@f80822
 ```
+
+Post-snapshot reference refresh (2026-10-11): the R-0006-021 fingerprint above
+reflects the current assembly map after D-0007-012 added the shared support
+assembly. The approved namespace-convention material and its exact review
+snapshot remain unchanged.

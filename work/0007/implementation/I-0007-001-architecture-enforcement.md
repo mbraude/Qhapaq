@@ -6,7 +6,7 @@ change_kind: maintenance
 title: Enforce Phase 0A organization decisions
 status: open
 spec: SPEC-0007
-requirements: [R-0007-346, R-0006-030, R-0006-031, R-0006-035, R-0006-036, R-0006-037, R-0006-038, R-0006-039, R-0006-040]
+requirements: [R-0007-346, R-0006-020, R-0006-021, R-0006-024, R-0006-030, R-0006-031, R-0006-035, R-0006-036, R-0006-037, R-0006-038, R-0006-039, R-0006-040, R-0006-041]
 depends_on: [D-0007-008, D-0007-009, D-0007-010, D-0007-011, D-0007-012, D-0007-013, D-0007-014]
 artifacts: [implementations/dotnet/tests/unit/Qhapaq.Architecture.Tests]
 ---
@@ -55,6 +55,13 @@ For D-0007-010, enforce R-0006-040's separate, closed, layer-private node and
 expression variant families, composition-based recursion, and separation from
 bound/compiled execution state. Do not test unselected class names or require
 shared roots where variants lack common semantics.
+
+For D-0007-012, enforce R-0006-041's `Qhapaq.Portable.Validation` assembly and
+dependency direction: Business consumes the assembly at runtime and the
+generator only at build time; the shared assembly must not depend on runtime
+layers or tooling. Verify that the generator and generator-only dependencies
+do not add runtime assets to clean consumer applications; the shared assembly
+may enter through Business.
 
 ## Tests and validation
 
