@@ -6,7 +6,7 @@ change_kind: maintenance
 title: Enforce Phase 0A organization decisions
 status: open
 spec: SPEC-0007
-requirements: [R-0007-346, R-0006-030, R-0006-031, R-0006-035, R-0006-036, R-0006-037, R-0006-038, R-0006-039]
+requirements: [R-0007-346, R-0006-030, R-0006-031, R-0006-035, R-0006-036, R-0006-037, R-0006-038, R-0006-039, R-0006-040]
 depends_on: [D-0007-008, D-0007-009, D-0007-010, D-0007-011, D-0007-012, D-0007-013, D-0007-014]
 artifacts: [implementations/dotnet/tests/unit/Qhapaq.Architecture.Tests]
 ---
@@ -42,13 +42,19 @@ models: cross-layer contract placement, recursive public-signature reachability
 of concrete plans, private frame state, transport models, and compiler models
 from public/runtime boundaries. Package-consumer and behavioral cases belong to
 the corresponding retrieval, generator, and parsing slices, not placeholder
-model creation in this milestone. Type relationships and shared-helper/tooling
-boundaries remain pending D-0007-010 through D-0007-012.
+model creation in this milestone. D-0007-010 defines representative type
+relationships; D-0007-011 and D-0007-012 define logical helper ownership and
+physical tooling boundaries.
 
 For D-0007-011, enforce R-0006-039's Business semantic ownership and permitted
 consumer map, including no DAL or Entry Points bypass and no parallel helper
 implementation. D-0007-012 still decides the physical build-tooling reuse
 boundary before its exact dependency checks are planned.
+
+For D-0007-010, enforce R-0006-040's separate, closed, layer-private node and
+expression variant families, composition-based recursion, and separation from
+bound/compiled execution state. Do not test unselected class names or require
+shared roots where variants lack common semantics.
 
 ## Tests and validation
 

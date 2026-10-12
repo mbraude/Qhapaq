@@ -268,6 +268,19 @@ permitted-consumer, and no-layer-bypass rules. The physical dependency boundary
 for build-time tooling is decided separately and must preserve this ownership
 map.
 
+### 5.4 Representative type relationships
+
+**[R-0006-040]** Business models pipeline-node syntax and mapping-expression
+syntax as separate, closed internal variant families corresponding to their
+supported language forms. Recursive node and expression structure uses
+composition. A family has a shared internal root only where its variants share
+a semantic invariant or operation required by their consumers. Inert definition,
+node, and expression representations remain distinct from bound-plan and
+compiled execution state; they are not base types for those representations.
+These models remain layer-private and do not cross public or Abstractions
+boundaries. This requirement selects conceptual relationships, not exact type
+names, file organization, or an exhaustive type catalogue.
+
 ## 6. Dependency and Composition Rules
 
 **[R-0006-013]** Each component receives required collaborators through constructor injection.
