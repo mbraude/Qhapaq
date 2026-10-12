@@ -21,6 +21,12 @@ permission to override them.
 - Use `work-plan-diagram <spec-id> [spec-id ...]` to export a snapshot-stamped
   Mermaid dependency graph to [diagrams/](./diagrams/README.md). The graph is a
   generated view, not another editable status source.
+- Use `work-runbook-sync <primary-spec-id> [include=<spec-id,...>]` to create or
+  refresh `work/<primary-id>/runbook.md`, a tracked table of dependency-ordered
+  work, copyable skill commands, status, completion dates, and blockers.
+- Use `work-next <primary-spec-id>` repeatedly to refresh that runbook, execute
+  one safe row through its existing workflow skill, optionally validate or
+  deliver the result, and refresh the table again.
 - Use `spec-next <spec-id>` for one decision, then review and explicitly approve.
 - Assess a named scope with `spec-readiness` before detailed delivery.
 - Use `implementation-plan` to approve concrete slices and `implement-next` to
@@ -35,6 +41,11 @@ snapshots.
 No existing specification backlog has been extracted as part of scaffolding.
 Owner directories are created on demand. Git records their change history.
 
+Runbooks are generated navigation aids. Their source digest makes staleness
+visible, but their rows are never edited as lifecycle authority. Update the
+owning item, readiness record, approval evidence, or plan through its workflow,
+then regenerate the runbook.
+
 ## Templates
 
 Copy and populate these templates; placeholders are not accepted evidence:
@@ -43,6 +54,7 @@ Copy and populate these templates; placeholders are not accepted evidence:
 - [Decision item](templates/decision.md)
 - [Implementation milestone or slice](templates/implementation.md)
 - [Readiness record](templates/readiness.md)
+- [Generated work runbook](templates/runbook.md)
 
 Do not treat templates as live work items. Do not maintain generated roadmap
 views as another editable status source.

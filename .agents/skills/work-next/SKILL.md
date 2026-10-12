@@ -1,0 +1,97 @@
+---
+name: work-next
+description: "Run the next safe action from a Qhapaq work runbook. Use for a fast repeated workflow that refreshes stale runbooks, selects the next dependency-ready item across specifications, delegates to existing planning, decision, readiness, implementation, approval, validation, commit, and push skills, then refreshes runbook status."
+argument-hint: "<primary-spec-id>"
+---
+
+# Run the Next Work-Runbook Action
+
+## Contract
+
+Read [AGENTS.md](../../../AGENTS.md), the
+[workflow guide](../../../docs/development/spec-driven-workflow.md), and
+`work/<primary-id>/runbook.md` when it exists. Execute at most one runbook row
+and its optional delivery action. Do not bypass source currentness, readiness,
+plan approval, human review, validation, dependency, branch, commit, or push
+gates.
+
+This skill orchestrates existing skills; it does not reproduce their
+procedures. A row may stop for a consequential decision or explicit approval.
+That stop is the correct outcome, not permission to continue to another row.
+
+## Procedure
+
+1. Invoke [work-runbook-sync](../work-runbook-sync/SKILL.md) with the supplied
+   primary specification and the existing runbook's declared included scope.
+   This creates a missing runbook, refreshes a stale one, or reports a no-op.
+   Never select from stale rows.
+2. Read the refreshed `Next command`, table, blockers, source digest, branch,
+   and `HEAD`. If structural errors, dependency cycles, cancelled prerequisites,
+   or ambiguous eligibility remain, stop with the repair command. If every row
+   is complete or cancelled and all aggregate gates are satisfied, report the
+   runbook complete; do not invent a specification-complete status.
+3. State the selected row, description, owning specification, exact command,
+   prerequisites, expected stopping point, and what it will unlock. Execute
+   only that command by invoking the named repository skill with the exact
+   arguments. Never substitute an independent row when the selected row is
+   blocked during execution.
+4. Respect the delegated skill's stop:
+   - `work-plan-sync`, `implementation-plan`, and `spec-readiness` stop for
+     review and do not imply approval.
+   - `spec-next` and `implement-next` handle one bounded item and stop at their
+     review gate.
+   - `approve-implementation-plan` and `approve` obtain their own explicit
+     human approval and must not infer it from this orchestration request.
+5. When the delegated action changes repository state, invoke
+   `work-runbook-sync` again so the table records the resulting persisted and
+   derived status. This refresh is part of the selected row, not a second work
+   item. If the delegated action makes no changes, keep the current runbook and
+   report the blocker or requested input.
+6. Offer a delivery choice only when the selected action produced a coherent,
+   reviewable worktree outcome and the delegated workflow permits delivery.
+   Use `ask_user` once with the applicable choices:
+   - `Leave changes for review`
+   - `Build and test only`
+   - `Approve only`
+   - `Approve and commit`
+   - `Approve, commit, and push`
+   - `Commit`
+   - `Commit and push`
+
+   Omit choices that do not apply. Offer approval variants only for an exact
+   ready-for-review work-item or readiness target. Offer ordinary commit
+   variants for coherent synchronization, planning, or runbook-only changes
+   that have no approval target. Do not offer push when branch or remote
+   preconditions are ambiguous. Recommend leaving changes for review when the
+   exact material outcome has not yet been presented.
+7. Delegate the selected delivery action:
+   - `Build and test only` invokes [build-and-test](../build-and-test/SKILL.md).
+   - `Approve only` invokes [approve](../approve/SKILL.md).
+   - `Approve and commit` invokes
+     [approve-commit](../approve-commit/SKILL.md).
+   - `Approve, commit, and push` invokes
+     [approve-commit-push](../approve-commit-push/SKILL.md).
+   - `Commit` invokes [commit](../commit/SKILL.md).
+   - `Commit and push` invokes
+     [commit-and-push](../commit-and-push/SKILL.md).
+
+   Pass the exact work-item or readiness target and applicable validation mode.
+   Existing approval skills decide whether full build and unit tests are
+   mandatory for the actual change. Ordinary commit skills validate the whole
+   selected snapshot. Never offer or pass a validation skip that repository
+   policy forbids.
+8. After a successful approval or delivery action changes lifecycle evidence,
+   invoke `work-runbook-sync` once more. Report the updated row, completion
+   date when available, newly unlocked row, and its copyable command. Do not
+   execute the newly unlocked row in the same invocation.
+
+## Output and stop
+
+Report the runbook snapshot, selected row and delegated skill, result,
+validation/delivery result when selected, refreshed status, and exact next
+command. One invocation advances at most one runbook row.
+
+Evaluation: repeated invocation safely advances the dependency graph; stale
+runbooks refresh before selection; cross-specification prerequisites are
+eligible; review remains explicit; optional delivery composes existing skills;
+failure or user input stops the loop without skipping to unrelated work.

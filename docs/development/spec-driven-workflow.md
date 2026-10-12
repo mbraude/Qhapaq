@@ -34,6 +34,7 @@ consumer needs them:
 work/
   0007/
     plan.md
+    runbook.md
     decisions/
       D-0007-001-numeric-helpers.md
     implementation/
@@ -53,6 +54,13 @@ The paths above are illustrative, not existing plans. `SPEC-0000` owns work for
 `D-NNNN-NNN` for platform work and `D-CNNNN-NNN` for components; implementation
 IDs use `I` instead of `D`. Allocate the next unused sequence within each owner
 and kind, using at least three sequence digits. Never renumber or reuse IDs.
+
+A plan may have one tracked `runbook.md`. It is a generated, snapshot-stamped
+view of one primary plan, optionally coordinated with explicitly included plans
+and transitive cross-plan prerequisites. Plans, items, readiness records,
+approval evidence, and authoritative sources remain the status and eligibility
+authority. Never edit runbook rows manually or infer completion from them;
+regenerate after authoritative inputs change.
 
 An item has one owning plan and phase. Other plans can link to it as an external
 prerequisite, not copy it. Architectural decisions and complex bugs can belong
@@ -312,6 +320,8 @@ the skill, not a standalone command-line parser.
 /spec-create <idea or target> [kind=platform|component|amendment]
 /work-plan-sync SPEC-0007
 /work-plan-show SPEC-0007 [phase=0] [remaining]
+/work-runbook-sync SPEC-0007 [include=SPEC-0008,...]
+/work-next SPEC-0007
 /work-plan-edit SPEC-0007 <requested planning change>
 /spec-next SPEC-0007 [phase=0] [item=D-0007-001]
 /spec-readiness SPEC-0007 scope=mapping-v1
@@ -340,6 +350,22 @@ outline labels repeated prerequisites. Validate the graph before presenting it.
 Report stale inputs, missing references, and cycles explicitly, and withhold
 trusted eligibility for affected items. Do not save a generated view unless
 requested; exports identify their source snapshot and are not status authorities.
+
+`work-runbook-sync` materializes the same dependency and eligibility reasoning
+as a tracked table under the primary plan directory. Its rows contain linked
+work items or synthetic workflow gates, descriptions, copyable skill commands,
+derived status, evidence-backed completion dates, and blockers. It includes
+transitive cross-plan prerequisites and records an exact source-set digest.
+Regeneration replaces derived rows and is a no-op when the meaningful rendered
+content is unchanged. The runbook is reviewable navigation, not another editable
+status source.
+
+`work-next` refreshes that runbook before selection, invokes the first safe row
+through its existing owning skill, refreshes the runbook afterward, and stops.
+It may then offer applicable validation, approval, commit, and push workflows,
+but it delegates to their existing skills and preserves every explicit review
+and delivery gate. One invocation advances at most one row; it never skips a
+blocked selected row for an unrelated action.
 
 ## 9. Validation and evaluation
 
