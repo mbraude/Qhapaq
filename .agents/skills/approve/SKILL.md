@@ -115,7 +115,11 @@ the full documented build-and-test workflow. Never skip traceability or bypass
 required implementation validation. Record precisely which checks ran.
 
 Keep the change classification and proposed trailers reported by
-`spec-trace-check`; they are inputs to the commit message.
+`spec-trace-check`; they are inputs to the commit message. If the verified kind
+differs from the item's planned `change_kind`, use the verified trailer and
+record and present the difference in delivery evidence. Do not edit the
+approved item, revoke its plan approval, or block it for this reason (see the
+workflow guide's immutable-snapshot rule).
 
 ### 3. Request explicit approval
 

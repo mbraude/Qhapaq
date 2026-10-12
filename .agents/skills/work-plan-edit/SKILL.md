@@ -33,7 +33,10 @@ Do not alter product behavior, infer approval, execute slices, commit, or push.
 4. For a material in-progress implementation edit, account for existing code,
    pause execution, and update its manifest, tests, entry/exit gates, and
    downstream slices. Preserve unrelated user changes. Reapproval is required
-   for changed material plan content.
+   for changed material plan content. Never edit material content of an item
+   with recorded plan or delivery approval, including `change_kind`, unless
+   the user explicitly requests it after being told it invalidates that
+   approval. Changes to a `complete` item are amendments to completed work.
 5. Keep membership/order in the plan, status/dependencies in items. Do not
    treat preferred order as dependency. Cancel obsolete open work with reasons.
    New requirements after valid completion create follow-up work; only an

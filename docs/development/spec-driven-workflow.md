@@ -206,6 +206,21 @@ resolution, remains covered. Label this hash as material, not a file-byte hash.
 Recompute it before relying on the approval. This permits evidence and lifecycle
 updates without requiring a separate review file or a self-referential hash.
 
+**Approved snapshots are immutable.** Once a human approves an item's material
+snapshot, no skill or agent edits that item's material content, including
+`change_kind`, unless the user explicitly requests a change after being told
+it invalidates the approval. Never revoke or invalidate a recorded approval
+silently, and never change status to `blocked` because of a finding that
+leaves approved scope, manifest, requirements, and exclusions unchanged.
+
+An item's `change_kind` is the planned classification. The commit's
+`Change-Kind:` trailer comes from `spec-trace-check` on the actual diff. If
+they differ, use the verified trailer, record the difference in delivery
+evidence, and show it to the reviewer at delivery approval. Do not edit the
+approved item to match. Changing material content of a `complete` item,
+including its `change_kind`, is an amendment to completed work: create a
+follow-up item, or reopen the item only with explicit user approval.
+
 Commits and publication remain separate. Work-item completion is not component
 contract publication; apply ADR-0004's per-version publication procedure.
 Use existing commit skills only when requested and their whole-worktree scope
