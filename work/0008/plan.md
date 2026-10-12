@@ -17,8 +17,8 @@ sources:
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: 8259be3d7e256d77ab18e96c35906ce64c01d25eb7a22f45a911c0727d1a1679
   - path: specs/0006-dotnet-layered-architecture.md
-    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
-    content_sha256: 785bc5aba6b82f1aa3e73a84d86d91fcf4c7d0a3bb0425f2a389d1d874940732
+    revision: ff91861578d0d4368836d05d1039bbd93fca4efa
+    content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
@@ -32,10 +32,11 @@ sources:
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: 97fa3163316d35c1a7ccac75293f896652f7f7b150cc4fbff83ab4d67ee9d05e
   - path: docs/development/conventions/schemas.md
-    revision: 8a534afd2e4a4cbd28e30de9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
+    revision: 911ede5a759d7288dc569002ab2bbb136caeb52d
+    content_sha256: efdccc4b508826ba8302db9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
   - path: docs/development/spec-driven-workflow.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: c1045d2891c7ccbe00c833e247d7254c7e4161857dfe6884b47a644cb3e1c11e
+    revision: b627023baef4d16d8c1c3598b24ba9d66f9e96bb
+    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: da233fb4acea9077ff49822111698c3d2484b67b69bca0f9b018eafe383d6411
@@ -60,6 +61,34 @@ sources:
 ---
 
 # SPEC-0008: Work Plan
+
+## Source and workflow reconciliation
+
+- Date: 2026-10-12. Reconciled the three non-current source records identified
+  by the generated SPEC-0008 runbook. Exact current bytes are committed at the
+  revisions recorded above.
+- The SPEC-0006 delta contains two already-owned outcomes. D-0008-015 and its
+  recorded review evidence own the common .NET workspace placement for
+  `Qhapaq.Portable.Validation`. I-0006-001 owns the later resolution of the
+  first Service V1 use case and adds links from SPEC-0006 to the existing
+  SPEC-0007 architecture and vertical-slice milestones plus the existing
+  SPEC-0008 identity-migration and relocation milestones. Those references
+  preserve the approved migration order and do not change any SPEC-0008 item
+  scope, status, dependency, readiness gate, or approval.
+- The workflow-guide delta makes approved material snapshots immutable and
+  adds tracked runbook and one-row `work-next` orchestration. These are
+  operational workflow rules. They do not alter product requirements, work
+  item lifecycle evidence, phase membership, or dependency edges. The current
+  runbook remains a derived view and carries no approval authority.
+- Repaired the malformed `docs/development/conventions/schemas.md` source
+  record by recording the exact current hash and the full committed revision
+  that contains the path. The source bytes were already an intended planning
+  input; this metadata repair changes no policy or planned outcome.
+- Existing decision, readiness, plan, and delivery approvals remain limited to
+  their recorded exact snapshots. This reconciliation does not renew stale
+  readiness, approve an implementation plan, authorize execution, or publish
+  a contract. The historical conformance-artifact readiness record remains
+  stale and must be reassessed before that scope proceeds.
 
 ## D-0007-014 .NET policy source impact review
 

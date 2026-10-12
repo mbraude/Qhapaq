@@ -20,8 +20,8 @@ sources:
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 39625b975496c96ae55c21785fd632f75d10096349acc82a4d277fc93c698e57
   - path: specs/0006-dotnet-layered-architecture.md
-    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
-    content_sha256: 785bc5aba6b82f1aa3e73a84d86d91fcf4c7d0a3bb0425f2a389d1d874940732
+    revision: ff91861578d0d4368836d05d1039bbd93fca4efa
+    content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
   - path: specs/0001-core-pipeline-model.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
@@ -32,8 +32,8 @@ sources:
     revision: 8f0082a220dcb36f848c5e9db05104787ee3b280
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
   - path: docs/development/spec-driven-workflow.md
-    revision: 801b57722055b3d1dd85dc95eaad9d775fe37f74
-    content_sha256: c1045d2891c7ccbe00c833e247d7254c7e4161857dfe6884b47a644cb3e1c11e
+    revision: b627023baef4d16d8c1c3598b24ba9d66f9e96bb
+    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
@@ -67,6 +67,26 @@ sources:
 ---
 
 # SPEC-0007: Work Plan
+
+## Source and workflow reconciliation
+
+- Date: 2026-10-12. Reconciled the SPEC-0006 and workflow-guide source drift
+  exposed while resolving SPEC-0008's transitive prerequisites. Exact current
+  bytes are committed at the revisions recorded above.
+- The SPEC-0006 common-library workspace changes were already reconciled
+  through D-0008-015. The later I-0006-001 changes resolve the first Service V1
+  use case by linking the existing SPEC-0007 architecture-enforcement and first
+  Service/CLI slice milestones to their governing contracts. The affected
+  milestones already cover those outcomes; no SPEC-0007 item, requirement
+  coverage, status, dependency, phase membership, or readiness gate changes.
+- The workflow-guide changes make approved material snapshots immutable and
+  add derived runbooks plus one-row `work-next` orchestration. They do not
+  change authoritative lifecycle evidence or eligibility rules represented by
+  this plan. Existing approvals remain limited to their recorded exact
+  snapshots.
+- This source reconciliation does not approve an implementation plan,
+  authorize execution, infer completion, renew readiness, or publish a
+  contract.
 
 ## D-0008-015 common-library ownership reconciliation
 
