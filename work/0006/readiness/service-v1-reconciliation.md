@@ -1,7 +1,7 @@
 ---
 spec: SPEC-0006
 scope: service-v1-reconciliation
-assessment: ready-for-review
+assessment: approved
 sources:
   - path: AGENTS.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
@@ -102,6 +102,18 @@ remains outside this scope and is assessed separately.
   specification conventions.
 - Verified the 25 source hashes in `work/0006/plan.md` against exact current
   bytes. PASS.
-- This readiness record is `ready-for-review`. Explicit approval of this
-  exact record is pending. No implementation, specification edit, or
-  publication has occurred.
+- This readiness record was explicitly approved in this session on
+  2026-10-12 for the `service-v1-reconciliation` scope only.
+- Approved readiness snapshot: the exact record bytes reviewed before
+  recording approval, SHA-256
+  `deb51cdefaa3793d5840cf4b130f99ac1bab47464866e627c179ef87dc631825`.
+  The 12 assessed source snapshots are the exact-byte SHA-256 values listed
+  above; each was reverified against the current file and its recorded
+  baseline revision immediately before approval was recorded.
+- Approved scope: I-0006-001's documentation-only reconciliation of the first
+  Service V1 use-case references under R-0006-004, R-0006-005, and R-0006-033,
+  using completed D-0007-004 and R-0007-404 through R-0007-410.
+- Exclusions: Service runtime implementation, CLI behavior, architecture
+  scaffold, migrations, schemas or vectors, I-0006-002, and full SPEC-0006
+  conformance.
+- No implementation, specification edit, or publication has occurred.
