@@ -16,12 +16,18 @@ sources:
   - path: specs/0002-operation-catalogs-and-host-configuration.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
+  - path: specs/0004-ai-assisted-connections.md
+    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
+    content_sha256: 39625b975496c96ae55c21785fd632f75d10096349acc82a4d277fc93c698e57
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: 785bc5aba6b82f1aa3e73a84d86d91fcf4c7d0a3bb0425f2a389d1d874940732
   - path: specs/0001-core-pipeline-model.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
+  - path: docs/architecture/decisions/0001-use-microsoft-dependency-injection.md
+    revision: c9c41e16fa3fd4df2aa6c26b8341c46c06b40018
+    content_sha256: 663bc361c4799b69e700c6161311d60e010b89c0f65a6065be5acf9d20358173
   - path: docs/development/coding-conventions.md
     revision: 8f0082a220dcb36f848c5e9db05104787ee3b280
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
@@ -48,7 +54,10 @@ sources:
     content_sha256: 62eafc81acf00d7bf15390aa110119e0be3d6e4a7cf0988193e9bb664e40eb4a
   - path: docs/development/conventions/dotnet.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
-    content_sha256: 9389c4cf18b6674497f79e0caef7059928369a935aef5a6ced53046ea5295d36
+    content_sha256: d590f92c5e151ae4eb02540d48a7e029863346715204c18ebe3afdc7394d7336
+  - path: docs/development/conventions/documentation.md
+    revision: 911ede5a759d7288dc569002ab2bbb136caeb52d
+    content_sha256: ee1ab8d0f2237adb5a1fd986ce5c925eb1b0d6bafa51bd5c700bfd3436e7f657
   - path: .github/instructions/dotnet.instructions.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: 97fa3163316d35c1a7ccac75293f896652f7f7b150cc4fbff83ab4d67ee9d05e
@@ -83,6 +92,28 @@ sources:
   to the approved migration work after the target workspaces exist.
 - Validation and exact-snapshot evidence are recorded in D-0008-015. This
   reconciliation does not approve that decision or any implementation work.
+
+## D-0007-014 DI lifetime and state ownership reconciliation
+
+- Date: 2026-10-12. The user selected lifecycle/ownership policy and deferred
+  concrete Microsoft DI registrations to reviewed implementation slices.
+  [D-0007-014](decisions/D-0007-014-di-lifetimes.md) records the decision in
+  the .NET conventions. It covers immutable registry generations, per-run
+  scope ownership, derived-plan cache/disposal boundaries, and protected
+  credential-cache ownership, aligned with the referenced SPEC-0002, SPEC-0004,
+  SPEC-0006, and SPEC-0007 requirements.
+- The source snapshot now includes SPEC-0004, ADR-0001, and the documentation
+  conventions used for this decision. The .NET convention source baseline
+  remains `7178f84c93d8393c30a5a5cf57f3c923d36274fc`; its exact reviewed
+  working-copy SHA-256 is updated above.
+- I-0007-001 directly depends on D-0007-014, so its architecture-test
+  expectations inherit these rules. Related implementation milestones already
+  depend transitively on I-0007-001 or its descendants; no new dependency edge,
+  phase membership, or scope is needed.
+- No product requirement changes. No implementation, readiness approval,
+  package, or publication is created. Existing approvals for earlier exact
+  SPEC-0008 policy outputs remain historical; their snapshots are not revised
+  or reapproved by this decision.
 
 ## Source-byte reconciliation after branch integration
 

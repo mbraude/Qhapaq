@@ -27,7 +27,7 @@ sources:
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
   - path: docs/development/conventions/dotnet.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
-    content_sha256: 9389c4cf18b6674497f79e0caef7059928369a935aef5a6ced53046ea5295d36
+    content_sha256: d590f92c5e151ae4eb02540d48a7e029863346715204c18ebe3afdc7394d7336
   - path: .github/instructions/dotnet.instructions.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: 97fa3163316d35c1a7ccac75293f896652f7f7b150cc4fbff83ab4d67ee9d05e
@@ -60,6 +60,27 @@ sources:
 ---
 
 # SPEC-0008: Work Plan
+
+## D-0007-014 .NET policy source impact review
+
+- Date: 2026-10-12. SPEC-0007 D-0007-014 added .NET lifecycle and ownership
+  guidance for immutable host generations, invocation scopes, derived-plan
+  caches, and credential caches. The exact current source hash is recorded
+  above; the prior source baseline remains unchanged.
+- Impact review: this addition does not alter SPEC-0008 R-0008-004 policy
+  ownership/applicability or its language-neutral traceability requirements.
+  It does not change the scope or completion evidence of I-0008-001,
+  I-0008-010, or D-0008-015. Their earlier approvals remain limited to their
+  exact historical snapshots; no new approval is inferred.
+- The approved `engineering-policy` readiness record is not renewed by this
+  review. Its source snapshot already differs from multiple current inputs and
+  must be reconciled before it can support future eligibility. This bounded
+  review does not create a replacement readiness assessment.
+- The existing SPEC-0008 source record for `docs/development/conventions/schemas.md`
+  has a revision value that does not resolve to that path and lacks
+  `content_sha256`. This reconciliation is limited to the affected .NET
+  convention input; the plan as a whole remains non-current pending a broader
+  source reconciliation.
 
 ## D-0007-009 bounded source-impact review
 

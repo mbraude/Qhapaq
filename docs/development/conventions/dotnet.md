@@ -355,6 +355,46 @@ including each part of a partial class.
 - Define collaborator lifetimes intentionally; do not let singleton services
   capture scoped credentials or request state.
 
+### Host generations, invocation scopes, and derived plans
+
+- Build an effective registry/configuration generation as a complete immutable
+  snapshot. Publish a replacement only after explicit reload has rebuilt and
+  revalidated the complete generation. A pipeline invocation captures one
+  registry, connection, and policy generation and uses it consistently through
+  validation, binding, and execution. Keep a retired generation alive while an
+  invocation still uses it; its owner releases generation-owned resources only
+  after the last such invocation completes.
+- The executable or hosting boundary creates and owns one Microsoft DI scope
+  per pipeline invocation. Invocation-specific collaborators belong to that
+  scope and are released on success, failure, or cancellation. Behavioral
+  components receive collaborators through constructor injection and do not
+  access the scope or service provider.
+- An execution-plan cache is host-owned. It stores only complete immutable,
+  host-specific derived plans, never portable definitions or execution frames.
+  Cache keys and invalidation cover every input required by
+  [R-0007-360](../../../specs/0007-portable-pipeline-definitions-and-binding.md#execution-and-public-surface-acceptance).
+  Reload, revocation, or other applicable input changes prevent stale entries
+  from being returned to later invocations. The cache owns retained entries and
+  their eviction; an active invocation must not use an entry after its owned
+  resources have been released. Concrete eviction and disposal mechanics belong
+  in the implementation slice.
+- Keep resolved credential material inside the credential provider's protected
+  boundary. Do not copy it into registry generations, cached plans, pipeline
+  definitions, or execution frames. Any credential cache is provider-owned,
+  protected, and clearable through the applicable administrative contract,
+  including [R-0004-041](../../../specs/0004-ai-assisted-connections.md#15-audit-and-revocation).
+- Choose singleton, scoped, or transient registration according to state
+  ownership: singleton collaborators must be thread-safe and must not retain
+  invocation state; invocation-specific state is scoped to one run; stateless
+  collaborator registrations may be selected when their concrete types are
+  planned. Exact service registrations and concrete disposal mechanisms are
+  deferred to reviewed implementation slices rather than inferred here.
+- Architecture and integration tests verify complete graph resolution and
+  scope validation, invocation isolation, consistent snapshots across reload,
+  safe retirement/disposal of replaced generations and evicted plans, every
+  required cache invalidation input, and credential-cache clearing without
+  credential disclosure.
+
 ### Dependencies and tooling
 
 - Centralize .NET package versions when the solution is scaffolded.
