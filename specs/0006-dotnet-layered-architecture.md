@@ -609,6 +609,20 @@ Business or DAL contracts.
 
 ## 13. Rollout
 
+The first Service V1 use case and its public request, result, and structured
+error contracts are specified by
+[SPEC-0007 Section 14.2](0007-portable-pipeline-definitions-and-binding.md#142-exact-descriptor-retrieval),
+particularly R-0007-404 through R-0007-410. This resolves the definition
+outcome in rollout step 3; it does not establish completion of the scaffold,
+architecture tests, ports, or vertical slice in the other rollout steps.
+SPEC-0006 retains ownership of its .NET layer and rollout requirements.
+SPEC-0007 owns the exact Service and CLI contracts; its planned
+[architecture enforcement](../work/0007/implementation/I-0007-001-architecture-enforcement.md)
+and [first Service/CLI vertical slice](../work/0007/implementation/I-0007-011-first-service-cli-slice.md)
+cover the corresponding implementation work. The separately gated
+[SPEC-0008 Entry Point identity migration](../work/0008/implementation/I-0008-008-entry-point-identity-migration.md)
+precedes its [source relocation](../work/0008/implementation/I-0008-004-source-relocation.md).
+
 **[R-0006-033]**
 
 1. Scaffold `Qhapaq.Abstractions`, `Qhapaq.Service.V1`, `Qhapaq.Business`,
@@ -665,11 +679,11 @@ limits unsupported use.
 Rejected. A breaking service change would require every built-in and
 third-party entry point to migrate in lockstep.
 
-## 15. Open Questions
+## 15. First Service V1 Use Case
 
-The first vertical-slice specification must decide:
-
-- the exact Service V1 use case with which implementation begins;
-- the public Service V1 request, result, and structured-error shapes.
-
-These decisions must be recorded before their public APIs are scaffolded.
+The initial Service V1 use case and its public request, result, and
+structured-error contracts are resolved by SPEC-0007 D-0007-004 and defined in
+[Section 14.2](0007-portable-pipeline-definitions-and-binding.md#142-exact-descriptor-retrieval).
+R-0007-404 through R-0007-410 remain authoritative for their exact semantics.
+Resolving these questions does not indicate that the subsequent rollout steps
+in R-0006-033 have been completed.

@@ -4,7 +4,7 @@ kind: implementation
 granularity: slice
 change_kind: editorial
 title: Reconcile SPEC-0006's first Service V1 use-case references
-status: open
+status: complete
 spec: SPEC-0006
 requirements:
   - R-0006-004
@@ -107,4 +107,71 @@ Full-byte SHA-256 values of material approval inputs:
 
 ## Delivery evidence and review
 
-No specification edit or validation has been performed by this work item.
+Implemented only the approved manifest file:
+`specs/0006-dotnet-layered-architecture.md`.
+
+The stale first-Service questions in Section 15 now point to completed
+SPEC-0007 D-0007-004 and the exact-contract subsection. The rollout context
+links to the owning SPEC-0007 architecture and Service/CLI milestones and the
+ordered SPEC-0008 identity-migration and source-relocation milestones. No
+requirement text or identifier, product behavior, API, or ownership was
+changed. The SPEC-0007/0008 items remain planned work and are not represented
+as delivered.
+
+Validation:
+
+- Confirmed D-0007-004 and its transitive prerequisite D-0007-006 are complete,
+  and R-0007-404 through R-0007-410 exist and support the references.
+- Checked all local Markdown links in the changed specification; all resolve.
+- Compared requirement identifiers and blocks with the baseline: all 41
+  identifiers are unchanged, including R-0006-004, R-0006-005, and
+  R-0006-033. Their fingerprints remain `555771`, `76df7a`, and `80ef20`.
+- `git diff --check`: PASS.
+- Specification traceability review: PASS. No requirement blocks changed,
+  all 41 requirement identifiers are unique and unchanged, and no stale
+  requirement references were introduced. The verified commit trailer is
+  `Change-Kind: maintenance`; no `Spec:` trailer is required. No waivers were
+  added.
+- Classification difference: the approved plan's `change_kind` is
+  `editorial`, but under ADR-0004 `editorial` covers rewording requirement
+  blocks, and this diff changes only non-block prose. The commit uses the
+  verified `maintenance` trailer. Per the workflow guide's immutable-snapshot
+  rule, the approved plan material is not edited and its approval stands.
+- No product build or unit tests were run; this slice changes specification
+  and work-artifact documentation only, and repository guidance does not define
+  a required build or test command for this outcome.
+
+Readiness snapshot impact: the approved readiness record's item hash predates
+the plan-approval evidence and subsequent lifecycle/evidence updates. Its
+scope covers this documentation-only reconciliation under the same
+requirements, dependencies, and manifest. The output changes no requirement,
+behavior, or implementation ownership; the readiness conclusion remains
+applicable to that narrow scope, but is not approval of the revised plan
+material.
+
+Output snapshot: `specs/0006-dotnet-layered-architecture.md`, SHA-256
+`399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e`.
+Item material snapshot (unchanged from plan approval): SHA-256
+`2a3dd7e53335e09beb9525bf45ea6f70faa37b1793c61f07518ef8758d8da4f7`.
+
+Approval-input changes since plan approval: the SPEC-0006 output and the
+owning plan's SPEC-0006 source record changed as planned outputs of this
+slice. `docs/development/spec-driven-workflow.md` gained the
+immutable-snapshot rule, which does not change this slice's scope.
+
+The owning plan's SPEC-0006 source record is reconciled to this working-copy
+output, retaining the committed baseline revision. The readiness record
+remains its original approved snapshot; reconcile sources and reassess
+readiness before later SPEC-0006 scopes. Push and contract publication have
+not occurred.
+
+Delivery approval: explicitly approved in this session on 2026-10-12 for the
+exact snapshot above. The snapshot is item material SHA-256
+`2a3dd7e53335e09beb9525bf45ea6f70faa37b1793c61f07518ef8758d8da4f7`, output
+`specs/0006-dotnet-layered-architecture.md` SHA-256
+`399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e`, and
+readiness record SHA-256
+`642103b9ee6bc580561437cf6e7d9ab3cf6e05611a633f4a77f01b423998b2b8`. All five
+exit criteria are satisfied by the validation above. Their checkboxes are left
+unedited because they belong to the approved material snapshot. Exclusions are
+unchanged from plan approval. The commit trailer is `Change-Kind: maintenance`.

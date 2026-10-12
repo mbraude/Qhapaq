@@ -12,7 +12,7 @@ sources:
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 71bf914cd8edf48b6af94544c342c4ad2c906929
-    content_sha256: 785bc5aba6b82f1aa3e73a84d86d91fcf4c7d0a3bb0425f2a389d1d874940732
+    content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 1267f9c0475eda05ef1f118437ef64a4a2f2a859
     content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
@@ -39,7 +39,7 @@ sources:
     content_sha256: d590f92c5e151ae4eb02540d48a7e029863346715204c18ebe3afdc7394d7336
   - path: docs/development/spec-driven-workflow.md
     revision: 801b57722055b3d1dd85dc95eaad9d775fe37f74
-    content_sha256: c1045d2891c7ccbe00c833e247d7254c7e4161857dfe6884b47a644cb3e1c11e
+    content_sha256: c4c5f8cbbcf23cfa35ef51645708803f1f60b3203e3cfb0c33ca2edbb110da6d
   - path: work/templates/plan.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: 8492dfab48663d0cff4e978c482b6018c92cddac1c84ceaf421ac91117abb21e
@@ -167,17 +167,35 @@ remain subject to their own architecture and conformance tests.
 - No SPEC-0006 plan previously existed. The specification's two open questions
   about the first Service V1 use case and its request/result/error shapes are
   answered by SPEC-0007 D-0007-004 and R-0007-404 through R-0007-410. They
-  remain textually open in SPEC-0006 until I-0006-001 is reviewed and executed;
-  this synchronization does not edit normative specification text.
+  were textually open in SPEC-0006 at bootstrap. I-0006-001 has since aligned
+  Sections 13 and 15 with those completed decisions and is complete after
+  explicit delivery approval.
 - SPEC-0006 R-0006-033 overlaps work assigned to SPEC-0007 I-0007-001 and
   I-0007-011 and SPEC-0008 I-0008-008 and I-0008-004. Those items remain
   externally owned; I-0006-002 is an aggregate acceptance milestone rather
   than a duplicate implementation manifest.
-- Source revisions and exact-byte SHA-256 values above were captured from the
-  current committed inputs. No source snapshot is uncommitted or stale.
-- No readiness assessment, plan approval, implementation, or migration is
-  inferred. I-0006-002 remains a non-executable milestone pending later
-  decomposition, current scoped readiness, and exact plan approval.
-- Reconciliation is complete for the current SPEC-0006 snapshot. Review the
-  exact plan and both new item snapshots before treating this plan as an
-  approved execution roadmap.
+- The SPEC-0006 source was reviewed against its committed baseline
+  `71bf914cd8edf48b6af94544c342c4ad2c906929`. Its working-copy changes are
+  limited to I-0006-001's Section 13 rollout references and Section 15
+  resolved-use-case wording; all 41 requirement blocks and identifiers remain
+  unchanged. The source record retains that committed baseline revision and
+  records the reviewed working-copy bytes.
+- I-0006-001 keeps its approved planned `change_kind: editorial`. Trace
+  review verified the diff as `maintenance` because no requirement block
+  changed; the commit uses that trailer, and the difference is recorded in
+  delivery evidence without editing the approved plan snapshot.
+- The approved `service-v1-reconciliation` readiness remains scoped to
+  R-0006-004, R-0006-005, and R-0006-033 and the unchanged documentation
+  outcome. Its source records predate the delivered SPEC-0006 text; this
+  reconciliation does not extend that readiness to runtime implementation,
+  I-0006-002, or broader SPEC-0006 work. Reconcile sources and reassess
+  readiness before later scopes.
+- All other recorded source snapshots match their current exact bytes.
+  I-0006-002 remains a non-executable milestone pending later decomposition,
+  current scoped readiness, and exact plan approval. No dependencies or phase
+  membership changed.
+- Reconciliation is complete for the reviewed current SPEC-0006 snapshot.
+- `docs/development/spec-driven-workflow.md` gained the immutable
+  approved-snapshot rule. The source record keeps its committed baseline
+  revision and records the working-copy bytes. The rule changes no item scope,
+  dependency, or readiness conclusion in this plan.
