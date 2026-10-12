@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-12T23:26:37Z"
+generated_at: "2026-10-12T23:42:10Z"
 branch: "master"
-head: "b78b184d3024ad6fd8d5857b49b59b02bd276318"
-source_file_count: 62
-source_set_sha256: "2f3bbac381e906287f71a4626d7683f2f25864e3549f3c8843b1d3ac9dce322e"
+head: "d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9"
+source_file_count: 63
+source_set_sha256: "44b5c78e96c173d67e5f3909e5259949e0e25e88ff62152734d8584e1da00af0"
 ---
 
 # SPEC-0008: Work Runbook
@@ -24,10 +24,9 @@ SPEC-0008 items. Unrelated SPEC-0007 work is excluded.
 
 ## Next action
 
-**Next command:** `/spec-readiness 0008 scope=trace-checker`
+**Next command:** `/implementation-plan 0008 item=I-0008-002`
 
-**Also eligible:** `/implementation-plan 0008 item=I-0008-002`;
-`/implementation-plan 0008 item=I-0008-012`
+**Also eligible:** `/implementation-plan 0008 item=I-0008-012`
 
 ## Runbook
 
@@ -59,7 +58,7 @@ SPEC-0008 items. Unrelated SPEC-0007 work is excluded.
 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Complete the aggregate common and specialized policy outcome. |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md)<br>[D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-010](implementation/I-0008-010-dotnet-policy-extraction.md)<br>[I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) |
 | READINESS SPEC-0008 conformance-artifact-delivery | Approve scoped readiness to plan conformance profile and evidence delivery. |  | Complete | 2026-10-12 | [readiness record](readiness/conformance-artifacts.md) |
 | READINESS SPEC-0008 requirement-example-audit | Approved scoped readiness to plan the requirement and example audit. |  | Complete | 2026-10-12 | [readiness record](readiness/requirement-example-audit.md)<br>[D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
-| READINESS SPEC-0008 trace-checker | Assess deterministic trace-checker delivery before concrete implementation planning. | `/spec-readiness 0008 scope=trace-checker` | Gate - ready | — | [D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) |
+| READINESS SPEC-0008 trace-checker | Assess deterministic trace-checker delivery before concrete implementation planning. |  | Gate - blocked | — | Checker tool-ownership and implementation-technology decision is unresolved; see [readiness record](readiness/trace-checker.md).<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) |
 | [I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) | Plan conformance profile and evidence delivery. | `/implementation-plan 0008 item=I-0008-012` | Open - ready | — | Approved scoped readiness: [conformance-artifact readiness](readiness/conformance-artifacts.md).<br>[D-0008-004](decisions/D-0008-004-initial-conformance-profiles.md)<br>[D-0008-005](decisions/D-0008-005-profile-version-compatibility.md)<br>[D-0008-006](decisions/D-0008-006-conformance-declarations.md)<br>[D-0008-007](decisions/D-0008-007-conformance-evidence.md)<br>[D-0008-010](decisions/D-0008-010-artifact-ownership-boundaries.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-012](decisions/D-0008-012-migration-sequencing.md)<br>[D-0008-013](decisions/D-0008-013-claim-publication.md)<br>[D-0007-009](../0007/decisions/D-0007-009-model-ownership.md)<br>[D-0007-011](../0007/decisions/D-0007-011-portable-helper-ownership.md)<br>[D-0007-013](../0007/decisions/D-0007-013-test-artifact-conventions.md)<br>[D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md) |
 | [I-0007-002](../0007/implementation/I-0007-002-conformance-tooling.md) | Deliver shared vector tooling and golden-file procedures. |  | Open - blocked | — | [D-0007-013](../0007/decisions/D-0007-013-test-artifact-conventions.md)<br>[D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) |
 | [I-0007-005](../0007/implementation/I-0007-005-validation-foundation-artifacts.md) | Deliver validation foundation artifacts. |  | Open - blocked | — | [D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) |
@@ -75,13 +74,12 @@ SPEC-0008 items. Unrelated SPEC-0007 work is excluded.
 ## Snapshot notes
 
 - This is a working-copy snapshot generated on `master` at HEAD
-  `b78b184d3024ad6fd8d5857b49b59b02bd276318` after assessing
-  requirement-example-audit readiness; this runbook is excluded from its own
-  source set.
+  `d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9` after assessing trace-checker
+  readiness; this runbook is excluded from its own source set.
 - The source digest is SHA-256 over each sorted repository-relative source path,
   a NUL byte, the file's exact bytes, and a trailing NUL byte.
 - The source set contains both plans, all 34 real items in the primary and
-  transitive prerequisite closure, all three SPEC-0008 readiness records, the
+  transitive prerequisite closure, all four SPEC-0008 readiness records, the
   authoritative inputs recorded by both plans, and the governing workflow
   guide, runbook template, and repository agreement.
 - All 19 SPEC-0008 and 21 SPEC-0007 plan source records match exact current
@@ -94,6 +92,7 @@ SPEC-0008 items. Unrelated SPEC-0007 work is excluded.
   I-0008-003 execution remains blocked by its unapproved concrete plan and
   missing I-0007-002/I-0007-005 outputs.
 - Requirement-example-audit readiness is approved for planning I-0008-002
-  only, and its implementation planning is now eligible. Trace-checker
-  readiness and I-0008-012 planning are also eligible. No milestone receives
-  an `implement-next` command.
+  only, and its implementation planning is eligible. Trace-checker readiness
+  is blocked pending an explicit checker tool-ownership and implementation-
+  technology decision. I-0008-012 planning is also eligible. No milestone
+  receives an `implement-next` command.
