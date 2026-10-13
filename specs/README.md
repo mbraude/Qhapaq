@@ -13,6 +13,7 @@ implementation.
 | [SPEC-0006](0006-dotnet-layered-architecture.md) | .NET layers, dependency direction, visibility, service versioning, and initial component plan. |
 | [SPEC-0007](0007-portable-pipeline-definitions-and-binding.md) | Canonical pipeline JSON, execution-frame dataflow, transforms, operation contracts, validation, and plan binding. |
 | [SPEC-0008](0008-multi-language-conformance-and-repository-organization.md) | Multi-language conformance profiles, source organization, and language/artifact conventions; exact-snapshot review and readiness remain required. |
+| [SPEC-0009](0009-repository-validation-derived-state.md) | Incremental repository validation, non-authoritative derived indexes, local caches, and exact-byte digest reuse. |
 
 Platform specifications define the platform. Individual components that work
 within platform contracts, such as operations, connectors, decorators, and
