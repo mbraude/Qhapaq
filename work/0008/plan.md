@@ -10,6 +10,12 @@ sources:
   - path: specs/0002-operation-catalogs-and-host-configuration.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
+  - path: specs/0003-product-evolution-roadmap.md
+    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
+    content_sha256: 2b5fced51668b8bd2d586e377adbf667deabc3cb48c8569890ec7e709992ce32
+  - path: specs/0004-ai-assisted-connections.md
+    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
+    content_sha256: 39625b975496c96ae55c21785fd632f75d10096349acc82a4d277fc93c698e57
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
@@ -25,6 +31,9 @@ sources:
   - path: docs/development/coding-conventions.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
+  - path: docs/development/conventions/specifications.md
+    revision: 911ede5a759d7288dc569002ab2bbb136caeb52d
+    content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
   - path: docs/development/conventions/dotnet.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: d590f92c5e151ae4eb02540d48a7e029863346715204c18ebe3afdc7394d7336
@@ -224,7 +233,11 @@ SPEC-0007 gates remain in force.
 | 5 | [I-0008-010](implementation/I-0008-010-dotnet-policy-extraction.md) | Extract .NET policy and route its path instructions |
 | 6 | [I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) | Separate artifact-authoring policy from path instructions |
 | 7 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Complete the aggregate common and specialized policy outcome |
-| 8 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, .NET contracts, and examples |
+| 8 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Aggregate portable requirement, language-contract, and example audit |
+| 8.1 | [I-0008-013](implementation/I-0008-013-portable-core-example-audit.md) | Audit SPEC.md and core portable examples |
+| 8.2 | [I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples |
+| 8.3 | [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit SPEC-0007 portable binding examples and defaults |
+| 8.4 | [I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit SPEC-0006/SPEC-0008 and traceability guidance boundaries |
 | 9 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
 | 10 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
 | 11 | [I-0008-009](implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration |
@@ -293,6 +306,35 @@ consumer and approved scope.
   is not applicable.
 
 ## Reconciliation evidence
+
+- Date: 2026-10-12. Decomposed I-0008-002 into four disjoint audit slices:
+  I-0008-013 covers SPEC.md and SPEC-0001/0002; I-0008-014 covers
+  SPEC-0003/0004/0005; I-0008-015 covers SPEC-0007; and I-0008-016 covers
+  SPEC-0006/0008 plus the directly related traceability guidance. The parent
+  milestone depends on all four children and remains a non-executable
+  aggregate gate.
+- Added the exact SPEC-0003, SPEC-0004, and specification-authoring convention
+  snapshots used to define the added scope. Their committed baseline revisions
+  and full-byte hashes match current content. Other recorded sources remain
+  unchanged.
+- The approved requirement-example-audit readiness record authorizes planning
+  only. Every child requires explicit approval of its exact plan and current
+  implementation readiness for each specification proposed for editing.
+  Editorial moves or labels may proceed only when they preserve required
+  behavior and conformance expectations; any behavior or architecture change
+  stops for a separate decision and readiness assessment. No source
+  specification was edited and no implementation readiness or plan approval
+  is inferred.
+- Validation: the four child scopes are disjoint and cover SPEC.md plus
+  specs/0001 through specs/0008; every child names exact target files and
+  preserves schema, vector, checker, and release ownership. The aggregate
+  retains the R-0001-011, R-0001-052, and R-0002-017 candidate audit, with no
+  pre-approved edits. Identifier uniqueness, requirement references, exact
+  source hashes, slice manifests, readiness gates, phase membership,
+  dependency resolution, and the global work-item dependency graph were
+  validated for this snapshot. The refreshed runbook's inputs, digest, links,
+  coverage, and prerequisite ordering were also validated. Build, unit tests,
+  and specification trace check were not run for this planning-only change.
 
 - Date: 2026-10-11. Synchronized the SPEC-0008 planning inputs after the
   conformance-artifact readiness assessment found stale source hashes and
