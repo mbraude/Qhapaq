@@ -3,9 +3,9 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-13T16:38:24Z"
+generated_at: "2026-10-13T17:12:11Z"
 branch: "master"
-head: "9396b5567d753f80057164527185d6faa37f0c8e"
+head: "021aed13e1df1543b785b76699fc3b7e80f2c3c0"
 source_file_count: 79
 source_set_sha256: "eb4cd3ad9a76dd602e947248a851b7ab8ec1dbd7e2385c354371cdb67e6868be"
 ---
@@ -95,7 +95,7 @@ SPEC-0008 items. Unrelated SPEC-0007 work is excluded.
 
 ## Snapshot notes
 
-- This is a working-copy snapshot for branch `master` at HEAD `9396b5567d753f80057164527185d6faa37f0c8e`; the worktree has the new blocked readiness record and this refreshed runbook uncommitted.
+- This is a working-copy snapshot for branch `master` at HEAD `021aed13e1df1543b785b76699fc3b7e80f2c3c0`; the worktree was clean before synchronizing this runbook, and local HEAD matched `origin/master`.
 - The source digest is SHA-256 over each sorted repository-relative path, a NUL byte, the exact file bytes, and a trailing NUL byte. The 79-file source set contains both selected plans, all 43 real items in the primary and transitive prerequisite closure, all nine SPEC-0008 readiness records, all unique authoritative inputs recorded by the two plans, and the runbook template.
 - All 22 SPEC-0008 and 21 SPEC-0007 plan source records match exact current working-copy bytes. The selected closure contains 43 real items; all dependencies resolve, no cancelled prerequisite or cycle was found, and the table orders each prerequisite before its dependent. The 91 repository work-item IDs are unique.
 - SPEC-0008 is the primary scope; no specification was explicitly included. SPEC-0007 appears only as the owner of seven transitive prerequisites needed by SPEC-0008 work. Unrelated SPEC-0007 items are excluded.
