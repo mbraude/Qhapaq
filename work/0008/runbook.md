@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-13T02:28:08Z"
+generated_at: "2026-10-13T02:50:02Z"
 branch: "master"
-head: "6b47ffe9e002a3a10a40bcaab2c2cbf7ac6cffdf"
-source_file_count: 69
-source_set_sha256: "c1ec376720fb3c75ac23dd39fc41a659f6c558b7cdc9678d626a3c343894461a"
+head: "52177dc892fae1fca8a34901f9f498345bef0a69"
+source_file_count: 70
+source_set_sha256: "5ec9749dc0c6dda7f9c43882bdd0d9056f85f93803721ba43c721edcf7068708"
 ---
 
 # SPEC-0008: Work Runbook
@@ -24,7 +24,7 @@ SPEC-0008 items. Unrelated SPEC-0007 work is excluded.
 
 ## Next action
 
-**Next command:** `/spec-readiness 0008 scope=portable-core-example-audit-implementation`
+**Next command:** `/approve work/0008/readiness/portable-core-example-audit-implementation.md`
 
 **Also eligible:** `/spec-readiness 0008 scope=remaining-portable-specification-audit-implementation`<br>`/spec-readiness 0008 scope=portable-binding-specification-audit-implementation`<br>`/spec-readiness 0008 scope=language-contract-and-traceability-audit-implementation`<br>`/implementation-plan 0008 item=I-0008-012`
 
@@ -59,7 +59,8 @@ SPEC-0008 items. Unrelated SPEC-0007 work is excluded.
 | READINESS SPEC-0008 conformance-artifact-delivery | Approve scoped readiness to plan conformance profile and evidence delivery. |  | Complete | 2026-10-12 | [readiness record](readiness/conformance-artifacts.md) |
 | READINESS SPEC-0008 requirement-example-audit | Approved scoped readiness to plan the requirement and example audit. |  | Complete | 2026-10-12 | [readiness record](readiness/requirement-example-audit.md)<br>[D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | READINESS SPEC-0008 trace-checker | Assess deterministic trace-checker delivery before concrete implementation planning. |  | Gate - blocked | — | Checker tool-ownership and implementation-technology decision is unresolved; see [readiness record](readiness/trace-checker.md).<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) |
-| READINESS SPEC-0008 I-0008-013 implementation | Assess implementation readiness for SPEC.md and SPEC-0001/0002 edits in the core example audit. | `/spec-readiness 0008 scope=portable-core-example-audit-implementation` | Gate - required | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) is complete. Existing [requirement-example-audit readiness](readiness/requirement-example-audit.md) authorizes planning I-0008-002 only. |
+| READINESS SPEC-0008 I-0008-013 implementation | Assess implementation readiness for SPEC.md and SPEC-0001/0002 edits in the core example audit. |  | Ready for review | — | [implementation readiness](readiness/portable-core-example-audit-implementation.md) covers the slice requirements and all three manifest specifications; it is not yet approved. |
+| APPROVAL READINESS SPEC-0008 I-0008-013 implementation | Approve the exact implementation-readiness assessment before approving the slice plan. | `/approve work/0008/readiness/portable-core-example-audit-implementation.md` | Open - ready | — | [implementation readiness](readiness/portable-core-example-audit-implementation.md) is ready for review. Explicit approval is required; the assessment is not approved. |
 | READINESS SPEC-0008 I-0008-014 implementation | Assess implementation readiness for SPEC-0003/0004/0005 edits in the roadmap, AI, and release example audit. | `/spec-readiness 0008 scope=remaining-portable-specification-audit-implementation` | Gate - required | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) is complete. Existing [requirement-example-audit readiness](readiness/requirement-example-audit.md) authorizes planning I-0008-002 only. |
 | READINESS SPEC-0008 I-0008-015 implementation | Assess SPEC-0007 implementation readiness for portable binding specification edits. | `/spec-readiness 0008 scope=portable-binding-specification-audit-implementation` | Gate - required | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) is complete. Existing [requirement-example-audit readiness](readiness/requirement-example-audit.md) authorizes planning I-0008-002 only. |
 | READINESS SPEC-0008 I-0008-016 implementation | Assess implementation readiness for SPEC-0006/0008 and traceability-guidance edits. | `/spec-readiness 0008 scope=language-contract-and-traceability-audit-implementation` | Gate - required | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) and [D-0008-008](decisions/D-0008-008-language-native-traceability.md) are complete. Existing [requirement-example-audit readiness](readiness/requirement-example-audit.md) authorizes planning I-0008-002 only. |
@@ -100,9 +101,10 @@ SPEC-0008 items. Unrelated SPEC-0007 work is excluded.
   I-0008-003 execution remains blocked by its unapproved concrete plan and
   missing I-0007-002/I-0007-005 outputs.
 - Requirement-example-audit readiness is approved for planning I-0008-002
-  only. Each child slice now has its own implementation-readiness gate covering
-  its requirements and every specification in its manifest before plan
-  approval can be recommended. I-0008-002 remains blocked on those child
-  slices. Trace-checker readiness remains blocked pending an explicit checker
-  tool-ownership and implementation-technology decision. No milestone
-  receives an `implement-next` command.
+  only. I-0008-013 now has an implementation-readiness assessment ready for
+  review; explicit approval is required before its plan can be approved. The
+  other child slices still require their own implementation-readiness
+  assessments. I-0008-002 remains blocked on those children. Trace-checker
+  readiness remains blocked pending an explicit checker tool-ownership and
+  implementation-technology decision. No milestone receives an
+  `implement-next` command.
