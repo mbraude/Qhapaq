@@ -15,6 +15,10 @@ requirements:
   - R-0009-008
   - R-0009-009
   - R-0009-010
+  - R-0009-011
+  - R-0009-012
+  - R-0009-013
+  - R-0009-014
 depends_on: []
 artifacts:
   - docs/architecture/decisions/0006-repository-validation-derived-state.md
@@ -30,7 +34,7 @@ diagnostic, recovery, security, and independent-validation requirements.
 
 ## Scope and exclusions
 
-This decision covers R-0009-001 through R-0009-010. It may select tool and
+This decision covers R-0009-001 through R-0009-014. It may select tool and
 shared-library ownership, implementation technology, storage representation,
 owned local location, atomicity and concurrency behavior, cache and algorithm
 versioning, machine-readable results, command modes, and integration
@@ -55,11 +59,14 @@ delivery slices.
   maintained?
 - Which measurements and tests demonstrate reuse, equivalence, safe
   invalidation, and worthwhile performance improvement?
+- Which complete input manifest and resolver versions prove runbook freshness?
+- Which validation classes support receipts and which environment identities
+  invalidate them?
 
 ## Acceptance criteria
 
 - [ ] An ADR records the selected architecture and rejected alternatives.
-- [ ] The design preserves every R-0009-001 through R-0009-010 trust and
+- [ ] The design preserves every R-0009-001 through R-0009-014 trust and
   equivalence boundary.
 - [ ] Dependencies remain one-way from SPEC-0009 to existing validation and
   orchestration work.

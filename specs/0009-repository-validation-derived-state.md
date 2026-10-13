@@ -1,7 +1,7 @@
 # SPEC-0009: Repository Validation Derived State
 
 > **Status:** Draft
-> **Version:** 0.1
+> **Version:** 0.2
 > **Scope:** Incremental repository validation, derived indexes, and local caches
 > **Last updated:** 2026-10-12
 
@@ -169,7 +169,44 @@ Performance validation must distinguish hashing, parsing, reference indexing,
 repository search, process startup, and semantic review. A faster aggregate
 command alone is insufficient evidence that derived-state reuse works.
 
-## 11. Rollout
+## 11. Runbook and Workflow Reuse
+
+**[R-0009-011]** A persisted runbook freshness decision must bind the complete
+resolved input manifest, dependency closure, branch-sensitive inputs, and the
+versions of the resolver and eligibility-selection rules that produced it.
+An aggregate digest, generation time, branch name, `HEAD`, source count, file
+size, or timestamp alone is insufficient to prove freshness. A workflow may
+skip full runbook regeneration only after establishing that the complete
+recorded identity matches the current authoritative inputs and applicable
+rules.
+
+**[R-0009-012]** A runbook's stored `Next command` may be reused as the cached
+result of global eligibility selection only when R-0009-011 freshness has been
+established. Immediately before plan approval or implementation, the workflow
+must still verify the selected target's mutation-specific readiness, approval,
+manifest, and prerequisite identities. If freshness or targeted preflight
+cannot be established, the stored command must not be executed as trusted
+eligibility evidence.
+
+**[R-0009-013]** Incremental workflow resolution must identify changed
+authoritative paths, map them through a maintained dependency graph, invalidate
+every transitively affected derived result, and preserve unaffected results
+only when their complete identities remain valid. A composed workflow may
+defer intermediate runbook rendering and perform one final refresh after its
+last repository mutation, but it must refresh before reporting persisted
+status or a newly unlocked command and must not use deferred rendering to
+bypass a review or eligibility gate.
+
+**[R-0009-014]** A validation receipt may be reused only when it binds the exact
+reviewed or staged material, validator and rule versions, applicable
+configuration, and every environment input required by that validation class.
+The consuming workflow must verify those identities before reuse and preserve
+the original result and diagnostics. A repository mutation or unbound
+environment change invalidates the affected receipt. Nondeterministic build,
+test, external-service, and time-sensitive results must not be treated as
+reusable merely because source bytes are unchanged.
+
+## 12. Rollout
 
 Rollout is independent of SPEC-0007 and SPEC-0008 completion:
 
@@ -179,15 +216,21 @@ Rollout is independent of SPEC-0007 and SPEC-0008 completion:
 2. Establish deterministic baseline measurements and machine-readable
    validation results.
 3. Add the derived index and local cache behind uncached-equivalence tests.
-4. Migrate direct fingerprint and exact-byte digest consumers to the central
-   interface without changing their workflow semantics.
-5. Add clean-state or fully verified CI use only after equivalence, corruption,
-   and recovery tests pass.
+4. Add complete runbook freshness manifests and incremental dependency
+   invalidation before trusting stored commands or skipping regeneration.
+5. Migrate direct fingerprint, exact-byte digest, runbook, and workflow
+   consumers to the central interface without changing their authority or
+   review semantics.
+6. Add validation receipts first for deterministic checks, then for other
+   validation classes only when their complete environment identity and
+   invalidation rules are defined.
+7. Add clean-state or fully verified CI use only after equivalence, corruption,
+   recovery, and receipt-verification tests pass.
 
 Each step remains separately reviewable and recoverable. The rollout must not
 add a reverse dependency from SPEC-0007 or SPEC-0008 work.
 
-## 12. Alternatives
+## 13. Alternatives
 
 ### Sequential requirement versions
 
@@ -212,7 +255,7 @@ timestamp and file-system timestamp behavior is not uniform.
 Retained as the correctness baseline and recovery path. It is insufficient as
 the only local workflow when repeated derivation materially slows development.
 
-## 13. Open Questions
+## 14. Open Questions
 
 These questions require architectural decisions before implementation:
 
@@ -225,11 +268,16 @@ These questions require architectural decisions before implementation:
 - Which commands expose uncached, incremental, and full-verification modes?
 - How are concurrent processes coordinated without treating process-local
   state as repository authority?
+- Which authoritative paths and rule versions form the complete runbook input
+  manifest, and how is its dependency closure versioned?
+- Which validation classes are sufficiently deterministic for receipts, and
+  which environment inputs invalidate each class?
 - Which phase measurements and thresholds demonstrate a worthwhile
   improvement without creating machine-specific pass/fail gates?
 
-## 14. Revision History
+## 15. Revision History
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 0.2 | 2026-10-12 | Defined complete runbook freshness, conditional reuse of stored next commands, incremental dependency invalidation and refresh collapsing, and exact-identity validation receipts. |
 | 0.1 | 2026-10-12 | Initial draft defining non-authoritative content-addressed validation state, equivalence, invalidation, trust, digest reuse, security, verification, and independent rollout. |

@@ -110,6 +110,14 @@ illustrative. Do not check it as a reference or waiver.
   # Text at HEAD:    & $fp ((git show HEAD:specs/0001-core-pipeline-model.md) -join "`n")
   ```
 
+  Compute the map at most once for each exact `HEAD` or working-copy text
+  snapshot during one invocation. Retain and reuse that map for changed-block
+  detection, reference validation, trailer derivation, and semantic review.
+  Do not rerun the helper merely because a later workflow step needs the same
+  fingerprint. If a relevant specification changes during the invocation,
+  discard its retained working-copy map and compute a new one from the changed
+  bytes; never reuse invocation-local results across invocations.
+
 - **Product assemblies:** `Qhapaq.Service.V*`, `Qhapaq.Business`,
   `Qhapaq.DAL`, and `Qhapaq.Implementations.*`.
 - **Invariants.** Code that enforces a requirement, so that deleting or
@@ -181,8 +189,9 @@ Report a **warning** when:
 
 ### 3. Find references made stale by specification edits
 
-Run the fingerprint helper on the `HEAD` and working-copy text of each changed
-specification. A block whose fingerprint changed is a *changed block*.
+Use the retained fingerprint maps for the `HEAD` and working-copy text of each
+changed specification. Compute a missing map with the helper once. A block
+whose fingerprint changed is a *changed block*.
 
 For each changed block, search the whole repository:
 

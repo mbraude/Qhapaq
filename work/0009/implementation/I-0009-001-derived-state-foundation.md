@@ -15,6 +15,7 @@ requirements:
   - R-0009-008
   - R-0009-009
   - R-0009-010
+  - R-0009-011
 depends_on: [D-0009-001, I-0008-007]
 artifacts: []
 ---
@@ -23,7 +24,8 @@ artifacts: []
 
 ## Objective and coverage
 
-Deliver the central exact-content index and local derived-state lifecycle for
+Deliver the central exact-content index, runbook input manifest, and local
+derived-state lifecycle for
 incremental repository validation. Cover non-authoritative state, complete
 identity, unchanged-content reuse, cached-versus-uncached equivalence,
 diagnostics, invalidation, concurrent access, sensitive-content exclusions,
@@ -56,6 +58,8 @@ Cover every case in SPEC-0009 verification expectations for exact identity,
 rule-version changes, reuse, equivalence, malformed and interrupted state,
 concurrency, sensitive-content exclusion, deletion, and regeneration. Record
 phase measurements that distinguish derivation costs from semantic review.
+Cover complete versus incomplete runbook input manifests and resolver-version
+changes without trusting aggregate metadata alone.
 
 ## Exit criteria
 

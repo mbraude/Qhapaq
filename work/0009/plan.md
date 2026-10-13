@@ -2,8 +2,17 @@
 spec: SPEC-0009
 sources:
   - path: specs/0009-repository-validation-derived-state.md
-    revision: null
-    content_sha256: b227333010e78d27670ea2feb894399c7cfe1e0314513dd7c7e342699626791f
+    revision: f6ba2d2eb8a306f0f0794b0804cbe2a302443d54
+    content_sha256: 59a20f67e18d9ed1653a301919d7ad2eeb047e80e35630789377dba2ec2f6d1b
+  - path: .agents/skills/spec-trace-check/SKILL.md
+    revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
+    content_sha256: b526f789b155b5ccb02eb5863854b9d82963a5f23547c8f5fb2dd0e50bc4be82
+  - path: .agents/skills/work-runbook-sync/SKILL.md
+    revision: 52177dc892fae1fca8a34901f9f498345bef0a69
+    content_sha256: 3f378715a39d08342c5775ee28ede771357517f08b86ffef109b9fd8c5d62712
+  - path: .agents/skills/work-next/SKILL.md
+    revision: 52177dc892fae1fca8a34901f9f498345bef0a69
+    content_sha256: 904b6bf97f8444305b10e79df8d51d8fa78ab18438633a9f4daa1e3740d120f2
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 71bf914cd8edf48b6af94544c342c4ad2c906929
     content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
@@ -43,7 +52,9 @@ without changing the requirements or completion gates of SPEC-0007 or
 SPEC-0008. SPEC-0009 owns non-authoritative derived validation state, exact
 content and rule-version identity, cached and uncached equivalence, explicit
 invalidation, shared exact-byte digest reuse, independent required validation,
-and safe lifecycle behavior.
+safe lifecycle behavior, complete runbook freshness, cached command selection,
+incremental dependency invalidation, refresh collapsing, and exact-identity
+validation receipts.
 
 SPEC-0008 continues to own deterministic trace-checker semantics and
 registration. This plan consumes its checker outcome through an external
@@ -56,7 +67,7 @@ planning.
 
 ### Entry gates
 
-SPEC-0009 is reviewed as the governing draft. R-0009-001 through R-0009-010
+SPEC-0009 is reviewed as the governing draft. R-0009-001 through R-0009-014
 bound the decision without selecting an implementation implicitly.
 
 ### Ordered items
@@ -87,10 +98,9 @@ implementation slices are separately approved.
 
 ### Exit gates
 
-The derived-state foundation satisfies R-0009-001 through R-0009-005,
-R-0009-008 through R-0009-010, passes cached-versus-uncached equivalence and
-corruption tests, and
-has explicit delivery review.
+The derived-state foundation satisfies R-0009-001 through R-0009-005 and
+R-0009-008 through R-0009-011, passes cached-versus-uncached equivalence,
+manifest-freshness, and corruption tests, and has explicit delivery review.
 
 ## Phase 2: Workflow adoption and required validation
 
@@ -110,8 +120,11 @@ root validation orchestration owned by I-0008-009.
 ### Exit gates
 
 Repository workflows preserve exact snapshot, approval, and traceability
-semantics while reusing eligible results. Required validation remains
-independently reproducible and does not accept unverified local state.
+semantics while reusing eligible results. Stored next commands require complete
+freshness, incremental invalidation covers all dependents, composed mutations
+end with one current runbook, and validation receipts bind complete identities.
+Required validation remains independently reproducible and does not accept
+unverified local state.
 
 ## External prerequisites
 
@@ -126,6 +139,28 @@ depends on this plan, and no SPEC-0007 or SPEC-0008 completion gate is changed.
 
 ## Reconciliation evidence
 
+- Date: 2026-10-12. Reconciled SPEC-0009 version 0.2, which adds complete
+  runbook input manifests, conditional reuse of stored next commands,
+  incremental dependency invalidation, final-refresh collapsing, and
+  exact-identity validation receipts in R-0009-011 through R-0009-014.
+- D-0009-001 now resolves the additional architecture questions. I-0009-001
+  owns the runbook freshness manifest foundation; I-0009-002 owns workflow
+  adoption, targeted preflight, incremental invalidation, refresh collapsing,
+  and local receipt reuse; I-0009-003 includes required-validation receipt
+  verification. No new dependency points from SPEC-0007 or SPEC-0008 to this
+  plan.
+- Recorded the current working-copy bytes of the three directly related skills.
+  Their immediate changes retain fingerprint maps, input bytes, parsed fields,
+  and digests only within one invocation; use the freshly synchronized next
+  command without re-deriving global order; and strengthen the existing
+  meaningful-content no-op. They create no persistent cache, skip no freshness
+  check, and trust no prior runbook.
+- Existing SPEC-0007 and SPEC-0008 specifications, plans, items, readiness
+  records, and approvals remain unchanged. The pre-existing modifications to
+  `work/0008/runbook.md` and its new language-contract readiness record are
+  unrelated and were preserved.
+- Reconciliation is complete for this amendment. Human review of the exact
+  specification, plan, work-item, and skill snapshots is the next gate.
 - Date: 2026-10-12. Bootstrapped from the new uncommitted SPEC-0009 draft and
   the exact current supporting sources recorded above.
 - The SPEC-0009 source record uses `revision: null` because the new draft has no

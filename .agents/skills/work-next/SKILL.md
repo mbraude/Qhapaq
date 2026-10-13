@@ -26,8 +26,14 @@ That stop is the correct outcome, not permission to continue to another row.
    This creates a missing runbook, refreshes a stale one, or reports a no-op.
    Never select from stale rows.
 2. Read the refreshed `Next command`, table, blockers, source digest, branch,
-   and `HEAD`. If structural errors, dependency cycles, cancelled prerequisites,
-   or ambiguous eligibility remain, stop with the repair command. Before
+   and `HEAD`. Use that freshly synchronized `Next command` as the global row
+   selection; do not independently reread every row or rebuild the global
+   eligibility order in this invocation. Retain the synchronization result for
+   reporting and reuse it until a delegated action changes repository state.
+   This is invocation-local reuse, not permission to trust a runbook that was
+   not synchronized in step 1. If structural errors, dependency cycles,
+   cancelled prerequisites, or ambiguous eligibility remain, stop with the
+   repair command. Before
    dispatching `/approve-implementation-plan` or `/implement-next`, independently
    recheck the selected slice's exact manifest and readiness record. The
    readiness must be current, explicitly approved for implementation, cover the

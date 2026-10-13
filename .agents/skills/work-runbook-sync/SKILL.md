@@ -46,6 +46,14 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    authorizes planning only, excludes edits, omits a target specification, is
    stale, or is otherwise not explicitly approved for implementation does not
    satisfy this gate.
+   Within this invocation, read each exact input snapshot once and retain its
+   bytes, parsed fields, and computed digest for every later currentness,
+   dependency, rendering, and source-set operation. Do not reopen or rehash an
+   unchanged input merely because another row consumes it. Before writing,
+   confirm that retained working-copy inputs still identify the current bytes;
+   if a relevant input changed during synchronization, discard the affected
+   retained results and resolve them again. This reuse is invocation-local and
+   creates no persistent cache or cross-invocation trust.
 3. Build a stable dependency order. Prerequisites precede dependents. Among
    otherwise independent work, order by:
    1. freshness or structural repair gates;
@@ -126,7 +134,8 @@ to match a runbook, execute work, approve an outcome, commit, or push.
 10. Write the complete runbook from the template. Regeneration replaces the
     derived metadata and table, preserving no manual row edits. If inputs and
     rendered content other than generation metadata are unchanged, report a
-    no-op rather than rewriting the file solely to change its timestamp.
+    no-op rather than rewriting the file solely to change its timestamp,
+    branch, `HEAD`, or source digest.
 11. Validate table links, commands, item coverage, dependency order, source
     metadata, and the absence of dependency cycles. Invoke
     [spec-trace-check](../spec-trace-check/SKILL.md) for a changed runbook.
