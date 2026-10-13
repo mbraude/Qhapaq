@@ -27,9 +27,19 @@ That stop is the correct outcome, not permission to continue to another row.
    Never select from stale rows.
 2. Read the refreshed `Next command`, table, blockers, source digest, branch,
    and `HEAD`. If structural errors, dependency cycles, cancelled prerequisites,
-   or ambiguous eligibility remain, stop with the repair command. If every row
-   is complete or cancelled and all aggregate gates are satisfied, report the
-   runbook complete; do not invent a specification-complete status.
+   or ambiguous eligibility remain, stop with the repair command. Before
+   dispatching `/approve-implementation-plan` or `/implement-next`, independently
+   recheck the selected slice's exact manifest and readiness record. The
+   readiness must be current, explicitly approved for implementation, cover the
+   slice's governing requirements/capabilities, and include every specification
+   document the manifest may edit. Planning-only readiness, an explicit
+   exclusion of those edits, stale evidence, or ambiguous coverage blocks both
+   commands. If this preflight fails, do not invoke the selected command or
+   switch to another row; stop and direct the user to the exact scoped
+   `/spec-readiness` assessment and subsequent readiness approval, then a
+   refreshed runbook. If every row is complete or cancelled and all aggregate
+   gates are satisfied, report the runbook complete; do not invent a
+   specification-complete status.
 3. State the selected row, description, owning specification, exact command,
    prerequisites, expected stopping point, and what it will unlock. Execute
    only that command by invoking the named repository skill with the exact
@@ -37,7 +47,10 @@ That stop is the correct outcome, not permission to continue to another row.
    blocked during execution.
 4. Respect the delegated skill's stop:
    - `work-plan-sync`, `implementation-plan`, and `spec-readiness` stop for
-     review and do not imply approval.
+     review and do not imply approval. A `spec-readiness` result must be
+     explicitly approved for the selected implementation scope before the
+     runbook may advance to plan approval; approval of a planning-only readiness
+     scope is not interchangeable.
    - `spec-next` and `implement-next` handle one bounded item and stop at their
      review gate.
    - `approve-implementation-plan` and `approve` obtain their own explicit

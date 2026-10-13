@@ -39,7 +39,13 @@ to match a runbook, execute work, approve an outcome, commit, or push.
 2. Resolve selected plans, their phase order, item records, readiness records,
    material plan approvals, review evidence, artifacts, and all transitive
    prerequisites. Check source currentness, IDs, ownership, references,
-   cancelled dependencies, and cross-plan cycles.
+   cancelled dependencies, and cross-plan cycles. For every implementation
+   slice, resolve its exact file manifest and determine which specification
+   documents it may edit. Check readiness against both the slice's governing
+   requirements/capabilities and those planned edits; a readiness record that
+   authorizes planning only, excludes edits, omits a target specification, is
+   stale, or is otherwise not explicitly approved for implementation does not
+   satisfy this gate.
 3. Build a stable dependency order. Prerequisites precede dependents. Among
    otherwise independent work, order by:
    1. freshness or structural repair gates;
@@ -55,8 +61,11 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    work-item identity, such as plan synchronization, scoped readiness,
    implementation-plan approval, or completion review. Give each a stable,
    descriptive identity such as `SYNC SPEC-0008` or
-   `READINESS SPEC-0008 conformance-artifacts`. Do not persist synthetic status
-   anywhere else.
+   `READINESS SPEC-0008 conformance-artifacts-implementation`. Do not persist
+   synthetic status anywhere else. Readiness gates for a slice must identify
+   the slice and the specification documents and capabilities they cover. Keep
+   separate gates for readiness assessment and approval when the assessment
+   is ready-for-review.
 5. For each row, derive exactly one current command:
 
    | Current condition | Skill command |
@@ -67,13 +76,25 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    | Decisions complete and named readiness absent or stale | `/spec-readiness <spec-id> scope=<scope>` |
    | Readiness ready for review | `/approve <readiness-record-path>` |
    | Milestone requiring concrete slices | `/implementation-plan <spec-id> item=<id>` |
-   | Concrete slice missing plan approval | `/approve-implementation-plan <spec-id> item=<id>` |
-   | Approved, dependency-ready concrete slice | `/implement-next <spec-id> item=<id>` |
+   | Slice lacks current, approved implementation readiness covering its requirements and every specification document its manifest may edit | `/spec-readiness <spec-id> scope=<slice-scope>-implementation` |
+   | Slice implementation readiness is ready for review | `/approve <readiness-record-path>` |
+   | Concrete slice has current, approved implementation readiness but lacks plan approval | `/approve-implementation-plan <spec-id> item=<id>` |
+   | Plan-approved, dependency-ready slice has current, approved implementation readiness | `/implement-next <spec-id> item=<id>` |
    | Aggregate milestone awaiting verification | The exact applicable planning or approval command; never `implement-next` |
    | Complete or cancelled item | Empty command |
 
-   If no command is currently safe, leave it empty and explain the blockers.
-   Never emit `implement-next` for `granularity: milestone`.
+   Before emitting an implementation-plan approval command, require a current,
+   explicitly approved readiness assessment for the slice's implementation
+   scope. It must cover the slice's governing requirements/capabilities and
+   every specification document the manifest may edit. A readiness approval
+   that only authorizes planning or explicitly excludes those edits is
+   insufficient, even when it is current and shares requirement IDs. If no
+   suitable record exists, is stale, or its coverage is ambiguous, create a
+   readiness gate ahead of plan approval; do not mark the slice ready for plan
+   approval. Apply the same readiness precondition to implementation execution,
+   in addition to plan approval, dependency readiness, and entry-artifact
+   checks. If no command is currently safe, leave it empty and explain the
+   blockers. Never emit `implement-next` for `granularity: milestone`.
 6. Populate the runbook table with exactly these columns:
 
    | Work item | Description | Skill command | Status | Date Completed | Pre-requisites / blocked by |
@@ -94,11 +115,14 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    count, and a SHA-256 digest over the sorted repository-relative paths and
    exact bytes of every plan, item, readiness record, and authoritative source
    used. Exclude the runbook itself. Label working-copy snapshots accurately.
-9. Set `Next command` above the table to the first safe actionable row. When
-   stale or invalid inputs affect eligibility, the next command must repair or
-   reconcile them; do not show downstream execution as trustworthy. If there
-   are multiple independent eligible rows, choose by the stable order and list
-   the others under `Also eligible`.
+9. Set `Next command` above the table to the first safe actionable row. A
+   command is safe only if every prerequisite for that command—not merely for
+   the eventual implementation—is satisfied. In particular, never recommend
+   plan approval before current implementation readiness covers the slice's
+   planned edits. When stale or invalid inputs affect eligibility, the next
+   command must repair or reconcile them; do not show downstream approval or
+   execution as trustworthy. If there are multiple independent eligible rows,
+   choose by the stable order and list the others under `Also eligible`.
 10. Write the complete runbook from the template. Regeneration replaces the
     derived metadata and table, preserving no manual row edits. If inputs and
     rendered content other than generation metadata are unchanged, report a
@@ -114,6 +138,8 @@ source digest, structural findings, first actionable row, and exact next
 command. Do not execute that command.
 
 Evaluation: regeneration is idempotent for unchanged inputs; every prerequisite
-precedes its dependent; stale sources suppress unsafe eligibility; milestones
-never receive `implement-next`; completion dates come only from explicit
-evidence; the runbook never becomes an independent status authority.
+precedes its dependent; readiness must explicitly authorize the slice's planned
+edits before plan approval or implementation; stale or insufficient readiness
+suppresses unsafe eligibility; milestones never receive `implement-next`;
+completion dates come only from explicit evidence; the runbook never becomes an
+independent status authority.
