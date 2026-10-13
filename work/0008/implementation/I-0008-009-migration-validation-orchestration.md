@@ -18,8 +18,8 @@ requirements:
 depends_on:
   - D-0008-011
   - D-0008-012
-  - I-0008-003
   - I-0008-007
+  - I-0008-020
 artifacts:
   - build
   - scripts
@@ -38,9 +38,12 @@ profile or claim.
 ## Entry gates
 
 D-0008-011 and D-0008-012 are complete; the trace checker and required
-conformance artifacts exist; the exact workspace capabilities, impact graph,
-report contracts, migration validation matrix, recovery exercise, scope
-readiness, and concrete slices are approved.
+conformance contracts, profiles, vectors, .NET adapters, and report producers
+from I-0008-017 through I-0008-020 exist; the exact workspace capabilities,
+impact graph, report contracts, migration validation matrix, recovery
+exercise, scope readiness, and concrete slices are approved. Protected
+conformance publication in I-0008-021 is downstream and does not block this
+root-orchestration prerequisite.
 
 ## File and ownership manifest
 

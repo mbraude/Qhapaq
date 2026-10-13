@@ -239,8 +239,13 @@ SPEC-0007 gates remain in force.
 | 8.3 | [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit SPEC-0007 portable binding examples and defaults |
 | 8.4 | [I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit SPEC-0006/SPEC-0008 and traceability guidance boundaries |
 | 9 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
-| 10 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Deliver profile, declaration, and evidence artifacts |
-| 11 | [I-0008-009](implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration |
+| 10 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Aggregate profile, declaration, evidence, and publication delivery |
+| 10.1 | [I-0008-017](implementation/I-0008-017-conformance-contract-schemas.md) | Deliver portable conformance contract schemas |
+| 10.2 | [I-0008-018](implementation/I-0008-018-profile-definitions.md) | Deliver the four candidate profile definitions and evidence matrices |
+| 10.3 | [I-0008-019](implementation/I-0008-019-conformance-contract-vectors.md) | Deliver portable conformance contract and lifecycle vectors |
+| 10.4 | [I-0008-020](implementation/I-0008-020-dotnet-conformance-evidence.md) | Connect .NET profile adapters and immutable evidence |
+| 11 | [I-0008-009](implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration after report producers exist |
+| 11.1 | [I-0008-021](implementation/I-0008-021-conformance-publication-integration.md) | Enforce protected conformance publication through root release manifests |
 | 12 | [I-0008-008](implementation/I-0008-008-entry-point-identity-migration.md) | Apply the matched .NET Entry Point identities |
 | 13 | [I-0008-004](implementation/I-0008-004-source-relocation.md) | Relocate implementation and common-library source without implicit identity or behavior changes |
 | 14 | [I-0008-005](implementation/I-0008-005-dependent-surface-updates.md) | Update automation, instructions, documentation, and plans |
@@ -306,6 +311,53 @@ consumer and approved scope.
   is not applicable.
 
 ## Reconciliation evidence
+
+- Date: 2026-10-13. Detailed only I-0008-012 and decomposed the existing
+  I-0008-003 conformance-artifact milestone into five executable slices while
+  retaining I-0008-003 as the non-executable delivery aggregate. I-0008-017
+  owns closed portable schemas; I-0008-018 owns the four candidate profile
+  definitions and evidence matrices; I-0008-019 owns portable contract and
+  lifecycle vectors; I-0008-020 owns adapters and immutable evidence in the
+  existing .NET test workspaces; and I-0008-021 owns fail-closed protected
+  publication integration.
+- Every child has an exact repository file manifest, responsibility and
+  visibility, governing requirements, entry and exit gates, tests or vectors,
+  documented commands or an explicit command-resolution blocker, and required
+  delivery/publication evidence. Portable schemas, profiles, and vectors stay
+  under root `schemas/` and `conformance/`; .NET adapters stay in existing
+  implementation test projects; root aggregation/publication stays in
+  `build/`, `scripts/`, and `.github/workflows/`.
+- I-0007-002 and I-0007-005 are true execution prerequisites only for
+  I-0008-019, where their actual shared tooling and validation-foundation
+  outputs are first consumed. Their milestone artifacts are not represented
+  as delivered, and I-0008-019 plan approval is blocked until their child
+  manifests and exact commands exist. I-0008-017 and I-0008-018 can deliver
+  their independently governed contracts first.
+- Refined I-0008-009 to depend on I-0008-020 rather than the I-0008-003
+  aggregate. I-0008-021 then depends on I-0008-009 and I-0008-020, allowing
+  protected publication to consume root manifest orchestration without a
+  cycle. I-0008-003 depends on all five children. The combined SPEC-0007 and
+  SPEC-0008 graph remains acyclic.
+- The approved conformance-artifact readiness record included an older exact
+  `work/0008/plan.md` byte snapshot. The intervening plan-only delta split the
+  disjoint requirement/example audit scope and added its source inventory. A
+  bounded impact review found no change to conformance requirements,
+  decisions, milestones, dependencies, authoritative specification bytes, or
+  readiness conclusions. The approved readiness remains applicable to
+  planning I-0008-003 through I-0008-012; it does not approve any child plan
+  or make a delivery slice executable.
+- I-0008-003 still covers every former acceptance outcome. R-0008-027 is
+  satisfied only when this aggregate completes as migration stage 2's
+  conformance prerequisite. R-0008-028 and R-0008-029 do not apply to the
+  current add/modify-only child manifests; adding a move or rename requires
+  separate migration readiness, before/after validation, a dedicated branch,
+  checkpoint, user-change preservation, and non-destructive recovery.
+- No production artifact was created. I-0008-012 is ready for exact review;
+  all executable child plan approvals remain absent. Validation covers current
+  source hashes, requirement and dependency references, unique IDs, phase
+  membership, exact manifests, parent acceptance coverage, cross-plan
+  acyclicity, local links, whitespace, and specification traceability. No
+  build or unit tests apply to this planning-only change.
 
 - Date: 2026-10-12. Decomposed I-0008-002 into four disjoint audit slices:
   I-0008-013 covers SPEC.md and SPEC-0001/0002; I-0008-014 covers
