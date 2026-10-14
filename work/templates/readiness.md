@@ -11,10 +11,10 @@ sources:
     revision: null
     content_sha256: "<SHA-256 of exact assessed file bytes>"
     material_sha256: "<material SHA-256; governs currency of work-item sources>"
-  - path: "<another plan, for example work/NNNN/plan.md>"
+  - path: "<another plan or readiness record, for example work/NNNN/plan.md>"
     revision: null
     content_sha256: "<SHA-256 of exact assessed file bytes>"
-    material_sha256: "<plan material SHA-256; governs currency of plan sources>"
+    material_sha256: "<plan or readiness material SHA-256; governs currency>"
 ---
 
 # <Specification ID>: <Scope> Readiness

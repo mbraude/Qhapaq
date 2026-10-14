@@ -16,6 +16,7 @@ sources:
   - path: work/0006/plan.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: b74bb5a11087fb1c92950b29246d3ccbf2a446812c8b1168a7c6ccb6e3709a5d
+    material_sha256: a8a8f86c88742432fbdfb611855113250644300470122e1e31473138925d1122
   - path: work/0006/implementation/I-0006-001-reconcile-service-v1-decision.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 4214ca55e42cda250039fbe54800eb4c8d614cf0b0c758888b5dfa9b8e987e81

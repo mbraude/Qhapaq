@@ -37,7 +37,7 @@ resolve new product decisions.
    Do not require unrelated release artifacts or relax specified gates.
 5. Populate or revise the scope's readiness record with exact source snapshots
    from `python .agents/scripts/work_hashes.py sources <path>...`, keeping the
-   `material_sha256` it emits for work-item and plan sources so later status,
+   `material_sha256` it emits for work-item, plan, and readiness sources so later status,
    evidence, or reconciliation edits to those files do not stale the record,
    findings, exclusions, validation, and blockers. Set `process_version` to the
    workflow guide's current value; do not cite the guide, templates, or

@@ -59,8 +59,8 @@ specification text unless the user explicitly includes that migration.
 7. Update phase membership and reconciliation evidence. Compute real SHA-256
    source snapshots and full Git revisions with
    `python .agents/scripts/work_hashes.py sources <path>...`, never by hand or
-   with ad hoc scripts; keep the `material_sha256` it emits for work-item and
-   plan sources. Set `process_version` to the workflow guide's current value,
+   with ad hoc scripts; keep the `material_sha256` it emits for work-item,
+   plan, and readiness sources. Set `process_version` to the workflow guide's current value,
    and do not cite the guide, templates, or workflow skills as sources unless
    the specification governs them; keep the plan's reconciliation notes in
    sections whose headings name reconciliation, impact review, or evidence,

@@ -195,6 +195,7 @@ def material_sha256(data: bytes) -> str:
 
 
 PLAN_RE = re.compile(r"^work/(?:components/)?\d{4}/plan\.md$")
+READINESS_RE = re.compile(r"^work/(?:components/)?\d{4}/readiness/[^/]+\.md$")
 DERIVED_VIEW_RE = re.compile(r"^work/(?:(?:components/)?\d{4}/runbook\.md$|diagrams/)")
 PROCESS_SOURCE_RE = re.compile(r"^(?:docs/development/spec-driven-workflow\.md|work/templates/)")
 PLAN_EXCLUDED_HEADING_RE = re.compile(r"reconciliation|impact review|evidence", re.I)
@@ -202,10 +203,13 @@ GUIDE = "docs/development/spec-driven-workflow.md"
 PROCESS_VERSION_RE = re.compile(r"^\*\*Process version:\*\*\s*(\d+)", re.M)
 
 
-def plan_material_text(text: str) -> str:
+def plan_material_text(text: str, readiness: bool = False) -> str:
     """A plan's material view: LF line endings, without its frontmatter `sources`
     list or `process_version`, and without level-2 sections whose headings match
-    PLAN_EXCLUDED_HEADING_RE (reconciliation and review evidence)."""
+    PLAN_EXCLUDED_HEADING_RE (reconciliation and review evidence). With
+    `readiness`, also without the `assessment` field and the
+    `Validation and approval` section."""
+    excluded_keys = {"sources", "process_version"} | ({"assessment"} if readiness else set())
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     out: list[str] = []
     in_front = in_sources = skip = False
@@ -222,14 +226,15 @@ def plan_material_text(text: str) -> str:
             elif re.match(r"^[A-Za-z_][\w-]*\s*:", stripped):
                 key = stripped.split(":", 1)[0].strip()
                 in_sources = key == "sources"
-                if key not in ("sources", "process_version"):
+                if key not in excluded_keys:
                     out.append(line)
             elif not in_sources:
                 out.append(line)
             continue
         heading = re.match(r"^##\s+(.+?)\s*$", stripped)
         if heading:
-            skip = bool(PLAN_EXCLUDED_HEADING_RE.search(heading.group(1)))
+            skip = bool(PLAN_EXCLUDED_HEADING_RE.search(heading.group(1))) or (
+                readiness and heading.group(1) == "Validation and approval")
             if skip:
                 continue
         if not skip:
@@ -239,15 +244,16 @@ def plan_material_text(text: str) -> str:
 
 def has_material(path: str) -> bool:
     """Whether a cited source of this kind records `material_sha256`."""
-    return bool(WORK_ITEM_RE.match(path) or PLAN_RE.match(path))
+    return bool(WORK_ITEM_RE.match(path) or PLAN_RE.match(path) or READINESS_RE.match(path))
 
 
 def source_material_sha256(path: str, data: bytes) -> str | None:
-    """The material SHA-256 recorded for a work-item or plan source; None for other sources."""
+    """The material SHA-256 recorded for a work-item, plan, or readiness source; None otherwise."""
     if WORK_ITEM_RE.match(path):
         return material_sha256(data)
-    if PLAN_RE.match(path):
-        return sha256_bytes(plan_material_text(data.decode("utf-8")).encode("utf-8"))
+    if PLAN_RE.match(path) or READINESS_RE.match(path):
+        text = plan_material_text(data.decode("utf-8"), readiness=bool(READINESS_RE.match(path)))
+        return sha256_bytes(text.encode("utf-8"))
     return None
 
 
@@ -402,6 +408,10 @@ def recover_bytes(path: str, sha: str, revision: str | None, depth: int = 50) ->
             pos += size + 1
             if sha256_bytes(data) == sha:
                 return data
+            # Records hashed on a Windows checkout cover CRLF working-copy bytes of an LF blob.
+            crlf = data.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+            if crlf != data and sha256_bytes(crlf) == sha:
+                return crlf
     return None
 
 
@@ -409,7 +419,7 @@ def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str 
                  material: str | None = None) -> str:
     """Classify a recorded source snapshot against current bytes.
 
-    A work-item or plan source that records `material_sha256` is `current`
+    A work-item, plan, or readiness source that records `material_sha256` is `current`
     when its current material SHA-256 equals that value, as the workflow guide
     defines, and `stale` otherwise, regardless of byte changes.
 

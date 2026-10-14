@@ -62,6 +62,7 @@ sources:
   - path: work/0008/readiness/requirement-example-audit.md
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
     content_sha256: 5186fbba33d1810efc047a7f14715a998980630b32112c23c116898239f8c9cf
+    material_sha256: 02f56e89e8b1197fde3e9b558d5027b63520cf12080f526d2b46733d57a5a730
   - path: docs/development/conventions/documentation.md
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
     content_sha256: ee1ab8d0f2237adb5a1fd986ce5c925eb1b0d6bafa51bd5c700bfd3436e7f657

@@ -49,6 +49,7 @@ sources:
   - path: work/0006/plan.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: b74bb5a11087fb1c92950b29246d3ccbf2a446812c8b1168a7c6ccb6e3709a5d
+    material_sha256: a8a8f86c88742432fbdfb611855113250644300470122e1e31473138925d1122
   - path: work/0006/implementation/I-0006-001-reconcile-service-v1-decision.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 4214ca55e42cda250039fbe54800eb4c8d614cf0b0c758888b5dfa9b8e987e81
@@ -93,9 +94,11 @@ sources:
   - path: work/0008/readiness/conformance-artifacts.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 02ea0bd14bdc5a8643ef5f4c1692da823141cc385c9b403d27190eca7c2f4dc4
+    material_sha256: 3657c04453792df259d68e96b743f1553bed58502bec27653fea781e55673047
   - path: work/0008/readiness/engineering-policy.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 883097968e359f70036e87ee907563369b93a2090ec8f124362184b7e773875e
+    material_sha256: 2f784388c70db2512973789fc9e69f6845ec06cefedd40cce08b4b847e079ddd
 ---
 
 # SPEC-0006: Initial Layered Architecture Readiness

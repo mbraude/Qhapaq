@@ -53,6 +53,7 @@ sources:
   - path: work/0008/readiness/requirement-example-audit.md
     revision: d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9
     content_sha256: 5186fbba33d1810efc047a7f14715a998980630b32112c23c116898239f8c9cf
+    material_sha256: 02f56e89e8b1197fde3e9b558d5027b63520cf12080f526d2b46733d57a5a730
 ---
 
 # SPEC-0008: Portable Core Example Audit Implementation Readiness

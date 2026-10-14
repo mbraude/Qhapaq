@@ -59,6 +59,7 @@ sources:
   - path: work/0008/readiness/requirement-example-audit.md
     revision: 910e5fd40bfdea4ab9bf73a6ce06418633114996
     content_sha256: 5186fbba33d1810efc047a7f14715a998980630b32112c23c116898239f8c9cf
+    material_sha256: 02f56e89e8b1197fde3e9b558d5027b63520cf12080f526d2b46733d57a5a730
 ---
 
 # SPEC-0008: Remaining Portable Specification Audit Implementation Readiness

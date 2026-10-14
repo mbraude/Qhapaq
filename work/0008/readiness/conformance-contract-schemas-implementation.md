@@ -80,6 +80,7 @@ sources:
   - path: "work/0008/readiness/conformance-artifacts.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
     content_sha256: "7853bcbf2a87a127e97b5436a482882564357cf1ab9002e3f41ff0635930d8a5"
+    material_sha256: "4583cd1a52b6f43b84dbd6ac53735be5d3184a76d292cebcbaa920446a31a433"
   - path: "work/0008/decisions/D-0008-004-initial-conformance-profiles.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
     content_sha256: "0f6ac0516de4ba2a741dc3c568cfd7f0892d23719ae9579612589412e1241140"

@@ -120,7 +120,7 @@ A [plan](../../work/templates/plan.md) has frontmatter:
 | --- | --- |
 | `spec` | Owning specification ID |
 | `process_version` | The workflow guide's process version this record followed |
-| `sources` | List of `{path, revision, content_sha256}` records; work-item and plan sources add `material_sha256` |
+| `sources` | List of `{path, revision, content_sha256}` records; work-item, plan, and readiness sources add `material_sha256` |
 
 For each authoritative input actually used, `path` is repository-relative,
 `revision` is the full Git commit hash supplying the baseline, and
@@ -138,10 +138,14 @@ plan, record its `material_sha256`: SHA-256 of the plan's UTF-8 text with LF
 line endings, omitting its frontmatter `sources` list and `process_version`
 line and every level-2 section whose heading contains "reconciliation",
 "impact review", or "evidence" (case-insensitive). Keep such sections free of
-scope, phase, ordering, and gate content. Such a source is current when its
+scope, phase, ordering, and gate content. When a source is a readiness record,
+record its `material_sha256` the same way, additionally omitting its
+`assessment` line and its `## Validation and approval` section; reassessment
+findings remain material. Such a source is current when its
 material SHA-256 matches, even if its bytes changed: recording lifecycle status
-or review evidence on a cited item, or reconciling a cited plan's sources
-without changing its scope, does not make the citing record stale, while
+or review evidence on a cited item, reconciling a cited plan's sources
+without changing its scope, or recording approval on a cited readiness record
+does not make the citing record stale, while
 any material change does. Without `material_sha256`, `content_sha256` alone
 decides currency, as for every other source.
 
@@ -282,7 +286,7 @@ Readiness neither publishes a contract nor relaxes a rollout gate.
 
 An approved readiness record applies only to its assessed source snapshot.
 Changed sources require impact review and a new assessment for affected scope.
-A work-item or plan source whose recorded `material_sha256` still matches has
+A work-item, plan, or readiness source whose recorded `material_sha256` still matches has
 not changed for this purpose, and process artifacts are not readiness sources
 unless the assessed scope governs them (see
 [section 4](#4-plan-contract-and-source-snapshots)). A readiness record states

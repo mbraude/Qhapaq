@@ -13,6 +13,7 @@ sources:
   - path: work/0008/plan.md
     revision: a3028eddae623df0fd7420bb9644363b8344cdb3
     content_sha256: b58de6089af182bca9aefe9fd1df2953a88b31801b59ecd11c0b8e135d2c9d25
+    material_sha256: 2a5b435519e55a272adabe19667ae97ff5f4ed543eca86ed771c486b38c79a37
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: fcab9707ea09d78eb569e8b1194f10dc1cfda597
     content_sha256: 1da16621958bc02f12f3903592660de6e4fbc4dfce3cc54c2ba76e52fdd9e57a
