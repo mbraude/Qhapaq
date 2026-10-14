@@ -87,8 +87,29 @@ excluded and requires a separately approved specification amendment.
 
 ## Plan approval
 
-Absent. Approval must cover this exact slice, manifest, dependencies, and
-entry gates.
+The user explicitly approved this exact implementation plan snapshot in this
+session on 2026-10-14. Approval covers only I-0008-014's scope, conditional
+editorial-only manifest, dependencies, entry gates, validation, and exclusions.
+It authorizes execution of this reviewed plan only; it does not change the
+item's status, satisfy entry gates, approve delivery, or authorize behavioral
+or conformance changes. Any finding that requires such a change must stop for
+a separate specification decision and readiness assessment.
+
+Material SHA-256: `845155260f298315d5ebf1e443c723d82b3990f00ccc344da06e48257e6d6966`.
+
+Full-byte SHA-256 hashes of the approved material input snapshot:
+
+| Path | SHA-256 |
+| --- | --- |
+| `SPEC.md` | `998108318c82d9c8c5cb5e70fb99933e3e7d0678e5c98adba8cda8086ff0eed6` |
+| `specs/0003-product-evolution-roadmap.md` | `2b5fced51668b8bd2d586e377adbf667deabc3cb48c8569890ec7e709992ce32` |
+| `specs/0004-ai-assisted-connections.md` | `39625b975496c96ae55c21785fd632f75d10096349acc82a4d277fc93c698e57` |
+| `specs/0005-build-release-and-website-delivery.md` | `8259be3d7e256d77ab18e96c35906ce64c01d25eb7a22f45a911c0727d1a1679` |
+| `specs/0008-multi-language-conformance-and-repository-organization.md` | `26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926` |
+| `work/0008/plan.md` | `abf34f089a7525b149b86a8182f41200b01109de15d466cd8fed0f07b47faf4f` |
+| `work/0008/implementation/I-0008-002-requirement-example-audit.md` | `83185977d95a5aa9ab450312ead1aad4cc4123b6e10d29ba31b28dfb2bec5d2b` |
+| `work/0008/decisions/D-0008-003-normative-content-labeling.md` | `4675896d3619504d0c28e38fe73589584ba979aa609fd2981ee8ce05065b8801` |
+| `work/0008/readiness/remaining-portable-specification-audit-implementation.md` | `29f62aed8de87c14d31241270ce6d8fb4711b39414a43a81727369241eb9094f` |
 
 ## Delivery evidence and review
 

@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-14T15:00:42Z"
+generated_at: "2026-10-14T15:47:36Z"
 branch: "master"
-head: "93aeb7744f57ad9638d017678d9dc03be9e150e6"
+head: "fad23f0a14f5133f58dab5edb3ae5098671985b9"
 source_file_count: 88
-source_set_sha256: "8c6d43709d652fdab2340dbbaa99c7cd05ff936d445233a7b27c9e27b1d385cc"
+source_set_sha256: "f5984f5f91ec07627a111d591799250a392bb0ad08fce91569af65a7c8a9e0db"
 ---
 
 # SPEC-0008: Work Runbook
@@ -49,7 +49,7 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 | [I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) | Separate artifact-authoring policy from path instructions |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md) |
 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md)<br>[D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-010](implementation/I-0008-010-dotnet-policy-extraction.md)<br>[I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) |
 | [I-0008-013](implementation/I-0008-013-portable-core-example-audit.md) | Audit portable core requirements and examples |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
-| READINESS SPEC-0008 remaining-portable-specification-audit-implementation | Reassess implementation readiness for I-0008-014 covering R-0000-007, R-0008-005 and planned edits to specs/0003-product-evolution-roadmap.md, specs/0004-ai-assisted-connections.md, specs/0005-build-release-and-website-delivery.md. | `/spec-readiness 0008 scope=remaining-portable-specification-audit-implementation` | Gate - reassessment required | — | Non-current sources: SPEC.md(stale) |
+| READINESS SPEC-0008 remaining-portable-specification-audit-implementation | Reassess implementation readiness for I-0008-014 covering R-0000-007, R-0008-005 and planned edits to specs/0003-product-evolution-roadmap.md, specs/0004-ai-assisted-connections.md, specs/0005-build-release-and-website-delivery.md. | `/spec-readiness 0008 scope=remaining-portable-specification-audit-implementation` | Gate - reassessment required | — | Non-current sources: work/0008/implementation/I-0008-014-remaining-portable-specification-audit.md(evidence-only) |
 | [I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>READINESS SPEC-0008 remaining-portable-specification-audit-implementation |
 | READINESS SPEC-0008 portable-binding-specification-audit-implementation | Reassess implementation readiness for I-0008-015 covering R-0000-007, R-0008-005 and planned edits to specs/0007-portable-pipeline-definitions-and-binding.md. | `/spec-readiness 0008 scope=portable-binding-specification-audit-implementation` | Gate - reassessment required | — | Non-current sources: SPEC.md(stale) |
 | [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit portable binding specification examples |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>READINESS SPEC-0008 portable-binding-specification-audit-implementation<br>Existing plan approval has changed reviewed hashes and must be renewed after readiness is current. |
@@ -85,5 +85,5 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 - Plans with non-current sources: none.
 - Readiness records with non-current sources: 9 of 9.
 - Structural findings: none.
-- Working-copy inputs: `work/0007/plan.md`.
+- Working-copy inputs: `work/0008/implementation/I-0008-014-remaining-portable-specification-audit.md`.
 - Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.
