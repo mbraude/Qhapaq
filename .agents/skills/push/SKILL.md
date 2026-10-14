@@ -25,9 +25,11 @@ the final report must identify that they remain local.
    then collect the push facts once:
 
    ```text
-   git fetch origin <current-branch>
-   python .agents/scripts/git_preflight.py --push
+   python .agents/scripts/git_preflight.py --push --fetch
    ```
+
+   `--fetch` runs `git fetch origin <current-branch>` first and reports a
+   fetch failure as a fact; do not run separate fetch or `rev-parse` commands.
 
    It reports the current branch, `origin`, the configured upstream, the remote
    default branch, unresolved Git operations, exact ahead and behind counts,
@@ -63,7 +65,9 @@ the final report must identify that they remain local.
 3. If the push is rejected, preserve the repository state and report the exact
    rejection. Do not retry through another integration operation.
 4. Verify that the remote destination tip equals the local tip and that the
-   upstream is `origin/<current-branch>`.
+   upstream is `origin/<current-branch>` with one
+   `python .agents/scripts/git_preflight.py --verify-pushed` run; it exits `1`
+   when they differ.
 
 ## Output
 

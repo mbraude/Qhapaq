@@ -18,7 +18,8 @@ excerpts only where a judgment requires them. Generate or refresh
 
 ## Facts helper
 
-Run the read-only helper once per invocation before any other resolution:
+Run the helper once per invocation before any other resolution; every mode
+except `--write` is read-only:
 
 ```text
 python .agents/skills/work-runbook-sync/scripts/runbook_facts.py <primary-spec-id> [--include <spec-id>,<spec-id>] --open
@@ -28,7 +29,8 @@ python .agents/skills/work-runbook-sync/scripts/runbook_facts.py <primary-spec-i
 evidence) whose rows it can render exactly; drop it only when you need their
 facts. Two further modes, each a separate invocation over the same inputs:
 
-The output modes `--open`, `--rows`, `--json`, and `--check` are mutually
+The output modes `--open`, `--rows`, `--json`, `--check`,
+`--judgments-template`, and `--write` are mutually
 exclusive. Replace the mode flag for each invocation; do not append a second
 mode to the initial command. For example, from the repository root:
 
@@ -49,6 +51,21 @@ Keep the same primary ID and `--include` arguments in all three invocations.
   names, and that `Next command` and `Also eligible` appear in rows. It exits 1
   with findings. A digest-only finding means inputs changed; any other finding
   means the runbook is malformed or out of date.
+- `--judgments-template` prints a JSON file listing each open item with
+  `<judge>` placeholders for `command` and `status`, a suggested value where
+  the facts determine one, and per-item hints (readiness coverage, plan
+  approval, changed reviewed hashes). `--write [--judgments FILE]` renders the
+  complete runbook, writes it only when content other than generation metadata
+  changed (otherwise it reports a no-op), and runs `--check`. It exits 2
+  without writing when a judgment is missing, names an unknown item or skill,
+  or places a gate before an unknown row.
+- When any in-scope plan is stale or missing, `--write` without `--judgments`
+  renders a gate-mode runbook: a `SYNC SPEC-NNNN` gate with
+  `/work-plan-sync NNNN` per stale plan, and every open row blocked until
+  those plans are synchronized. This needs no item judgments.
+
+Never hand-render the runbook or write ad hoc rendering scripts; use `--write`.
+Use `--help` for flag details instead of reading the script source.
 
 Source currentness is reported per recorded hash as `current`, `missing`,
 `stale`, `evidence-only` (the recorded bytes differ only in status or review
@@ -200,19 +217,18 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    command must repair or reconcile them; do not show downstream approval or
    execution as trustworthy. If there are multiple independent eligible rows,
    choose by the stable order and list the others under `Also eligible`.
-10. Write the complete runbook from the template, starting from the `--rows`
-    skeleton. Regeneration replaces the
-    derived metadata and table, preserving no manual row edits. If inputs and
-    rendered content other than generation metadata are unchanged, report a
-    no-op rather than rewriting the file solely to change its timestamp,
-    branch, `HEAD`, or source digest.
-    Preserve the skeleton's six columns when filling placeholders or adding
-    blockers: append blocker text within the existing final cell using `<br>`,
-    never an extra `|` delimiter. Compute summary item, gate, and status counts
-    from the final rendered rows, not manually maintained totals.
-11. Run the helper with `--check` against the written runbook and resolve
-    every finding; it covers table links, item coverage, dependency order,
-    source metadata, and command skill names. Confirm the absence of
+10. Render with the helper. If the facts report a stale or missing in-scope
+    plan, run `--write` alone (gate mode) and skip item judgments: no
+    downstream row is trustworthy until those plans are synchronized.
+    Otherwise save `--judgments-template` output to a temporary file outside
+    the repository, replace every `<judge>` (verify or override suggestions),
+    add readiness, approval, or reconciliation gates as `gates` entries with a
+    `before` item ID, and run `--write --judgments <file>`. Fix any exit-2
+    errors and rerun. The helper replaces derived metadata and the table,
+    preserves no manual row edits, derives `Next command`, `Also eligible`, and
+    summary counts from the rendered rows, and reports a no-op when only
+    generation metadata would change. Delete the temporary file.
+11. `--write` runs `--check`; resolve every finding. Confirm the absence of
     dependency cycles from the facts output. Invoke
     [spec-trace-check](../spec-trace-check/SKILL.md) for a changed runbook.
 

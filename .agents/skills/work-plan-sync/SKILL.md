@@ -33,7 +33,10 @@ specification text unless the user explicitly includes that migration.
    their committed baseline revisions with
    `python .agents/scripts/work_hashes.py verify <plan-and-records>`. Read the
    changed source text, not just
-   revision numbers. Recover old text from the recorded revision where possible.
+   revision numbers, with `python .agents/scripts/work_hashes.py diff <record>`,
+   which prints a unified diff from the recorded bytes (or recorded revision)
+   for each non-current source; do not reread unchanged sources or the whole
+   guide to find the delta.
    If an old uncommitted snapshot cannot be recovered, report that limitation
    and review the full affected scope; do not invent an exact diff.
 3. Bootstrap: extract unresolved decisions and future delivery milestones,
@@ -57,7 +60,10 @@ specification text unless the user explicitly includes that migration.
    source snapshots and full Git revisions with
    `python .agents/scripts/work_hashes.py sources <path>...`, never by hand or
    with ad hoc scripts; keep the `material_sha256` it emits for work-item
-   sources. Advance snapshots only for
+   sources. To advance existing entries in place, run
+   `python .agents/scripts/work_hashes.py refresh <record> <path>...` (or
+   `--stale` for every non-current source) instead of editing frontmatter by
+   hand. Advance snapshots only for
    completely reviewed inputs; retain stale records and explain remaining
    reconciliation if blocked. Do not hash plans as their own sources.
 8. Check unique IDs/ownership, retained coverage, references, required sections,

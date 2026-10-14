@@ -6,15 +6,16 @@ operations, the selected commit snapshot (staged index, or every change when
 nothing is staged), excluded changes, and review hints for that snapshot:
 likely secrets on added lines, and large, binary, or generated files. With
 --push it instead reports the origin remote, upstream naming, and the commits
-a push would publish. Divergence reflects the last fetch, so run `git fetch`
-first when current divergence matters.
+a push would publish. Divergence reflects the last fetch unless --fetch first
+fetches the current branch from origin. After a push, --verify-pushed fetches
+and confirms that the upstream now equals HEAD.
 
-Facts only: it never stages, commits, fetches, or pushes, and a clean result
-does not replace the skill's own review of the snapshot. Exit code 1 means a
-blocking finding.
+Facts only: it never stages, commits, or pushes, fetches only when asked, and a
+clean result does not replace the skill's own review of the snapshot. Exit
+code 1 means a blocking finding.
 
 Usage:
-  python .agents/scripts/git_preflight.py [--push] [--json]
+  python .agents/scripts/git_preflight.py [--push [--fetch] | --verify-pushed] [--json]
 """
 
 from __future__ import annotations
@@ -187,11 +188,31 @@ def push_facts(facts: dict) -> dict:
     return {"compare": target, "commits": commits}
 
 
+def fetch_branch() -> str | None:
+    """Fetch the current branch from origin; return an error message on failure."""
+    branch = q.git("branch", "--show-current")
+    if not branch:
+        return "cannot fetch: HEAD is detached"
+    result = subprocess.run(["git", "fetch", "--quiet", "origin", branch], cwd=q.ROOT,
+                            capture_output=True, text=True, encoding="utf-8")
+    return None if result.returncode == 0 else f"git fetch origin {branch} failed: {result.stderr.strip()}"
+
+
+def verify_pushed(facts: dict) -> list[str]:
+    if not facts["upstream"]:
+        return ["no upstream to verify against"]
+    head, remote = q.git("rev-parse", "HEAD"), q.git("rev-parse", facts["upstream"])
+    facts["verified"] = {"head": head, "upstream_head": remote}
+    return [] if head and head == remote else [f"{facts['upstream']} is {remote[:12] or 'unknown'}, HEAD is {head[:12]}"]
+
+
 def blocking(facts: dict, push: bool) -> list[str]:
-    found = []
+    found = [facts["fetch_error"]] if facts.get("fetch_error") else []
     if not facts["branch"]:
         found.append("HEAD is detached")
     found += [f"unresolved {name} in progress" for name in facts["unresolved"]]
+    if "verify_failed" in facts:
+        return found + facts["verify_failed"]
     if push:
         if not facts["origin"]:
             found.append("no origin remote")
@@ -217,10 +238,17 @@ def print_text(facts: dict, push: bool) -> None:
     print(f"head: {facts['head']}")
     print(f"origin: {facts['origin'] or 'NONE'}")
     if facts["upstream"]:
-        print(f"upstream: {facts['upstream']}   ahead {facts['ahead']}   behind {facts['behind']}   (as of last fetch)")
+        when = "fetched now" if facts.get("fetched") else "as of last fetch"
+        print(f"upstream: {facts['upstream']}   ahead {facts['ahead']}   behind {facts['behind']}   ({when})")
     else:
         print("upstream: none")
-    if push:
+    if "verify_failed" in facts:
+        verified = facts.get("verified")
+        if verified and not facts["verify_failed"]:
+            print(f"verified: HEAD {verified['head']} == {facts['upstream']} {verified['upstream_head']}")
+        else:
+            print("verified: NO")
+    elif push:
         print(f"commits to push ({len(facts['push']['commits'])}, compared with {facts['push']['compare']}):")
         for commit in facts["push"]["commits"]:
             print(f"  {commit['sha']}  {commit['subject']}   [Change-Kind: {commit['change_kind'] or 'MISSING'}]")
@@ -247,11 +275,22 @@ def print_text(facts: dict, push: bool) -> None:
 def main() -> int:
     q.utf8_stdio()
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--push", action="store_true", help="report the commits a push would publish")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--push", action="store_true", help="report the commits a push would publish")
+    mode.add_argument("--verify-pushed", action="store_true",
+                      help="after a push: fetch, then confirm the upstream equals HEAD")
+    parser.add_argument("--fetch", action="store_true", help="with --push: fetch the current branch from origin first")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
+    if args.fetch and not args.push:
+        parser.error("--fetch requires --push")
+    fetch_error = fetch_branch() if args.fetch or args.verify_pushed else None
     facts = branch_facts()
-    if args.push:
+    facts["fetch_error"] = fetch_error
+    facts["fetched"] = (args.fetch or args.verify_pushed) and not fetch_error
+    if args.verify_pushed:
+        facts["verify_failed"] = [] if fetch_error else verify_pushed(facts)
+    elif args.push:
         facts["push"] = push_facts(facts)
     else:
         facts["snapshot"] = snapshot_facts()

@@ -34,7 +34,8 @@ the only authority for item status and dependency edges.
 
    It writes `work/diagrams/spec-0007-0008.mmd`. With one ID it writes
    `work/diagrams/spec-<id>.mmd`. This standalone Mermaid file can be opened
-   directly in viewers supporting zoom and pan. The graph is grouped by
+   directly in viewers supporting zoom and pan. Use `render.py --help` for
+   options; do not read the renderer source. The graph is grouped by
    specification, with item kind, persisted status, recorded artifact paths,
    and prerequisite-to-dependent arrows. Open items are blue, complete items
    are green, and cancelled items are gray with dashed borders; status text

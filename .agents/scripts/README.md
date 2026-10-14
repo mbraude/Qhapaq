@@ -50,6 +50,8 @@ file is missing or a verification found a mismatch.
 | `material ITEM...` | The material SHA-256 defined in the workflow guide. |
 | `verify RECORD...` | Each record's frontmatter `sources` with one of the source states below; work-item sources that record `material_sha256` are checked by material and marked `(material)`. |
 | `evidence [--section NAME] ITEM...` | Every recorded `Material SHA-256` value and `` | `path` | `sha256` | `` evidence row, checked against current bytes, with line numbers. |
+| `diff [--max-lines N] RECORD...` | For each non-current source, a unified diff from the recorded bytes (recovered from Git history, or the recorded revision) to the working copy, with added and removed line counts. `--max-lines 0` prints everything; the default is 200 per source. |
+| `refresh [--stale] RECORD [PATH...]` | The only writing command: rewrites the named recorded sources (or, with `--stale`, every non-current one) in the record's frontmatter in place with the current `revision`, `content_sha256`, and, for work items, `material_sha256`. Refuses paths that are not recorded sources and a record naming itself. Run it only after judging the delta. |
 
 Paths may use globs, for example
 `python .agents/scripts/work_hashes.py material "work/0008/implementation/I-0008-01*.md"`.
@@ -100,7 +102,8 @@ unresolved operations, and recent subjects.
 | Mode | Output |
 | --- | --- |
 | *(default)* | The selected commit snapshot (staged index, or all changes when nothing is staged) with status and large, binary, or generated hints; excluded paths; likely secrets on added lines (pattern name and line, never the value); and a `snapshot_id`. Blocks on a detached `HEAD`, unresolved operation, unmerged paths, no changes, or a likely secret. |
-| `--push` | The commits a push would publish with their `Change-Kind:` trailers. Blocks on a detached `HEAD`, missing `origin`, unresolved operation, upstream other than `origin/<branch>`, a branch behind its upstream, or nothing to push. |
+| `--push` | The commits a push would publish with their `Change-Kind:` trailers. Blocks on a detached `HEAD`, missing `origin`, unresolved operation, upstream other than `origin/<branch>`, a branch behind its upstream, or nothing to push. Add `--fetch` to run `git fetch origin <branch>` first. |
+| `--verify-pushed` | After a push: whether `HEAD` equals `origin/<branch>`. Exits `1` when it does not. |
 
 `snapshot_id` is SHA-256 over the sorted selected paths and their content
 blobs. It is unchanged by `git add` of the same content, so equal values prove
@@ -127,15 +130,16 @@ python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --rows
 python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --check
 ```
 
-Do not combine `--open`, `--rows`, `--json`, or `--check`. For a coordinated
+Do not combine `--open`, `--rows`, `--json`, `--check`, `--judgments-template`,
+or `--write`. For a coordinated
 scope, add `--include 0008` to each invocation. Transitive prerequisites are
 included automatically without that option.
 
-`--rows` emits a six-column skeleton, not a complete runbook. Preserve its
-settled rows, links, prerequisites, and dependency order. Fill the open-row
-placeholders using the skill's judgments; put additional blockers inside the
-existing final cell, separated with `<br>`, not in a new column. Derive summary
-counts from the final rows instead of transcribing estimates. `--check`
+`--rows` emits a six-column skeleton, not a complete runbook. Prefer
+`--judgments-template` followed by `--write --judgments FILE`, which renders,
+writes (or reports a no-op), and checks the complete runbook; with stale
+in-scope plans, `--write` alone renders gate mode. Never hand-render a runbook
+or generate an ad hoc rendering script. `--check`
 returning findings is a validation result, not evidence of a script crash.
 
 ## Validation
