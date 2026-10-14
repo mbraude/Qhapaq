@@ -4,14 +4,15 @@
 The script reads plans, work items, readiness records, and their recorded
 sources once, then reports parsing, hashing, currentness, dependency, ordering,
 and evidence facts. It keeps no state between runs. Only `--write` writes a
-file: the runbook itself, rendered deterministically from these facts plus the
-calling skill's judgments for open rows and gates. Without judgments it writes
-only when selected plans are stale, emitting `SYNC` gates and blocked rows.
+file: the runbook itself, rendered deterministically from these facts, the
+suggested commands and gates that the facts fully determine, and the calling
+skill's overrides. When selected plans are stale and no overrides are given it
+emits `SYNC` gates and blocks every open row.
 
 Usage:
-  python .agents/skills/work-runbook-sync/scripts/runbook_facts.py SPEC-0008 --open
-  python ... SPEC-0008 --judgments-template > judgments.json
-  python ... SPEC-0008 --write [--judgments judgments.json]
+  python .agents/skills/work-runbook-sync/scripts/runbook_facts.py SPEC-0008 --judgments-template --out FILE
+  python ... SPEC-0008 --write [--judgments FILE|-]
+  python ... SPEC-0008 --open
   python ... SPEC-0008 --include SPEC-0007 --check
 """
 
@@ -47,6 +48,7 @@ from qhapaq_work import (  # noqa: E402
 
 ITEM_DIRS = ("decisions", "implementation")
 ID_RE = re.compile(r"\b([DI]-\d{4}-\d{3})\b")
+REQ_RE = re.compile(r"\bR-\d{4}-\d{3}\b")
 DATE_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 SPEC_DOC_RE = re.compile(r"^(SPEC\.md|specs/(components/)?[^/]+\.md)$")
 ROW_RE = re.compile(r"^\|\s*(\d+(?:\.\d+)*)\s*\|(?:[^|\[]*\|)*?\s*\[([DI]-\d{4}-\d{3})\]\(([^)]+)\)")
@@ -138,6 +140,7 @@ class Facts:
             "spec": meta.get("spec"),
             "title": meta.get("title"),
             "depends_on": [d for d in meta.get("depends_on") or [] if d],
+            "requirements": [r for r in meta.get("requirements") or [] if r],
             "artifacts": [a for a in meta.get("artifacts") or [] if a],
             "findings": [],
             "slug": Path(path).stem[11:],
@@ -314,8 +317,12 @@ class Facts:
                     "assessment": meta.get("assessment"),
                     "stale_sources": [f"{s['path']}({s['state']})" for s in sources if s["state"] != "current"],
                     "planning_only_language": bool(PLANNING_ONLY_RE.search(text)),
+                    "planning_only_excerpt": next(
+                        (f"L{n}: {line.strip()[:160]}" for n, line in enumerate(text.splitlines(), 1)
+                         if PLANNING_ONLY_RE.search(line)), None),
                     "_source_paths": {s["path"] for s in sources if s["path"]},
                     "_mentions": set(ID_RE.findall(text)),
+                    "_requirements": set(REQ_RE.findall(text)),
                 })
 
         for item_id in order + cycle:
@@ -332,12 +339,22 @@ class Facts:
                         "match": "scope" if by_scope else "mention",
                         "assessment": record["assessment"],
                         "current": not record["stale_sources"],
+                        "stale_sources": record["stale_sources"],
                         "uncovered_manifest_spec_docs": [
                             d for d in item["manifest_spec_docs"] if d not in record["_source_paths"]
                         ],
+                        "unmentioned_requirements": [
+                            r for r in item["requirements"] if r not in record["_requirements"]
+                        ],
                         "planning_only_language": record["planning_only_language"],
+                        "planning_only_excerpt": record["planning_only_excerpt"],
                     })
             item["readiness_candidates"] = candidates
+
+        paths = {item["path"]: item_id for item_id, item in items.items()}
+        for item_id in selected:
+            item = items[item_id]
+            item["child_items"] = sorted(paths[a] for a in item["artifacts"] if a in paths and paths[a] != item_id)
 
         digest = hashlib.sha256()
         for path in sorted(self.used):
@@ -569,8 +586,7 @@ def check_runbook(facts: dict) -> list[str]:
 
     skills = {p.name for p in (ROOT / ".agents" / "skills").iterdir() if p.is_dir()}
     for command in sorted(commands):
-        if command.split()[0].strip("`/") not in skills:
-            problems.append(f"command {command} names an unknown skill")
+        problems += command_problems("runbook", command, by_id, skills)
     next_match = re.search(r"^\*\*Next command:\*\*\s*(.+)$", text, re.M)
     if not next_match:
         problems.append("missing **Next command:** line")
@@ -613,45 +629,198 @@ def open_items(facts: dict) -> list[dict]:
     return [i for i in facts["items"] if i["status"] not in SETTLED_STATUS]
 
 
-def suggest(item: dict) -> dict:
-    """Deterministic suggestion for an open row, or `<judge>` where the skill must decide."""
+JUDGE = {"command": "<judge>", "status": "<judge>", "blockers": []}
+
+
+def readiness_gate(item: dict, scope: str, command: str, status: str, reason: str) -> dict:
+    spec = item["spec"]
+    covers = ", ".join(item["requirements"]) or "its governing requirements"
+    edits = ", ".join(item["manifest_spec_docs"])
+    return {
+        "id": f"READINESS {spec} {scope}",
+        "before": item["id"],
+        "description": f"{reason} implementation readiness for {item['id']} covering {covers}"
+                       + (f" and planned edits to {edits}" if edits else "") + ".",
+        "command": command,
+        "status": status,
+        "blockers": [],
+    }
+
+
+def suggest(item: dict, by_id: dict[str, dict]) -> tuple[dict, list[dict]]:
+    """Deterministic row suggestion plus any gates it needs, or `<judge>` where the skill must decide.
+
+    Implements the work-runbook-sync command table for the cases the facts fully determine;
+    every other case is left to the skill's judgment.
+    """
     spec = spec_arg(item["spec"] or "")
     if not item["deps_ready"]:
-        return {"command": "", "status": "Open - blocked", "blockers": []}
+        return {"command": "", "status": "Open - blocked", "blockers": []}, []
     if item["status"] == "ready-for-review":
-        return {"command": f"/approve {item['id']}", "status": "Ready for review", "blockers": []}
+        return {"command": f"/approve {item['id']}", "status": "Ready for review", "blockers": []}, []
     if item["kind"] == "decision":
-        return {"command": f"/spec-next {spec} item={item['id']}", "status": "Open - ready", "blockers": []}
-    return {"command": "<judge>", "status": "<judge>", "blockers": []}
+        return {"command": f"/spec-next {spec} item={item['id']}", "status": "Open - ready", "blockers": []}, []
+    if item["kind"] != "implementation" or item["status"] != "open":
+        return dict(JUDGE), []
+    if item["granularity"] == "milestone":
+        if item.get("child_items"):
+            return dict(JUDGE), []  # aggregate milestone whose slices exist: awaiting verification
+        return {"command": f"/implementation-plan {spec} item={item['id']}", "status": "Open - ready",
+                "blockers": [], "basis": "milestone without planned child slices"}, []
+    if item["granularity"] != "slice":
+        return dict(JUDGE), []
+    candidates = item.get("readiness_candidates", [])
+    scoped = [c for c in candidates if c["match"] == "scope"]
+    if not candidates:
+        scope = f"{item['slug']}-implementation"
+        gate = readiness_gate(item, scope, f"/spec-readiness {spec} scope={scope}",
+                              "Gate - assessment required", "Assess")
+        return {"command": "", "status": "Open - blocked", "blockers": [gate["id"]],
+                "basis": "no readiness record names or mentions this slice"}, [gate]
+    if len(scoped) != 1:
+        return dict(JUDGE), []
+    record = scoped[0]
+    blocked = {"command": "", "status": "Open - blocked", "blockers": []}
+    pa = item["plan_approval"]
+    renew = ["Existing plan approval has changed reviewed hashes and must be renewed after readiness is current."] \
+        if pa.get("reviewed_hash_mismatches") else []
+    if not record["current"] or record["assessment"] == "not-assessed":
+        gate = readiness_gate(item, record["scope"], f"/spec-readiness {spec} scope={record['scope']}",
+                              "Gate - reassessment required" if not record["current"] else "Gate - assessment required",
+                              "Reassess" if not record["current"] else "Assess")
+        if not record["current"]:
+            gate["blockers"] = ["Non-current sources: " + ", ".join(record["stale_sources"])]
+        blocked["blockers"] = [gate["id"], *renew]
+        blocked["basis"] = f"{record['path']} is {'stale' if not record['current'] else 'not assessed'}"
+        return blocked, [gate]
+    if record["assessment"] == "ready-for-review":
+        gate = readiness_gate(item, record["scope"], f"/approve {record['path']}", "Gate - ready for review", "Approve")
+        blocked["blockers"] = [gate["id"], *renew]
+        blocked["basis"] = f"{record['path']} awaits approval"
+        return blocked, [gate]
+    if (record["assessment"] != "approved" or record["uncovered_manifest_spec_docs"]
+            or record["unmentioned_requirements"] or record["planning_only_language"]):
+        return dict(JUDGE), []
+    if pa["state"] == "recorded" and not pa.get("reviewed_hash_mismatches"):
+        command, basis = f"/implement-next {spec} item={item['id']}", "readiness current and approved; plan approved"
+    else:
+        command, basis = f"/approve-implementation-plan {spec} item={item['id']}", \
+            "readiness current, approved, and covers requirements and spec edits; plan approval " \
+            + ("has changed reviewed hashes" if pa.get("reviewed_hash_mismatches") else pa["state"])
+    return {"command": command, "status": "Open - ready", "blockers": [], "basis": basis}, []
+
+
+def judge_hints(item: dict) -> dict:
+    pa = item["plan_approval"]
+    return {
+        "granularity": item["granularity"],
+        "requirements": item["requirements"],
+        "child_items": item.get("child_items", []),
+        "plan_approval": pa["state"] + (f" {pa['date']}" if pa.get("date") else ""),
+        "reviewed_hashes_changed": [m["path"] for m in pa.get("reviewed_hash_mismatches", [])],
+        "manifest_spec_edits": item["manifest_spec_docs"],
+        "readiness": [
+            f"{c['path']} scope={c['scope']} [{c['match']}] assessment={c['assessment']} current={c['current']}"
+            + (f" stale={brief(c['stale_sources'])}" if c["stale_sources"] else "")
+            + (f" uncovered_edits={','.join(c['uncovered_manifest_spec_docs'])}" if c["uncovered_manifest_spec_docs"] else "")
+            + (f" unmentioned_requirements={','.join(c['unmentioned_requirements'])}" if c["unmentioned_requirements"] else "")
+            + (f" planning-only-language {c['planning_only_excerpt']!r}" if c["planning_only_language"] else "")
+            for c in item.get("readiness_candidates", [])
+        ],
+    }
+
+
+def brief(values: list[str], limit: int = 3) -> str:
+    return ",".join(values[:limit]) + (f",+{len(values) - limit} more" if len(values) > limit else "")
 
 
 def judgments_template(facts: dict) -> dict:
-    items = {}
+    by_id = {item["id"]: item for item in facts["items"]}
+    items, gates = {}, []
     for item in open_items(facts):
-        entry = suggest(item)
+        entry, item_gates = suggest(item, by_id)
         if entry["command"] == "<judge>":
-            pa = item["plan_approval"]
-            entry["hints"] = {
-                "granularity": item["granularity"],
-                "plan_approval": pa["state"] + (f" {pa['date']}" if pa.get("date") else ""),
-                "reviewed_hashes_changed": [m["path"] for m in pa.get("reviewed_hash_mismatches", [])],
-                "manifest_spec_edits": item["manifest_spec_docs"],
-                "readiness": [
-                    f"{c['scope']} [{c['match']}] assessment={c['assessment']} current={c['current']}"
-                    + (f" uncovered={','.join(c['uncovered_manifest_spec_docs'])}" if c["uncovered_manifest_spec_docs"] else "")
-                    + (" planning-only-language" if c["planning_only_language"] else "")
-                    for c in item.get("readiness_candidates", [])
-                ],
-            }
+            entry["hints"] = judge_hints(item)
         items[item["id"]] = entry
+        gates += [g for g in item_gates if g["id"] not in {x["id"] for x in gates}]
     return {
-        "_usage": "Replace every <judge>; review suggestions; add readiness/approval gates with 'before': <item id>. "
-                  "Pass with --write --judgments FILE. SYNC gates for stale plans are added automatically.",
+        "_usage": "Suggestions follow the skill's command table; override only what you judge differently. "
+                  "Pass only overrides with --write --judgments FILE|-: listed items merge over suggestions, "
+                  "listed gates replace same-id suggested gates, and {\"id\": ..., \"drop\": true} removes one. "
+                  "SYNC gates for stale plans are added automatically.",
         "auto_gates": [g["id"] for g in stale_plan_gates(facts)],
         "items": items,
-        "gates": [],
+        "gates": gates,
         "notes": "",
     }
+
+
+def effective_judgments(facts: dict, overrides: dict | None) -> dict:
+    """Suggestions overlaid with the skill's overrides; overrides win field by field."""
+    result = judgments_template(facts)
+    overrides = overrides or {}
+    for item_id, entry in (overrides.get("items") or {}).items():
+        if isinstance(entry, dict):
+            base = {k: v for k, v in result["items"].get(item_id, {}).items() if k != "hints"}
+            result["items"][item_id] = base | entry
+        else:
+            result["items"][item_id] = entry
+    gates = {g["id"]: g for g in result["gates"]}
+    for gate in overrides.get("gates") or []:
+        if gate.get("drop"):
+            gates.pop(gate.get("id"), None)
+        else:
+            gates[gate.get("id")] = gate
+    result["gates"] = list(gates.values())
+    for key in ("next", "also", "scope", "notes"):
+        if overrides.get(key):
+            result[key] = overrides[key]
+    return result
+
+
+def command_problems(name: str, command: str, by_id: dict[str, dict], skills: set[str]) -> list[str]:
+    """Skill exists; `item=<id>` names a selected item and the command's spec argument is that item's spec."""
+    tokens = command.strip("`").split()
+    if not tokens or not tokens[0].startswith("/") or tokens[0][1:] not in skills:
+        return [f"{name}: command {command!r} names an unknown skill"]
+    problems = []
+    for token in tokens[1:]:
+        if token.startswith("item="):
+            target = by_id.get(token[5:])
+            if target is None:
+                problems.append(f"{name}: command {command!r} names unknown item {token[5:]}")
+            elif len(tokens) < 3 or tokens[1] != spec_arg(target["spec"] or ""):
+                problems.append(f"{name}: command {command!r} must name spec {spec_arg(target['spec'] or '')} for {token[5:]}")
+    return problems
+
+
+def template_summary(template: dict, facts: dict) -> str:
+    lines = [f"plans with non-current sources: {', '.join(template['auto_gates']) or 'none'}"]
+    if facts["findings"]:
+        lines.append("structural findings: " + "; ".join(facts["findings"]))
+    if facts["cycle"]:
+        lines.append("dependency cycle: " + ", ".join(facts["cycle"]))
+    lines.append(f"working-copy inputs: {', '.join(facts['working_copy_inputs']) or 'none'}")
+    lines.append(f"runbook inputs unchanged: {facts['runbook']['inputs_unchanged']}")
+    judge = [i for i, e in template["items"].items() if e.get("command") == "<judge>"]
+    lines.append(f"open rows: {len(template['items'])}; <judge>: {', '.join(judge) or 'none'}")
+    for gate in template["gates"]:
+        lines.append(f"gate {gate['id']} -> {gate['command']} [{gate['status']}] before {gate['before']}")
+    for item_id, entry in template["items"].items():
+        if entry.get("command") == "<judge>":
+            hints = entry["hints"]
+            lines.append(f"{item_id} <judge> {hints['granularity']} plan_approval={hints['plan_approval']}"
+                         + (f" reviewed_hashes_changed={brief(hints['reviewed_hashes_changed'])}" if hints["reviewed_hashes_changed"] else "")
+                         + (f" child_items={','.join(hints['child_items'])}" if hints["child_items"] else "")
+                         + (f" spec_edits={','.join(hints['manifest_spec_edits'])}" if hints["manifest_spec_edits"] else ""))
+            lines += [f"    readiness {r}" for r in hints["readiness"]]
+        elif entry.get("command") or entry.get("blockers"):
+            lines.append(f"{item_id} {entry.get('command') or '-'} [{entry['status']}]"
+                         + (f" blockers={'; '.join(entry['blockers'])}" if entry.get("blockers") else "")
+                         + (f" ({entry['basis']})" if entry.get("basis") else ""))
+    blocked = sum(1 for e in template["items"].values() if e.get("status") == "Open - blocked" and not e.get("blockers"))
+    lines.append(f"{blocked} further rows are blocked only by incomplete prerequisites")
+    return "\n".join(lines)
 
 
 def render_runbook(facts: dict, judgments: dict | None) -> tuple[str, list[str]]:
@@ -661,14 +830,15 @@ def render_runbook(facts: dict, judgments: dict | None) -> tuple[str, list[str]]
     skills = {p.name for p in (ROOT / ".agents" / "skills").iterdir() if p.is_dir()}
     sync = stale_plan_gates(facts)
     errors: list[str] = []
-    item_judgments: dict = (judgments or {}).get("items") or {}
-    if judgments is None:
-        if not sync and open_items(facts):
-            errors.append("all selected plans are current; open rows need --judgments (see --judgments-template)")
-        item_judgments = {i["id"]: {"command": "", "status": "Open - blocked",
-                                    "blockers": ["Blocked until stale plan sources are synchronized."]}
-                          for i in open_items(facts)}
-    gates = sync + list((judgments or {}).get("gates") or [])
+    gate_mode = judgments is None and bool(sync)
+    if gate_mode:
+        judgments = {"items": {i["id"]: {"command": "", "status": "Open - blocked",
+                                         "blockers": ["Blocked until stale plan sources are synchronized."]}
+                               for i in open_items(facts)}, "gates": []}
+    else:
+        judgments = effective_judgments(facts, judgments)
+    item_judgments: dict = judgments.get("items") or {}
+    gates = sync + list(judgments.get("gates") or [])
     for item in open_items(facts):
         entry = item_judgments.get(item["id"])
         if not isinstance(entry, dict):
@@ -684,9 +854,9 @@ def render_runbook(facts: dict, judgments: dict | None) -> tuple[str, list[str]]
         if gate.get("before") and gate["before"] not in by_id:
             errors.append(f"gate {gate.get('id')}: before {gate['before']} is not a runbook row")
     for name, entry in [(g.get("id"), g) for g in gates] + list(item_judgments.items()):
-        command = (entry or {}).get("command") or ""
-        if command and (not command.startswith("/") or command[1:].split()[0] not in skills):
-            errors.append(f"{name}: command {command!r} names an unknown skill")
+        command = entry.get("command") or "" if isinstance(entry, dict) else ""
+        if command and command != "<judge>":
+            errors += command_problems(name, command, by_id, skills)
     if errors:
         return "", errors
 
@@ -742,9 +912,9 @@ def render_runbook(facts: dict, judgments: dict | None) -> tuple[str, list[str]]
         "Working-copy inputs: " + (", ".join(f"`{p}`" for p in facts["working_copy_inputs"]) or "none (clean)") + ".",
         "Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.",
     ]
-    if judgments is None and sync:
+    if gate_mode:
         notes.append("Open rows are blocked until the stale plans are synchronized; regenerate this runbook afterwards.")
-    if (judgments or {}).get("notes"):
+    if judgments.get("notes"):
         notes.append(judgments["notes"].strip())
     front = [
         "---",
@@ -788,6 +958,9 @@ def write_runbook(facts: dict, judgments: dict | None) -> int:
             print(f"- {error}")
         print("runbook not written")
         return 2
+    for label in ("Next command", "Also eligible"):
+        match = re.search(rf"^\*\*{label}:\*\* (.*)$", text, re.M)
+        print(f"{label}: {match.group(1).replace('<br>', ', ') if match else 'None'}")
     path = ROOT / facts["runbook"]["path"]
     old = path.read_text(encoding="utf-8").replace("\r\n", "\n") if path.is_file() else None
     if old is not None and VOLATILE_RE.sub("", old) == VOLATILE_RE.sub("", text):
@@ -812,21 +985,36 @@ def main() -> int:
     mode.add_argument("--rows", action="store_true", help="print table rows: exact for settled items, placeholders for open items")
     mode.add_argument("--check", action="store_true", help="validate the existing runbook; exit 1 on any finding")
     mode.add_argument("--judgments-template", action="store_true",
-                      help="print a JSON judgments skeleton for open rows, with deterministic suggestions and hints")
+                      help="print a JSON judgments skeleton for open rows, with deterministic suggestions, gates, and hints")
     mode.add_argument("--write", action="store_true",
-                      help="render and write the complete runbook, then check it; no-op when content is unchanged")
-    parser.add_argument("--judgments", metavar="FILE", help="with --write: JSON judgments for open rows and gates")
+                      help="render and write the complete runbook from suggestions plus any --judgments overrides, "
+                           "then check it; no-op when content is unchanged")
+    parser.add_argument("--judgments", metavar="FILE",
+                        help="with --write: JSON overrides of suggested rows and gates; '-' reads standard input")
+    parser.add_argument("--out", metavar="FILE",
+                        help="with --judgments-template: write the JSON to FILE and print a compact summary instead")
     args = parser.parse_args()
     if args.judgments and not args.write:
         parser.error("--judgments requires --write")
+    if args.out and not args.judgments_template:
+        parser.error("--out requires --judgments-template")
     utf8_stdio()
     included = [normalize_spec(s) for s in args.include.split(",") if s.strip()]
     facts = Facts(normalize_spec(args.primary), included).collect()
     if args.write:
-        judgments = json.loads(Path(args.judgments).read_text(encoding="utf-8")) if args.judgments else None
+        judgments = None
+        if args.judgments:
+            raw = sys.stdin.buffer.read() if args.judgments == "-" else Path(args.judgments).read_bytes()
+            judgments = json.loads(raw.decode("utf-8-sig") or "{}")
         return write_runbook(facts, judgments)
     if args.judgments_template:
-        json.dump(judgments_template(facts), sys.stdout, indent=1)
+        template = judgments_template(facts)
+        if args.out:
+            Path(args.out).write_text(json.dumps(template, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+            print(template_summary(template, facts))
+            print(f"template written to {args.out}")
+            return 0
+        json.dump(template, sys.stdout, indent=1)
         print()
         return 0
     if args.json:

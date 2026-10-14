@@ -125,8 +125,9 @@ Its output modes are mutually exclusive. Use separate invocations with the
 same primary and included specifications:
 
 ```powershell
-python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --open
-python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --rows
+python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --judgments-template --out $env:TEMP\qhapaq-0007-runbook.json
+'{"items": {"I-0008-017": {"command": "", "status": "Open - blocked"}}}' |
+  python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --write --judgments -
 python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --check
 ```
 
@@ -135,11 +136,16 @@ or `--write`. For a coordinated
 scope, add `--include 0008` to each invocation. Transitive prerequisites are
 included automatically without that option.
 
-`--rows` emits a six-column skeleton, not a complete runbook. Prefer
-`--judgments-template` followed by `--write --judgments FILE`, which renders,
-writes (or reports a no-op), and checks the complete runbook; with stale
-in-scope plans, `--write` alone renders gate mode. Never hand-render a runbook
-or generate an ad hoc rendering script. `--check`
+`--judgments-template --out FILE` writes the template and prints a compact
+summary: suggested commands and gates for every row the facts determine, and
+hints for each remaining `<judge>` row. `--write` renders from those
+suggestions plus any overrides (`--judgments FILE`, or `-` for standard input;
+a UTF-8 byte-order mark is accepted), writes or reports a no-op, checks the
+result, and prints `Next command` and `Also eligible`. It rejects unresolved
+`<judge>` rows and commands whose `item=` or spec argument is wrong. With stale
+in-scope plans, `--write` alone renders gate mode. `--open`, `--rows`, and
+`--json` are for investigation only. Never hand-render a runbook, edit the
+template with an ad hoc script, or generate a rendering script. `--check`
 returning findings is a validation result, not evidence of a script crash.
 
 ## Validation

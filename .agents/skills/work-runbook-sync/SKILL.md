@@ -8,64 +8,82 @@ argument-hint: "<primary-spec-id> [include=<spec-id,...>]"
 
 ## Contract
 
-Apply [AGENTS.md](../../../AGENTS.md), the
-[workflow guide](../../../docs/development/spec-driven-workflow.md), and the
-[runbook template](../../../work/templates/runbook.md); read each only if it is
-not already in the current context. Resolve every selected plan and all
+Apply [AGENTS.md](../../../AGENTS.md). This skill states every workflow rule it
+needs; do not read the
+[workflow guide](../../../docs/development/spec-driven-workflow.md) or the
+[runbook template](../../../work/templates/runbook.md), because `--write`
+renders the template's structure itself. Resolve every selected plan and all
 transitive prerequisites through the facts helper below, reading source
-excerpts only where a judgment requires them. Generate or refresh
+excerpts only where a `<judge>` row requires them. Generate or refresh
 `work/<primary-id>/runbook.md`.
 
 ## Facts helper
 
-Run the helper once per invocation before any other resolution; every mode
-except `--write` is read-only:
+Start every invocation with exactly one command, before any other resolution:
 
 ```text
-python .agents/skills/work-runbook-sync/scripts/runbook_facts.py <primary-spec-id> [--include <spec-id>,<spec-id>] --open
+python .agents/skills/work-runbook-sync/scripts/runbook_facts.py <primary-spec-id> [--include <spec-id>,<spec-id>] --judgments-template --out <temp-file>
 ```
 
-`--open` omits settled items (cancelled, or complete with explicit date
-evidence) whose rows it can render exactly; drop it only when you need their
-facts. Two further modes, each a separate invocation over the same inputs:
+Use a file outside the repository, for example
+`$env:TEMP\qhapaq-<id>-runbook.json`. It writes the judgments template and
+prints a compact summary (typically 1–3 KB): stale plans, structural findings,
+cycles, working-copy inputs, whether runbook inputs changed, suggested gates,
+every row with a determined command or blocker and the basis for it, each
+`<judge>` row with its hints, and a count of rows blocked only by incomplete
+prerequisites. Treat that summary as the facts for this invocation: do not
+view the template file, do not run `git status` (the summary reports
+working-copy inputs and the branch is recorded on write), and do not run
+`--open`, `--rows`, or `--json` unless a `<judge>` row needs a fact the summary
+omits.
 
 The output modes `--open`, `--rows`, `--json`, `--check`,
-`--judgments-template`, and `--write` are mutually
-exclusive. Replace the mode flag for each invocation; do not append a second
-mode to the initial command. For example, from the repository root:
+`--judgments-template`, and `--write` are mutually exclusive; keep the same
+primary ID and `--include` arguments across invocations. Use `--help` for flag
+details instead of reading the script source.
 
-```powershell
-python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --open
-python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --rows
-python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --check
-```
-
-Keep the same primary ID and `--include` arguments in all three invocations.
-
-- `--rows` prints the table skeleton: exact rows for settled items and rows
-  with `<command>` and `<status>` placeholders, in dependency order, for open
-  items. Fill only the placeholders and any description you must judge.
-- `--check` validates an existing runbook against current inputs: digest and
-  file count, primary scope, column count, link targets, item coverage,
-  settled-row semantics, open-row prerequisites, dependency order, known skill
-  names, and that `Next command` and `Also eligible` appear in rows. It exits 1
-  with findings. A digest-only finding means inputs changed; any other finding
-  means the runbook is malformed or out of date.
-- `--judgments-template` prints a JSON file listing each open item with
-  `<judge>` placeholders for `command` and `status`, a suggested value where
-  the facts determine one, and per-item hints (readiness coverage, plan
-  approval, changed reviewed hashes). `--write [--judgments FILE]` renders the
-  complete runbook, writes it only when content other than generation metadata
-  changed (otherwise it reports a no-op), and runs `--check`. It exits 2
-  without writing when a judgment is missing, names an unknown item or skill,
-  or places a gate before an unknown row.
+- Suggestions implement the command table in step 5 wherever the facts fully
+  determine it: dependency-blocked rows, outcomes ready for review, eligible
+  decisions, milestones without planned child slices
+  (`/implementation-plan`), and slices whose single scope-matched readiness
+  record is stale, not assessed, or ready for review (a `READINESS` gate
+  before the slice, with a generated description) or is current, approved,
+  covers every manifest specification edit, mentions every slice requirement,
+  and has no planning-only language (`/approve-implementation-plan`, or
+  `/implement-next` when plan approval is recorded with unchanged reviewed
+  hashes). A slice with no candidate readiness record gets an assessment gate.
+- Every other open row is `<judge>`: aggregate milestones whose child slices
+  exist, slices with blocked, ambiguous, or partially covering readiness, and
+  hints such as `planning-only-language` (shown with its line excerpt) or
+  `unmentioned_requirements` (requirement IDs the record does not name
+  literally, which ranges such as `R-0008-008–015` can cause). Hints prompt
+  judgment; they are not verdicts. Read only the cited excerpt you need.
+- `--write [--judgments FILE|-]` renders the complete runbook from the
+  suggestions overlaid with your overrides, writes it only when content other
+  than generation metadata changed (otherwise it reports a no-op), runs
+  `--check`, and prints the resulting `Next command` and `Also eligible`.
+  Overrides list only what you decide: an `items` entry merges over that
+  row's suggestion, a `gates` entry replaces the same-ID suggested gate or adds
+  one (with `before: <item id>`), and `{"id": ..., "drop": true}` removes a
+  suggested gate. Pass them on standard input with `--judgments -`, for
+  example by piping a PowerShell here-string or `ConvertTo-Json` output; never
+  write ad hoc scripts to edit the template. It exits 2 without writing when a
+  `<judge>` remains unresolved, a judgment names an unknown or settled item, a
+  gate precedes an unknown row, or a command names an unknown skill, an
+  unknown `item=`, or a spec argument other than that item's specification.
 - When any in-scope plan is stale or missing, `--write` without `--judgments`
   renders a gate-mode runbook: a `SYNC SPEC-NNNN` gate with
   `/work-plan-sync NNNN` per stale plan, and every open row blocked until
   those plans are synchronized. This needs no item judgments.
+- `--check` validates an existing runbook against current inputs: digest and
+  file count, primary scope, column count, link targets, item coverage,
+  settled-row semantics, open-row prerequisites, dependency order, skill names
+  and spec arguments, and that `Next command` and `Also eligible` appear in
+  rows. It exits 1 with findings. A digest-only finding means inputs changed.
+- `--open` and `--rows` print the full facts and the table skeleton; `--json`
+  prints everything. They are for investigation only.
 
 Never hand-render the runbook or write ad hoc rendering scripts; use `--write`.
-Use `--help` for flag details instead of reading the script source.
 
 Source currentness is reported per recorded hash as `current`, `missing`,
 `stale`, `evidence-only` (the recorded bytes differ only in status or review
@@ -118,9 +136,13 @@ to match a runbook, execute work, approve an outcome, commit, or push.
 
 ## Procedure
 
-1. Inspect the branch and complete worktree. Read an existing runbook only to
-   obtain its declared scope and freshness metadata; never trust its rows over
-   current source records.
+1. Take branch and worktree facts from the helper summary rather than separate
+   Git commands. If it reports `runbook inputs unchanged: True` (the digest
+   covers every selected input, so a different scope cannot match), run
+   `--check`;
+   when that passes, report the runbook as current and stop without judging or
+   rewriting rows. Otherwise never trust existing runbook rows over current
+   source records, and do not read the existing runbook.
 2. Resolve selected plans, their phase order, item records, readiness records,
    material plan approvals, review evidence, artifacts, and all transitive
    prerequisites. Check source currentness, IDs, ownership, references,
@@ -223,17 +245,20 @@ to match a runbook, execute work, approve an outcome, commit, or push.
 10. Render with the helper. If the facts report a stale or missing in-scope
     plan, run `--write` alone (gate mode) and skip item judgments: no
     downstream row is trustworthy until those plans are synchronized.
-    Otherwise save `--judgments-template` output to a temporary file outside
-    the repository, replace every `<judge>` (verify or override suggestions),
-    add readiness, approval, or reconciliation gates as `gates` entries with a
-    `before` item ID, and run `--write --judgments <file>`. Fix any exit-2
-    errors and rerun. The helper replaces derived metadata and the table,
-    preserves no manual row edits, derives `Next command`, `Also eligible`, and
-    summary counts from the rendered rows, and reports a no-op when only
-    generation metadata would change. Delete the temporary file.
-11. `--write` runs `--check`; resolve every finding. Confirm the absence of
-    dependency cycles from the facts output. Invoke
-    [spec-trace-check](../spec-trace-check/SKILL.md) for a changed runbook.
+    Otherwise review the summary's suggestions and decide each `<judge>` row,
+    adding readiness, approval, or reconciliation gates with a `before` item
+    ID where needed. When every suggestion stands and nothing is `<judge>`, run
+    `--write` alone; otherwise pass only your overrides through
+    `--write --judgments -`. Fix any exit-2 errors and rerun. The helper
+    replaces derived metadata and the table, preserves no manual row edits,
+    derives `Next command`, `Also eligible`, and summary counts from the
+    rendered rows, and reports a no-op when only generation metadata would
+    change. Delete the temporary template file.
+11. `--write` runs `--check` and prints the resulting `Next command` and
+    `Also eligible`; resolve every finding and report those values without
+    reopening the runbook. Confirm the absence of dependency cycles from the
+    summary. Invoke [spec-trace-check](../spec-trace-check/SKILL.md) for a
+    changed runbook.
 
 ## Output and stop
 

@@ -90,7 +90,12 @@ index, including their text contents. When no changes are staged, inspect all
 unstaged changes and untracked files, including their text contents, before
 staging. Content you authored or already reviewed earlier in the current
 invocation, and that has not changed since, does not need to be read again;
-read the diff of everything else in the snapshot. Use the recent commit
+read the diff of everything else in the snapshot. A generated
+`work/<id>/runbook.md` is a derived view: when
+`python .agents/skills/work-runbook-sync/scripts/runbook_facts.py <id> --check`
+(with `--include` matching its `included_specs`) passes (it validates digests, rows, order, links, and every skill command
+and its spec argument), review only `git diff --stat` and its `Next action`
+section instead of the full table diff. Use the recent commit
 subjects from the preflight facts to match the repository's established
 message style.
 

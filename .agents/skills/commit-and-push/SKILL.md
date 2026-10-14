@@ -34,8 +34,11 @@ named remote branch.
 1. Invoke the repository's `commit` skill with every user-supplied argument.
    Do not duplicate or replace any part of its review, validation, staging,
    trailer verification, or commit workflow.
-2. After the local commit succeeds, verify that `HEAD` is still attached to the
-   same branch and that the intended push destination remains unchanged.
+2. After the local commit succeeds, confirm from the commit skill's own
+   post-commit output that `HEAD` is still attached to the same branch. Do not
+   run separate `git status` or `rev-parse` checks: the `push` skill's
+   `git_preflight.py --push` reports the branch, upstream, and destination it
+   will use, so compare those facts with the intended destination there.
 3. Invoke the repository's `push` skill. Do not duplicate or replace its
    remote-state inspection, same-named destination, rejection handling,
    verification, or reporting.
