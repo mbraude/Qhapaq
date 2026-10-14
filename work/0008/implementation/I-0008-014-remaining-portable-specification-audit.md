@@ -87,13 +87,17 @@ excluded and requires a separately approved specification amendment.
 
 ## Plan approval
 
-The user explicitly approved this exact implementation plan snapshot in this
-session on 2026-10-14. Approval covers only I-0008-014's scope, conditional
-editorial-only manifest, dependencies, entry gates, validation, and exclusions.
-It authorizes execution of this reviewed plan only; it does not change the
-item's status, satisfy entry gates, approve delivery, or authorize behavioral
-or conformance changes. Any finding that requires such a change must stop for
-a separate specification decision and readiness assessment.
+The user explicitly renewed approval of this exact implementation plan
+snapshot in this session on 2026-10-14 after reviewing the refreshed
+implementation-readiness approval input. No approver name was supplied. This
+renews the earlier approval, whose full-byte readiness input hash became stale
+when the readiness record's approval evidence was updated; the plan material
+itself is unchanged. This approval covers only I-0008-014's scope, conditional
+editorial-only manifest, dependencies, entry gates, validation, and
+exclusions. It authorizes execution of this reviewed plan only; it does not
+change the item's status, satisfy entry gates, approve delivery, or authorize
+behavioral or conformance changes. Any finding that requires such a change
+must stop for a separate specification decision and readiness assessment.
 
 Material SHA-256: `845155260f298315d5ebf1e443c723d82b3990f00ccc344da06e48257e6d6966`.
 
@@ -109,7 +113,7 @@ Full-byte SHA-256 hashes of the approved material input snapshot:
 | `work/0008/plan.md` | `abf34f089a7525b149b86a8182f41200b01109de15d466cd8fed0f07b47faf4f` |
 | `work/0008/implementation/I-0008-002-requirement-example-audit.md` | `83185977d95a5aa9ab450312ead1aad4cc4123b6e10d29ba31b28dfb2bec5d2b` |
 | `work/0008/decisions/D-0008-003-normative-content-labeling.md` | `4675896d3619504d0c28e38fe73589584ba979aa609fd2981ee8ce05065b8801` |
-| `work/0008/readiness/remaining-portable-specification-audit-implementation.md` | `29f62aed8de87c14d31241270ce6d8fb4711b39414a43a81727369241eb9094f` |
+| `work/0008/readiness/remaining-portable-specification-audit-implementation.md` | `82fd3062143de6de626661bd3faf9a4ffc8e604a4c7d60bce2183b6867de29e8` |
 
 ## Delivery evidence and review
 
