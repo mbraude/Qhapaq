@@ -194,6 +194,90 @@ def material_sha256(data: bytes) -> str:
     return sha256_bytes(material_text(data.decode("utf-8")).encode("utf-8"))
 
 
+PLAN_RE = re.compile(r"^work/(?:components/)?\d{4}/plan\.md$")
+DERIVED_VIEW_RE = re.compile(r"^work/(?:(?:components/)?\d{4}/runbook\.md$|diagrams/)")
+PROCESS_SOURCE_RE = re.compile(r"^(?:docs/development/spec-driven-workflow\.md|work/templates/)")
+PLAN_EXCLUDED_HEADING_RE = re.compile(r"reconciliation|impact review|evidence", re.I)
+GUIDE = "docs/development/spec-driven-workflow.md"
+PROCESS_VERSION_RE = re.compile(r"^\*\*Process version:\*\*\s*(\d+)", re.M)
+
+
+def plan_material_text(text: str) -> str:
+    """A plan's material view: LF line endings, without its frontmatter `sources`
+    list or `process_version`, and without level-2 sections whose headings match
+    PLAN_EXCLUDED_HEADING_RE (reconciliation and review evidence)."""
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    out: list[str] = []
+    in_front = in_sources = skip = False
+    for index, line in enumerate(text.splitlines(keepends=True)):
+        stripped = line.rstrip("\n")
+        if index == 0 and stripped == "---":
+            in_front = True
+            out.append(line)
+            continue
+        if in_front:
+            if stripped == "---":
+                in_front = in_sources = False
+                out.append(line)
+            elif re.match(r"^[A-Za-z_][\w-]*\s*:", stripped):
+                key = stripped.split(":", 1)[0].strip()
+                in_sources = key == "sources"
+                if key not in ("sources", "process_version"):
+                    out.append(line)
+            elif not in_sources:
+                out.append(line)
+            continue
+        heading = re.match(r"^##\s+(.+?)\s*$", stripped)
+        if heading:
+            skip = bool(PLAN_EXCLUDED_HEADING_RE.search(heading.group(1)))
+            if skip:
+                continue
+        if not skip:
+            out.append(line)
+    return "".join(out)
+
+
+def has_material(path: str) -> bool:
+    """Whether a cited source of this kind records `material_sha256`."""
+    return bool(WORK_ITEM_RE.match(path) or PLAN_RE.match(path))
+
+
+def source_material_sha256(path: str, data: bytes) -> str | None:
+    """The material SHA-256 recorded for a work-item or plan source; None for other sources."""
+    if WORK_ITEM_RE.match(path):
+        return material_sha256(data)
+    if PLAN_RE.match(path):
+        return sha256_bytes(plan_material_text(data.decode("utf-8")).encode("utf-8"))
+    return None
+
+
+def source_kind(path: str) -> str:
+    """`derived-view` (never a source), `process` (a source only when the record's
+    scope governs it), or `input`."""
+    if DERIVED_VIEW_RE.match(path):
+        return "derived-view"
+    if PROCESS_SOURCE_RE.match(path):
+        return "process"
+    return "input"
+
+
+def process_version(snap: "Snapshot") -> int | None:
+    match = PROCESS_VERSION_RE.search(snap.text(GUIDE))
+    return int(match.group(1)) if match else None
+
+
+def process_state(snap: "Snapshot", recorded) -> str:
+    """`current`, `process-missing`, or `process-outdated` for a record's `process_version`."""
+    current = process_version(snap)
+    if recorded in (None, ""):
+        return "process-missing"
+    try:
+        value = int(recorded)
+    except (TypeError, ValueError):
+        return "process-missing"
+    return "current" if current is None or value >= current else "process-outdated"
+
+
 def requirement_blocks(text: str) -> dict[str, str]:
     """Requirement block text keyed by identifier, using the trace-check block grammar."""
     blocks: dict[str, list[str]] = {}
@@ -325,9 +409,9 @@ def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str 
                  material: str | None = None) -> str:
     """Classify a recorded source snapshot against current bytes.
 
-    A work-item source that records `material_sha256` is `current` when its
-    current material SHA-256 equals that value, as the workflow guide defines,
-    and `stale` otherwise, regardless of byte changes.
+    A work-item or plan source that records `material_sha256` is `current`
+    when its current material SHA-256 equals that value, as the workflow guide
+    defines, and `stale` otherwise, regardless of byte changes.
 
     For a work item recorded only by `content_sha256`:
     `evidence-only` means the recorded bytes were recovered from Git and
@@ -341,8 +425,8 @@ def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str 
     actual = snap.sha(path)
     if actual is None:
         return "missing"
-    if material and WORK_ITEM_RE.match(path):
-        return "current" if material_sha256(snap.read(path) or b"") == material else "stale"
+    if material and has_material(path):
+        return "current" if source_material_sha256(path, snap.read(path) or b"") == material else "stale"
     if actual == recorded:
         return "current"
     key = (path, recorded, revision)

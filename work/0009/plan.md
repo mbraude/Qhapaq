@@ -1,5 +1,6 @@
 ---
 spec: SPEC-0009
+process_version: 1
 sources:
   - path: specs/0009-repository-validation-derived-state.md
     revision: f6ba2d2eb8a306f0f0794b0804cbe2a302443d54

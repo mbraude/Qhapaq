@@ -30,14 +30,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
 
 from qhapaq_work import (  # noqa: E402
+    GUIDE,
     PATH_HASH_ROW_RE,
     ROOT,
     WORK,
     Snapshot,
     git,
     parse_frontmatter,
+    process_state,
     rel,
     sections,
+    source_kind,
     source_state,
     utf8_stdio,
 )
@@ -102,13 +105,21 @@ class Facts:
         if not path.endswith("/runbook.md"):
             self.used.add(path)
 
-    def source_status(self, sources: list) -> list[dict]:
+    def source_status(self, sources: list, process_version=False) -> list[dict]:
         result = []
+        if process_version is not False:
+            self.use(GUIDE)
+            state = process_state(self.snap, process_version)
+            if state != "current":
+                result.append({"path": "process_version", "state": state})
         for source in sources if isinstance(sources, list) else []:
             if not isinstance(source, dict) or not source.get("path"):
                 result.append({"path": None, "state": "malformed"})
                 continue
             path = source["path"]
+            if source_kind(path) == "derived-view":
+                result.append({"path": path, "state": "derived-view"})
+                continue
             self.use(path)
             state = source_state(self.snap, path, source.get("content_sha256"), source.get("revision"),
                                  source.get("material_sha256"))
@@ -200,7 +211,8 @@ class Facts:
                 order.setdefault(row.group(2), (phase, position))
         if meta.get("spec") != spec:
             self.findings.append(f"{path}: frontmatter spec {meta.get('spec')!r} does not match {spec}")
-        return {"spec": spec, "path": path, "sources": self.source_status(meta.get("sources") or []), "order": order}
+        return {"spec": spec, "path": path, "order": order,
+                "sources": self.source_status(meta.get("sources") or [], meta.get("process_version"))}
 
     def collect(self) -> dict:
         items: dict[str, dict] = {}
@@ -294,7 +306,7 @@ class Facts:
                 self.use(path)
                 text = self.snap.text(path)
                 meta = parse_frontmatter(text)
-                sources = self.source_status(meta.get("sources") or [])
+                sources = self.source_status(meta.get("sources") or [], meta.get("process_version"))
                 readiness.append({
                     "path": path,
                     "spec": meta.get("spec"),

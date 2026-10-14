@@ -119,7 +119,8 @@ A [plan](../../work/templates/plan.md) has frontmatter:
 | Field | Meaning |
 | --- | --- |
 | `spec` | Owning specification ID |
-| `sources` | List of `{path, revision, content_sha256}` records; work-item sources add `material_sha256` |
+| `process_version` | The workflow guide's process version this record followed |
+| `sources` | List of `{path, revision, content_sha256}` records; work-item and plan sources add `material_sha256` |
 
 For each authoritative input actually used, `path` is repository-relative,
 `revision` is the full Git commit hash supplying the baseline, and
@@ -127,15 +128,38 @@ For each authoritative input actually used, `path` is repository-relative,
 uncommitted input, use `revision: null` and record why in reconciliation evidence.
 For an edited input, keep the committed baseline revision and hash the reviewed
 working-copy bytes. Never claim uncommitted text is identical to a commit.
-Source records exclude the plan itself and generated views.
+Source records exclude the plan itself and generated views: runbooks and
+diagrams are never sources.
 
 When a source is a decision or implementation work item, also record its
 `material_sha256`, computed as defined in
-[section 5](#5-lifecycle-review-and-completion). Such a source is current when its
+[section 5](#5-lifecycle-review-and-completion). When a source is another
+plan, record its `material_sha256`: SHA-256 of the plan's UTF-8 text with LF
+line endings, omitting its frontmatter `sources` list and `process_version`
+line and every level-2 section whose heading contains "reconciliation",
+"impact review", or "evidence" (case-insensitive). Keep such sections free of
+scope, phase, ordering, and gate content. Such a source is current when its
 material SHA-256 matches, even if its bytes changed: recording lifecycle status
-or review evidence on a cited item does not make the citing record stale, while
+or review evidence on a cited item, or reconciling a cited plan's sources
+without changing its scope, does not make the citing record stale, while
 any material change does. Without `material_sha256`, `content_sha256` alone
 decides currency, as for every other source.
+
+Process artifacts—this guide, [work/templates/](../../work/templates/), and
+the workflow skills and scripts under `.agents/`—govern how records are
+produced, not what they assess. Do not cite them as sources merely because a
+record followed them. Cite one only when the record's own scope governs or
+changes it, for example a plan for a specification that amends this workflow.
+Instead, plans and readiness records state `process_version`, the value below.
+
+**Process version:** 1
+
+Increment the process version only when a change to this guide or its
+templates invalidates conclusions recorded under earlier versions, and state
+why in the change. A record whose `process_version` is missing or lower than
+the current value is not current: re-review it under the current process
+before relying on it. Other guide, template, and skill edits leave existing
+records current.
 
 Include the governing specification, relevant cross-specification sources,
 ADRs, and engineering policies used to plan the work. Include artifacts such
@@ -258,8 +282,11 @@ Readiness neither publishes a contract nor relaxes a rollout gate.
 
 An approved readiness record applies only to its assessed source snapshot.
 Changed sources require impact review and a new assessment for affected scope.
-A work-item source whose recorded `material_sha256` still matches has not
-changed for this purpose (see [section 4](#4-plan-contract-and-source-snapshots)).
+A work-item or plan source whose recorded `material_sha256` still matches has
+not changed for this purpose, and process artifacts are not readiness sources
+unless the assessed scope governs them (see
+[section 4](#4-plan-contract-and-source-snapshots)). A readiness record states
+`process_version` like a plan.
 Preserve earlier evidence in Git; do not silently carry approval onto new text.
 
 Derived conclusions, not manually stored statuses:

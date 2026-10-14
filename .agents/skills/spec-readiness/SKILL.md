@@ -37,9 +37,11 @@ resolve new product decisions.
    Do not require unrelated release artifacts or relax specified gates.
 5. Populate or revise the scope's readiness record with exact source snapshots
    from `python .agents/scripts/work_hashes.py sources <path>...`, keeping the
-   `material_sha256` it emits for work-item sources so later status or
-   evidence edits to those items do not stale the record,
-   findings, exclusions, validation, and blockers. Preserve prior approval
+   `material_sha256` it emits for work-item and plan sources so later status,
+   evidence, or reconciliation edits to those files do not stale the record,
+   findings, exclusions, validation, and blockers. Set `process_version` to the
+   workflow guide's current value; do not cite the guide, templates, or
+   workflow skills as sources unless the assessed scope governs them. Preserve prior approval
    history in Git; material changes need reassessment. Report newly discovered
    decision work for reconciliation rather than closing it implicitly.
 6. Apply the workflow validation checklist and invoke

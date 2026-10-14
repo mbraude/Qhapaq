@@ -2,6 +2,7 @@
 spec: SPEC-0008
 scope: requirement-example-audit
 assessment: approved
+process_version: 1
 sources:
   - path: AGENTS.md
     revision: b78b184d3024ad6fd8d5857b49b59b02bd276318
@@ -42,21 +43,16 @@ sources:
   - path: docs/development/conventions/specifications.md
     revision: b78b184d3024ad6fd8d5857b49b59b02bd276318
     content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
-  - path: docs/development/spec-driven-workflow.md
-    revision: b78b184d3024ad6fd8d5857b49b59b02bd276318
-    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
   - path: .github/instructions/documentation.instructions.md
     revision: b78b184d3024ad6fd8d5857b49b59b02bd276318
     content_sha256: 9ff5086829552eca77b740e59fc500bf5d5c2509bb6a2d0114bded5345ef2d03
   - path: .github/instructions/specifications.instructions.md
     revision: b78b184d3024ad6fd8d5857b49b59b02bd276318
     content_sha256: 7e90f2c5a32dfb947e25b86c7ab6b5be53d046d4704e3b4d71768077b9ea52e2
-  - path: work/templates/readiness.md
-    revision: b78b184d3024ad6fd8d5857b49b59b02bd276318
-    content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
   - path: work/0008/plan.md
     revision: b78b184d3024ad6fd8d5857b49b59b02bd276318
     content_sha256: 6a470ba804c17376b75db39598f5a7f6fd56121d60805e24f0508339e67b12bc
+    material_sha256: e8fc4e833f454d2fb435b30d5e46f4256164541107dc42de2045cde297f9eed3
   - path: work/0008/decisions/D-0008-003-normative-content-labeling.md
     revision: b78b184d3024ad6fd8d5857b49b59b02bd276318
     content_sha256: 4675896d3619504d0c28e38fe73589584ba979aa609fd2981ee8ce05065b8801

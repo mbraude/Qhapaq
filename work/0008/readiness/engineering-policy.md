@@ -2,6 +2,7 @@
 spec: SPEC-0008
 scope: engineering-policy
 assessment: approved
+process_version: 1
 sources:
   - path: AGENTS.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
@@ -42,12 +43,6 @@ sources:
   - path: docs/development/conventions/specifications.md
     revision: null
     content_sha256: 8379c469032f87ba8f672b6ac614dd7c53cd0b4e0d4c72140802e61012469297
-  - path: docs/development/spec-driven-workflow.md
-    revision: b8271f0f10cab61831ea6bcba81e801224a8fca3
-    content_sha256: 574d0e18efb42b5701b148a68a62fbd4be7b748e3f276bb6424a056c152507f4
-  - path: work/templates/readiness.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
   - path: work/0008/implementation/I-0008-001-engineering-policy-separation.md
     revision: f5f3072fe6e82be65ae43ce6a911d0d300fcad7d
     content_sha256: 9b17dc3774ea64c3c15b20b7f18f15a8b37b128ed791f45e2dbedbd83d0d71f4

@@ -2,6 +2,7 @@
 spec: "SPEC-0008"
 scope: "conformance-contract-schemas-implementation"
 assessment: blocked
+process_version: 1
 sources:
   - path: "AGENTS.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
@@ -36,9 +37,6 @@ sources:
   - path: "docs/development/conventions/schemas.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
     content_sha256: "efdccc4b508826ba8302db9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2"
-  - path: "docs/development/spec-driven-workflow.md"
-    revision: "9396b5567d753f80057164527185d6faa37f0c8e"
-    content_sha256: "da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2"
   - path: "docs/architecture/decisions/0003-enforce-specification-traceability.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
     content_sha256: "da233fb4acea9077ff49822111698c3d2484b67b69bca0f9b018eafe383d6411"
@@ -51,9 +49,6 @@ sources:
   - path: ".github/instructions/schemas.instructions.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
     content_sha256: "e6acad76a9cc793b240cb1453227836a4cd9ad7919d9aa0d122604961f815358"
-  - path: "work/templates/readiness.md"
-    revision: "9396b5567d753f80057164527185d6faa37f0c8e"
-    content_sha256: "707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2"
   - path: "schemas/README.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
     content_sha256: "9735bf13164fda904d9d926a1ef896038360c7334e8ad831cac195dfc59ab0a1"
@@ -66,6 +61,7 @@ sources:
   - path: "work/0008/plan.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
     content_sha256: "3cffe3e26f15fd00ffccc1907382b79920205773216625c71a2f7585b57ad121"
+    material_sha256: "6a79348b7686002e8a03592ef3a76b50e737a5cdb03e5e6f24dee8a0485a9890"
   - path: "work/0008/implementation/I-0008-003-conformance-artifacts.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
     content_sha256: "00bdbe5985ee95c4b7013ea658a5ac230d07c50d1caa2a0d971ff4e5d9a46ba0"
@@ -117,9 +113,6 @@ sources:
   - path: "work/0007/implementation/I-0007-005-validation-foundation-artifacts.md"
     revision: "9396b5567d753f80057164527185d6faa37f0c8e"
     content_sha256: "8d830acc7c1f4fc7de89f5e12baf54b88ab4330f5a2521e454cd4d6f93baca5d"
-  - path: "work/0008/runbook.md"
-    revision: null
-    content_sha256: "fe53d95a335a50ae68bc3cb6b4d4e80397ad5269b0e3155c72750ea3f0604c61"
 ---
 
 # SPEC-0008: Conformance Contract Schemas Implementation Readiness

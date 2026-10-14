@@ -1,5 +1,6 @@
 ---
 spec: SPEC-0007
+process_version: 1
 sources:
   - path: SPEC.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
@@ -31,9 +32,6 @@ sources:
   - path: docs/development/coding-conventions.md
     revision: 8f0082a220dcb36f848c5e9db05104787ee3b280
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
-  - path: docs/development/spec-driven-workflow.md
-    revision: b627023baef4d16d8c1c3598b24ba9d66f9e96bb
-    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03

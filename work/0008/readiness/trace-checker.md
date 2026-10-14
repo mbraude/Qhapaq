@@ -2,10 +2,8 @@
 spec: SPEC-0008
 scope: trace-checker
 assessment: blocked
+process_version: 1
 sources:
-  - path: .agents/skills/spec-readiness/SKILL.md
-    revision: d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9
-    content_sha256: f531b4805f68f4c28794a52626822aae3149151194a9d108e10b42cf01d062b6
   - path: .agents/skills/spec-trace-check/SKILL.md
     revision: d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9
     content_sha256: e0b7bc16c1cad5da3332293086c83a66421b0ffd8b29adac6347fec1a7eac486
@@ -36,9 +34,6 @@ sources:
   - path: docs/development/conventions/specifications.md
     revision: d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9
     content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
-  - path: docs/development/spec-driven-workflow.md
-    revision: d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9
-    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
   - path: specs/0001-core-pipeline-model.md
     revision: d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9
     content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
@@ -84,9 +79,7 @@ sources:
   - path: work/0008/plan.md
     revision: d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9
     content_sha256: 6a470ba804c17376b75db39598f5a7f6fd56121d60805e24f0508339e67b12bc
-  - path: work/templates/readiness.md
-    revision: d812bf214b5856dd0e21f23e7736fdfd4a8aa4c9
-    content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
+    material_sha256: e8fc4e833f454d2fb435b30d5e46f4256164541107dc42de2045cde297f9eed3
 ---
 
 # SPEC-0008: Trace Checker Readiness

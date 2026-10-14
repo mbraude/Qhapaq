@@ -2,6 +2,7 @@
 spec: SPEC-0006
 scope: initial-layered-architecture
 assessment: blocked
+process_version: 1
 sources:
   - path: AGENTS.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
@@ -39,18 +40,12 @@ sources:
   - path: docs/development/conventions/specifications.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
-  - path: docs/development/spec-driven-workflow.md
-    revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
-    content_sha256: c1045d2891c7ccbe00c833e247d7254c7e4161857dfe6884b47a644cb3e1c11e
   - path: .github/instructions/dotnet.instructions.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 97fa3163316d35c1a7ccac75293f896652f7f7b150cc4fbff83ab4d67ee9d05e
   - path: .github/instructions/specifications.instructions.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 7e90f2c5a32dfb947e25b86c7ab6b5be53d046d4704e3b4d71768077b9ea52e2
-  - path: work/templates/readiness.md
-    revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
-    content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
   - path: work/0006/plan.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: b74bb5a11087fb1c92950b29246d3ccbf2a446812c8b1168a7c6ccb6e3709a5d
@@ -63,6 +58,7 @@ sources:
   - path: work/0007/plan.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 4c1cb8bd2aefb2e2cbfa1d17d77942ff926c94c4bbba147d71dfe1cfe05775f2
+    material_sha256: 26e4be848f8bd3bfe7c6f61e97146d811c8675e51506396837b14676077375ec
   - path: work/0007/implementation/I-0007-001-architecture-enforcement.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: bd5659ff9ad32e9fbdff9910599c4940a0b8eb5c5ca15c40c2824af80de9e4f9
@@ -75,6 +71,7 @@ sources:
   - path: work/0008/plan.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 99db86435bedc756e827afe05854ac20146ec09bd03105fdf0e8787d488dc9e4
+    material_sha256: e8fc4e833f454d2fb435b30d5e46f4256164541107dc42de2045cde297f9eed3
   - path: work/0008/implementation/I-0008-004-source-relocation.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 55f174936da2f81b2114aa698612452a4af84a5d2d59442fcf677f4e46f54b2c

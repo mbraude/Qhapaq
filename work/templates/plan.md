@@ -1,5 +1,6 @@
 ---
 spec: "<SPEC-NNNN or COMP-NNNN>"
+process_version: 1
 sources:
   - path: "<repository-relative authoritative input>"
     revision: null

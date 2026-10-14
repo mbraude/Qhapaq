@@ -2,6 +2,7 @@
 spec: SPEC-0008
 scope: portable-core-example-audit-implementation
 assessment: approved
+process_version: 1
 sources:
   - path: AGENTS.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
@@ -30,18 +31,13 @@ sources:
   - path: docs/development/conventions/specifications.md
     revision: 911ede5a759d7288dc569002ab2bbb136caeb52d
     content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
-  - path: docs/development/spec-driven-workflow.md
-    revision: b627023baef4d16d8c1c3598b24ba9d66f9e96bb
-    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
   - path: .github/instructions/specifications.instructions.md
     revision: 911ede5a759d7288dc569002ab2bbb136caeb52d
     content_sha256: 7e90f2c5a32dfb947e25b86c7ab6b5be53d046d4704e3b4d71768077b9ea52e2
-  - path: work/templates/readiness.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
   - path: work/0008/plan.md
     revision: 9396b5567d753f80057164527185d6faa37f0c8e
     content_sha256: 3cffe3e26f15fd00ffccc1907382b79920205773216625c71a2f7585b57ad121
+    material_sha256: 6a79348b7686002e8a03592ef3a76b50e737a5cdb03e5e6f24dee8a0485a9890
   - path: work/0008/implementation/I-0008-013-portable-core-example-audit.md
     revision: 6b47ffe9e002a3a10a40bcaab2c2cbf7ac6cffdf
     content_sha256: 5188a6e7259b6ddd97069cf427920b20ec5512bf7a7287a23da33ca5595d7880

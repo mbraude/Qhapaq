@@ -2,6 +2,7 @@
 spec: "<SPEC-NNNN or COMP-NNNN>"
 scope: "<stable scope name>"
 assessment: not-assessed
+process_version: 1
 sources:
   - path: "<repository-relative assessed input>"
     revision: null
@@ -10,6 +11,10 @@ sources:
     revision: null
     content_sha256: "<SHA-256 of exact assessed file bytes>"
     material_sha256: "<material SHA-256; governs currency of work-item sources>"
+  - path: "<another plan, for example work/NNNN/plan.md>"
+    revision: null
+    content_sha256: "<SHA-256 of exact assessed file bytes>"
+    material_sha256: "<plan material SHA-256; governs currency of plan sources>"
 ---
 
 # <Specification ID>: <Scope> Readiness

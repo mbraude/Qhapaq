@@ -2,6 +2,7 @@
 spec: SPEC-0008
 scope: conformance-artifact-delivery
 assessment: approved
+process_version: 1
 sources:
   - path: AGENTS.md
     revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
@@ -42,15 +43,10 @@ sources:
   - path: docs/development/coding-conventions.md
     revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
-  - path: docs/development/spec-driven-workflow.md
-    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
-    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
-  - path: work/templates/readiness.md
-    revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
-    content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
   - path: work/0007/plan.md
     revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 51aca30baf40c3a8e0823c99c3c87c33f77337bb3900f1c80e4cec7df023a732
+    material_sha256: 26e4be848f8bd3bfe7c6f61e97146d811c8675e51506396837b14676077375ec
   - path: work/0007/decisions/D-0007-009-model-ownership.md
     revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: b18191e694df1d479ab827b192782ffc6271b780ccb06967e3a5b23bd4ac7565
@@ -72,6 +68,7 @@ sources:
   - path: work/0008/plan.md
     revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 6a470ba804c17376b75db39598f5a7f6fd56121d60805e24f0508339e67b12bc
+    material_sha256: e8fc4e833f454d2fb435b30d5e46f4256164541107dc42de2045cde297f9eed3
   - path: work/0008/decisions/D-0008-004-initial-conformance-profiles.md
     revision: aba1065c108122ea5a575ec8baf0c7e0a9cf24d2
     content_sha256: 0f6ac0516de4ba2a741dc3c568cfd7f0892d23719ae9579612589412e1241140

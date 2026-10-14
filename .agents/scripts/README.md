@@ -46,12 +46,12 @@ file is missing or a verification found a mismatch.
 | Command | Output |
 | --- | --- |
 | `files PATH...` | Full-byte SHA-256 of each file. |
-| `sources PATH...` | Ready-to-paste frontmatter `sources` entries: `path`, `revision` (last commit touching the path, or `null` if untracked), `content_sha256` of the working-copy bytes, and, for decision and implementation work items, `material_sha256`. Reports on stderr which paths differ from their revision. |
+| `sources PATH...` | Ready-to-paste frontmatter `sources` entries: `path`, `revision` (last commit touching the path, or `null` if untracked), `content_sha256` of the working-copy bytes, and, for decision and implementation work items and plans, `material_sha256`. Reports on stderr which paths differ from their revision. |
 | `material ITEM...` | The material SHA-256 defined in the workflow guide. |
-| `verify RECORD...` | Each record's frontmatter `sources` with one of the source states below; work-item sources that record `material_sha256` are checked by material and marked `(material)`. |
+| `verify RECORD...` | For a plan or readiness record, its `process_version` state (`current`, `process-missing`, or `process-outdated`), then each frontmatter source with one of the source states below. Work-item and plan sources that record `material_sha256` are checked by material and marked `(material)`; process artifacts are marked `(process source)`; a cited runbook or diagram is `derived-view`. |
 | `evidence [--section NAME] ITEM...` | Every recorded `Material SHA-256` value and `` | `path` | `sha256` | `` evidence row, checked against current bytes, with line numbers. |
 | `diff [--max-lines N] RECORD...` | For each non-current source, a unified diff from the recorded bytes (recovered from Git history, or the recorded revision) to the working copy, with added and removed line counts. `--max-lines 0` prints everything; the default is 200 per source. |
-| `refresh [--stale] RECORD [PATH...]` | The only writing command: rewrites the named recorded sources (or, with `--stale`, every non-current one) in the record's frontmatter in place with the current `revision`, `content_sha256`, and, for work items, `material_sha256`. Refuses paths that are not recorded sources and a record naming itself. Run it only after judging the delta. |
+| `refresh [--stale] RECORD [PATH...]` | The only writing command: rewrites the named recorded sources (or, with `--stale`, every non-current one) in the record's frontmatter in place with the current `revision`, `content_sha256`, and, for work items and plans, `material_sha256`. Refuses paths that are not recorded sources, derived views, and a record naming itself. Run it only after judging the delta. |
 
 Paths may use globs, for example
 `python .agents/scripts/work_hashes.py material "work/0008/implementation/I-0008-01*.md"`.
@@ -60,7 +60,7 @@ Source states are facts, not verdicts:
 
 | State | Meaning |
 | --- | --- |
-| `current` | Current bytes match the recorded hash, or, for a work-item source with `material_sha256`, the current material hash matches it. |
+| `current` | Current bytes match the recorded hash, or, for a work-item or plan source with `material_sha256`, the current material hash matches it. |
 | `missing` | The file does not exist. |
 | `stale` | Current bytes differ, and material content differs or cannot be compared; or a recorded `material_sha256` no longer matches. |
 | `evidence-only` | Only for a work-item source without `material_sha256`: the recorded bytes were recovered from Git history and differ from the current bytes only outside material content (status line or review evidence sections). |

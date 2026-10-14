@@ -56,7 +56,7 @@ def cmd_sources(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
             "path": path,
             "revision": q.last_commit(path) if tracked else None,
             "content_sha256": snap.sha(path),
-            "material_sha256": q.material_sha256(data) if data is not None and q.WORK_ITEM_RE.match(path) else None,
+            "material_sha256": q.source_material_sha256(path, data) if data is not None else None,
             "working_copy_differs": path in dirty,
         })
     return rows, all(r["content_sha256"] for r in rows)
@@ -73,11 +73,17 @@ def cmd_material(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
 def cmd_verify(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
     rows, ok = [], True
     for record in paths:
-        sources = q.parse_frontmatter(snap.text(record)).get("sources") or []
+        meta = q.parse_frontmatter(snap.text(record))
+        sources = meta.get("sources") or []
         if snap.read(record) is None:
             rows.append({"record": record, "path": None, "state": "record-missing"})
             ok = False
             continue
+        if not q.WORK_ITEM_RE.match(record):
+            state = q.process_state(snap, meta.get("process_version"))
+            ok &= state == "current"
+            rows.append({"record": record, "path": "process_version", "basis": "process",
+                         "recorded": meta.get("process_version"), "actual": q.process_version(snap), "state": state})
         for source in sources if isinstance(sources, list) else []:
             if not isinstance(source, dict) or not source.get("path"):
                 rows.append({"record": record, "path": None, "state": "malformed"})
@@ -86,12 +92,15 @@ def cmd_verify(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
             actual = snap.sha(source["path"])
             recorded = source.get("content_sha256")
             material = source.get("material_sha256")
-            state = q.source_state(snap, source["path"], recorded, source.get("revision"), material)
+            kind = q.source_kind(source["path"])
+            state = "derived-view" if kind == "derived-view" else q.source_state(
+                snap, source["path"], recorded, source.get("revision"), material)
             ok &= state == "current"
-            if material and q.WORK_ITEM_RE.match(source["path"]):
-                recorded, actual = material, q.material_sha256(snap.read(source["path"]) or b"")
+            by_material = bool(material) and q.has_material(source["path"])
+            if by_material:
+                recorded, actual = material, q.source_material_sha256(source["path"], snap.read(source["path"]) or b"")
             rows.append({"record": record, "path": source["path"], "revision": source.get("revision"),
-                         "basis": "material" if material and q.WORK_ITEM_RE.match(source["path"]) else "bytes",
+                         "basis": "material" if by_material else "bytes", "kind": kind,
                          "recorded": recorded, "actual": actual, "state": state})
     return rows, ok
 
@@ -177,11 +186,14 @@ def cmd_refresh(snap: q.Snapshot, record: str, wanted: list[str], stale: bool) -
     unknown = [p for p in wanted if p not in by_path]
     if unknown:
         return [{"record": record, "path": p, "state": "not a recorded source"} for p in unknown], False
+    derived = [p for p in wanted if q.source_kind(p) == "derived-view"]
+    if derived:
+        return [{"record": record, "path": p, "state": "derived view; remove it instead"} for p in derived], False
     targets = list(wanted)
     if stale:
         for e in entries:
             fields = {k: q.unquote(v) for k, (_, v) in e["fields"].items()}
-            if e["path"] not in targets and q.source_state(
+            if e["path"] not in targets and q.source_kind(e["path"]) != "derived-view" and q.source_state(
                     snap, e["path"], fields.get("content_sha256"), fields.get("revision"),
                     fields.get("material_sha256")) != "current":
                 targets.append(e["path"])
@@ -196,7 +208,7 @@ def cmd_refresh(snap: q.Snapshot, record: str, wanted: list[str], stale: bool) -
         values = {
             "revision": q.last_commit(path) if q.is_tracked(path) else None,
             "content_sha256": content,
-            "material_sha256": q.material_sha256(snap.read(path)) if q.WORK_ITEM_RE.match(path) else None,
+            "material_sha256": q.source_material_sha256(path, snap.read(path)),
         }
         for key, value in values.items():
             if key in e["fields"]:
@@ -265,8 +277,8 @@ def print_text(command: str, rows: list[dict]) -> None:
             print("# working copy differs from revision (hash covers working-copy bytes): " + ", ".join(notes), file=sys.stderr)
     elif command == "verify":
         for r in rows:
-            detail = "" if r["state"] in ("current", "malformed", "record-missing") else f" recorded={r['recorded']} actual={r['actual']}"
-            basis = " (material)" if r.get("basis") == "material" else ""
+            detail = "" if r["state"] in ("current", "malformed", "record-missing", "derived-view") else f" recorded={r['recorded']} actual={r['actual']}"
+            basis = " (material)" if r.get("basis") == "material" else " (process source)" if r.get("kind") == "process" else ""
             print(f"{r['state']:<8} {r['record']} -> {r['path']}{basis}{detail}")
     elif command == "diff":
         for r in rows:

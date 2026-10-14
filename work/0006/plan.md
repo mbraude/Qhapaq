@@ -1,5 +1,6 @@
 ---
 spec: SPEC-0006
+process_version: 1
 sources:
   - path: AGENTS.md
     revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
@@ -37,18 +38,10 @@ sources:
   - path: docs/development/conventions/dotnet.md
     revision: c1580148ae7d6230bfef6441d2e419fd71974470
     content_sha256: d590f92c5e151ae4eb02540d48a7e029863346715204c18ebe3afdc7394d7336
-  - path: docs/development/spec-driven-workflow.md
-    revision: 801b57722055b3d1dd85dc95eaad9d775fe37f74
-    content_sha256: c4c5f8cbbcf23cfa35ef51645708803f1f60b3203e3cfb0c33ca2edbb110da6d
-  - path: work/templates/plan.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: 8492dfab48663d0cff4e978c482b6018c92cddac1c84ceaf421ac91117abb21e
-  - path: work/templates/implementation.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: 4b606692c82c8e90ec49634c95a6ab6a5dbd6d305c18f4ff9d7828c242d8fbd7
   - path: work/0007/plan.md
     revision: c1580148ae7d6230bfef6441d2e419fd71974470
     content_sha256: 4c1cb8bd2aefb2e2cbfa1d17d77942ff926c94c4bbba147d71dfe1cfe05775f2
+    material_sha256: 26e4be848f8bd3bfe7c6f61e97146d811c8675e51506396837b14676077375ec
   - path: work/0007/decisions/D-0007-004-exact-descriptor-service.md
     revision: c7bbf603c0e14f42705e53298d37e071ca3ef23c
     content_sha256: 86b5676dae2c007e280228294cba24d0632825cb2bdaeba656d6cb97ff194a4e
@@ -61,6 +54,7 @@ sources:
   - path: work/0008/plan.md
     revision: c1580148ae7d6230bfef6441d2e419fd71974470
     content_sha256: 99db86435bedc756e827afe05854ac20146ec09bd03105fdf0e8787d488dc9e4
+    material_sha256: e8fc4e833f454d2fb435b30d5e46f4256164541107dc42de2045cde297f9eed3
   - path: work/0008/implementation/I-0008-004-source-relocation.md
     revision: 71bf914cd8edf48b6af94544c342c4ad2c906929
     content_sha256: 55f174936da2f81b2114aa698612452a4af84a5d2d59442fcf677f4e46f54b2c

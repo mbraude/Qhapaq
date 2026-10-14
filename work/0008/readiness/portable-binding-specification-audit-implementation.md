@@ -2,6 +2,7 @@
 spec: SPEC-0008
 scope: portable-binding-specification-audit-implementation
 assessment: approved
+process_version: 1
 sources:
   - path: .github/instructions/specifications.instructions.md
     revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
@@ -30,9 +31,6 @@ sources:
   - path: docs/development/conventions/specifications.md
     revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
-  - path: docs/development/spec-driven-workflow.md
-    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
-    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
   - path: schemas/README.md
     revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 9735bf13164fda904d9d926a1ef896038360c7334e8ad831cac195dfc59ab0a1
@@ -54,12 +52,10 @@ sources:
   - path: work/0008/plan.md
     revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 3cffe3e26f15fd00ffccc1907382b79920205773216625c71a2f7585b57ad121
+    material_sha256: 6a79348b7686002e8a03592ef3a76b50e737a5cdb03e5e6f24dee8a0485a9890
   - path: work/0008/readiness/requirement-example-audit.md
     revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 5186fbba33d1810efc047a7f14715a998980630b32112c23c116898239f8c9cf
-  - path: work/templates/readiness.md
-    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
-    content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
 ---
 
 # SPEC-0008: Portable Binding Specification Audit Implementation Readiness

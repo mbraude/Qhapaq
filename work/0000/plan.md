@@ -1,5 +1,6 @@
 ---
 spec: SPEC-0000
+process_version: 1
 sources:
   - path: SPEC.md
     revision: 733f879fb7872fd692c0661af8e6eb62708a7e38

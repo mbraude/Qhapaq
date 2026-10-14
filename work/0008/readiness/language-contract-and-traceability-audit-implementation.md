@@ -2,6 +2,7 @@
 spec: SPEC-0008
 scope: language-contract-and-traceability-audit-implementation
 assessment: approved
+process_version: 1
 sources:
   - path: .github/instructions/documentation.instructions.md
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
@@ -33,15 +34,10 @@ sources:
   - path: docs/development/conventions/specifications.md
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
     content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
-  - path: docs/development/spec-driven-workflow.md
-    revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
-    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
-  - path: work/templates/readiness.md
-    revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
-    content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
   - path: work/0008/plan.md
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
     content_sha256: b602977cd2f1d5ccc617f5d54ef049c0f5c615f0f6dab7d333481ab44a0d6f20
+    material_sha256: c4a330983ec84b01ad10ca80e87a520cdcff8f3ce9d34e79e6fe51d7a4017f34
   - path: work/0008/implementation/I-0008-016-language-contract-and-traceability-audit.md
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
     content_sha256: 1cfdd275d8f662463bbb795d7d091df86e3b11af6e69e1636e66a6ff977acf1d

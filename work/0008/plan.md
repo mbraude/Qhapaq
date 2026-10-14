@@ -1,5 +1,6 @@
 ---
 spec: SPEC-0008
+process_version: 1
 sources:
   - path: SPEC.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
@@ -43,9 +44,6 @@ sources:
   - path: docs/development/conventions/schemas.md
     revision: 911ede5a759d7288dc569002ab2bbb136caeb52d
     content_sha256: efdccc4b508826ba8302db9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
-  - path: docs/development/spec-driven-workflow.md
-    revision: da70a0e303f4ff75ee095168d670d709ba3c1afe
-    content_sha256: 38d5a0d3851b57aa32b3702e0929c83b087b7a922d3682c3e5127670d2031294
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: da233fb4acea9077ff49822111698c3d2484b67b69bca0f9b018eafe383d6411

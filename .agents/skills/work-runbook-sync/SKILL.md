@@ -71,12 +71,15 @@ Source currentness is reported per recorded hash as `current`, `missing`,
 `stale`, `evidence-only` (the recorded bytes differ only in status or review
 evidence sections, so material content is unchanged), or
 `stale-material-unchanged` (recorded bytes cannot be recovered, but the
-material at the recorded revision matches). A work-item source that records
-`material_sha256` is judged only by that hash and is never `evidence-only` or
-`stale-material-unchanged`. Those two states arise only for older records
-without it; they are facts for you to judge against the consuming record's
-rules, not automatic passes, and the record's next reassessment should add
-`material_sha256`.
+material at the recorded revision matches). A work-item or plan source that
+records `material_sha256` is judged only by that hash and is never
+`evidence-only` or `stale-material-unchanged`. Those two states arise only for
+older work-item records without it; they are facts for you to judge against
+the consuming record's rules, not automatic passes, and the record's next
+reassessment should add `material_sha256`. A plan or readiness record whose
+`process_version` is missing or older than the guide's reports a
+`process_version` source in state `process-missing` or `process-outdated`; a
+cited runbook or diagram reports `derived-view`. Neither is current.
 
 It reads exact working-copy bytes and reports, with line references: transitive
 item selection and owners; plan and readiness source currentness; dependency

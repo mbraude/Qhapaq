@@ -2,6 +2,7 @@
 spec: SPEC-0006
 scope: service-v1-reconciliation
 assessment: approved
+process_version: 1
 sources:
   - path: AGENTS.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
@@ -21,12 +22,10 @@ sources:
   - path: work/0007/plan.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 4c1cb8bd2aefb2e2cbfa1d17d77942ff926c94c4bbba147d71dfe1cfe05775f2
+    material_sha256: 26e4be848f8bd3bfe7c6f61e97146d811c8675e51506396837b14676077375ec
   - path: work/0007/decisions/D-0007-004-exact-descriptor-service.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 86b5676dae2c007e280228294cba24d0632825cb2bdaeba656d6cb97ff194a4e
-  - path: docs/development/spec-driven-workflow.md
-    revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
-    content_sha256: c1045d2891c7ccbe00c833e247d7254c7e4161857dfe6884b47a644cb3e1c11e
   - path: docs/development/coding-conventions.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
@@ -36,9 +35,6 @@ sources:
   - path: .github/instructions/specifications.instructions.md
     revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
     content_sha256: 7e90f2c5a32dfb947e25b86c7ab6b5be53d046d4704e3b4d71768077b9ea52e2
-  - path: work/templates/readiness.md
-    revision: 2dbe86962c823065fb16caf3e0a3beb0cce6106d
-    content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
 ---
 
 # SPEC-0006: Service V1 Reconciliation Readiness
