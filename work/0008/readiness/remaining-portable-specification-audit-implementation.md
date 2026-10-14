@@ -49,8 +49,9 @@ sources:
     revision: 910e5fd40bfdea4ab9bf73a6ce06418633114996
     content_sha256: 83185977d95a5aa9ab450312ead1aad4cc4123b6e10d29ba31b28dfb2bec5d2b
   - path: work/0008/implementation/I-0008-014-remaining-portable-specification-audit.md
-    revision: 910e5fd40bfdea4ab9bf73a6ce06418633114996
-    content_sha256: e97bab3e05e3815836ba75b423a27fae07bf30a8ab98e79033299b742205d5f2
+    revision: da9187edb23b360e9398d9dfa452297da9c6f1cd
+    content_sha256: f500575399341c13d0f306ac3db03b11d5c9a6ae40fa0c90b8f2b9ca5acf8a74
+    material_sha256: 845155260f298315d5ebf1e443c723d82b3990f00ccc344da06e48257e6d6966
   - path: work/0008/decisions/D-0008-003-normative-content-labeling.md
     revision: 910e5fd40bfdea4ab9bf73a6ce06418633114996
     content_sha256: 4675896d3619504d0c28e38fe73589584ba979aa609fd2981ee8ce05065b8801
@@ -110,7 +111,13 @@ No schema, vector, profile, release artifact, or published conformance vector is
 
 No unresolved decision or missing product/conformance artifact prevents review of this bounded readiness scope. The audit's named mixed-content candidates are not resolved here; the item's stop condition governs if classification would change meaning.
 
-This reassessment is ready for review and is not approved. Execution remains gated on **both** (1) explicit approval of this exact current readiness record and (2) separate explicit approval of the exact I-0008-014 plan. I-0008-014 currently says plan approval is absent. The readiness approval previously recorded for the older assessment is historical; it does not approve this reassessed snapshot or the plan.
+At the initial 2026-10-14 reassessment, this record was ready for review and
+the I-0008-014 plan approval was absent. The user has since separately
+approved the exact I-0008-014 plan snapshot. This new reassessment verifies
+that approval and the unchanged scope, but this updated readiness snapshot is
+`ready-for-review`, not approved. Earlier readiness approvals apply only to
+their recorded snapshots. Implementation requires approval of this exact
+readiness snapshot; plan approval is now recorded.
 
 ## Validation and approval
 
@@ -127,8 +134,16 @@ requirements in scope (R-0000-007, R-0008-005, and the 101 target requirements).
 `/spec-trace-check` returned `PASS - Change-Kind: maintenance`; `git diff
 --check` passed; and the record's repository-relative link resolves. No
 product build or unit tests were run because this is a documentation-only
-readiness assessment. This exact reassessment remains `ready-for-review`, not
-approved.
+readiness assessment. At that point, plan approval had not yet been recorded.
+
+Plan-approval reassessment validation (2026-10-14): `work_hashes.py verify`
+reports all 20 assessed source entries current, including the I-0008-014
+material hash and its post-approval full-byte hash. `spec_fingerprints.py`
+enumerated the two governing requirements and all 101 target requirements.
+`trace_facts.py` reports `PASS - Change-Kind: maintenance; no Spec trailer`;
+`git diff --check` passed; and the sole repository-relative link resolves.
+No product build or unit tests were run because this is a documentation-only
+readiness reassessment.
 
 ### Approval evidence
 
@@ -155,9 +170,10 @@ The user explicitly approved this exact readiness snapshot in this session on
   classification and no changed requirement blocks or code; `git diff --check`
   passed. Build and unit tests were omitted because this is documentation-only.
 
-This approval applies only to the reviewed readiness scope and snapshot.
-Separate approval of the I-0008-014 implementation plan is still required
-before implementation; no component contract is published.
+This approval applied only to the reviewed readiness scope and snapshot. At
+that time, separate approval of the I-0008-014 implementation plan was still
+required before implementation. No component contract is published. This
+approval is historical after the subsequent material reassessment.
 
 ### Reassessment evidence
 
@@ -186,4 +202,37 @@ The user explicitly approved this exact readiness snapshot in this session on
   schema, vector, profile, trace-checker, or publication changes; and no
   whole-v1 conformance claim. The audit must stop if a candidate disposition
   would require any such change.
-- Approved material SHA-256: `10bf0df93560d6870dcfbe933052630b09f3729b3050ccf04ad8b09fd1b83e07` (`work/0008/readiness/remaining-portable-specification-audit-implementation.md`).
+- Superseded snapshot digest (historical approval, not current evidence): `10bf0df93560d6870dcfbe933052630b09f3729b3050ccf04ad8b09fd1b83e07` (`work/0008/readiness/remaining-portable-specification-audit-implementation.md`).
+
+### Reassessment after implementation-plan approval
+
+Reassessed 2026-10-14 after the user approved the exact I-0008-014
+implementation plan. Its approval evidence records the reviewed material hash
+and current full-byte hashes of the plan, governing specifications, target
+specifications, completed D-0008-003 prerequisite, aggregate I-0008-002
+scope, and this readiness record; evidence verification passed. That change
+to I-0008-014 is review evidence only: its material plan hash and conditional
+three-file manifest are unchanged. D-0008-003 remains complete, all three
+target specifications retain their assessed bytes, the governing
+requirements remain R-0000-007 and R-0008-005, and the slice exclusions and
+stop condition are unchanged. No new behavioral decision, conformance
+artifact, or implementation prerequisite is introduced. The exact I-0008-014
+plan approval is now recorded. This readiness snapshot is `ready-for-review`
+and requires its own explicit approval before implementation; earlier
+readiness approval evidence remains historical.
+
+### Approval of plan-approval reassessment
+
+The user explicitly approved this exact readiness snapshot in this session on
+2026-10-14. No approver name was supplied.
+
+- Scope: SPEC-0008 implementation readiness for I-0008-014, governing
+  requirements R-0000-007 and R-0008-005, and conditional editorial-only
+  disposition of examples, rationale, and behavior-affecting defaults in
+  SPEC-0003, SPEC-0004, and SPEC-0005.
+- Exclusions: no changes to behavior, requirement meaning or identity,
+  conformance, security policy, compatibility, or release gates; no code,
+  schema, vector, profile, trace-checker, or publication changes; and no
+  whole-v1 conformance claim. The audit must stop if a candidate disposition
+  would require any such change.
+- Approved material SHA-256: `e4a797b33ae2035437298d94952ab03e02a86306cbe0d3e0612887878a87d213` (`work/0008/readiness/remaining-portable-specification-audit-implementation.md`).
