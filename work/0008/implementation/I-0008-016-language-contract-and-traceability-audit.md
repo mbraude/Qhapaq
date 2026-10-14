@@ -101,8 +101,31 @@ separately approved decision.
 
 ## Plan approval
 
-Absent. Approval must cover this exact slice, manifest, dependencies, and
-entry gates.
+Approved explicitly in this session on 2026-10-14 for the exact audit scope,
+conditional four-file manifest, dependencies, exclusions, and entry gates
+recorded above.
+
+- Material SHA-256: `2060cb93df653a8ba3d042366b97e7c3d436c8a04266af97e6de709acbafd3da`.
+- Approved readiness scope:
+  `language-contract-and-traceability-audit-implementation`.
+
+Material input snapshot:
+
+| Path | Basis | SHA-256 |
+| --- | --- | --- |
+| `work/0008/plan.md` | bytes | `97fa78b1f76db762075afcadca107b850c52c1e13523fb8bc17e436305de1e0b` |
+| `work/0008/readiness/language-contract-and-traceability-audit-implementation.md` | material | `cb0017c4a6ee5c380ef243638e81c33ed97d985314b419d1902ad9efaecdab24` |
+| `SPEC.md` | bytes | `998108318c82d9c8c5cb5e70fb99933e3e7d0678e5c98adba8cda8086ff0eed6` |
+| `specs/0006-dotnet-layered-architecture.md` | bytes | `399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e` |
+| `specs/0008-multi-language-conformance-and-repository-organization.md` | bytes | `26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926` |
+| `docs/development/coding-conventions.md` | bytes | `436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a` |
+| `docs/development/conventions/specifications.md` | bytes | `9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a` |
+| `work/0008/decisions/D-0008-003-normative-content-labeling.md` | bytes | `4675896d3619504d0c28e38fe73589584ba979aa609fd2981ee8ce05065b8801` |
+| `work/0008/decisions/D-0008-008-language-native-traceability.md` | bytes | `a12c67a643de4a82cb75ecaa5c5130d31845ba2016faad2411dbf019ee93c8c5` |
+
+Approval authorizes execution only of this exact reviewed plan snapshot. It does
+not satisfy pending execution entry gates, change the item status, authorize
+behavior or architecture changes, or approve delivery.
 
 ## Delivery evidence and review
 
