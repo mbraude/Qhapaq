@@ -3,14 +3,14 @@ spec: SPEC-0008
 process_version: 1
 sources:
   - path: SPEC.md
-    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
-    content_sha256: fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e
+    revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
+    content_sha256: 998108318c82d9c8c5cb5e70fb99933e3e7d0678e5c98adba8cda8086ff0eed6
   - path: specs/0001-core-pipeline-model.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
+    revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
+    content_sha256: 1ccc40bf3335b1b957b679e5d8439a2abcfebf3a4338583e8aaa024340e7400e
   - path: specs/0002-operation-catalogs-and-host-configuration.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
+    revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
+    content_sha256: ca889260cd2445fc3a285c978389d0d31a0541d0d2b2d5830af47cfc6b73c2f4
   - path: specs/0003-product-evolution-roadmap.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 2b5fced51668b8bd2d586e377adbf667deabc3cb48c8569890ec7e709992ce32
@@ -70,6 +70,34 @@ sources:
 # SPEC-0008: Work Plan
 
 ## Source and workflow reconciliation
+
+- Date: 2026-10-14. Reviewed the three source changes committed in
+  `c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d` after completion of
+  I-0008-013. The editorial audit reclassified the .NET examples in SPEC.md
+  and SPEC-0001 as illustrative, explicitly labeled the retry/timeout example
+  in R-0001-011 normative, moved catalog and host-profile examples outside
+  requirement blocks in SPEC-0002, clarified that sample profile values do
+  not establish defaults, and moved the open candidate-provider set outside
+  R-0002-023. It preserved the existing normative behavior and conformance
+  obligations; no behavior or conformance amendment was made.
+- The reviewed requirement-block fingerprints are R-0000-002@bcf15e,
+  R-0001-001@899621, R-0001-011@66b88c, R-0002-013@5bb953,
+  R-0002-016@6c0589, R-0002-017@26d150, R-0002-018@3cda5b, and
+  R-0002-023@566cfd. Repository reference search found these changed
+  fingerprints only in I-0008-013's completed delivery evidence and the
+  associated implementation-readiness record. The completed audit remains
+  correct for its approved snapshot and is not reopened; no other item scope,
+  status, dependency, or gate is affected.
+- The readiness record's SPEC.md and SPEC-0001/0002 byte snapshots are now
+  stale. Its approval remains historical and is not carried onto the changed
+  source snapshot. Because I-0008-013 has completed, this synchronization
+  does not rewrite or renew that readiness assessment; any future work that
+  relies on it must obtain a current assessment. The aggregate I-0008-002
+  milestone remains open under its existing child-slice gate.
+- Advanced the three reviewed plan source records to the exact bytes at the
+  committed source revision above. No other source, work item, phase,
+  dependency, approval, or readiness record was changed by this
+  reconciliation.
 
 - Date: 2026-10-12. Reconciled the three non-current source records identified
   by the generated SPEC-0008 runbook. Exact current bytes are committed at the
