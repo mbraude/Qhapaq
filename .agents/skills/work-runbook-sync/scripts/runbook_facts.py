@@ -42,6 +42,7 @@ from qhapaq_work import (  # noqa: E402
     rel,
     sections,
     source_kind,
+    source_material_sha256,
     source_state,
     utf8_stdio,
 )
@@ -190,12 +191,16 @@ class Facts:
             elif lowered == "plan approval":
                 first = next((l.strip() for l in lines if l.strip()), "")
                 rows = [(PATH_HASH_ROW_RE.match(l), n) for n, l in enumerate(lines)]
-                mismatches = [
-                    {"path": m.group(1), "line": start + n + 1}
-                    for m, n in rows
-                    if m and m.group(1) != path and not m.group(1).endswith("/runbook.md")
-                    and self.snap.sha(m.group(1)) != m.group(2)
-                ]
+                mismatches = []
+                for match, offset in rows:
+                    if not match or match.group(1) == path or match.group(1).endswith("/runbook.md"):
+                        continue
+                    dependency, basis, recorded = match.group(1), (match.group(2) or "bytes").lower(), match.group(3)
+                    actual = (source_material_sha256(dependency, self.snap.read(dependency))
+                              if basis == "material" and self.snap.read(dependency) is not None
+                              else self.snap.sha(dependency) if basis == "bytes" else None)
+                    if actual != recorded:
+                        mismatches.append({"path": dependency, "line": start + offset + 1})
                 dates = evidence_dates(lines, start)
                 if first.lower().startswith("absent"):
                     plan_approval = {"state": "absent", "line": start}

@@ -167,8 +167,9 @@ After explicit approval, record in the target's prescribed review section
 - the date;
 - exact scope and exclusions; and
 - the `work_hashes.py approval` block, pasted verbatim. Do not add other hash
-  prose; `evidence` checks every `material SHA-256` line and `| path | hash |`
-  row it finds.
+  prose; `evidence` checks every `material SHA-256` line and path/hash row it
+  finds. Two-column rows default to full-byte hashes; three-column rows may
+  label the hash basis as `bytes` or `material`.
 
 Only update lifecycle metadata and review-evidence sections excluded from the
 material hash. For a work item, set `status: complete` only when its acceptance

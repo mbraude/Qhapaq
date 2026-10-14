@@ -108,10 +108,13 @@ def cmd_verify(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
                 snap, source["path"], recorded, source.get("revision"), material)
             ok &= state == "current"
             by_material = bool(material) and q.has_material(source["path"])
+            legacy_material = (not material and q.WORK_ITEM_RE.match(source["path"]) is not None
+                               and actual != recorded and state == "current")
             if by_material:
                 recorded, actual = material, q.source_material_sha256(source["path"], snap.read(source["path"]) or b"")
             rows.append({"record": record, "path": source["path"], "revision": source.get("revision"),
-                         "basis": "material" if by_material else "bytes", "kind": kind,
+                         "basis": "material" if by_material else
+                         "material (legacy fallback)" if legacy_material else "bytes", "kind": kind,
                          "recorded": recorded, "actual": actual, "state": state})
     return rows, ok
 
@@ -328,12 +331,17 @@ def cmd_evidence(snap: q.Snapshot, paths: list[str], wanted: list[str]) -> tuple
                                  "path": item, "recorded": recorded, "actual": material, "state": state})
                 row = q.PATH_HASH_ROW_RE.match(line)
                 if row:
-                    path, recorded = row.group(1), row.group(2)
-                    actual = snap.sha(path)
+                    path, basis, recorded = row.group(1), (row.group(2) or "bytes").lower(), row.group(3)
+                    data = snap.read(path)
+                    if basis == "material":
+                        actual = q.source_material_sha256(path, data) if data is not None else None
+                    else:
+                        actual = snap.sha(path)
                     state = "missing" if actual is None else "current" if actual == recorded else "stale"
                     ok &= state == "current"
                     rows.append({"item": item, "section": heading, "line": line_no, "kind": "file",
-                                 "path": path, "recorded": recorded, "actual": actual, "state": state})
+                                 "path": path, "basis": basis, "recorded": recorded, "actual": actual,
+                                 "state": state})
     return rows, ok
 
 
@@ -400,7 +408,8 @@ def print_text(command: str, rows: list[dict]) -> None:
                 print(f"missing  {r['item']}")
                 continue
             detail = "" if r["state"] == "current" else f" recorded={r['recorded']} actual={r['actual']}"
-            print(f"{r['state']:<8} {r['item']}:{r['line']} [{r['section']}] {r['kind']} {r['path']}{detail}")
+            basis = f" ({r['basis']})" if r.get("basis") and r["basis"] != "bytes" else ""
+            print(f"{r['state']:<8} {r['item']}:{r['line']} [{r['section']}] {r['kind']} {r['path']}{basis}{detail}")
         if not rows:
             print("no recorded evidence hashes found")
 

@@ -15,7 +15,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 WORK = ROOT / "work"
-PATH_HASH_ROW_RE = re.compile(r"^\|\s*`([^`]+)`[^|]*\|\s*`([0-9a-f]{64})`\s*\|")
+PATH_HASH_ROW_RE = re.compile(
+    r"^\|\s*`([^`]+)`\s*\|(?:\s*(material|bytes)\s*\|)?\s*`([0-9a-f]{64})`\s*\|",
+    re.I,
+)
 MATERIAL_LINE_RE = re.compile(r"material\s+SHA-256[^`]*`([0-9a-f]{64})`", re.I)
 MATERIAL_EXCLUDED_SECTIONS = {"Validation and review", "Plan approval", "Delivery evidence and review"}
 REQUIREMENT_TAG_RE = re.compile(r"^\*\*\[(R-C?\d{4}-\d{3,})\]\*\*", re.I)
@@ -423,14 +426,11 @@ def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str 
     when its current material SHA-256 equals that value, as the workflow guide
     defines, and `stale` otherwise, regardless of byte changes.
 
-    For a work item recorded only by `content_sha256`:
-    `evidence-only` means the recorded bytes were recovered from Git and
-    differ from the current bytes only outside its material view (status line
-    and evidence sections).
-    `stale-material-unchanged` means the recorded bytes are not in history (an
-    uncommitted snapshot), but the item's material view at the recorded
-    revision equals the current one. Both are facts for the reviewing skill to
-    judge, never a substitute for `current`.
+    For a legacy work-item source without a recorded material hash, compare
+    recoverable recorded bytes (or the recorded revision when the bytes are
+    unavailable) with the current material view. Matching material is current:
+    lifecycle status and review-evidence changes do not invalidate a consumer.
+    A changed material view remains stale.
     """
     actual = snap.sha(path)
     if actual is None:
@@ -448,9 +448,9 @@ def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str 
             old = recover_bytes(path, recorded, revision)
             if old is not None:
                 if material_sha256(old) == current:
-                    cache[key] = "evidence-only"
+                    cache[key] = "current"
             elif revision:
                 base = git_bytes("show", f"{revision}:{path}")
                 if base is not None and material_sha256(base) == current:
-                    cache[key] = "stale-material-unchanged"
+                    cache[key] = "current"
     return cache[key]

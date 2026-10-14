@@ -145,9 +145,14 @@ findings remain material. Such a source is current when its
 material SHA-256 matches, even if its bytes changed: recording lifecycle status
 or review evidence on a cited item, reconciling a cited plan's sources
 without changing its scope, or recording approval on a cited readiness record
-does not make the citing record stale, while
-any material change does. Without `material_sha256`, `content_sha256` alone
-decides currency, as for every other source.
+does not make the citing record stale, while any material change does. For
+legacy work-item sources without `material_sha256`, the verifier compares the
+recoverable recorded bytes (or the recorded revision when those bytes are
+unavailable) using this same material definition. Matching material is
+current; changed or unverifiable material is stale. It reports when this
+legacy material fallback was used so records can be upgraded opportunistically
+without forcing reassessment or renewed approval for evidence-only changes.
+Other source types without `material_sha256` remain byte-verified.
 
 Process artifacts—this guide, [work/templates/](../../work/templates/), and
 the workflow skills and scripts under `.agents/`—govern how records are
@@ -184,6 +189,15 @@ Reconciliation evidence records the baseline, source changes, affected items,
 readiness impact, and unresolved blockers. Do not update a source hash merely
 to silence staleness. If reconciliation is incomplete, retain the old snapshot
 and state what remains; a partially reconciled plan is not current.
+
+Plan-approval evidence binds the material hash of an applicable readiness
+record, not its full file bytes. The plan approval must separately verify that
+the readiness record is currently approved, its own approval evidence matches
+its material content, and its recorded sources are current. This keeps
+assessment, lifecycle, and approval-evidence changes from invalidating an
+unchanged plan authorization while a change to readiness findings, scope, or
+other material content still requires renewed readiness and plan approval.
+Full-byte hashes remain appropriate for other material inputs and artifacts.
 
 ## 5. Lifecycle, review, and completion
 

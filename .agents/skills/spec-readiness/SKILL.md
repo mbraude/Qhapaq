@@ -41,6 +41,17 @@ Readiness record rules:
   changed material text. Describe an earlier or another record's limits as
   such ("the earlier `<scope>` readiness authorized planning only") so they
   are not read as this record's own.
+- Readiness and plan approval are independent gates. Do not make a plan's
+  temporarily unapproved status a material readiness finding or blocker; record
+  the separate plan-approval gate only in `Validation and approval`. Approve
+  readiness before plan approval. Once readiness is approved, recording plan
+  approval does not require a readiness edit or renewed readiness approval
+  unless the assessed source material or readiness findings actually change.
+- For legacy work-item sources without `material_sha256`, `work_hashes.py
+  verify` compares recoverable recorded bytes, or the recorded revision when
+  those bytes are unavailable, by material view. A current result labeled
+  `material (legacy fallback)` means the material matches and does not require
+  readiness reassessment. A stale result does.
 
 ## Procedure
 

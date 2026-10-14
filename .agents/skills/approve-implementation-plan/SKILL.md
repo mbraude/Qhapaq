@@ -55,6 +55,11 @@ items excluded from approval. A milestone is never approved for execution.
    slice's relevant requirements and capabilities. If it is absent, stale,
    blocked, or does not cover the selected scope, stop and request
    `spec-readiness`, followed by approval of that exact readiness record.
+   For an approved readiness record, verify its recorded sources with
+   `python .agents/scripts/work_hashes.py verify <readiness-record>` and
+   verify the latest approval section's material hash and evidence rows with
+   `python .agents/scripts/work_hashes.py evidence --section "<exact heading>" <readiness-record>`.
+   Do not rely on `assessment: approved` alone.
 5. Require selected items to be implementation items with
    `granularity: slice`, an unstarted status (`open` or `blocked`), an exact
    file manifest, governing requirements, test and validation expectations,
@@ -77,15 +82,20 @@ request planning or source reconciliation; the revised snapshot must be
 reviewed afresh.
 
 Compute for each item the material SHA-256 defined in the workflow guide, and
-full-byte SHA-256 hashes for every material input used to authorize it,
-including the owning plan, governing specification and requirements,
-applicable approved readiness record, and direct prerequisite items or existing
-artifacts relied upon. Use one run of the
+snapshot hashes for every material input used to authorize it, including the
+owning plan, governing specification and requirements, applicable approved
+readiness record, and direct prerequisite items or existing artifacts relied
+upon. Use its material SHA-256 for the readiness input so that approval
+evidence or lifecycle-only updates do not invalidate an unchanged readiness
+assessment; continue to verify that readiness is approved and its latest
+approval evidence and sources are current. Use full-byte SHA-256 for other
+inputs. Use one run of the
 [shared workflow scripts](../../scripts/README.md) for both:
 
 ```text
 python .agents/scripts/work_hashes.py material <item>...
-python .agents/scripts/work_hashes.py files <input>...
+python .agents/scripts/work_hashes.py material <readiness-record>
+python .agents/scripts/work_hashes.py files <other-input>...
 ```
 
 Never hand-write a hashing or material-normalization script.
@@ -94,8 +104,8 @@ Present before asking for approval:
 
 - the selected item IDs and titles and the milestones or items excluded;
 - the approved readiness scope and any pending dependencies;
-- each item's material hash and the paths plus full-byte hashes of its
-  material inputs;
+- each item's material hash, the readiness material hash, and the paths plus
+  full-byte hashes of its other material inputs;
 - each selected item's intended changes, tests, and exclusions; and
 - the files that approval evidence will modify.
 
@@ -118,8 +128,10 @@ declines, make no edits.
 
 After explicit approval, rerun the same `material` and `files` commands and
 check that the selected items and all material inputs still match the
-displayed hashes. If any material input changed, stop without recording
-approval and request renewed review.
+displayed hashes. Recheck the readiness record's approved status, source
+currentness, and latest approval evidence. If any material input changed or
+readiness approval is no longer valid, stop without recording plan approval
+and request renewed review.
 
 In each approved slice's existing `Plan approval` section, record that explicit
 approval was given in this session without inventing an approver name, the
@@ -130,6 +142,8 @@ Do not change material plan content or approval evidence for unselected items.
 
 Recompute the item material hashes and verify every recorded input hash with
 `python .agents/scripts/work_hashes.py evidence --section "Plan approval" <item>...`.
+Plan-approval evidence tables identify each row's basis as `bytes` or
+`material`; unmarked rows in older records remain full-byte hashes.
 Check
 the full worktree and report any concurrent change; do not stage, commit, push,
 or create a commit message.

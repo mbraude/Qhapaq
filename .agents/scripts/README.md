@@ -49,7 +49,7 @@ file is missing or a verification found a mismatch.
 | `sources PATH...` | Ready-to-paste frontmatter `sources` entries: `path`, `revision` (last commit touching the path, or `null` if untracked), `content_sha256` of the working-copy bytes, and, for decision and implementation work items, plans, and readiness records, `material_sha256`. Reports on stderr which paths differ from their revision. |
 | `material ITEM...` | The material SHA-256 defined in the workflow guide for the record's kind: a plan or readiness record uses its own definition, and work items and other files use the work-item definition. |
 | `verify RECORD...` | For a plan or readiness record, its `process_version` state (`current`, `process-missing`, or `process-outdated`), then each frontmatter source with one of the source states below. Work-item, plan, and readiness sources that record `material_sha256` are checked by material and marked `(material)`; process artifacts are marked `(process source)`; a cited runbook or diagram is `derived-view`. |
-| `evidence [--section NAME] ITEM...` | Every recorded `Material SHA-256` value (checked against the record kind's material hash) and `` | `path` | `sha256` | `` evidence row, checked against current bytes, with line numbers. |
+| `evidence [--section NAME] ITEM...` | Every recorded `Material SHA-256` value (checked against the record kind's material hash) and path/hash evidence rows. Two-column rows default to full-byte verification; three-column rows may specify `bytes` or `material` as the hash basis. |
 | `approval TARGET [--files PATH...]` | Verifies that a work item, plan, or readiness record is approvable (for a plan or readiness record, every recorded source and its `process_version` are current) and prints the ready-to-paste approval evidence block: an `Approved material SHA-256` line plus a path/hash table of `--files`. Exits 1 listing anything non-current, without printing a block. |
 | `diff [--max-lines N] RECORD...` | For each non-current source, a unified diff from the recorded bytes (recovered from Git history, or the recorded revision) to the working copy, with added and removed line counts. `--max-lines 0` prints everything; the default is 200 per source. |
 | `refresh [--stale] RECORD [PATH...] [--add PATH...] [--remove PATH...]` | The only writing command: rewrites the named recorded sources (or, with `--stale`, every non-current one) in the record's frontmatter in place with the current `revision`, `content_sha256`, and, for work items, plans, and readiness records, `material_sha256`; `--add` appends complete entries for new sources (refreshing any already recorded) and `--remove` deletes entries. Refuses unknown or missing paths, derived views, and a record naming itself, and writes nothing when any path is refused. Run it only after judging the delta. |
@@ -61,15 +61,9 @@ Source states are facts, not verdicts:
 
 | State | Meaning |
 | --- | --- |
-| `current` | Current bytes match the recorded hash, or, for a work-item, plan, or readiness source with `material_sha256`, the current material hash matches it. |
+| `current` | Current bytes match the recorded hash; a work-item, plan, or readiness source with `material_sha256` matches its current material hash; or a legacy work-item source without `material_sha256` has recoverable recorded bytes (or a recorded revision) whose material hash matches current content. Legacy fallback is reported as `material (legacy fallback)`. |
 | `missing` | The file does not exist. |
 | `stale` | Current bytes differ, and material content differs or cannot be compared; or a recorded `material_sha256` no longer matches. |
-| `evidence-only` | Only for a work-item source without `material_sha256`: the recorded bytes were recovered from Git history and differ from the current bytes only outside material content (status line or review evidence sections). |
-| `stale-material-unchanged` | Only for a work-item source without `material_sha256`: the recorded bytes cannot be recovered, but the material content at the recorded revision equals the current material content. |
-
-Whether `evidence-only` or `stale-material-unchanged` satisfies a record is
-the consuming skill's judgment.
-
 ### `spec_fingerprints.py`
 
 Prints `R-…@xxxxxx` fingerprints for requirement blocks using the
@@ -153,6 +147,9 @@ template with an ad hoc script, or generate a rendering script. `--check`
 returning findings is a validation result, not evidence of a script crash.
 
 ## Validation
+
+Run the shared workflow helper regression tests with
+`python -m unittest discover -s .agents/scripts/tests`.
 
 After changing a script, rerun it against the current repository and compare
 its output with the values already recorded in work records. Material hashes

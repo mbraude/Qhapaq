@@ -95,16 +95,15 @@ details instead of reading the script source.
 
 Never hand-render the runbook or write ad hoc rendering scripts; use `--write`.
 
-Source currentness is reported per recorded hash as `current`, `missing`,
-`stale`, `evidence-only` (the recorded bytes differ only in status or review
-evidence sections, so material content is unchanged), or
-`stale-material-unchanged` (recorded bytes cannot be recovered, but the
-material at the recorded revision matches). A work-item, plan, or readiness source that
-records `material_sha256` is judged only by that hash and is never
-`evidence-only` or `stale-material-unchanged`. Those two states arise only for
-older work-item records without it; they are facts for you to judge against
-the consuming record's rules, not automatic passes, and the record's next
-reassessment should add `material_sha256`. A plan or readiness record whose
+Source currentness is reported per recorded hash as `current`, `missing`, or
+`stale`. A work-item, plan, or readiness source that records
+`material_sha256` is judged by that hash. For a legacy work-item source without
+`material_sha256`, the shared verifier compares recoverable recorded bytes (or
+the recorded revision when those bytes are unavailable) by material hash;
+unchanged material is `current` and the output identifies the legacy fallback.
+This avoids reopening readiness or plan approval for status/evidence-only
+changes while still requiring reassessment when the source's material changes.
+A plan or readiness record whose
 `process_version` is missing or older than the guide's reports a
 `process_version` source in state `process-missing` or `process-outdated`; a
 cited runbook or diagram reports `derived-view`. Neither is current.
