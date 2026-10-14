@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-14T16:35:01Z"
+generated_at: "2026-10-14T21:04:12Z"
 branch: "master"
-head: "b21a3315f7a28c5494d1fb634102c2451a994eb9"
+head: "560375bddec035ddb012f749c069b28517f1c6ac"
 source_file_count: 88
-source_set_sha256: "e1deeef2eb4800f31f63f1e3ffe6c50a61aecebe6e5ac90d60665a8482f5fb96"
+source_set_sha256: "81a7554fb31f76f7b005f7b3a65e4d28049b6f9b6ba07103f3e6c1897db521f5"
 ---
 
 # SPEC-0008: Work Runbook
@@ -84,5 +84,5 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 - Plans with non-current sources: none.
 - Readiness records with non-current sources: 8 of 9.
 - Structural findings: none.
-- Working-copy inputs: `work/0008/implementation/I-0008-014-remaining-portable-specification-audit.md`.
+- Working-copy inputs: none (clean).
 - Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.

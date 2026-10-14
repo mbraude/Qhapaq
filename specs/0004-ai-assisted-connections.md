@@ -2,15 +2,15 @@
 
 > **Status:** Draft  
 > **Target:** Qhapaq v1 connection architecture  
-> **Last updated:** 2026-10-04
+> **Last updated:** 2026-10-14
 
 ## 1. Summary
 
 Users should be able to ask an MCP-capable AI system to connect a workspace to
 an internal or external resource and then create pipelines using that resource.
-Authentication mechanisms may include Microsoft Entra ID, OAuth, API keys,
-database credentials, certificates, managed identities, or future credential
-providers.
+**Illustrative example:** Authentication mechanisms may include Microsoft
+Entra ID, OAuth, API keys, database credentials, certificates, managed
+identities, or future credential providers.
 
 MCP can discover connector capabilities and propose an immutable connection
 setup plan. It cannot approve the plan, obtain credentials, or directly modify
@@ -91,7 +91,11 @@ descriptor declares:
 **[R-0004-005]** The descriptor is informational and does not grant access. The active host
 profile and local consent decision constrain every declared capability.
 
-## 6. Example Connector Families
+## 6. Normative Connector-Family Examples
+
+**Normative examples:** The connector-family requirements in this section
+define required boundaries for the named families without selecting or
+installing a connector.
 
 ### 6.1 Microsoft SharePoint
 
@@ -133,7 +137,8 @@ description does not approve its destinations, redirects, or requested scopes.
 
 ## 7. Workspace Requirements and Host Bindings
 
-A portable project catalog can declare a connection requirement:
+**Illustrative example:** A portable project catalog can declare a connection
+requirement:
 
 ```json
 {
@@ -152,8 +157,7 @@ A portable project catalog can declare a connection requirement:
 }
 ```
 
-**[R-0004-013]** This is a request, not a grant. The trusted user host profile binds the logical
-name to an approved resource:
+An illustrative host binding for the same logical name is:
 
 ```json
 {
@@ -180,23 +184,32 @@ name to an approved resource:
 }
 ```
 
+**[R-0004-013]** A portable project catalog connection requirement is a request, not a grant.
+The trusted user host profile binds the logical name to an approved resource.
+
 **[R-0004-014]** The normative schemas may refine these illustrative property names. Host policy
 may grant fewer operations or scopes than the project requests, never more
 without a separate explicit local action.
 
 ## 8. MCP Setup Surface
 
-**[R-0004-015]** The MCP server may expose tools equivalent to:
+**[R-0004-015]** The MCP server may expose a setup surface that can:
 
-- `connections.listConnectorTypes`: list installed connector descriptors.
-- `connections.plan`: create a setup plan without changing trusted state.
-- `connections.getStatus`: report sanitized connection readiness and health.
-- `connections.requestConsent`: ask the trusted local broker to present a plan.
-- `connections.test`: test an already approved connection without returning
-  resource payloads.
-- `operations.list`: discover operations available after connection binding.
+- List installed connector descriptors.
+- Create a setup plan without changing trusted state.
+- Report sanitized connection readiness and health.
+- Ask the trusted local broker to present a plan.
+- Test an already approved connection without returning resource payloads.
+- Discover operations available after connection binding.
 
-Names are illustrative until the MCP contract is specified.
+### 8.1 Illustrative MCP Tool Names
+
+**Illustrative example:** Tool names may include
+`connections.listConnectorTypes`, `connections.plan`,
+`connections.getStatus`, `connections.requestConsent`, `connections.test`,
+and `operations.list` until the MCP contract is specified.
+
+### 8.2 MCP Setup Responses
 
 **[R-0004-016]** The MCP response can include required configuration fields, scopes, connector
 installation status, administrative prerequisites, and a sanitized outcome. It
@@ -287,8 +300,8 @@ disclosure policy.
 
 1. **Execution permission:** whether a pipeline operation may access the
    resource.
-2. **Disclosure permission:** whether operation payloads may cross a host
-   boundary such as an MCP response.
+2. **Disclosure permission:** whether operation payloads may cross an MCP
+   response or another host boundary.
 
 **[R-0004-029]** MCP payload disclosure is denied by default. An allowed operation may still:
 
@@ -310,7 +323,9 @@ perform undeclared side effects.
 
 ## 13. Connection State and Reload
 
-**[R-0004-033]** A connection has a sanitized state such as:
+**[R-0004-033]** A connection has a sanitized state.
+
+**Normative examples:**
 
 - `requested`
 - `awaiting-user-consent`
@@ -334,8 +349,8 @@ credential is revoked.
 ## 14. Integration with MCP Clients
 
 **[R-0004-036]** Any MCP client that can start or connect to the Qhapaq MCP server can use this
-flow, including AI development environments and desktop assistants. Integration
-does not require client-specific access to credentials.
+flow. AI development environments and desktop assistants are within this
+scope. Integration does not require client-specific access to credentials.
 
 **[R-0004-037]** The client sees:
 
@@ -345,10 +360,10 @@ does not require client-specific access to credentials.
 - Sanitized connection status.
 - Available operation descriptors after approval.
 
-**[R-0004-038]** The trusted broker, not Claude, GitHub Copilot, or another model, sees and
-handles authentication artifacts. A client-specific installer may help register
-the Qhapaq MCP server, but the Qhapaq security model cannot depend solely on that
-client's tool-confirmation UI.
+**[R-0004-038]** The trusted broker, not the conversational model, sees and
+handles authentication artifacts. A client-specific installer may help
+register the Qhapaq MCP server, but the Qhapaq security model cannot depend
+solely on that client's tool-confirmation UI.
 
 ## 15. Audit and Revocation
 

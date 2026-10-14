@@ -2,7 +2,7 @@
 
 > **Status:** Draft  
 > **Scope:** Post-v1 product direction  
-> **Last updated:** 2026-10-04
+> **Last updated:** 2026-10-14
 
 ## 1. Purpose
 
@@ -57,16 +57,16 @@ these seams.
 ### 4.1 Direction
 
 **[R-0003-003]** Later releases should support provider packages that resolve secret material or
-obtain credentials from remote systems. Azure Key Vault is a primary example;
-other providers may include hosted cloud secret managers, HashiCorp Vault, and
-organization-specific credential brokers.
+obtain credentials from remote systems. **Normative examples:** Azure Key
+Vault is a primary provider; other providers may include hosted cloud secret
+managers, HashiCorp Vault, and organization-specific credential brokers.
 
 **[R-0003-004]** A secret store and a credential provider are related but distinct:
 
-- A **secret store provider** retrieves protected values such as API keys or
-  client secrets.
-- A **credential provider** obtains authentication material such as OAuth access
-  tokens and may use a secret store as one input.
+- A **secret store provider** retrieves protected values. **Normative
+  examples:** API keys and client secrets.
+- A **credential provider** obtains authentication material. **Normative
+  example:** an OAuth access token obtained with a secret store as one input.
 
 Keeping these contracts separate avoids exposing raw secrets to transports that
 need only a token.

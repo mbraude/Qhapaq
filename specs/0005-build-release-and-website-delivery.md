@@ -2,7 +2,7 @@
 
 > **Status:** Draft
 > **Target:** Qhapaq v1
-> **Last updated:** 2026-10-04
+> **Last updated:** 2026-10-14
 
 ## 1. Summary
 
@@ -71,8 +71,8 @@ This specification does not:
    replaceable as the channel pointer, and unsupported for production use. Each
    underlying build remains identifiable by commit and unique version.
 3. **Stable:** an immutable Semantic Version release created from a protected
-   `v<major>.<minor>.<patch>` tag. Prerelease tags such as
-   `v<major>.<minor>.<patch>-rc.<number>` may publish an explicitly marked
+   `v<major>.<minor>.<patch>` tag. **Normative example:** A
+   `v<major>.<minor>.<patch>-rc.<number>` tag may publish an explicitly marked
    prerelease.
 
 **[R-0005-002]** The event cadence is:
