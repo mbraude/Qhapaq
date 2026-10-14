@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-14T06:13:24Z"
+generated_at: "2026-10-14T07:16:53Z"
 branch: "master"
-head: "00a1da029b92a1a4bd4a451c3a11255dc4291fc9"
+head: "14d8acadbe40675d0f9bca86aaccbe41bc377d3f"
 source_file_count: 88
-source_set_sha256: "d94c0b9b4f9a7738338f296027500879ff2629b1a9b66180dc3adf29131f7304"
+source_set_sha256: "5bea9e5486b1db2c41123cd724cd1b25980cc331a3d3965ef357d80014fc2473"
 ---
 
 # SPEC-0008: Work Runbook
@@ -23,7 +23,7 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Next action
 
-**Next command:** `/spec-readiness 0008 scope=portable-core-example-audit-implementation`
+**Next command:** `/approve-implementation-plan 0008 item=I-0008-013`
 
 **Also eligible:** `/approve-implementation-plan 0008 item=I-0008-014`<br>`/approve-implementation-plan 0008 item=I-0008-015`<br>`/spec-readiness 0008 scope=language-contract-and-traceability-audit-implementation`<br>`/implementation-plan 0008 item=I-0008-007`<br>`/spec-readiness 0008 scope=conformance-contract-schemas-implementation`<br>`/implementation-plan 0007 item=I-0007-002`<br>`/implementation-plan 0007 item=I-0007-005`
 
@@ -48,11 +48,10 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 | [I-0008-010](implementation/I-0008-010-dotnet-policy-extraction.md) | Extract .NET policy and route its path instructions |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md) |
 | [I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) | Separate artifact-authoring policy from path instructions |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md) |
 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md)<br>[D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-010](implementation/I-0008-010-dotnet-policy-extraction.md)<br>[I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) |
-| READINESS SPEC-0008 portable-core-example-audit-implementation | Reassess I-0008-013 implementation readiness for R-0000-007, R-0001-011, R-0001-052, R-0002-017, and R-0008-005 across SPEC.md, SPEC-0001, and SPEC-0002; its approved snapshot is stale. | `/spec-readiness 0008 scope=portable-core-example-audit-implementation` | Gate - reassessment required | — | — |
-| [I-0008-013](implementation/I-0008-013-portable-core-example-audit.md) | Audit portable core requirements and examples |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>READINESS SPEC-0008 portable-core-example-audit-implementation<br>Existing plan approval has changed reviewed hashes and must be renewed after readiness is current. |
+| [I-0008-013](implementation/I-0008-013-portable-core-example-audit.md) | Audit portable core requirements and examples | `/approve-implementation-plan 0008 item=I-0008-013` | Open - ready | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | [I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples | `/approve-implementation-plan 0008 item=I-0008-014` | Open - ready | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit portable binding specification examples | `/approve-implementation-plan 0008 item=I-0008-015` | Open - ready | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
-| READINESS SPEC-0008 language-contract-and-traceability-audit-implementation | Reassess I-0008-016 implementation readiness for R-0000-007 and R-0008-004/005/016-018 across SPEC-0006 and SPEC-0008, including its scoped traceability guidance; the existing assessment is stale. | `/spec-readiness 0008 scope=language-contract-and-traceability-audit-implementation` | Gate - reassessment required | — | — |
+| READINESS SPEC-0008 language-contract-and-traceability-audit-implementation | Reassess implementation readiness for I-0008-016 covering R-0000-007, R-0008-004, R-0008-005, R-0008-016, R-0008-017, R-0008-018 and planned edits to specs/0006-dotnet-layered-architecture.md, specs/0008-multi-language-conformance-and-repository-organization.md. | `/spec-readiness 0008 scope=language-contract-and-traceability-audit-implementation` | Gate - reassessment required | — | Non-current sources: work/0008/plan.md(stale) |
 | [I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit .NET contract and traceability boundaries |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>READINESS SPEC-0008 language-contract-and-traceability-audit-implementation |
 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, language contracts, and examples |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[I-0008-013](implementation/I-0008-013-portable-core-example-audit.md)<br>[I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md)<br>[I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md)<br>[I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) |
 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker | `/implementation-plan 0008 item=I-0008-007` | Open - ready | — | [D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) |
@@ -63,8 +62,8 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 | [D-0007-013](../0007/decisions/D-0007-013-test-artifact-conventions.md) | Conformance loading, golden files and consumer test conventions |  | Complete | 2026-10-11 | — |
 | [D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md) | Portable conformance envelope and expected-result conventions |  | Complete | 2026-10-11 | — |
 | [I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) | Plan conformance profile and evidence delivery |  | Complete | 2026-10-13 | [D-0008-004](decisions/D-0008-004-initial-conformance-profiles.md)<br>[D-0008-005](decisions/D-0008-005-profile-version-compatibility.md)<br>[D-0008-006](decisions/D-0008-006-conformance-declarations.md)<br>[D-0008-007](decisions/D-0008-007-conformance-evidence.md)<br>[D-0008-010](decisions/D-0008-010-artifact-ownership-boundaries.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-012](decisions/D-0008-012-migration-sequencing.md)<br>[D-0008-013](decisions/D-0008-013-claim-publication.md)<br>[D-0007-009](../0007/decisions/D-0007-009-model-ownership.md)<br>[D-0007-011](../0007/decisions/D-0007-011-portable-helper-ownership.md)<br>[D-0007-013](../0007/decisions/D-0007-013-test-artifact-conventions.md)<br>[D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md) |
-| READINESS SPEC-0008 conformance-contract-schemas-implementation | Reassess I-0008-017 implementation readiness for the conformance-profile, declaration, assessment, evidence, publication, lifecycle, and release schemas under R-0005-034/035, R-0007-347, and R-0008-008-015/022-026; review governing capabilities in SPEC.md and SPEC-0001/0002/0005/0007/0008. No specification document is an edit target in this schema manifest. | `/spec-readiness 0008 scope=conformance-contract-schemas-implementation` | Gate - reassessment required | — | — |
-| [I-0008-017](implementation/I-0008-017-conformance-contract-schemas.md) | Deliver portable conformance contract schemas |  | Open - blocked | — | [I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md)<br>READINESS SPEC-0008 conformance-contract-schemas-implementation |
+| READINESS SPEC-0008 conformance-contract-schemas-implementation | Reassess implementation readiness for I-0008-017 across R-0005-034, R-0005-035, R-0007-347, R-0008-008 through R-0008-015, and R-0008-022 through R-0008-026; cover its seven schema outputs and schemas/README.md (its manifest has no specification-file edits). | `/spec-readiness 0008 scope=conformance-contract-schemas-implementation` | Gate - reassessment required | — | — |
+| [I-0008-017](implementation/I-0008-017-conformance-contract-schemas.md) | Deliver portable conformance contract schemas |  | Open - blocked | — | [I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) |
 | [I-0008-018](implementation/I-0008-018-profile-definitions.md) | Deliver initial profile definitions and evidence matrices |  | Open - blocked | — | [I-0008-017](implementation/I-0008-017-conformance-contract-schemas.md) |
 | [I-0007-002](../0007/implementation/I-0007-002-conformance-tooling.md) | Shared vector tooling and golden-file procedures | `/implementation-plan 0007 item=I-0007-002` | Open - ready | — | [D-0007-013](../0007/decisions/D-0007-013-test-artifact-conventions.md)<br>[D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) |
 | [I-0007-005](../0007/implementation/I-0007-005-validation-foundation-artifacts.md) | Schema profile, parsing, patterns, formats and diagnostic artifacts | `/implementation-plan 0007 item=I-0007-005` | Open - ready | — | [D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) |
@@ -80,9 +79,9 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Snapshot notes
 
-- Rows: 46 (24 Complete, 3 Gate - reassessment required, 14 Open - blocked, 5 Open - ready).
+- Rows: 45 (24 Complete, 2 Gate - reassessment required, 13 Open - blocked, 6 Open - ready).
 - Plans with non-current sources: none.
-- Readiness records with non-current sources: 6 of 9.
+- Readiness records with non-current sources: 5 of 9.
 - Structural findings: none.
 - Working-copy inputs: none (clean).
 - Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.
