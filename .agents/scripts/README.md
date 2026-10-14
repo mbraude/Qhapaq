@@ -26,11 +26,17 @@ which runs the locked build and unit tests and so is not read-only.
   output, stop and report it; never substitute a guessed value.
 - **No persistent state.** Scripts read exact current bytes on every run and
   keep no cache, so their output is invocation-local evidence only.
+- **Use the documented CLI exactly.** Run from the repository root. If a
+  flag or argument order is unclear, inspect that script's `--help` before
+  invoking it; do not infer one helper's syntax from another. Mutually
+  exclusive output modes replace one another, rather than accumulating.
 
 ## Scripts
 
-All paths are repository-relative and printed with `/` separators. Add
-`--json` before the command for machine-readable output.
+All paths are repository-relative and printed with `/` separators. Use
+Windows path separators in PowerShell invocations. Where supported, `--json`
+selects machine-readable output; its position follows the individual script's
+CLI. For `work_hashes.py`, place it before the subcommand.
 
 ### `work_hashes.py`
 
@@ -107,6 +113,30 @@ The importable library behind the scripts: frontmatter and level-2 section
 parsing, exact-byte hashing, material hashing, and requirement fingerprints
 that match the [`spec-trace-check`](../skills/spec-trace-check/SKILL.md) block
 grammar.
+
+## Runbook facts helper
+
+[`runbook_facts.py`](../skills/work-runbook-sync/scripts/runbook_facts.py)
+belongs to the [runbook synchronization skill](../skills/work-runbook-sync/SKILL.md).
+Its output modes are mutually exclusive. Use separate invocations with the
+same primary and included specifications:
+
+```powershell
+python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --open
+python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --rows
+python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --check
+```
+
+Do not combine `--open`, `--rows`, `--json`, or `--check`. For a coordinated
+scope, add `--include 0008` to each invocation. Transitive prerequisites are
+included automatically without that option.
+
+`--rows` emits a six-column skeleton, not a complete runbook. Preserve its
+settled rows, links, prerequisites, and dependency order. Fill the open-row
+placeholders using the skill's judgments; put additional blockers inside the
+existing final cell, separated with `<br>`, not in a new column. Derive summary
+counts from the final rows instead of transcribing estimates. `--check`
+returning findings is a validation result, not evidence of a script crash.
 
 ## Validation
 

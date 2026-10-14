@@ -28,6 +28,18 @@ python .agents/skills/work-runbook-sync/scripts/runbook_facts.py <primary-spec-i
 evidence) whose rows it can render exactly; drop it only when you need their
 facts. Two further modes, each a separate invocation over the same inputs:
 
+The output modes `--open`, `--rows`, `--json`, and `--check` are mutually
+exclusive. Replace the mode flag for each invocation; do not append a second
+mode to the initial command. For example, from the repository root:
+
+```powershell
+python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --open
+python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --rows
+python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --check
+```
+
+Keep the same primary ID and `--include` arguments in all three invocations.
+
 - `--rows` prints the table skeleton: exact rows for settled items and rows
   with `<command>` and `<status>` placeholders, in dependency order, for open
   items. Fill only the placeholders and any description you must judge.
@@ -194,6 +206,10 @@ to match a runbook, execute work, approve an outcome, commit, or push.
     rendered content other than generation metadata are unchanged, report a
     no-op rather than rewriting the file solely to change its timestamp,
     branch, `HEAD`, or source digest.
+    Preserve the skeleton's six columns when filling placeholders or adding
+    blockers: append blocker text within the existing final cell using `<br>`,
+    never an extra `|` delimiter. Compute summary item, gate, and status counts
+    from the final rendered rows, not manually maintained totals.
 11. Run the helper with `--check` against the written runbook and resolve
     every finding; it covers table links, item coverage, dependency order,
     source metadata, and command skill names. Confirm the absence of
