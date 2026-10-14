@@ -9,8 +9,8 @@ sources:
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
   - path: specs/0005-build-release-and-website-delivery.md
-    revision: ffbae7cb66e4773e57a646822bb0b03b614ca200
-    content_sha256: 8259be3d7e256d77ab18e96c35906ce64c01d25eb7a22f45a911c0727d1a1679
+    revision: cb6a46d81b52b3728d67008e9ffbda6da61f4815
+    content_sha256: 8bdd26b4572fa99041587451e580818e9a540d4d64d5a2484d856b867f8345e9
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 8fbf725e0fda9697c3eff44435481d7755141272
     content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
@@ -18,8 +18,8 @@ sources:
     revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
     content_sha256: ca889260cd2445fc3a285c978389d0d31a0541d0d2b2d5830af47cfc6b73c2f4
   - path: specs/0004-ai-assisted-connections.md
-    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: 39625b975496c96ae55c21785fd632f75d10096349acc82a4d277fc93c698e57
+    revision: cb6a46d81b52b3728d67008e9ffbda6da61f4815
+    content_sha256: 7c0df89cec4bf526e22137718f80ee562b424a71efbe1856bc6337ccd63ca07b
   - path: specs/0006-dotnet-layered-architecture.md
     revision: ff91861578d0d4368836d05d1039bbd93fca4efa
     content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
@@ -92,6 +92,26 @@ sources:
   committed at the baseline revision above. Other plan sources and all
   decisions, implementation milestones, readiness records, and cross-plan
   prerequisites remain unchanged.
+- Date: 2026-10-14. Reviewed the SPEC-0004 and SPEC-0005 editorial example
+  classifications committed with I-0008-014. SPEC-0004 labels its summary and
+  JSON/tool-name examples, separates illustrative host-binding and MCP-name
+  examples from normative requirements, and clarifies normative example
+  scope. SPEC-0005 labels the prerelease-tag form as a normative example.
+  These changes preserve the governed behavior; no SPEC-0007 requirement or
+  implementation outcome is amended.
+- The changed SPEC-0004 fingerprints are R-0004-013, R-0004-015,
+  R-0004-028, R-0004-033, R-0004-036, and R-0004-038; the changed SPEC-0005
+  fingerprint is R-0005-001. These are not requirements governing an existing
+  SPEC-0007 outcome. D-0007-014's R-0004-041 lifecycle decision and its
+  approved material scope are unaffected. I-0007-029 and I-0007-010 retain
+  their existing future host/consent boundaries; I-0007-031 and I-0007-032
+  retain their current release obligations and milestones. No item scope,
+  status, dependency, phase membership, readiness conclusion, or plan approval
+  changes. Historical approval evidence that records prior full-byte source
+  hashes remains historical and is not rewritten or renewed.
+- Advanced only the reviewed SPEC-0004 and SPEC-0005 plan source snapshots to
+  their exact bytes committed at `cb6a46d81b52b3728d67008e9ffbda6da61f4815`.
+  Other plan sources and work records remain unchanged.
 
 - Date: 2026-10-12. Reconciled the SPEC-0006 and workflow-guide source drift
   exposed while resolving SPEC-0008's transitive prerequisites. Exact current
