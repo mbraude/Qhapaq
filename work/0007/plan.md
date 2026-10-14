@@ -3,8 +3,8 @@ spec: SPEC-0007
 process_version: 1
 sources:
   - path: SPEC.md
-    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
-    content_sha256: fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e
+    revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
+    content_sha256: 998108318c82d9c8c5cb5e70fb99933e3e7d0678e5c98adba8cda8086ff0eed6
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
@@ -15,8 +15,8 @@ sources:
     revision: 8fbf725e0fda9697c3eff44435481d7755141272
     content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
   - path: specs/0002-operation-catalogs-and-host-configuration.md
-    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca
+    revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
+    content_sha256: ca889260cd2445fc3a285c978389d0d31a0541d0d2b2d5830af47cfc6b73c2f4
   - path: specs/0004-ai-assisted-connections.md
     revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
     content_sha256: 39625b975496c96ae55c21785fd632f75d10096349acc82a4d277fc93c698e57
@@ -24,8 +24,8 @@ sources:
     revision: ff91861578d0d4368836d05d1039bbd93fca4efa
     content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
   - path: specs/0001-core-pipeline-model.md
-    revision: 34fbe88fb9d4857adc6db5390cc623c210c71540
-    content_sha256: 38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e
+    revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
+    content_sha256: 1ccc40bf3335b1b957b679e5d8439a2abcfebf3a4338583e8aaa024340e7400e
   - path: docs/architecture/decisions/0001-use-microsoft-dependency-injection.md
     revision: c9c41e16fa3fd4df2aa6c26b8341c46c06b40018
     content_sha256: 663bc361c4799b69e700c6161311d60e010b89c0f65a6065be5acf9d20358173
@@ -67,6 +67,31 @@ sources:
 # SPEC-0007: Work Plan
 
 ## Source and workflow reconciliation
+
+- Date: 2026-10-14. Reviewed the three specification changes committed in
+  `93aeb7744f57ad9638d017678d9dc03be9e150e6`, following the completed
+  I-0008-013 example audit. SPEC.md and SPEC-0001 now classify their .NET
+  operation-interface examples as illustrative and label the retry/timeout
+  example in R-0001-011 normative. SPEC-0002 moves catalog, host-profile, and
+  profile-selection examples outside requirement blocks, clarifies that sample
+  profile values establish no defaults, and separates the open candidate
+  provider set from normative requirements. The changes preserve the existing
+  portable behavior and conformance obligations; no SPEC-0007 requirement or
+  implementation outcome is amended.
+- The affected fingerprints are R-0000-002@bcf15e, R-0001-001@899621,
+  R-0001-011@66b88c, R-0002-013@5bb953, R-0002-016@6c0589,
+  R-0002-017@26d150, R-0002-018@3cda5b, and R-0002-023@566cfd.
+  Repository searches found no references to those requirement IDs in
+  SPEC-0007's work items and no remaining references carrying their prior
+  fingerprints. Accordingly, no SPEC-0007 item scope, requirement coverage,
+  phase membership, dependency, readiness gate, or plan-approval material
+  changes. Existing approvals remain evidence for their exact historical
+  snapshots; this source reconciliation does not renew them or authorize
+  implementation.
+- Advanced only the three reviewed source snapshots below to the exact bytes
+  committed at the baseline revision above. Other plan sources and all
+  decisions, implementation milestones, readiness records, and cross-plan
+  prerequisites remain unchanged.
 
 - Date: 2026-10-12. Reconciled the SPEC-0006 and workflow-guide source drift
   exposed while resolving SPEC-0008's transitive prerequisites. Exact current
