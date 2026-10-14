@@ -106,7 +106,8 @@ class Facts:
                 continue
             path = source["path"]
             self.use(path)
-            state = source_state(self.snap, path, source.get("content_sha256"), source.get("revision"))
+            state = source_state(self.snap, path, source.get("content_sha256"), source.get("revision"),
+                                 source.get("material_sha256"))
             result.append({"path": path, "state": state})
         return result
 

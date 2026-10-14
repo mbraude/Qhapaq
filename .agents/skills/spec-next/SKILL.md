@@ -46,7 +46,8 @@ Do not implement future slices, commit, publish, or infer approval.
    not duplicated normative text.
 7. Reconcile effects using `work-plan-sync`, bounded to this decision and its
    affected downstream work. Do not resolve other decisions during reconciliation.
-   Record real source snapshots from `work_hashes.py sources`, readiness
+   Record real source snapshots from `work_hashes.py sources` (keeping any
+   emitted `material_sha256`), readiness
    impact, and remaining blockers.
 8. Check item acceptance criteria and workflow structure, then invoke
    [spec-trace-check](../spec-trace-check/SKILL.md) and applicable documented

@@ -56,7 +56,8 @@ specification text unless the user explicitly includes that migration.
 7. Update phase membership and reconciliation evidence. Compute real SHA-256
    source snapshots and full Git revisions with
    `python .agents/scripts/work_hashes.py sources <path>...`, never by hand or
-   with ad hoc scripts. Advance snapshots only for
+   with ad hoc scripts; keep the `material_sha256` it emits for work-item
+   sources. Advance snapshots only for
    completely reviewed inputs; retain stale records and explain remaining
    reconciliation if blocked. Do not hash plans as their own sources.
 8. Check unique IDs/ownership, retained coverage, references, required sections,

@@ -42,10 +42,12 @@ def cmd_sources(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
     rows = []
     for path in paths:
         tracked = q.is_tracked(path)
+        data = snap.read(path)
         rows.append({
             "path": path,
             "revision": q.last_commit(path) if tracked else None,
             "content_sha256": snap.sha(path),
+            "material_sha256": q.material_sha256(data) if data is not None and q.WORK_ITEM_RE.match(path) else None,
             "working_copy_differs": path in dirty,
         })
     return rows, all(r["content_sha256"] for r in rows)
@@ -74,9 +76,13 @@ def cmd_verify(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
                 continue
             actual = snap.sha(source["path"])
             recorded = source.get("content_sha256")
-            state = q.source_state(snap, source["path"], recorded, source.get("revision"))
+            material = source.get("material_sha256")
+            state = q.source_state(snap, source["path"], recorded, source.get("revision"), material)
             ok &= state == "current"
+            if material and q.WORK_ITEM_RE.match(source["path"]):
+                recorded, actual = material, q.material_sha256(snap.read(source["path"]) or b"")
             rows.append({"record": record, "path": source["path"], "revision": source.get("revision"),
+                         "basis": "material" if material and q.WORK_ITEM_RE.match(source["path"]) else "bytes",
                          "recorded": recorded, "actual": actual, "state": state})
     return rows, ok
 
@@ -123,13 +129,16 @@ def print_text(command: str, rows: list[dict]) -> None:
         for r in rows:
             revision = r["revision"] or "null"
             print(f"  - path: {r['path']}\n    revision: {revision}\n    content_sha256: {r['content_sha256'] or 'MISSING'}")
+            if r["material_sha256"]:
+                print(f"    material_sha256: {r['material_sha256']}")
         notes = [r["path"] for r in rows if r["working_copy_differs"]]
         if notes:
             print("# working copy differs from revision (hash covers working-copy bytes): " + ", ".join(notes), file=sys.stderr)
     elif command == "verify":
         for r in rows:
             detail = "" if r["state"] in ("current", "malformed", "record-missing") else f" recorded={r['recorded']} actual={r['actual']}"
-            print(f"{r['state']:<8} {r['record']} -> {r['path']}{detail}")
+            basis = " (material)" if r.get("basis") == "material" else ""
+            print(f"{r['state']:<8} {r['record']} -> {r['path']}{basis}{detail}")
     elif command == "evidence":
         for r in rows:
             if r["kind"] == "item-missing":

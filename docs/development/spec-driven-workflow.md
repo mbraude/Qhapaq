@@ -119,7 +119,7 @@ A [plan](../../work/templates/plan.md) has frontmatter:
 | Field | Meaning |
 | --- | --- |
 | `spec` | Owning specification ID |
-| `sources` | List of `{path, revision, content_sha256}` records |
+| `sources` | List of `{path, revision, content_sha256}` records; work-item sources add `material_sha256` |
 
 For each authoritative input actually used, `path` is repository-relative,
 `revision` is the full Git commit hash supplying the baseline, and
@@ -128,6 +128,14 @@ uncommitted input, use `revision: null` and record why in reconciliation evidenc
 For an edited input, keep the committed baseline revision and hash the reviewed
 working-copy bytes. Never claim uncommitted text is identical to a commit.
 Source records exclude the plan itself and generated views.
+
+When a source is a decision or implementation work item, also record its
+`material_sha256`, computed as defined in
+[section 5](#5-lifecycle-review-and-completion). Such a source is current when its
+material SHA-256 matches, even if its bytes changed: recording lifecycle status
+or review evidence on a cited item does not make the citing record stale, while
+any material change does. Without `material_sha256`, `content_sha256` alone
+decides currency, as for every other source.
 
 Include the governing specification, relevant cross-specification sources,
 ADRs, and engineering policies used to plan the work. Include artifacts such
@@ -250,6 +258,8 @@ Readiness neither publishes a contract nor relaxes a rollout gate.
 
 An approved readiness record applies only to its assessed source snapshot.
 Changed sources require impact review and a new assessment for affected scope.
+A work-item source whose recorded `material_sha256` still matches has not
+changed for this purpose (see [section 4](#4-plan-contract-and-source-snapshots)).
 Preserve earlier evidence in Git; do not silently carry approval onto new text.
 
 Derived conclusions, not manually stored statuses:

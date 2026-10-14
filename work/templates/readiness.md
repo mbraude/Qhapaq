@@ -6,6 +6,10 @@ sources:
   - path: "<repository-relative assessed input>"
     revision: null
     content_sha256: "<SHA-256 of exact assessed file bytes>"
+  - path: "<work item, for example work/NNNN/implementation/I-NNNN-NNN-name.md>"
+    revision: null
+    content_sha256: "<SHA-256 of exact assessed file bytes>"
+    material_sha256: "<material SHA-256; governs currency of work-item sources>"
 ---
 
 # <Specification ID>: <Scope> Readiness

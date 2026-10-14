@@ -40,9 +40,9 @@ file is missing or a verification found a mismatch.
 | Command | Output |
 | --- | --- |
 | `files PATH...` | Full-byte SHA-256 of each file. |
-| `sources PATH...` | Ready-to-paste frontmatter `sources` entries: `path`, `revision` (last commit touching the path, or `null` if untracked), and `content_sha256` of the working-copy bytes. Reports on stderr which paths differ from their revision. |
+| `sources PATH...` | Ready-to-paste frontmatter `sources` entries: `path`, `revision` (last commit touching the path, or `null` if untracked), `content_sha256` of the working-copy bytes, and, for decision and implementation work items, `material_sha256`. Reports on stderr which paths differ from their revision. |
 | `material ITEM...` | The material SHA-256 defined in the workflow guide. |
-| `verify RECORD...` | Each record's frontmatter `sources` with one of the source states below. |
+| `verify RECORD...` | Each record's frontmatter `sources` with one of the source states below; work-item sources that record `material_sha256` are checked by material and marked `(material)`. |
 | `evidence [--section NAME] ITEM...` | Every recorded `Material SHA-256` value and `` | `path` | `sha256` | `` evidence row, checked against current bytes, with line numbers. |
 
 Paths may use globs, for example
@@ -52,11 +52,11 @@ Source states are facts, not verdicts:
 
 | State | Meaning |
 | --- | --- |
-| `current` | Current bytes match the recorded hash. |
+| `current` | Current bytes match the recorded hash, or, for a work-item source with `material_sha256`, the current material hash matches it. |
 | `missing` | The file does not exist. |
-| `stale` | Current bytes differ, and material content differs or cannot be compared. |
-| `evidence-only` | The recorded bytes were recovered from Git history and differ from the current bytes only outside material content (status line or review evidence sections). |
-| `stale-material-unchanged` | The recorded bytes cannot be recovered, but the material content at the recorded revision equals the current material content. |
+| `stale` | Current bytes differ, and material content differs or cannot be compared; or a recorded `material_sha256` no longer matches. |
+| `evidence-only` | Only for a work-item source without `material_sha256`: the recorded bytes were recovered from Git history and differ from the current bytes only outside material content (status line or review evidence sections). |
+| `stale-material-unchanged` | Only for a work-item source without `material_sha256`: the recorded bytes cannot be recovered, but the material content at the recorded revision equals the current material content. |
 
 Whether `evidence-only` or `stale-material-unchanged` satisfies a record is
 the consuming skill's judgment.

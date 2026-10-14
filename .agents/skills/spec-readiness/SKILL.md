@@ -36,7 +36,9 @@ resolve new product decisions.
    prerequisite artifacts. Distinguish specified cases from published vectors.
    Do not require unrelated release artifacts or relax specified gates.
 5. Populate or revise the scope's readiness record with exact source snapshots
-   from `python .agents/scripts/work_hashes.py sources <path>...`,
+   from `python .agents/scripts/work_hashes.py sources <path>...`, keeping the
+   `material_sha256` it emits for work-item sources so later status or
+   evidence edits to those items do not stale the record,
    findings, exclusions, validation, and blockers. Preserve prior approval
    history in Git; material changes need reassessment. Report newly discovered
    decision work for reconciliation rather than closing it implicitly.

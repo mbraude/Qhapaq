@@ -321,12 +321,18 @@ def recover_bytes(path: str, sha: str, revision: str | None, depth: int = 50) ->
     return None
 
 
-def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str | None = None) -> str:
+def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str | None = None,
+                 material: str | None = None) -> str:
     """Classify a recorded source snapshot against current bytes.
 
-    `evidence-only` means the source is a work item whose recorded bytes were
-    recovered from Git and differ from the current bytes only outside its
-    material view (status line and evidence sections).
+    A work-item source that records `material_sha256` is `current` when its
+    current material SHA-256 equals that value, as the workflow guide defines,
+    and `stale` otherwise, regardless of byte changes.
+
+    For a work item recorded only by `content_sha256`:
+    `evidence-only` means the recorded bytes were recovered from Git and
+    differ from the current bytes only outside its material view (status line
+    and evidence sections).
     `stale-material-unchanged` means the recorded bytes are not in history (an
     uncommitted snapshot), but the item's material view at the recorded
     revision equals the current one. Both are facts for the reviewing skill to
@@ -335,6 +341,8 @@ def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str 
     actual = snap.sha(path)
     if actual is None:
         return "missing"
+    if material and WORK_ITEM_RE.match(path):
+        return "current" if material_sha256(snap.read(path) or b"") == material else "stale"
     if actual == recorded:
         return "current"
     key = (path, recorded, revision)

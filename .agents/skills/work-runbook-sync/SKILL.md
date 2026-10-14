@@ -42,8 +42,12 @@ Source currentness is reported per recorded hash as `current`, `missing`,
 `stale`, `evidence-only` (the recorded bytes differ only in status or review
 evidence sections, so material content is unchanged), or
 `stale-material-unchanged` (recorded bytes cannot be recovered, but the
-material at the recorded revision matches). The last two are facts for you to
-judge against the consuming record's rules, not automatic passes.
+material at the recorded revision matches). A work-item source that records
+`material_sha256` is judged only by that hash and is never `evidence-only` or
+`stale-material-unchanged`. Those two states arise only for older records
+without it; they are facts for you to judge against the consuming record's
+rules, not automatic passes, and the record's next reassessment should add
+`material_sha256`.
 
 It reads exact working-copy bytes and reports, with line references: transitive
 item selection and owners; plan and readiness source currentness; dependency
