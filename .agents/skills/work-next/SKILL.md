@@ -8,16 +8,24 @@ argument-hint: "<primary-spec-id>"
 
 ## Contract
 
-Read [AGENTS.md](../../../AGENTS.md), the
-[workflow guide](../../../docs/development/spec-driven-workflow.md), and
+Apply [AGENTS.md](../../../AGENTS.md) and the
+[workflow guide](../../../docs/development/spec-driven-workflow.md), reading
+each only if it is not already in the current context, and read
 `work/<primary-id>/runbook.md` when it exists. Execute at most one runbook row
 and its optional delivery action. Do not bypass source currentness, readiness,
 plan approval, human review, validation, dependency, branch, commit, or push
 gates.
 
 This skill orchestrates existing skills; it does not reproduce their
-procedures. A row may stop for a consequential decision or explicit approval.
-That stop is the correct outcome, not permission to continue to another row.
+procedures. Run every delegated skill inline in the current agent, never as a
+subagent or background task, so the context already loaded here and the
+retained synchronization facts are reused rather than rebuilt. A row may stop
+for a consequential decision or explicit approval. That stop is the correct
+outcome, not permission to continue to another row.
+
+Synchronize the runbook at most twice per invocation: once before selection
+and once after the selected row and any delivery action change repository
+state. Do not add a refresh solely to record an intermediate state.
 
 ## Procedure
 
@@ -61,14 +69,12 @@ That stop is the correct outcome, not permission to continue to another row.
      review gate.
    - `approve-implementation-plan` and `approve` obtain their own explicit
      human approval and must not infer it from this orchestration request.
-5. When the delegated action changes repository state, invoke
-   `work-runbook-sync` again so the table records the resulting persisted and
-   derived status. This refresh is part of the selected row, not a second work
-   item. If the delegated action makes no changes, keep the current runbook and
-   report the blocker or requested input.
+5. If the delegated action makes no changes, keep the current runbook and
+   report the blocker or requested input; skip steps 6 to 8.
 6. Offer a delivery choice only when the selected action produced a coherent,
    reviewable worktree outcome and the delegated workflow permits delivery.
-   Use `ask_user` once with the applicable choices:
+   Ask before refreshing the runbook, so the single refresh in step 8 can be
+   placed correctly. Use `ask_user` once with the applicable choices:
    - `Leave changes for review`
    - `Build and test only`
    - `Approve only`
@@ -95,14 +101,26 @@ That stop is the correct outcome, not permission to continue to another row.
      [commit-and-push](../commit-and-push/SKILL.md).
 
    Pass the exact work-item or readiness target and applicable validation mode.
+   For `Commit` and `Commit and push`, perform the step 8 refresh first.
    Existing approval skills decide whether full build and unit tests are
    mandatory for the actual change. Ordinary commit skills validate the whole
    selected snapshot. Never offer or pass a validation skip that repository
    policy forbids.
-8. After a successful approval or delivery action changes lifecycle evidence,
-   invoke `work-runbook-sync` once more. Report the updated row, completion
-   date when available, newly unlocked row, and its copyable command. Do not
-   execute the newly unlocked row in the same invocation.
+8. Invoke `work-runbook-sync` exactly once more so the table records the
+   resulting persisted and derived status. This refresh is part of the
+   selected row, not a second work item. Place it as follows:
+   - `Commit` or `Commit and push`: refresh before invoking the commit skill,
+     so the commit includes the refreshed runbook.
+   - Approval variants: refresh after the approval skill records lifecycle
+     evidence. When that skill also commits, leave the refreshed runbook
+     uncommitted for the next delivery; do not start another commit round
+     solely for it.
+   - `Leave changes for review`, `Build and test only`, or no delivery choice:
+     refresh after the selected action and any validation.
+
+   Report the updated row, completion date when available, newly unlocked
+   row, and its copyable command. Do not execute the newly unlocked row in the
+   same invocation.
 
 ## Output and stop
 

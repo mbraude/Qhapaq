@@ -8,11 +8,39 @@ argument-hint: "<primary-spec-id> [include=<spec-id,...>]"
 
 ## Contract
 
-Read [AGENTS.md](../../../AGENTS.md), the
-[workflow guide](../../../docs/development/spec-driven-workflow.md), the
-[runbook template](../../../work/templates/runbook.md), every selected plan,
-and all transitive prerequisites. Generate or refresh
+Apply [AGENTS.md](../../../AGENTS.md), the
+[workflow guide](../../../docs/development/spec-driven-workflow.md), and the
+[runbook template](../../../work/templates/runbook.md); read each only if it is
+not already in the current context. Resolve every selected plan and all
+transitive prerequisites through the facts helper below, reading source
+excerpts only where a judgment requires them. Generate or refresh
 `work/<primary-id>/runbook.md`.
+
+## Facts helper
+
+Run the read-only helper once per invocation before any other resolution:
+
+```text
+python .agents/skills/work-runbook-sync/scripts/runbook_facts.py <primary-spec-id> [--include <spec-id> ...]
+```
+
+It reads exact working-copy bytes and reports, with line references: transitive
+item selection and owners; plan and readiness source currentness; dependency
+state; a stable topological order with cycle detection; plan-approval state and
+changed reviewed hashes; manifest specification edits; candidate readiness
+records and their coverage of those edits; completion-date evidence; the
+source-set digest; working-copy inputs; and structural findings. It keeps no
+persistent state and grants no trust across invocations.
+
+Treat its output as the retained input snapshot for this invocation. Do not
+re-derive what it reports by reading whole plans, items, or readiness records,
+or by writing ad hoc hash or parsing scripts. Read only the line-referenced
+excerpts that a judgment requires, such as readiness coverage or
+planning-only scope, synthetic gates, weak date evidence, or plan-approval
+currency. Its hints, including `planning-only-language`, are prompts for that
+judgment, not verdicts. If the helper fails or reports something you cannot
+reconcile with the source excerpt, stop and report it; never fall back to
+guessed values.
 
 The runbook is a tracked, derived view. Plans, work items, readiness records,
 approval evidence, and authoritative sources remain the status and eligibility
@@ -52,8 +80,9 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    unchanged input merely because another row consumes it. Before writing,
    confirm that retained working-copy inputs still identify the current bytes;
    if a relevant input changed during synchronization, discard the affected
-   retained results and resolve them again. This reuse is invocation-local and
-   creates no persistent cache or cross-invocation trust.
+   retained results and resolve them again, rerunning the facts helper when
+   needed. This reuse is invocation-local and creates no persistent cache or
+   cross-invocation trust.
 3. Build a stable dependency order. Prerequisites precede dependents. Among
    otherwise independent work, order by:
    1. freshness or structural repair gates;
@@ -122,7 +151,10 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    transitive prerequisite owners, generation time, branch, `HEAD`, source-file
    count, and a SHA-256 digest over the sorted repository-relative paths and
    exact bytes of every plan, item, readiness record, and authoritative source
-   used. Exclude the runbook itself. Label working-copy snapshots accurately.
+   used. Exclude the runbook itself. Use the facts helper's
+   `source_file_count` and `source_set_sha256`, whose rule is SHA-256 over the
+   sorted lines `<path>\n<SHA-256 of exact bytes or MISSING>\n`. Label
+   working-copy snapshots accurately.
 9. Set `Next command` above the table to the first safe actionable row. A
    command is safe only if every prerequisite for that command—not merely for
    the eventual implementation—is satisfied. In particular, never recommend

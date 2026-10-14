@@ -8,11 +8,11 @@ sources:
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
     content_sha256: b526f789b155b5ccb02eb5863854b9d82963a5f23547c8f5fb2dd0e50bc4be82
   - path: .agents/skills/work-runbook-sync/SKILL.md
-    revision: 52177dc892fae1fca8a34901f9f498345bef0a69
-    content_sha256: 3f378715a39d08342c5775ee28ede771357517f08b86ffef109b9fd8c5d62712
+    revision: null
+    content_sha256: 2963e4306d8b451f74e2aaeccd38243f8ad5a5dca536724e2f8d0fed2c6bbff1
   - path: .agents/skills/work-next/SKILL.md
-    revision: 52177dc892fae1fca8a34901f9f498345bef0a69
-    content_sha256: 904b6bf97f8444305b10e79df8d51d8fa78ab18438633a9f4daa1e3740d120f2
+    revision: null
+    content_sha256: ac9074ed72923e20ad4754aa752847f3e55caec4bb20c73a90aee946d10e1400
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 71bf914cd8edf48b6af94544c342c4ad2c906929
     content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926

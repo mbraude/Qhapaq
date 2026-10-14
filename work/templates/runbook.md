@@ -7,7 +7,7 @@ generated_at: "<ISO-8601 UTC timestamp>"
 branch: "<branch name>"
 head: "<full Git commit hash>"
 source_file_count: 0
-source_set_sha256: "<SHA-256 over sorted source paths and exact bytes>"
+source_set_sha256: "<SHA-256 over sorted lines '<path>\n<SHA-256 of exact bytes or MISSING>\n'>"
 ---
 
 # <Primary specification ID>: Work Runbook
