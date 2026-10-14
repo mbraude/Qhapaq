@@ -14,8 +14,8 @@ sources:
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
     content_sha256: 916d6c0094400b87ce1c99661b90590664be588ee1713c2d8b172377567f1272
   - path: SPEC.md
-    revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
-    content_sha256: fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e
+    revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
+    content_sha256: 998108318c82d9c8c5cb5e70fb99933e3e7d0678e5c98adba8cda8086ff0eed6
   - path: specs/0006-dotnet-layered-architecture.md
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
     content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
@@ -35,9 +35,9 @@ sources:
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
     content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
   - path: work/0008/plan.md
-    revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
-    content_sha256: b602977cd2f1d5ccc617f5d54ef049c0f5c615f0f6dab7d333481ab44a0d6f20
-    material_sha256: c4a330983ec84b01ad10ca80e87a520cdcff8f3ce9d34e79e6fe51d7a4017f34
+    revision: eb88479ffe90c6f3def182aa78307ca3f1a60f3d
+    content_sha256: 97fa78b1f76db762075afcadca107b850c52c1e13523fb8bc17e436305de1e0b
+    material_sha256: 6a79348b7686002e8a03592ef3a76b50e737a5cdb03e5e6f24dee8a0485a9890
   - path: work/0008/implementation/I-0008-016-language-contract-and-traceability-audit.md
     revision: 0a647af76ceedbc7cb9364510a548106b6b404ca
     content_sha256: 1cfdd275d8f662463bbb795d7d091df86e3b11af6e69e1636e66a6ff977acf1d
@@ -179,38 +179,72 @@ approval of this readiness snapshot and the exact I-0008-016 plan.
 
 ## Validation and approval
 
-Assessed against the 22 exact source snapshots listed above at HEAD
-`0a647af76ceedbc7cb9364510a548106b6b404ca`. The governing requirement
-fingerprints were recomputed from the current requirement blocks:
-R-0000-007@ce715f, R-0008-004@a2dab0, R-0008-005@107883,
-R-0008-016@cfe5f4, R-0008-017@4e753a, and R-0008-018@2cb676. All 22 listed
-source hashes match exact working-copy bytes, and the 22- and 21-record source
-inventories of the selected SPEC-0008 and SPEC-0007 plans were verified
-current. Confirmed the four-file conditional manifest, direct decision
-prerequisites, current aggregate-plan scope, and the limited authority of the
-prior planning-readiness record. The refreshed runbook includes this
-ready-for-review gate and retains the block on implementation pending explicit
-approval.
+Historical assessment and approval: the prior readiness snapshot was assessed
+against the source bytes at `0a647af76ceedbc7cb9364510a548106b6b404ca` and
+explicitly approved on 2026-10-13. Its approval was for that exact readiness
+snapshot and the then-current 22 source snapshots only. The later SPEC.md
+editorial move and SPEC-0008 plan reconciliation made two recorded sources
+stale; that approval remains historical and is not carried forward.
 
-Relative Markdown links and anchors passed for the readiness record and
-refreshed runbook. `git diff --check` passed. Specification trace review
-classified the readiness record and derived runbook as documentation/workflow
-maintenance; no specification requirement block, product code, or tests
-changed, so no `Spec:` trailer or product semantic review applies. The review
-passed with proposed trailer `Change-Kind: maintenance`; no waivers were added.
-No build or product unit tests apply to this documentation-only assessment.
-This record does not execute the audit.
+Reassessed the exact implementation-readiness scope and exclusions against
+the current inputs. The SPEC.md delta moves the C# interface example out of
+R-0000-002 and leaves its portable operation rule intact. The plan delta
+reconciles source snapshots and records the completed I-0008-014 and
+I-0008-015 outcomes; it does not change I-0008-016's requirements, four-file
+conditional manifest, dependencies, phase membership, or aggregate gate.
+Neither delta introduces a behavior, conformance, architecture, or ownership
+decision. The prior planning-readiness record remains limited to planning.
+The bounded audit is still ready for implementation review, subject to
+explicit approval of this reassessed readiness snapshot and separate approval
+of the exact I-0008-016 plan.
 
-This assessment authorizes neither implementation nor changes to product
-behavior, conformance, architecture, checker ownership, or language support.
+Verified current fingerprints: R-0000-007@ce715f,
+R-0008-004@a2dab0, R-0008-005@107883, R-0008-016@cfe5f4,
+R-0008-017@4e753a, and R-0008-018@2cb676. The plan source inventory and
+material scope are current; the readiness source list is refreshed below
+after this assessment. No source outside the existing readiness inventory
+was needed. The manifest remains limited to SPEC-0006, SPEC-0008, common
+coding conventions, and specification conventions. No product schema,
+conformance vector, checker implementation, build, or unit test is an entry
+artifact for this documentation-only scope.
 
-Explicitly approved in this session on 2026-10-13 for the exact readiness
-record snapshot SHA-256
-`b724f28a26c54c595387d1ddc2879435ac9796c6838459076dae5e58c77e294b` and the
-22 assessed source snapshots listed above, verified at revision
-`0a647af76ceedbc7cb9364510a548106b6b404ca`. Approval covers only the
+The existing relative links were not changed; they had passed the prior
+relative-link and anchor review. `git diff --check` and `/spec-trace-check`
+are run on this reassessment snapshot and their results are recorded after
+completion. No build or product unit tests apply. This assessment authorizes
+neither implementation before the independent plan gate nor changes to
+product behavior, conformance, architecture, checker ownership, or language
+support.
+
+Historical approval evidence: explicitly approved in this session on
+2026-10-13 for the previous exact readiness record snapshot SHA-256
+`b724f28a26c54c595387d1ddc2879435ac9796c6838459076dae5e58c77e294b` and
+the 22 assessed source snapshots at revision
+`0a647af76ceedbc7cb9364510a548106b6b404ca`. It did not approve the I-0008-016
+plan, authorize implementation, permit behavior or conformance changes,
+resolve checker ownership or technology, claim language support, publish a
+contract, or establish whole-v1 conformance. It is not approval of this
+reassessed snapshot.
+
+Reassessment validation completed: `work_hashes.py verify` reported all 21
+recorded sources and the process version current; the six governing
+requirement fingerprints above were verified with `spec_fingerprints.py`;
+`git diff --check` passed; and `/spec-trace-check` passed as
+`Change-Kind: maintenance` with no mechanical errors. The check covered this
+readiness record and the derived runbook; no specification requirement block,
+product code, or test changed. No waivers were added. Existing relative links
+were unchanged from the prior successful link-and-anchor review. The current
+readiness material SHA-256 is
+`cb0017c4a6ee5c380ef243638e81c33ed97d985314b419d1902ad9efaecdab24`.
+At reassessment the record was `ready-for-review`; it was then explicitly
+approved for the unchanged snapshot below.
+
+Explicitly approved in this session on 2026-10-14 for the exact
 `language-contract-and-traceability-audit-implementation` readiness scope and
-its stated exclusions. It does not approve the I-0008-016 plan, authorize
-implementation, permit behavior or conformance changes, resolve checker
-ownership or technology, claim language support, publish a contract, or
-establish whole-v1 conformance.
+the exclusions stated above. This approval is limited to implementation
+readiness; it does not approve the I-0008-016 plan, authorize implementation
+before that plan is separately approved, change behavior or conformance,
+resolve checker ownership or technology, publish a contract, or establish
+whole-v1 conformance.
+
+Approved material SHA-256: `cb0017c4a6ee5c380ef243638e81c33ed97d985314b419d1902ad9efaecdab24` (`work/0008/readiness/language-contract-and-traceability-audit-implementation.md`).
