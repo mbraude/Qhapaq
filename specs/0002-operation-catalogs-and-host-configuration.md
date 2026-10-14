@@ -163,7 +163,12 @@ to be safe to review and commit.
 - Instructions that automatically install an extension.
 - Policy overrides that broaden network, filesystem, or process access.
 
-Illustrative shape:
+**[R-0002-014]** The exact normative schema will live under `schemas/` and may refine these
+property names.
+
+### Illustrative Catalog Example
+
+**Illustrative example:**
 
 ```json
 {
@@ -188,9 +193,6 @@ Illustrative shape:
 }
 ```
 
-**[R-0002-014]** The exact normative schema will live under `schemas/` and may refine these
-property names.
-
 ## 7. Trusted User Host Profile
 
 **[R-0002-015]** The host profile is security-sensitive local configuration. It selects what the
@@ -208,7 +210,13 @@ process trusts and can execute.
 - Whether pipeline execution is enabled for CLI and MCP entry points.
 - Diagnostic, cache, and token-storage settings.
 
-Illustrative shape:
+**[R-0002-017]** The illustrative host-profile example below does not establish defaults.
+Its Windows paths are illustrative only; the normative format must support
+portable path and URI handling.
+
+### Illustrative Host Profile Example
+
+**Illustrative example:**
 
 ```json
 {
@@ -246,18 +254,9 @@ Illustrative shape:
 }
 ```
 
-**[R-0002-017]** This example uses Windows paths only illustratively. The normative format must
-support portable path and URI handling.
-
 ## 8. Profile Discovery and Storage
 
-**[R-0002-018]** The host must use an explicitly selected profile:
-
-```text
-qhapaq mcp --profile work
-qhapaq run pipeline.json --profile work
-qhapaq mcp --config <absolute-profile-path>
-```
+**[R-0002-018]** The host must use an explicitly selected profile.
 
 **[R-0002-019]** A named profile resolves in the operating system's user configuration
 directory:
@@ -277,6 +276,16 @@ collections replace rather than merge, and unknown properties are rejected.
 Command-line options may further restrict policy for one invocation but must not
 silently broaden the active profile.
 
+### Illustrative Profile Selection Examples
+
+**Illustrative example:**
+
+```text
+qhapaq mcp --profile work
+qhapaq run pipeline.json --profile work
+qhapaq mcp --config <absolute-profile-path>
+```
+
 ## 9. Authentication and Credential Providers
 
 **[R-0002-022]** Pipeline definitions and project catalogs refer only to logical authentication
@@ -291,15 +300,6 @@ requirement to a credential provider.
 - Refreshes expiring credentials without exposing refresh tokens.
 - Redacts credential material from exceptions and diagnostics.
 - Supports cancellation and reports actionable authentication failures.
-
-The initial provider set remains to be finalized. Candidate providers include:
-
-- No authentication.
-- API keys resolved from a secret reference.
-- Static bearer tokens resolved from a secret reference.
-- OAuth 2.0 client credentials.
-- Interactive OAuth authorization code or device authorization.
-- Environment-variable and OS-protected secret-reference resolvers.
 
 **[R-0002-024]** The generic HTTP executor applies authentication after policy approves the
 destination. A pipeline cannot read a credential, choose an arbitrary destination
@@ -317,6 +317,17 @@ logical authentication names in catalogs and pipelines.
 such as Azure Key Vault. V1 interfaces must therefore support asynchronous
 resolution, cancellation, refresh, expiration, redaction, and provider-specific
 configuration without placing provider credentials in portable catalogs.
+
+### Candidate Provider Set (Open)
+
+The initial provider set remains to be finalized. Candidate providers include:
+
+- No authentication.
+- API keys resolved from a secret reference.
+- Static bearer tokens resolved from a secret reference.
+- OAuth 2.0 client credentials.
+- Interactive OAuth authorization code or device authorization.
+- Environment-variable and OS-protected secret-reference resolvers.
 
 ## 10. Effective Catalog Construction
 

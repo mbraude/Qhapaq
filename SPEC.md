@@ -24,9 +24,8 @@ that affect the project as a whole.
 
 ### 1.1 Product Model
 
-**[R-0000-002]** The language-neutral model treats an operation as an asynchronous mapping from a
-declared input schema to a declared output schema. The .NET reference
-implementation expresses that abstraction as:
+**Illustrative example:** The .NET reference implementation expresses the
+language-neutral operation abstraction as:
 
 ```csharp
 public interface IOperation<TInput, TOutput>
@@ -36,6 +35,9 @@ public interface IOperation<TInput, TOutput>
         CancellationToken cancellationToken = default);
 }
 ```
+
+**[R-0000-002]** The language-neutral model treats an operation as an asynchronous mapping from a
+declared input schema to a declared output schema.
 
 **[R-0000-003]** Operations compose without losing this abstraction. Sequential composition feeds
 one operation's output into the next. Parallel composition gives two operations

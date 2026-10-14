@@ -58,12 +58,8 @@ described in
 
 ## 4. Core Abstraction
 
-**[R-0001-001]** Normatively, an operation is an asynchronous mapping from a value matching its
-declared input schema to a value matching its declared output schema. It accepts
-a cancellation signal, may have documented side effects, and either produces a
-valid output or reports failure.
-
-The .NET reference implementation binds that abstraction to:
+**Illustrative example:** The .NET reference implementation binds the portable
+operation abstraction to:
 
 ```csharp
 public interface IOperation<TInput, TOutput>
@@ -73,6 +69,11 @@ public interface IOperation<TInput, TOutput>
         CancellationToken cancellationToken = default);
 }
 ```
+
+**[R-0001-001]** Normatively, an operation is an asynchronous mapping from a value matching its
+declared input schema to a value matching its declared output schema. It accepts
+a cancellation signal, may have documented side effects, and either produces a
+valid output or reports failure.
 
 **[R-0001-002]** An implementation must:
 
@@ -162,9 +163,9 @@ IOperation<A, B> -> IOperation<A, B>
 logging, tracing, metrics, or other policies without changing the wrapped
 operation's public types.
 
-**[R-0001-011]** Decorator order is semantically significant. For example, retrying a timeout is
-different from applying one timeout across all attempts. Code and JSON must
-preserve explicit nesting order.
+**[R-0001-011]** **Normative example:** Decorator order is semantically significant. Retrying a
+timeout is different from applying one timeout across all attempts. Code and
+JSON must preserve explicit nesting order.
 
 **[R-0001-012]** Retry configuration uses `maxAttempts`, including the initial attempt, rather
 than the ambiguous term `maxRetries`. Cancellation is not retryable by default.
