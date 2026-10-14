@@ -16,7 +16,8 @@ future slices.
 
 ## Procedure
 
-1. Inspect branch context, worktree changes, and source snapshots. Continue on
+1. Inspect branch context, worktree changes, and source snapshots
+   (`python .agents/scripts/work_hashes.py verify <plan-and-records>`). Continue on
    the current attached branch when it is the user's intended delivery context,
    including the default branch. Recommend
    [work-branch-start](../work-branch-start/SKILL.md) for multi-commit or

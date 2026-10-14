@@ -18,7 +18,9 @@ If no plan exists, report that and suggest `work-plan-sync`; do not create it.
 1. Read the owning plan, selected items, readiness records, source snapshots,
    and transitive prerequisites, including cross-plan dependencies. A phase
    filter does not hide prerequisites needed to understand blockers.
-2. Check source currentness, ID/owner agreement, references, membership, and
+2. Check source currentness with
+   `python .agents/scripts/work_hashes.py verify <plan-and-records>`, then
+   ID/owner agreement, references, membership, and
    dependency cycles. Report missing prerequisites or cancelled dependencies.
    Do not display affected eligibility as trustworthy when inputs are stale
    or invalid. Recommend sync without invoking it.

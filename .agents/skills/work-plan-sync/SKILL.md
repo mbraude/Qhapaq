@@ -30,7 +30,9 @@ specification text unless the user explicitly includes that migration.
    existing plan, items, readiness records, and cross-plan prerequisites.
    Inventory all phases but bound item detail to the requested/current scope.
 2. If a plan exists, compare source records against exact current bytes and
-   their committed baseline revisions. Read the changed source text, not just
+   their committed baseline revisions with
+   `python .agents/scripts/work_hashes.py verify <plan-and-records>`. Read the
+   changed source text, not just
    revision numbers. Recover old text from the recorded revision where possible.
    If an old uncommitted snapshot cannot be recovered, report that limitation
    and review the full affected scope; do not invent an exact diff.
@@ -52,7 +54,9 @@ specification text unless the user explicitly includes that migration.
    Detail current decisions; leave speculative implementation work as milestones.
    Keep architectural choices in the appropriate source or as unresolved items.
 7. Update phase membership and reconciliation evidence. Compute real SHA-256
-   source snapshots and use full Git revisions. Advance snapshots only for
+   source snapshots and full Git revisions with
+   `python .agents/scripts/work_hashes.py sources <path>...`, never by hand or
+   with ad hoc scripts. Advance snapshots only for
    completely reviewed inputs; retain stale records and explain remaining
    reconciliation if blocked. Do not hash plans as their own sources.
 8. Check unique IDs/ownership, retained coverage, references, required sections,

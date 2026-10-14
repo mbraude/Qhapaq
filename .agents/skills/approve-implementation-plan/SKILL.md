@@ -37,12 +37,18 @@ items excluded from approval. A milestone is never approved for execution.
 
 1. Read `AGENTS.md`, the specification-driven workflow, the owning plan,
    selected implementation items, their requirements, all transitive
-   dependencies, applicable readiness records, and governing sources.
-2. Inspect branch, full Git status, and unresolved Git operations. Continue on
+   dependencies, applicable readiness records, and governing sources. Skip
+   documents already in the current context, and read only the requirement
+   blocks and sections the selected slices cite rather than whole large
+   specifications.
+2. Run `python .agents/scripts/git_preflight.py` once for the branch, full
+   change list, and unresolved Git operations; a `no changes since HEAD`
+   finding does not block plan approval. Continue on
    the current attached branch when it is the user's intended context. Do not
    switch branches. Stop if unrelated, sensitive, or unreviewable changes make
    the approval scope ambiguous.
-3. Verify plan source hashes against exact current bytes. If relevant plan
+3. Verify plan source hashes against exact current bytes with
+   `python .agents/scripts/work_hashes.py verify <plan>`. If relevant plan
    inputs are stale or reconciliation is incomplete, stop and request
    `work-plan-sync` before approval.
 4. Require a current, approved readiness record that covers every selected
@@ -70,13 +76,19 @@ or resolve product decisions. If a material correction is required, stop and
 request planning or source reconciliation; the revised snapshot must be
 reviewed afresh.
 
-Compute for each item the material SHA-256 defined in the workflow guide:
-normalize line endings to LF, omit the frontmatter `status` line, and omit the
-`Validation and review`, `Plan approval`, and `Delivery evidence and review`
-sections. Also compute full-byte SHA-256 hashes for every material input used
-to authorize it, including the owning plan, governing specification and
-requirements, applicable approved readiness record, and direct prerequisite
-items or existing artifacts relied upon. Use exact current file bytes.
+Compute for each item the material SHA-256 defined in the workflow guide, and
+full-byte SHA-256 hashes for every material input used to authorize it,
+including the owning plan, governing specification and requirements,
+applicable approved readiness record, and direct prerequisite items or existing
+artifacts relied upon. Use one run of the
+[shared workflow scripts](../../scripts/README.md) for both:
+
+```text
+python .agents/scripts/work_hashes.py material <item>...
+python .agents/scripts/work_hashes.py files <input>...
+```
+
+Never hand-write a hashing or material-normalization script.
 
 Present before asking for approval:
 
@@ -104,9 +116,10 @@ declines, make no edits.
 
 ### 4. Record plan approval
 
-After explicit approval, recheck that the selected items and all material
-inputs still match the displayed hashes. If any material input changed, stop
-without recording approval and request renewed review.
+After explicit approval, rerun the same `material` and `files` commands and
+check that the selected items and all material inputs still match the
+displayed hashes. If any material input changed, stop without recording
+approval and request renewed review.
 
 In each approved slice's existing `Plan approval` section, record that explicit
 approval was given in this session without inventing an approver name, the
@@ -115,7 +128,9 @@ full-byte hashes of its material inputs. Preserve the item status; plan approval
 does not change an item to `in-progress`, `ready-for-review`, or `complete`.
 Do not change material plan content or approval evidence for unselected items.
 
-Recompute the item material hashes and verify every recorded input hash. Check
+Recompute the item material hashes and verify every recorded input hash with
+`python .agents/scripts/work_hashes.py evidence --section "Plan approval" <item>...`.
+Check
 the full worktree and report any concurrent change; do not stage, commit, push,
 or create a commit message.
 

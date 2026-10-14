@@ -15,10 +15,13 @@ and immediately create its local commit without pushing.
    argument. Do not duplicate or replace its target resolution, exact-snapshot
    review, validation, explicit approval, evidence recording, or commit-message
    generation.
-2. Reinspect Git status and verify that the complete worktree still contains
-   exactly the approved scope and unchanged snapshot. Include the approval
-   evidence in the same commit. If concurrent, unrelated, or material changes
-   appeared, stop without staging or committing.
+2. Verify that the complete worktree still contains exactly the approved scope
+   and unchanged snapshot: rerun `python .agents/scripts/git_preflight.py` and
+   require its `snapshot_id` to equal the one `approve` retained after
+   recording evidence. Include the approval evidence in the same commit. If
+   concurrent, unrelated, or material changes appeared, stop without staging
+   or committing. Supply these preflight facts to `commit` so it does not
+   collect them again.
 3. Invoke [commit](../commit/SKILL.md), supplying the complete message generated
    by `approve` and the matching validation mode. For implementation/code work,
    use `skip-build-and-test=false`. For design/specification-only work already

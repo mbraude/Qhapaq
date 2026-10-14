@@ -17,8 +17,10 @@ files.
 
 ## Procedure
 
-1. Inspect the current branch, configured upstream, `origin`, default branch,
-   complete working-tree status, and unresolved Git operations. Stop for a
+1. Run `python .agents/scripts/git_preflight.py` once for the current branch,
+   configured upstream, `origin`, default branch, complete change list with
+   large, generated, and likely-secret hints, and unresolved Git operations; a
+   `no changes since HEAD` finding does not block. Stop for a
    merge, rebase, cherry-pick, or revert in progress.
 2. Resolve the target scope and confirm that the user wants a work branch.
    Recommend one for multi-commit work, file moves, disruption across shared
@@ -36,7 +38,8 @@ files.
    existing branch with dirty files. Never overwrite an existing branch or
    recreate it at a different revision.
 6. Verify that the branch is attached, every preexisting working-tree change
-   remains present, and no new file change appeared. Do not configure an
+   remains present, and no new file change appeared: rerun the preflight and
+   require the same `snapshot_id`. Do not configure an
    upstream until a later commit-and-push workflow pushes the branch.
 
 ## Output and stop

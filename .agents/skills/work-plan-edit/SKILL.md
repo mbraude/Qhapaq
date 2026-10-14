@@ -15,7 +15,8 @@ Do not alter product behavior, infer approval, execute slices, commit, or push.
 
 ## Procedure
 
-1. Inspect branch context, worktree, source currentness, current scope,
+1. Inspect branch context, worktree, source currentness
+   (`python .agents/scripts/work_hashes.py verify <plan-and-records>`), current scope,
    dependencies, readiness, and approval evidence. Continue on the current
    attached branch when it is the user's intended delivery context, including
    the default branch. Recommend

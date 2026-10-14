@@ -44,3 +44,7 @@ BenchmarkDotNet.Artifacts/
 .DS_Store
 Desktop.ini
 Thumbs.db
+
+# Python bytecode from repository scripts
+__pycache__/
+*.pyc

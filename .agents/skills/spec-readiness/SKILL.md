@@ -22,7 +22,8 @@ resolve new product decisions.
    required artifacts. Continue on the current attached branch when it is the
    user's intended delivery context, including the default branch. Recommend
    [work-branch-start](../work-branch-start/SKILL.md) for multi-commit or
-   disruptive work, but do not require or silently create a branch. If
+   disruptive work, but do not require or silently create a branch. Check plan
+   source currentness with `python .agents/scripts/work_hashes.py verify`. If
    relevant plan sources are stale, report the need for `work-plan-sync`
    before approval.
 2. Check known decisions and normative entry/exit gates. Open blocking decisions,
@@ -34,7 +35,8 @@ resolve new product decisions.
 4. Map scope requirements to required conformance expectations and actual
    prerequisite artifacts. Distinguish specified cases from published vectors.
    Do not require unrelated release artifacts or relax specified gates.
-5. Populate or revise the scope's readiness record with exact source snapshots,
+5. Populate or revise the scope's readiness record with exact source snapshots
+   from `python .agents/scripts/work_hashes.py sources <path>...`,
    findings, exclusions, validation, and blockers. Preserve prior approval
    history in Git; material changes need reassessment. Report newly discovered
    decision work for reconciliation rather than closing it implicitly.

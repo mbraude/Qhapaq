@@ -15,7 +15,8 @@ Do not implement future slices, commit, publish, or infer approval.
 
 ## Procedure
 
-1. Inspect branch context, worktree, and source currentness. Continue on the
+1. Inspect branch context, worktree, and source currentness
+   (`python .agents/scripts/work_hashes.py verify <plan-and-records>`). Continue on the
    current attached branch when it is the user's intended delivery context,
    including the default branch. Recommend
    [work-branch-start](../work-branch-start/SKILL.md) for multi-commit or
@@ -45,7 +46,8 @@ Do not implement future slices, commit, publish, or infer approval.
    not duplicated normative text.
 7. Reconcile effects using `work-plan-sync`, bounded to this decision and its
    affected downstream work. Do not resolve other decisions during reconciliation.
-   Record real source snapshots, readiness impact, and remaining blockers.
+   Record real source snapshots from `work_hashes.py sources`, readiness
+   impact, and remaining blockers.
 8. Check item acceptance criteria and workflow structure, then invoke
    [spec-trace-check](../spec-trace-check/SKILL.md) and applicable documented
    artifact checks. Failures or missing required outputs prevent a successful

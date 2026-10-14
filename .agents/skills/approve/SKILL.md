@@ -13,7 +13,9 @@ work outcome, then prepares its commit message without performing Git delivery.
 Read [AGENTS.md](../../../AGENTS.md), the
 [specification-driven workflow](../../../docs/development/spec-driven-workflow.md),
 the target plan and item or readiness record, and the applicable specification
-instructions.
+instructions. Skip any of these already in the current context. Compute and
+verify hashes with the [shared workflow scripts](../../scripts/README.md)
+(`work_hashes.py`), never with ad hoc scripts.
 
 Supported targets:
 
@@ -46,8 +48,10 @@ hooks, or undo recorded approval because later delivery fails.
 
 ### 1. Identify and check the target
 
-Inspect the complete Git status and confirm the repository is not in an
-unresolved merge, rebase, cherry-pick, or revert. Confirm that `HEAD` is attached
+Run `python .agents/scripts/git_preflight.py` once for the branch, default
+branch, unresolved operations, and complete change list. A `no changes since
+HEAD` finding does not block approval; every other blocking finding does.
+Confirm that `HEAD` is attached
 and the current branch is the user's intended delivery context. The default
 branch is permitted. Recommend `work-branch-start` when isolation or
 pull-request review would be useful, but do not require or create a branch.
@@ -79,8 +83,9 @@ For a work item:
 - Verify prerequisites are complete, outputs exist, and every acceptance
   criterion and normative entry gate is satisfied.
 - Recompute the item's material SHA-256 exactly as specified in the workflow
-  guide. Verify the item and all material inputs and outputs still match the
-  recorded review snapshot.
+  guide with `work_hashes.py material`, and verify recorded review evidence
+  with `work_hashes.py evidence`. Verify the item and all material inputs and
+  outputs still match the recorded review snapshot.
 
 For a readiness record:
 
@@ -89,7 +94,7 @@ For a readiness record:
 - Read the governing specification, linked decisions, plan, required artifacts,
   and readiness evidence.
 - Verify each recorded source hash against the exact current file bytes and the
-  recorded baseline revision.
+  recorded baseline revision with `work_hashes.py verify`.
 
 Stale, incomplete, blocked, ambiguous, or materially changed targets require
 renewed assessment or review, not approval.
@@ -163,17 +168,19 @@ readiness record, set `assessment: approved` only for its named scope and
 unchanged assessed snapshot. Do not mark a specification or contract version
 `Published`.
 
-Recompute the approved material hash and verify every recorded full-byte hash.
+Recompute the approved material hash and verify every recorded full-byte hash
+with one `work_hashes.py evidence` run over the target.
 If approved material changed, revert only this skill's approval metadata edits,
 never discard user work, return the target to review as appropriate, and ask
 for approval again.
 
 ### 5. Generate the commit message
 
-Reinspect Git status and verify the complete worktree still contains only
-changes within the approved target scope, including the approval evidence. If
-concurrent or unrelated changes appeared, stop without staging or generating a
-success-shaped delivery result.
+Rerun `python .agents/scripts/git_preflight.py` and verify the complete
+worktree still contains only changes within the approved target scope,
+including the approval evidence. Retain its `snapshot_id` as the identity of
+the approved worktree and report it. If concurrent or unrelated changes
+appeared, stop without staging or generating a success-shaped delivery result.
 
 Generate a complete commit message that represents the entire approved
 worktree:

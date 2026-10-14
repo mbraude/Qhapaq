@@ -18,7 +18,8 @@ commit, or invent unresolved contracts.
 ## Procedure
 
 1. Inspect branch context and worktree, then resolve the requested
-   phase/milestone, source currentness, scoped readiness, existing
+   phase/milestone, source currentness
+   (`python .agents/scripts/work_hashes.py verify <plan-and-records>`), scoped readiness, existing
    implementation items, and cross-plan dependencies. Continue on the current
    attached branch when it is the user's intended delivery context, including
    the default branch. Recommend

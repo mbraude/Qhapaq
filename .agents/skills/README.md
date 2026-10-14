@@ -3,6 +3,9 @@
 This directory contains portable, self-contained skills for repeatable
 repository capabilities. Each skill belongs in a named subdirectory with a
 `SKILL.md` file and may include bounded `scripts/`, `references/`, or `assets/`.
+Deterministic helpers shared by several skills live in
+[`.agents/scripts/`](../scripts/README.md); skills use those checked-in scripts
+instead of writing ad hoc hashing or parsing scripts.
 
 Skills must:
 

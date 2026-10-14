@@ -15,14 +15,17 @@ the repository's `commit` skill exactly as supplied by the user.
 
 ## Preconditions
 
-Before invoking `commit`, confirm that:
+Before invoking `commit`, run `python .agents/scripts/git_preflight.py` once and
+use its branch, `origin`, and upstream facts to confirm that:
 
 - the repository has an `origin` remote;
 - `HEAD` is attached to the explicitly intended delivery branch;
 - the configured upstream, when present, has been inspected; and
 - the intended remote branch is unambiguous.
 
-Stop before committing if any push precondition fails. Never create or switch
+Stop before committing if any push precondition fails. The `commit` skill
+reuses these preflight facts for its own preconditions and step 1 unless
+repository state changed since they were collected. Never create or switch
 branches, rewrite history, force-push, bypass hooks, or infer a differently
 named remote branch.
 

@@ -18,117 +18,37 @@ import argparse
 import hashlib
 import heapq
 import json
+import os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[4]
-WORK = ROOT / "work"
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+
+from qhapaq_work import (  # noqa: E402
+    PATH_HASH_ROW_RE,
+    ROOT,
+    WORK,
+    Snapshot,
+    git,
+    parse_frontmatter,
+    rel,
+    sections,
+    source_state,
+    utf8_stdio,
+)
+
 ITEM_DIRS = ("decisions", "implementation")
 ID_RE = re.compile(r"\b([DI]-\d{4}-\d{3})\b")
 DATE_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 SPEC_DOC_RE = re.compile(r"^(SPEC\.md|specs/(components/)?[^/]+\.md)$")
 ROW_RE = re.compile(r"^\|\s*(\d+(?:\.\d+)*)\s*\|(?:[^|\[]*\|)*?\s*\[([DI]-\d{4}-\d{3})\]\(([^)]+)\)")
-PATH_HASH_ROW_RE = re.compile(r"^\|\s*`([^`]+)`[^|]*\|\s*`([0-9a-f]{64})`\s*\|")
 PLANNING_ONLY_RE = re.compile(r"planning[- ]only|permits planning|authori[sz]es planning", re.I)
 APPROVAL_RE = re.compile(r"approv", re.I)
 EXPLICIT_APPROVAL_RE = re.compile(
     r"explicitly\s+approved|approved\s+explicitly|user\s+approved|approval\s+(?:was\s+)?(?:explicitly\s+)?(?:given|recorded)",
     re.I,
 )
-
-
-def rel(path: Path) -> str:
-    return path.relative_to(ROOT).as_posix()
-
-
-class Snapshot:
-    """Reads each repository file once per run and retains its bytes and digest."""
-
-    def __init__(self) -> None:
-        self._bytes: dict[str, bytes | None] = {}
-        self._sha: dict[str, str | None] = {}
-
-    def read(self, path: str) -> bytes | None:
-        if path not in self._bytes:
-            file = ROOT / path
-            self._bytes[path] = file.read_bytes() if file.is_file() else None
-        return self._bytes[path]
-
-    def text(self, path: str) -> str:
-        data = self.read(path)
-        return "" if data is None else data.decode("utf-8", errors="replace")
-
-    def sha(self, path: str) -> str | None:
-        if path not in self._sha:
-            data = self.read(path)
-            self._sha[path] = None if data is None else hashlib.sha256(data).hexdigest()
-        return self._sha[path]
-
-
-def unquote(value: str) -> str | None:
-    value = value.strip()
-    if value in ("null", "~"):
-        return None
-    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
-        return value[1:-1]
-    return value
-
-
-def parse_frontmatter(text: str) -> dict:
-    """Parse the YAML subset used by work records: scalars, inline lists, and lists of scalars or maps."""
-    match = re.match(r"^---\r?\n(.*?)\r?\n---\r?\n", text, re.S)
-    if not match:
-        return {}
-    data: dict = {}
-    key = None
-    current: dict | None = None
-    for raw in match.group(1).splitlines():
-        if not raw.strip():
-            continue
-        top = re.match(r"^([A-Za-z_][\w-]*):\s*(.*)$", raw)
-        if top:
-            key, value = top.group(1), top.group(2).strip()
-            current = None
-            if value.startswith("[") and value.endswith("]"):
-                data[key] = [unquote(v) for v in value[1:-1].split(",") if v.strip()]
-            elif value == "":
-                data[key] = []
-            else:
-                data[key] = unquote(value)
-            continue
-        item = re.match(r"^\s*-\s*(.*)$", raw)
-        if item and key is not None and isinstance(data.get(key), list):
-            pair = re.match(r"^([A-Za-z_][\w-]*):\s*(.*)$", item.group(1))
-            if pair:
-                current = {pair.group(1): unquote(pair.group(2))}
-                data[key].append(current)
-            else:
-                current = None
-                data[key].append(unquote(item.group(1)))
-            continue
-        pair = re.match(r"^\s+([A-Za-z_][\w-]*):\s*(.*)$", raw)
-        if pair and current is not None:
-            current[pair.group(1)] = unquote(pair.group(2))
-    return data
-
-
-def sections(text: str) -> list[tuple[str, int, list[str]]]:
-    """Return (heading, heading line number, body lines) for each level-2 section."""
-    result: list[tuple[str, int, list[str]]] = []
-    heading, start, lines = "", 0, []
-    fence = False
-    for number, line in enumerate(text.splitlines(), 1):
-        if line.lstrip().startswith("```"):
-            fence = not fence
-        if not fence and line.startswith("## "):
-            result.append((heading, start, lines))
-            heading, start, lines = line[3:].strip(), number, []
-        else:
-            lines.append(line)
-    result.append((heading, start, lines))
-    return result
 
 
 def evidence_dates(lines: list[str], start: int) -> list[dict]:
@@ -165,11 +85,6 @@ def spec_dir(spec: str) -> Path | None:
     return WORK / match.group(1) if match else None
 
 
-def git(*args: str) -> str:
-    result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True)
-    return result.stdout.rstrip() if result.returncode == 0 else ""
-
-
 class Facts:
     def __init__(self, primary: str, included: list[str]) -> None:
         self.snap = Snapshot()
@@ -191,13 +106,7 @@ class Facts:
                 continue
             path = source["path"]
             self.use(path)
-            actual = self.snap.sha(path)
-            if actual is None:
-                state = "missing"
-            elif actual != source.get("content_sha256"):
-                state = "stale"
-            else:
-                state = "current"
+            state = source_state(self.snap, path, source.get("content_sha256"), source.get("revision"))
             result.append({"path": path, "state": state})
         return result
 
@@ -453,7 +362,7 @@ class Facts:
         }
 
 
-def print_text(facts: dict) -> None:
+def print_text(facts: dict, open_only: bool = False) -> None:
     rb = facts["runbook"]
     print(f"primary={facts['primary']} included={facts['included']} transitive_owners={facts['transitive_owners']}")
     print(f"branch={facts['branch']} head={facts['head']}")
@@ -470,7 +379,13 @@ def print_text(facts: dict) -> None:
         print(f"{r['path']} | scope={r['scope']} | assessment={r['assessment']} | sources: {', '.join(r['stale_sources']) or 'all current'}{flag}")
     print("\n# Items in stable dependency order")
     print("id | status | kind/granularity | dependencies | title")
+    omitted = 0
     for item in facts["items"]:
+        settled = item["status"] == "cancelled" or (
+            item["status"] == "complete" and item.get("completion_date") and item.get("completion_evidence_explicit"))
+        if open_only and settled:
+            omitted += 1
+            continue
         waiting = item["deps_incomplete"] + [f"{d}(missing)" for d in item["deps_missing"]] + [f"{d}(cancelled)" for d in item["deps_cancelled"]]
         deps = "ready" if item["deps_ready"] else "waiting " + ",".join(waiting)
         line = f"{item['id']} | {item['status']} | {item['kind']}/{item['granularity'] or '-'} | {deps} | {item['title']}"
@@ -494,24 +409,192 @@ def print_text(facts: dict) -> None:
                 line += (f"\n    readiness {c['path']} [{c['match']}] assessment={c['assessment']} "
                          f"current={c['current']} uncovered-spec-edits={gaps}{flag}")
         print(line)
+    if omitted:
+        print(f"({omitted} settled complete/cancelled items omitted; `--rows` prints their exact table rows)")
     print("\n# Structural findings")
     for finding in facts["findings"] or ["none"]:
         print(f"- {finding}")
+
+
+SETTLED_STATUS = {"complete": "Complete", "cancelled": "Cancelled"}
+TABLE_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)\s]+)\)")
+ITEM_CELL_RE = re.compile(r"^\[([DI]-\d{4}-\d{3})\]\(([^)]+)\)$")
+COMMAND_RE = re.compile(r"`(/[a-z0-9-]+)(?:\s[^`]*)?`")
+
+
+def cell(text: str) -> str:
+    return (text or "").replace("|", "\\|").strip()
+
+
+def item_link(item: dict, base: str = "") -> str:
+    target = os.path.relpath(item["path"], base).replace(os.sep, "/") if base else item["path"]
+    return f"[{item['id']}]({target})"
+
+
+def resolve_link(target: str, base: str) -> str:
+    """Accept runbook-relative links, and repository-root links used by older runbooks."""
+    target = target.split("#")[0]
+    relative = os.path.normpath(os.path.join(base, target)).replace(os.sep, "/")
+    return relative if (ROOT / relative).exists() or not (ROOT / target).exists() else target
+
+
+def item_row(item: dict, by_id: dict[str, dict], base: str = "") -> str:
+    """Exact row for a settled item; placeholder command and status cells for open items."""
+    prereqs = "<br>".join(item_link(by_id[d], base) if d in by_id else f"`{d}` (missing)" for d in item["depends_on"]) or "—"
+    if item["status"] == "complete":
+        command, status, date = "", "Complete", item.get("completion_date") or "Unknown - evidence missing"
+    elif item["status"] == "cancelled":
+        command, status, date = "", "Cancelled", "—"
+    else:
+        command, status, date = "<command>", "<status>", "—"
+    return f"| {item_link(item, base)} | {cell(item['title'])} | {command} | {status} | {date} | {prereqs} |"
+
+
+def print_rows(facts: dict) -> None:
+    base = os.path.dirname(facts["runbook"]["path"])
+    by_id = {item["id"]: item for item in facts["items"]}
+    print("| Work item | Description | Skill command | Status | Date Completed | Pre-requisites / blocked by |")
+    print("| --- | --- | --- | --- | --- | --- |")
+    for item in facts["items"]:
+        print(item_row(item, by_id, base))
+
+
+def split_row(line: str) -> list[str]:
+    cells = re.split(r"(?<!\\)\|", line.strip())
+    return [c.strip() for c in cells[1:-1]]
+
+
+def normalize_links(cells: list[str], base: str) -> list[str]:
+    return [TABLE_LINK_RE.sub(lambda m: m.group(0).replace(m.group(1), resolve_link(m.group(1), base)), c) for c in cells]
+
+
+def check_runbook(facts: dict) -> list[str]:
+    """Structural validation of the existing runbook against current facts."""
+    path = facts["runbook"]["path"]
+    base = os.path.dirname(path)
+    file = ROOT / path
+    if not file.is_file():
+        return [f"{path}: missing"]
+    text = file.read_text(encoding="utf-8")
+    meta = parse_frontmatter(text)
+    problems: list[str] = []
+    if meta.get("source_set_sha256") != facts["source_set_sha256"]:
+        problems.append(f"source_set_sha256 {meta.get('source_set_sha256')} != current {facts['source_set_sha256']} (inputs changed; refresh required)")
+    if str(meta.get("source_file_count")) != str(facts["source_file_count"]):
+        problems.append(f"source_file_count {meta.get('source_file_count')} != current {facts['source_file_count']}")
+    for key, expected in (("primary_spec", facts["primary"]),):
+        if meta.get(key) != expected:
+            problems.append(f"{key} {meta.get(key)!r} != {expected!r}")
+
+    by_id = {item["id"]: item for item in facts["items"]}
+    rows: list[tuple[int, list[str], str]] = []
+    in_table = False
+    for number, line in enumerate(text.splitlines(), 1):
+        if line.startswith("| Work item |"):
+            in_table = True
+            continue
+        if in_table and line.startswith("|"):
+            if not line.startswith("| ---"):
+                rows.append((number, normalize_links(split_row(line), base), line))
+        elif in_table:
+            in_table = False
+
+    seen: dict[str, int] = {}
+    commands: set[str] = set()
+    for number, cells, line in rows:
+        if len(cells) != 6:
+            problems.append(f"L{number}: expected 6 columns, found {len(cells)}")
+            continue
+        commands.update(m.group(0) for m in COMMAND_RE.finditer(cells[2]))
+        for target in TABLE_LINK_RE.findall(line):
+            if not (ROOT / resolve_link(target, base)).exists():
+                problems.append(f"L{number}: link target {target} does not exist")
+        match = ITEM_CELL_RE.match(cells[0])
+        if not match:
+            continue
+        item_id, link = match.groups()
+        if item_id in seen:
+            problems.append(f"L{number}: {item_id} duplicates row L{seen[item_id]}")
+            continue
+        seen[item_id] = number
+        item = by_id.get(item_id)
+        if item is None:
+            problems.append(f"L{number}: {item_id} is not in the selected scope")
+            continue
+        if link != item["path"]:
+            problems.append(f"L{number}: {item_id} links {link}, expected {item['path']}")
+        if item["status"] in SETTLED_STATUS:
+            expected = normalize_links(split_row(item_row(item, by_id)), "")
+            empty = {"", "—", "-", "None"}
+            mismatched = [
+                name for name, ok in (
+                    ("command", cells[2] in empty),
+                    ("status", cells[3] == expected[3]),
+                    ("date", cells[4] == expected[4] or (expected[4] == "—" and cells[4] in empty)),
+                    ("prerequisites", sorted(ID_RE.findall(cells[5])) == sorted(ID_RE.findall(expected[5]))),
+                ) if not ok
+            ]
+            if mismatched:
+                problems.append(f"L{number}: {item_id} settled row differs in {', '.join(mismatched)}; expected:\n      {item_row(item, by_id, base)}")
+        else:
+            if cells[3].split(" ")[0] in SETTLED_STATUS.values():
+                problems.append(f"L{number}: {item_id} has persisted status {item['status']} but row says {cells[3]!r}")
+            for dep in item["deps_incomplete"]:
+                if dep not in cells[5]:
+                    problems.append(f"L{number}: {item_id} omits incomplete prerequisite {dep}")
+        for dep in item["depends_on"]:
+            if dep in seen or dep not in by_id:
+                continue
+            problems.append(f"L{number}: {item_id} precedes its prerequisite {dep}")
+    for item_id in by_id:
+        if item_id not in seen:
+            problems.append(f"{item_id}: no runbook row")
+
+    skills = {p.name for p in (ROOT / ".agents" / "skills").iterdir() if p.is_dir()}
+    for command in sorted(commands):
+        if command.split()[0].strip("`/") not in skills:
+            problems.append(f"command {command} names an unknown skill")
+    next_match = re.search(r"^\*\*Next command:\*\*\s*(.+)$", text, re.M)
+    if not next_match:
+        problems.append("missing **Next command:** line")
+    else:
+        value = next_match.group(1).strip()
+        if value not in ("None", "`None`") and value not in commands:
+            problems.append(f"Next command {value} does not appear in any row's Skill command cell")
+    also = re.search(r"^\*\*Also eligible:\*\*\s*(.+)$", text, re.M)
+    if also:
+        for command in COMMAND_RE.finditer(also.group(1)):
+            if command.group(0) not in commands:
+                problems.append(f"Also eligible {command.group(0)} does not appear in any row's Skill command cell")
+    return problems
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Collect deterministic work-runbook facts.")
     parser.add_argument("primary", help="primary specification, for example SPEC-0008")
     parser.add_argument("--include", default="", help="comma-separated additional specifications")
-    parser.add_argument("--json", action="store_true", help="emit JSON instead of compact text")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--json", action="store_true", help="emit JSON instead of compact text")
+    mode.add_argument("--open", action="store_true", help="omit settled complete/cancelled items from text output")
+    mode.add_argument("--rows", action="store_true", help="print table rows: exact for settled items, placeholders for open items")
+    mode.add_argument("--check", action="store_true", help="validate the existing runbook; exit 1 on any finding")
     args = parser.parse_args()
+    utf8_stdio()
     included = [normalize_spec(s) for s in args.include.split(",") if s.strip()]
     facts = Facts(normalize_spec(args.primary), included).collect()
     if args.json:
         json.dump(facts, sys.stdout, indent=1)
         print()
+    elif args.rows:
+        print_rows(facts)
+    elif args.check:
+        problems = check_runbook(facts)
+        for problem in problems:
+            print(f"- {problem}")
+        print(f"{facts['runbook']['path']}: {'FAIL' if problems else 'PASS'} ({len(problems)} findings)")
+        return 1 if problems else 0
     else:
-        print_text(facts)
+        print_text(facts, open_only=args.open)
     return 0
 
 

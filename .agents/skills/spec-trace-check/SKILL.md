@@ -83,40 +83,22 @@ illustrative. Do not check it as a reference or waiver.
   `R-<spec>-<seq>@<fingerprint>` or, for `requirement` and `extension`
   changes only, a document identifier `SPEC-<number>` (`SPEC.md` is
   `SPEC-0000`) or `COMP-<number>`.
-- **Fingerprints.** Use the helper below to compute exact fingerprints for
-  every block in a specification. Never estimate or hand-compute a
-  fingerprint. The helper only hashes text; every judgment remains yours.
+- **Fingerprints.** Compute exact fingerprints only with the shared script.
+  Never estimate, hand-compute, or write an ad hoc helper for a fingerprint.
+  The script only hashes text; every judgment remains yours.
 
-  ```powershell
-  [Console]::OutputEncoding = [Text.Encoding]::UTF8
-  $fp = {
-    param([string]$Text)
-    $id = '^\*\*\[(R-C?\d{4}-\d{3,})\]\*\*'
-    $blocks = [ordered]@{}; $cur = $null; $fence = $false
-    foreach ($line in ($Text -split '\r?\n')) {
-      if ($line.TrimStart().StartsWith('```')) { $fence = -not $fence }
-      elseif (-not $fence -and $line -match $id) { $cur = $Matches[1]; $blocks[$cur] = [Text.StringBuilder]::new(); $line = $line.Substring($Matches[0].Length) }
-      elseif (-not $fence -and $line -match '^#{1,6} ') { $cur = $null }
-      if ($cur) { [void]$blocks[$cur].AppendLine($line) }
-    }
-    $sha = [Security.Cryptography.SHA256]::Create()
-    foreach ($k in $blocks.Keys) {
-      $t = $blocks[$k].ToString() -replace '(?m)^(\s*(?:[-*+]|\d+[.)])\s+)\[[ xX]\]\s*', '$1'
-      $t = ($t -replace '\s+', ' ').Trim()
-      "$k@" + (-join ($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($t))[0..2] | % { $_.ToString('x2') }))
-    }
-  }
-  # Current text:    & $fp (Get-Content specs/0001-core-pipeline-model.md -Raw)
-  # Text at HEAD:    & $fp ((git show HEAD:specs/0001-core-pipeline-model.md) -join "`n")
+  ```text
+  python .agents/scripts/spec_fingerprints.py [--rev HEAD] [<spec-path>...]
+  python .agents/scripts/spec_fingerprints.py --id R-0008-001
+  python .agents/scripts/spec_fingerprints.py --refs R-0008-001
   ```
 
-  Compute the map at most once for each exact `HEAD` or working-copy text
-  snapshot during one invocation. Retain and reuse that map for changed-block
-  detection, reference validation, trailer derivation, and semantic review.
-  Do not rerun the helper merely because a later workflow step needs the same
-  fingerprint. If a relevant specification changes during the invocation,
-  discard its retained working-copy map and compute a new one from the changed
-  bytes; never reuse invocation-local results across invocations.
+  Reuse the fingerprints that `trace_facts.py` (below) reports for the whole
+  invocation, for changed-block detection, reference validation, trailer
+  derivation, and semantic review. Run `spec_fingerprints.py` only for a value
+  the facts output does not contain. If a relevant specification changes
+  during the invocation, rerun the scripts; never reuse results across
+  invocations.
 
 - **Product assemblies:** `Qhapaq.Service.V*`, `Qhapaq.Business`,
   `Qhapaq.DAL`, and `Qhapaq.Implementations.*`.
@@ -135,6 +117,40 @@ illustrative. Do not check it as a reference or waiver.
   covers the statement or block that immediately follows.
 
 ## Workflow
+
+### 0. Collect deterministic facts
+
+Run the shared facts script once, before any other step:
+
+```text
+python .agents/scripts/trace_facts.py
+```
+
+It computes the mechanical parts of steps 1–4 with line references: the
+scope and each file's class; identifier grammar, placement, numbering,
+duplicate, removal, and reuse errors in changed specifications; added,
+changed, retired, and removed blocks with their fingerprints; repository
+references that still carry an old fingerprint or cite a retired block; and
+reference and waiver grammar, existence, and currentness in the changed lines
+of code. Every **mechanical error** it reports is an **error** for this check.
+Do not re-derive those facts by reading whole files or writing scripts; read
+only the excerpts that a judgment requires.
+
+The script's `result` line decides what remains:
+
+- `PASS (no changes)` or `PASS - Change-Kind: maintenance…` (the fast path,
+  when every in-scope file is **Other** or **Other code** and no mechanical
+  error exists): the check is complete. Report that result with
+  `Change-Kind: maintenance` and no `Spec:` trailer, apply a user-supplied
+  `change-kind` per the Arguments section, and stop.
+- `FAIL - mechanical errors`: complete the remaining steps only as far as
+  needed to report corrective actions, then report `FAIL`.
+- `INCOMPLETE…`: complete the judgment checks in steps 2–6 below using the
+  facts, including the warnings, component version status checks, the
+  classification in step 5, and the semantic review in step 6.
+
+If the script fails or its output contradicts the source, stop and report
+it; never fall back to guessed values.
 
 ### 1. Determine scope
 
@@ -189,11 +205,9 @@ Report a **warning** when:
 
 ### 3. Find references made stale by specification edits
 
-Use the retained fingerprint maps for the `HEAD` and working-copy text of each
-changed specification. Compute a missing map with the helper once. A block
-whose fingerprint changed is a *changed block*.
-
-For each changed block, search the whole repository:
+Use the changed and retired blocks and the references that `trace_facts.py`
+reports. A block whose fingerprint changed is a *changed block*. The script
+searches the whole repository with the equivalent of:
 
 ```text
 git grep -n "R-<spec>-<seq>@"
@@ -246,7 +260,7 @@ Derive the trailers:
 
 - `Change-Kind: <kind>`.
 - `Spec:` lines listing the requirements the change implements, restores, or
-  rewords, each with its current fingerprint from the helper. For a
+  rewords, each with its current fingerprint from the facts output or `spec_fingerprints.py`. For a
   `requirement` or `extension` change that adds a whole document, the
   document identifier may stand in for its blocks.
 

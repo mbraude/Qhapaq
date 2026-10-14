@@ -21,8 +21,29 @@ excerpts only where a judgment requires them. Generate or refresh
 Run the read-only helper once per invocation before any other resolution:
 
 ```text
-python .agents/skills/work-runbook-sync/scripts/runbook_facts.py <primary-spec-id> [--include <spec-id> ...]
+python .agents/skills/work-runbook-sync/scripts/runbook_facts.py <primary-spec-id> [--include <spec-id>,<spec-id>] --open
 ```
+
+`--open` omits settled items (cancelled, or complete with explicit date
+evidence) whose rows it can render exactly; drop it only when you need their
+facts. Two further modes, each a separate invocation over the same inputs:
+
+- `--rows` prints the table skeleton: exact rows for settled items and rows
+  with `<command>` and `<status>` placeholders, in dependency order, for open
+  items. Fill only the placeholders and any description you must judge.
+- `--check` validates an existing runbook against current inputs: digest and
+  file count, primary scope, column count, link targets, item coverage,
+  settled-row semantics, open-row prerequisites, dependency order, known skill
+  names, and that `Next command` and `Also eligible` appear in rows. It exits 1
+  with findings. A digest-only finding means inputs changed; any other finding
+  means the runbook is malformed or out of date.
+
+Source currentness is reported per recorded hash as `current`, `missing`,
+`stale`, `evidence-only` (the recorded bytes differ only in status or review
+evidence sections, so material content is unchanged), or
+`stale-material-unchanged` (recorded bytes cannot be recovered, but the
+material at the recorded revision matches). The last two are facts for you to
+judge against the consuming record's rules, not automatic passes.
 
 It reads exact working-copy bytes and reports, with line references: transitive
 item selection and owners; plan and readiness source currentness; dependency
@@ -163,13 +184,16 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    command must repair or reconcile them; do not show downstream approval or
    execution as trustworthy. If there are multiple independent eligible rows,
    choose by the stable order and list the others under `Also eligible`.
-10. Write the complete runbook from the template. Regeneration replaces the
+10. Write the complete runbook from the template, starting from the `--rows`
+    skeleton. Regeneration replaces the
     derived metadata and table, preserving no manual row edits. If inputs and
     rendered content other than generation metadata are unchanged, report a
     no-op rather than rewriting the file solely to change its timestamp,
     branch, `HEAD`, or source digest.
-11. Validate table links, commands, item coverage, dependency order, source
-    metadata, and the absence of dependency cycles. Invoke
+11. Run the helper with `--check` against the written runbook and resolve
+    every finding; it covers table links, item coverage, dependency order,
+    source metadata, and command skill names. Confirm the absence of
+    dependency cycles from the facts output. Invoke
     [spec-trace-check](../spec-trace-check/SKILL.md) for a changed runbook.
 
 ## Output and stop

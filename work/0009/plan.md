@@ -6,10 +6,10 @@ sources:
     content_sha256: 59a20f67e18d9ed1653a301919d7ad2eeb047e80e35630789377dba2ec2f6d1b
   - path: .agents/skills/spec-trace-check/SKILL.md
     revision: 07d7b41d910f9dc7a65fea1cb05fb4c62bf6e7cb
-    content_sha256: b526f789b155b5ccb02eb5863854b9d82963a5f23547c8f5fb2dd0e50bc4be82
+    content_sha256: 4aa125b6bd3bd6738668a3aa99ef4fd18b3ceb385d634d2e6dc0ea5bf2adc7bd
   - path: .agents/skills/work-runbook-sync/SKILL.md
     revision: null
-    content_sha256: 2963e4306d8b451f74e2aaeccd38243f8ad5a5dca536724e2f8d0fed2c6bbff1
+    content_sha256: e4e1e45d12d677411a36df48d8f14a5be9e33bcc533e111407a12789f6492033
   - path: .agents/skills/work-next/SKILL.md
     revision: null
     content_sha256: ac9074ed72923e20ad4754aa752847f3e55caec4bb20c73a90aee946d10e1400

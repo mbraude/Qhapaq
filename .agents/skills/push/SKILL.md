@@ -21,9 +21,22 @@ the final report must identify that they remain local.
 
 ## Preconditions
 
-1. Inspect the current branch, complete working-tree status, `origin`, the
-   configured upstream, the remote default branch, and unresolved Git
-   operations.
+1. Fetch the destination ref when it exists, without changing the worktree,
+   then collect the push facts once:
+
+   ```text
+   git fetch origin <current-branch>
+   python .agents/scripts/git_preflight.py --push
+   ```
+
+   It reports the current branch, `origin`, the configured upstream, the remote
+   default branch, unresolved Git operations, exact ahead and behind counts,
+   and the commits a push would publish with their `Change-Kind:` trailers. It
+   exits `1` with a `blocking:` list when `HEAD` is detached, `origin` is
+   absent, an operation is unresolved, the upstream is not
+   `origin/<current-branch>`, the branch is behind, or nothing would be
+   pushed. Use these facts instead of separate Git inspection commands. Check
+   the working-tree status only for the final report.
 2. Stop when:
    - `HEAD` is detached;
    - `origin` is absent;
@@ -32,18 +45,17 @@ the final report must identify that they remain local.
      branch; or
    - the destination cannot be resolved exactly as
      `origin/<current-branch>`.
-3. Fetch the destination ref when it exists and determine the exact ahead and
-   behind counts without changing the worktree.
-4. Stop when the local branch is behind or diverged. Report the remote tip and
+3. Stop when the local branch is behind or diverged. Report the remote tip and
    preserve every local commit and file. Never pull, merge, rebase, reset,
    force-push, change branches, or bypass hooks.
-5. If the current branch is the remote default branch, state that explicitly.
+4. If the current branch is the remote default branch, state that explicitly.
    The user's invocation is permission to perform an ordinary push, not to
    bypass branch protection.
 
 ## Push
 
-1. Record the local tip and the commits not yet present at the destination.
+1. Record the local tip and the commits not yet present at the destination
+   from the push facts.
 2. Push the current branch without any force option:
    - when the configured upstream is `origin/<current-branch>`, use it;
    - when no upstream exists, push to the same-named branch on `origin` and
