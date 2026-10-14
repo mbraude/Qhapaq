@@ -93,8 +93,26 @@ specification amendment.
 
 ## Plan approval
 
-Absent. Approval must cover this exact slice, manifest, dependencies, and
-entry gates.
+Explicitly approved in this session on 2026-10-13 for this exact slice,
+manifest, dependencies, entry gates, tests, validation, and exclusions. This
+approval authorizes execution of the reviewed plan only; it does not change
+this item's status, satisfy its entry gates, approve delivery, or authorize a
+behavioral or conformance change.
+
+Material SHA-256: `9a4bba8d11db0377d23ddd7b0c74f6e5b65168ef5aca68d57e236b1a1e7b8ab7`.
+
+Full-byte SHA-256 hashes of the pre-approval material input snapshot:
+
+| Path | SHA-256 |
+| --- | --- |
+| `SPEC.md` | `fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e` |
+| `specs/0001-core-pipeline-model.md` | `38c3bcd720a1f481bebffc3fab25724d1450ffdca5cfbbda49e6fdaa109baf2e` |
+| `specs/0002-operation-catalogs-and-host-configuration.md` | `c6b98dc1ee7c8e65f28aab8c3bdc6f1b8e71401660499b4ff28d6be664209fca` |
+| `specs/0008-multi-language-conformance-and-repository-organization.md` | `26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926` |
+| `work/0008/decisions/D-0008-003-normative-content-labeling.md` | `4675896d3619504d0c28e38fe73589584ba979aa609fd2981ee8ce05065b8801` |
+| `work/0008/implementation/I-0008-002-requirement-example-audit.md` | `83185977d95a5aa9ab450312ead1aad4cc4123b6e10d29ba31b28dfb2bec5d2b` |
+| `work/0008/plan.md` | `3cffe3e26f15fd00ffccc1907382b79920205773216625c71a2f7585b57ad121` |
+| `work/0008/readiness/portable-core-example-audit-implementation.md` | `eaa9c7392a7dc2819c42588e8c7184674f491a7bbf2307fe1efc8d68d631a7b1` |
 
 ## Delivery evidence and review
 

@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-14T00:46:44Z"
+generated_at: "2026-10-14T03:11:30Z"
 branch: "master"
-head: "b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd"
-source_file_count: 88
-source_set_sha256: "cd2b05524398d21dad8dc12c5be2870496cce6c7c97e4f278a18217a29b32cff"
+head: "aa96323b001ff8b46f95e3a0fa0c3d08f3f99d28"
+source_file_count: 89
+source_set_sha256: "ff890a0f84b03fa9c629a60e98bbd79d5e3c7a63f80c4382cdb4a3c9157be7ee"
 ---
 
 # SPEC-0008: Work Runbook
@@ -24,15 +24,14 @@ unrelated SPEC-0007 items are excluded.
 
 ## Next action
 
-**Next command:** `/work-plan-sync SPEC-0008`
+**Next command:** `/spec-readiness SPEC-0008 scope=language-contract-and-traceability-audit-implementation`
 
-**Also eligible:** `/spec-readiness SPEC-0007 scope=shared-vector-tooling-implementation`<br>`/spec-readiness SPEC-0007 scope=validation-foundation-artifacts-implementation`
+**Also eligible:** `/spec-readiness SPEC-0008 scope=trace-checker`<br>`/spec-readiness SPEC-0008 scope=conformance-artifact-delivery`<br>`/spec-readiness SPEC-0007 scope=shared-vector-tooling-implementation`<br>`/spec-readiness SPEC-0007 scope=validation-foundation-artifacts-implementation`<br>`/approve-implementation-plan SPEC-0008 item=I-0008-014`<br>`/approve-implementation-plan SPEC-0008 item=I-0008-015`<br>`/implement-next SPEC-0008 item=I-0008-013`
 
 ## Runbook
 
 | Work item | Description | Skill command | Status | Date Completed | Pre-requisites / blocked by |
 | --- | --- | --- | --- | --- | --- |
-| `SYNC SPEC-0008` | Reconcile the plan to track the architecture/tool-ownership decision required by the blocked trace-checker readiness record. | `/work-plan-sync SPEC-0008` | Gate - refresh required | — | — |
 | [D-0008-001](work/0008/decisions/D-0008-001-artifact-taxonomy.md) | Adopt artifact taxonomy and source layout | — | Complete | 2026-10-10 | — |
 | [D-0008-002](work/0008/decisions/D-0008-002-convention-ownership.md) | Assign convention ownership and applicability | — | Complete | 2026-10-10 | — |
 | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md) | Separate portable requirements, language contracts, and examples | — | Complete | 2026-10-10 | — |
@@ -50,20 +49,21 @@ unrelated SPEC-0007 items are excluded.
 | [I-0008-010](work/0008/implementation/I-0008-010-dotnet-policy-extraction.md) | Extract .NET policy and route its path instructions | — | Complete | 2026-10-11 | [D-0008-002](work/0008/decisions/D-0008-002-convention-ownership.md)<br>[D-0008-008](work/0008/decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](work/0008/decisions/D-0008-014-policy-checker-delivery-boundary.md) |
 | [I-0008-011](work/0008/implementation/I-0008-011-artifact-policy-routing.md) | Separate artifact-authoring policy from path instructions | — | Complete | 2026-10-11 | [D-0008-002](work/0008/decisions/D-0008-002-convention-ownership.md) |
 | [I-0008-001](work/0008/implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy | — | Complete | 2026-10-11 | [D-0008-002](work/0008/decisions/D-0008-002-convention-ownership.md)<br>[D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](work/0008/decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](work/0008/decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-010](work/0008/implementation/I-0008-010-dotnet-policy-extraction.md)<br>[I-0008-011](work/0008/implementation/I-0008-011-artifact-policy-routing.md) |
-| `READINESS SPEC-0008 portable-core-example-audit-implementation` | Current approved implementation readiness covers this slice. | — | Complete | — | — |
-| `PLAN APPROVAL SPEC-0008 I-0008-013` | Exact plan approval for I-0008-013; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `SYNC SPEC-0008`<br>`READINESS SPEC-0008 portable-core-example-audit-implementation` |
-| [I-0008-013](work/0008/implementation/I-0008-013-portable-core-example-audit.md) | Audit portable core requirements and examples | — | Open - blocked | — | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>`SYNC SPEC-0008`<br>`PLAN APPROVAL SPEC-0008 I-0008-013` |
+| `READINESS SPEC-0008 portable-core-example-audit-implementation` | Current approved implementation readiness covers this slice. The item source changed only by recording plan-approval evidence; its approved material hash is unchanged. | — | Complete - approved and current | — | — |
+| `PLAN APPROVAL SPEC-0008 I-0008-013` | Exact plan approval for I-0008-013 is recorded for the current material snapshot. | — | Complete | 2026-10-13 | `READINESS SPEC-0008 portable-core-example-audit-implementation` |
+| [I-0008-013](work/0008/implementation/I-0008-013-portable-core-example-audit.md) | Audit portable core requirements and examples | `/implement-next SPEC-0008 item=I-0008-013` | Open - ready | — | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>`READINESS SPEC-0008 portable-core-example-audit-implementation`<br>`PLAN APPROVAL SPEC-0008 I-0008-013` |
 | `READINESS SPEC-0008 remaining-portable-specification-audit-implementation` | Current approved implementation readiness covers this slice. | — | Complete | — | — |
-| `PLAN APPROVAL SPEC-0008 I-0008-014` | Exact plan approval for I-0008-014; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `SYNC SPEC-0008`<br>`READINESS SPEC-0008 remaining-portable-specification-audit-implementation` |
-| [I-0008-014](work/0008/implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples | — | Open - blocked | — | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>`SYNC SPEC-0008`<br>`PLAN APPROVAL SPEC-0008 I-0008-014` |
+| `PLAN APPROVAL SPEC-0008 I-0008-014` | Exact plan approval for I-0008-014; source freshness and approved slice readiness are prerequisites. | `/approve-implementation-plan SPEC-0008 item=I-0008-014` | Open - ready | — | `READINESS SPEC-0008 remaining-portable-specification-audit-implementation` |
+| [I-0008-014](work/0008/implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples | — | Open - blocked | — | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>`PLAN APPROVAL SPEC-0008 I-0008-014` |
 | `READINESS SPEC-0008 portable-binding-specification-audit-implementation` | Current I-0008-015 implementation readiness is explicitly approved for its assessed requirements, manifest, and exclusions. | — | Complete - approved and current | — | — |
-| [I-0008-015](work/0008/implementation/I-0008-015-portable-binding-specification-audit.md) | Audit portable binding specification examples | — | Open - blocked | — | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>`SYNC SPEC-0008`<br>`READINESS SPEC-0008 portable-binding-specification-audit-implementation` (approved; source current) |
-| `READINESS SPEC-0008 language-contract-and-traceability-audit-implementation` | Approved assessment is stale against current plan bytes; reassess after reconciliation. | — | Gate - refresh required | — | `SYNC SPEC-0008` |
-| `PLAN APPROVAL SPEC-0008 I-0008-016` | Exact plan approval for I-0008-016; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `SYNC SPEC-0008`<br>`READINESS SPEC-0008 language-contract-and-traceability-audit-implementation` |
-| [I-0008-016](work/0008/implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit .NET contract and traceability boundaries | — | Open - blocked | — | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](work/0008/decisions/D-0008-008-language-native-traceability.md)<br>`SYNC SPEC-0008`<br>`READINESS SPEC-0008 language-contract-and-traceability-audit-implementation` |
+| `PLAN APPROVAL SPEC-0008 I-0008-015` | Renew exact plan approval because the reviewed plan and readiness hashes changed without changing this slice's approved scope. | `/approve-implementation-plan SPEC-0008 item=I-0008-015` | Open - ready | — | `READINESS SPEC-0008 portable-binding-specification-audit-implementation` |
+| [I-0008-015](work/0008/implementation/I-0008-015-portable-binding-specification-audit.md) | Audit portable binding specification examples | — | Open - blocked | — | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>`PLAN APPROVAL SPEC-0008 I-0008-015` |
+| `READINESS SPEC-0008 language-contract-and-traceability-audit-implementation` | Approved assessment is stale against current plan bytes; reassess this exact implementation scope. | `/spec-readiness SPEC-0008 scope=language-contract-and-traceability-audit-implementation` | Gate - refresh required | — | — |
+| `PLAN APPROVAL SPEC-0008 I-0008-016` | Exact plan approval for I-0008-016; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `READINESS SPEC-0008 language-contract-and-traceability-audit-implementation` |
+| [I-0008-016](work/0008/implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit .NET contract and traceability boundaries | — | Open - blocked | — | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](work/0008/decisions/D-0008-008-language-native-traceability.md)<br>`READINESS SPEC-0008 language-contract-and-traceability-audit-implementation` |
 | [I-0008-002](work/0008/implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, language contracts, and examples | — | Open - blocked | — | [D-0008-003](work/0008/decisions/D-0008-003-normative-content-labeling.md)<br>[I-0008-013](work/0008/implementation/I-0008-013-portable-core-example-audit.md)<br>[I-0008-014](work/0008/implementation/I-0008-014-remaining-portable-specification-audit.md)<br>[I-0008-015](work/0008/implementation/I-0008-015-portable-binding-specification-audit.md)<br>[I-0008-016](work/0008/implementation/I-0008-016-language-contract-and-traceability-audit.md) |
-| `READINESS SPEC-0008 trace-checker` | Assessment is blocked and stale; its recorded blocker requires plan reconciliation before reassessment. | — | Gate - refresh required | — | `SYNC SPEC-0008` |
-| [I-0008-007](work/0008/implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker | — | Open - blocked | — | [D-0008-008](work/0008/decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](work/0008/decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](work/0008/decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-001](work/0008/implementation/I-0008-001-engineering-policy-separation.md)<br>`SYNC SPEC-0008`<br>`READINESS SPEC-0008 trace-checker` |
+| `READINESS SPEC-0008 trace-checker` | Assessment is blocked and stale; reassess it against the reconciled plan. | `/spec-readiness SPEC-0008 scope=trace-checker` | Gate - refresh required | — | — |
+| [I-0008-007](work/0008/implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker | — | Open - blocked | — | [D-0008-008](work/0008/decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](work/0008/decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](work/0008/decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-001](work/0008/implementation/I-0008-001-engineering-policy-separation.md)<br>`READINESS SPEC-0008 trace-checker` |
 | [D-0007-009](work/0007/decisions/D-0007-009-model-ownership.md) | Model ownership and visibility map | — | Complete | 2026-10-11 | — |
 | [D-0007-011](work/0007/decisions/D-0007-011-portable-helper-ownership.md) | Shared portable algorithm ownership | — | Complete | 2026-10-11 | [D-0007-009](work/0007/decisions/D-0007-009-model-ownership.md) |
 | [D-0007-012](work/0007/decisions/D-0007-012-generator-runtime-reuse.md) | Generator and runtime reuse boundaries | — | Complete | 2026-10-11 | [D-0007-011](work/0007/decisions/D-0007-011-portable-helper-ownership.md)<br>[D-0008-010](work/0008/decisions/D-0008-010-artifact-ownership-boundaries.md) |
@@ -71,26 +71,26 @@ unrelated SPEC-0007 items are excluded.
 | [D-0007-013](work/0007/decisions/D-0007-013-test-artifact-conventions.md) | Conformance loading, golden files and consumer test conventions | — | Complete | 2026-10-11 | — |
 | [D-0007-015](work/0007/decisions/D-0007-015-conformance-envelope.md) | Portable conformance envelope and expected-result conventions | — | Complete | 2026-10-11 | — |
 | [I-0008-012](work/0008/implementation/I-0008-012-conformance-artifact-planning.md) | Plan conformance profile and evidence delivery | — | Complete | 2026-10-13 | [D-0008-004](work/0008/decisions/D-0008-004-initial-conformance-profiles.md)<br>[D-0008-005](work/0008/decisions/D-0008-005-profile-version-compatibility.md)<br>[D-0008-006](work/0008/decisions/D-0008-006-conformance-declarations.md)<br>[D-0008-007](work/0008/decisions/D-0008-007-conformance-evidence.md)<br>[D-0008-010](work/0008/decisions/D-0008-010-artifact-ownership-boundaries.md)<br>[D-0008-011](work/0008/decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-012](work/0008/decisions/D-0008-012-migration-sequencing.md)<br>[D-0008-013](work/0008/decisions/D-0008-013-claim-publication.md)<br>[D-0007-009](work/0007/decisions/D-0007-009-model-ownership.md)<br>[D-0007-011](work/0007/decisions/D-0007-011-portable-helper-ownership.md)<br>[D-0007-013](work/0007/decisions/D-0007-013-test-artifact-conventions.md)<br>[D-0007-015](work/0007/decisions/D-0007-015-conformance-envelope.md) |
-| `READINESS SPEC-0008 conformance-artifact-delivery` | Approved aggregate readiness is stale against current plan and item bytes. | — | Gate - refresh required | — | `SYNC SPEC-0008` |
-| `READINESS SPEC-0008 conformance-contract-schemas-implementation` | Slice readiness is blocked and stale; reassess after reconciliation. | — | Gate - refresh required | — | `SYNC SPEC-0008` |
-| `PLAN APPROVAL SPEC-0008 I-0008-017` | Exact plan approval for I-0008-017; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `SYNC SPEC-0008`<br>`READINESS SPEC-0008 conformance-artifact-delivery` |
-| [I-0008-017](work/0008/implementation/I-0008-017-conformance-contract-schemas.md) | Deliver portable conformance contract schemas | — | Open - blocked | — | [I-0008-012](work/0008/implementation/I-0008-012-conformance-artifact-planning.md)<br>`SYNC SPEC-0008`<br>`READINESS SPEC-0008 conformance-artifact-delivery`<br>`READINESS SPEC-0008 conformance-contract-schemas-implementation` |
+| `READINESS SPEC-0008 conformance-artifact-delivery` | Approved aggregate readiness is stale against current plan and item bytes. | `/spec-readiness SPEC-0008 scope=conformance-artifact-delivery` | Gate - refresh required | — | — |
+| `READINESS SPEC-0008 conformance-contract-schemas-implementation` | Slice readiness is blocked and stale; reassess after aggregate delivery readiness is current. | — | Open - blocked | — | `READINESS SPEC-0008 conformance-artifact-delivery` |
+| `PLAN APPROVAL SPEC-0008 I-0008-017` | Exact plan approval for I-0008-017; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `READINESS SPEC-0008 conformance-contract-schemas-implementation` |
+| [I-0008-017](work/0008/implementation/I-0008-017-conformance-contract-schemas.md) | Deliver portable conformance contract schemas | — | Open - blocked | — | [I-0008-012](work/0008/implementation/I-0008-012-conformance-artifact-planning.md)<br>`READINESS SPEC-0008 conformance-contract-schemas-implementation` |
 | `READINESS SPEC-0008 profile-definitions-implementation` | Create slice-specific implementation readiness after I-0008-017 is complete. | — | Open - blocked | — | [I-0008-017](work/0008/implementation/I-0008-017-conformance-contract-schemas.md) |
-| `PLAN APPROVAL SPEC-0008 I-0008-018` | Exact plan approval for I-0008-018; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `SYNC SPEC-0008`<br>`READINESS SPEC-0008 profile-definitions-implementation` |
+| `PLAN APPROVAL SPEC-0008 I-0008-018` | Exact plan approval for I-0008-018; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `READINESS SPEC-0008 profile-definitions-implementation` |
 | [I-0008-018](work/0008/implementation/I-0008-018-profile-definitions.md) | Deliver initial profile definitions and evidence matrices | — | Open - blocked | — | [I-0008-017](work/0008/implementation/I-0008-017-conformance-contract-schemas.md)<br>`READINESS SPEC-0008 profile-definitions-implementation` |
 | `READINESS SPEC-0007 shared-vector-tooling-implementation` | Assess current-scope readiness before decomposing I-0007-002. | `/spec-readiness SPEC-0007 scope=shared-vector-tooling-implementation` | Open - ready | — | [D-0007-013](work/0007/decisions/D-0007-013-test-artifact-conventions.md)<br>[D-0007-015](work/0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](work/0008/implementation/I-0008-012-conformance-artifact-planning.md) |
 | [I-0007-002](work/0007/implementation/I-0007-002-conformance-tooling.md) | Shared vector tooling and golden-file procedures | — | Open - blocked | — | [D-0007-013](work/0007/decisions/D-0007-013-test-artifact-conventions.md)<br>[D-0007-015](work/0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](work/0008/implementation/I-0008-012-conformance-artifact-planning.md)<br>`READINESS SPEC-0007 shared-vector-tooling-implementation` |
 | `READINESS SPEC-0007 validation-foundation-artifacts-implementation` | Assess current-scope readiness before decomposing I-0007-005. | `/spec-readiness SPEC-0007 scope=validation-foundation-artifacts-implementation` | Open - ready | — | [D-0007-015](work/0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](work/0008/implementation/I-0008-012-conformance-artifact-planning.md) |
 | [I-0007-005](work/0007/implementation/I-0007-005-validation-foundation-artifacts.md) | Schema profile, parsing, patterns, formats and diagnostic artifacts | — | Open - blocked | — | [D-0007-015](work/0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](work/0008/implementation/I-0008-012-conformance-artifact-planning.md)<br>`READINESS SPEC-0007 validation-foundation-artifacts-implementation` |
 | `READINESS SPEC-0008 conformance-contract-vectors-implementation` | Create slice-specific implementation readiness after its prerequisites are complete. | — | Open - blocked | — | [I-0007-002](work/0007/implementation/I-0007-002-conformance-tooling.md)<br>[I-0007-005](work/0007/implementation/I-0007-005-validation-foundation-artifacts.md)<br>[I-0008-018](work/0008/implementation/I-0008-018-profile-definitions.md) |
-| `PLAN APPROVAL SPEC-0008 I-0008-019` | Exact plan approval for I-0008-019; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `SYNC SPEC-0008`<br>`READINESS SPEC-0008 conformance-contract-vectors-implementation` |
+| `PLAN APPROVAL SPEC-0008 I-0008-019` | Exact plan approval for I-0008-019; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `READINESS SPEC-0008 conformance-contract-vectors-implementation` |
 | [I-0008-019](work/0008/implementation/I-0008-019-conformance-contract-vectors.md) | Deliver conformance contract and lifecycle vectors | — | Open - blocked | — | [I-0007-002](work/0007/implementation/I-0007-002-conformance-tooling.md)<br>[I-0007-005](work/0007/implementation/I-0007-005-validation-foundation-artifacts.md)<br>[I-0008-018](work/0008/implementation/I-0008-018-profile-definitions.md)<br>`READINESS SPEC-0008 conformance-contract-vectors-implementation` |
 | `READINESS SPEC-0008 dotnet-conformance-evidence-implementation` | Create slice-specific implementation readiness after I-0008-019 is complete. | — | Open - blocked | — | [I-0008-019](work/0008/implementation/I-0008-019-conformance-contract-vectors.md) |
-| `PLAN APPROVAL SPEC-0008 I-0008-020` | Exact plan approval for I-0008-020; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `SYNC SPEC-0008`<br>`READINESS SPEC-0008 dotnet-conformance-evidence-implementation` |
+| `PLAN APPROVAL SPEC-0008 I-0008-020` | Exact plan approval for I-0008-020; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `READINESS SPEC-0008 dotnet-conformance-evidence-implementation` |
 | [I-0008-020](work/0008/implementation/I-0008-020-dotnet-conformance-evidence.md) | Connect .NET profile adapters and immutable evidence | — | Open - blocked | — | [I-0008-019](work/0008/implementation/I-0008-019-conformance-contract-vectors.md)<br>`READINESS SPEC-0008 dotnet-conformance-evidence-implementation` |
 | [I-0008-009](work/0008/implementation/I-0008-009-migration-validation-orchestration.md) | Establish root migration validation and recovery orchestration | — | Open - blocked | — | [D-0008-011](work/0008/decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-012](work/0008/decisions/D-0008-012-migration-sequencing.md)<br>[I-0008-007](work/0008/implementation/I-0008-007-trace-checker.md)<br>[I-0008-020](work/0008/implementation/I-0008-020-dotnet-conformance-evidence.md) |
 | `READINESS SPEC-0008 conformance-publication-integration-implementation` | Create slice-specific implementation readiness after orchestration and evidence prerequisites are complete. | — | Open - blocked | — | [I-0008-009](work/0008/implementation/I-0008-009-migration-validation-orchestration.md)<br>[I-0008-020](work/0008/implementation/I-0008-020-dotnet-conformance-evidence.md) |
-| `PLAN APPROVAL SPEC-0008 I-0008-021` | Exact plan approval for I-0008-021; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `SYNC SPEC-0008`<br>`READINESS SPEC-0008 conformance-publication-integration-implementation` |
+| `PLAN APPROVAL SPEC-0008 I-0008-021` | Exact plan approval for I-0008-021; source freshness and approved slice readiness are prerequisites. | — | Open - blocked | — | `READINESS SPEC-0008 conformance-publication-integration-implementation` |
 | [I-0008-021](work/0008/implementation/I-0008-021-conformance-publication-integration.md) | Enforce protected conformance publication | — | Open - blocked | — | [I-0008-009](work/0008/implementation/I-0008-009-migration-validation-orchestration.md)<br>[I-0008-020](work/0008/implementation/I-0008-020-dotnet-conformance-evidence.md)<br>`READINESS SPEC-0008 conformance-publication-integration-implementation` |
 | [I-0008-003](work/0008/implementation/I-0008-003-conformance-artifacts.md) | Deliver conformance profiles, declarations, and evidence artifacts | — | Open - blocked | — | [I-0008-017](work/0008/implementation/I-0008-017-conformance-contract-schemas.md)<br>[I-0008-018](work/0008/implementation/I-0008-018-profile-definitions.md)<br>[I-0008-019](work/0008/implementation/I-0008-019-conformance-contract-vectors.md)<br>[I-0008-020](work/0008/implementation/I-0008-020-dotnet-conformance-evidence.md)<br>[I-0008-021](work/0008/implementation/I-0008-021-conformance-publication-integration.md) |
 | [I-0008-008](work/0008/implementation/I-0008-008-entry-point-identity-migration.md) | Apply matched .NET Entry Point identities | — | Open - blocked | — | [D-0008-009](work/0008/decisions/D-0008-009-dotnet-adapter-terminology.md)<br>[D-0008-012](work/0008/decisions/D-0008-012-migration-sequencing.md)<br>[I-0008-001](work/0008/implementation/I-0008-001-engineering-policy-separation.md)<br>[I-0008-002](work/0008/implementation/I-0008-002-requirement-example-audit.md)<br>[I-0008-003](work/0008/implementation/I-0008-003-conformance-artifacts.md)<br>[I-0008-007](work/0008/implementation/I-0008-007-trace-checker.md)<br>[I-0008-009](work/0008/implementation/I-0008-009-migration-validation-orchestration.md) |
@@ -101,23 +101,22 @@ unrelated SPEC-0007 items are excluded.
 ## Snapshot notes
 
 - Source set is the current working-copy snapshot; the runbook itself is
-  excluded. SHA-256 is computed over sorted repository-relative paths, a NUL
-  separator, exact file bytes, and a NUL separator for each file.
+  excluded. SHA-256 is computed over sorted lines containing each
+  repository-relative path and the SHA-256 of its exact bytes.
 - Both plan source lists are current (SPEC-0008: 22/22; SPEC-0007: 21/21).
   Selected scope: 43 work items (36 primary, 7 transitive prerequisites) and
-  7 relevant readiness records. Four readiness snapshots require freshness
-  review; the I-0008-015 portable-binding readiness is explicitly approved
-  and current (19/19 assessed source hashes match).
-- The trace-checker readiness assessment is blocked and stale. It explicitly
-  requires a work-plan decision on checker ownership/technology before slice
-  planning. Therefore the first safe action is the SPEC-0008 plan-reconciliation
-  gate; dependent SPEC-0008 approvals and execution are not presented as
-  trustworthy until that reconciliation is complete. The only post-approval
-  I-0008-015 readiness-record change clarifies that pre-approval review wording
-  is superseded; its approved scope is unchanged and its 19/19 assessed source
-  hashes remain current, while implementation remains blocked behind
-  reconciliation. Reassess readiness if reconciliation changes its recorded
-  sources.
+  10 readiness records. The I-0008-013, I-0008-014, and I-0008-015
+  implementation-readiness records are explicitly approved for their exact
+  manifests. I-0008-013 remains current because its only changed assessed
+  source content is the newly recorded Plan approval section, while the
+  approved item material hash remains
+  `9a4bba8d11db0377d23ddd7b0c74f6e5b65168ef5aca68d57e236b1a1e7b8ab7`.
+  I-0008-015 requires renewed plan approval because its reviewed plan and
+  readiness hashes changed.
+- The trace-checker, language-contract audit, aggregate conformance delivery,
+  and conformance-contract-schema readiness records are stale or blocked.
+  Their reassessment commands remain independently eligible where their item
+  prerequisites are complete.
 - The two SPEC-0007 readiness assessments listed under Also eligible are
   independent current-scope assessments for open milestones whose item
   prerequisites are complete. They do not execute or approve implementation.
@@ -126,6 +125,8 @@ unrelated SPEC-0007 items are excluded.
   cancelled prerequisite and no cycle. All artifacts for complete items exist.
 - Completed dates come only from explicit item approval or completion evidence;
   missing evidence is reported as `Unknown - evidence missing`.
-- Current generation selection follows the documented stable ordering, with
-  the structural plan-reconciliation gate ahead of pending reviews and other
-  safe actions.
+- Current generation selection follows the documented stable ordering.
+  I-0008-013 is now implementation-eligible, but the first global action is the
+  earlier readiness-refresh class for I-0008-016. No implementation command is
+  emitted for a slice before current readiness and exact plan approval both
+  exist.
