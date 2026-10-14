@@ -4,61 +4,61 @@ scope: portable-binding-specification-audit-implementation
 assessment: approved
 sources:
   - path: .github/instructions/specifications.instructions.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 7e90f2c5a32dfb947e25b86c7ab6b5be53d046d4704e3b4d71768077b9ea52e2
   - path: AGENTS.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 916d6c0094400b87ce1c99661b90590664be588ee1713c2d8b172377567f1272
   - path: SPEC.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e
   - path: conformance/README.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 0fee06404af6fc9c5321b7b30bf990f1f28c42c777b334f7928db5d1ef806307
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: da233fb4acea9077ff49822111698c3d2484b67b69bca0f9b018eafe383d6411
   - path: docs/architecture/decisions/0004-classify-changes-and-trace-through-commits.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: ff5d3fc4f550f73ee88ead69280c3eaa9d57b5cb73089ebc6bd8981b8cfdcf03
   - path: docs/development/coding-conventions.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
   - path: docs/development/conventions/schemas.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: efdccc4b508826ba8302db9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
   - path: docs/development/conventions/specifications.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
   - path: docs/development/spec-driven-workflow.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
   - path: schemas/README.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 9735bf13164fda904d9d926a1ef896038360c7334e8ad831cac195dfc59ab0a1
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
   - path: work/0008/decisions/D-0008-003-normative-content-labeling.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 4675896d3619504d0c28e38fe73589584ba979aa609fd2981ee8ce05065b8801
   - path: work/0008/implementation/I-0008-002-requirement-example-audit.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 83185977d95a5aa9ab450312ead1aad4cc4123b6e10d29ba31b28dfb2bec5d2b
   - path: work/0008/implementation/I-0008-015-portable-binding-specification-audit.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
-    content_sha256: 607d7caef3b548d6f05273a79f810e2b33135245c9bb8580c81306c85a0faaac
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
+    content_sha256: 56dfc47b4d9325e89d00cdc66a4bb390a731f128f189dc7bfd51cef917824c68
   - path: work/0008/plan.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
-    content_sha256: b602977cd2f1d5ccc617f5d54ef049c0f5c615f0f6dab7d333481ab44a0d6f20
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
+    content_sha256: 3cffe3e26f15fd00ffccc1907382b79920205773216625c71a2f7585b57ad121
   - path: work/0008/readiness/requirement-example-audit.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 5186fbba33d1810efc047a7f14715a998980630b32112c23c116898239f8c9cf
   - path: work/templates/readiness.md
-    revision: e989d2b4337550bc1577f79b9d39c09d159d2368
+    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 707d334f40feb8e3462f8ee814c55ce3a8f66c32a860a4b8557d5eaa2f672bf2
 ---
 
@@ -135,18 +135,18 @@ requiring a material schema, vector, behavior, or conformance change is outside
 this manifest and must be routed to its owner for separate planning and
 approval.
 
-D-0008-003 is complete. The exact I-0008-015 plan still requires separate plan
-approval before execution. This readiness assessment requires its own explicit
-approval for the assessed implementation scope; neither approval is implied
-here.
+D-0008-003 is complete, and the exact I-0008-015 plan was separately approved
+on 2026-10-12. This readiness assessment still requires explicit approval for
+the assessed implementation scope before the slice can execute; neither plan
+approval nor this reassessment implies that approval.
 
 ## Blockers
 
-No unresolved prerequisite prevents planning and reviewing the bounded
-SPEC-0007 audit. Any substantive behavior, conformance, architecture, or
-ownership ambiguity discovered while auditing is a stop condition, not
-authority to edit. Plan approval and implementation readiness approval remain
-separate lifecycle gates.
+No unresolved prerequisite prevents the bounded SPEC-0007 audit. Any
+substantive behavior, conformance, architecture, or ownership ambiguity
+discovered while auditing is a stop condition, not authority to edit. This
+current assessment is ready for explicit review and approval; implementation
+remains gated on that approval and the separately approved slice plan.
 
 ## Validation and approval
 
@@ -154,23 +154,44 @@ Reviewed R-0000-007, R-0008-005, D-0008-003, ADR-0003, ADR-0004,
 SPEC-0007's complete outline and open-questions boundary, the I-0008-015 exact
 manifest and entry gates, parent I-0008-002, and the planning-readiness
 exclusion. Reviewed the applicable specification, schema, and conformance
-authoring guidance and their README ownership descriptions. Captured 19 exact
-source-file hashes against repository HEAD
-`e989d2b4337550bc1577f79b9d39c09d159d2368`; the source tree was unchanged at
-those paths.
+authoring guidance and their README ownership descriptions. Verified all 19
+source paths against the current working copy. The only changed source bytes
+since the prior assessment are the SPEC-0008 plan and I-0008-015: the plan
+adds conformance-delivery slices in later phases, and the item records the
+separate approval of its unchanged material plan. Neither delta changes this
+scope's requirements, manifest, dependencies, entry criteria, exclusions, or
+readiness conclusion. The 17 other recorded source hashes remain current.
+All inputs are committed at `b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd`;
+the generated runbook is excluded from this readiness source set. Seven Git
+blobs differ from their working-copy bytes only by CRLF/LF line endings; their
+LF-normalized content matches the recorded baseline. Source hashes record the
+exact current working-copy bytes.
 
-The runbook snapshot refresh passed `git diff --check`. Reviewed both changed
-files under ADR-0003/ADR-0004; the runbook and readiness record are
-maintenance-only documentation and require no `Spec:` trailer or inline
-requirement markers. Specification trace review passed. All 19 readiness
-source hashes and relative links were verified; `git diff --check` passed. No
-product build or unit tests apply to this documentation-only readiness
-assessment.
+The current 19 source hashes and relative links were verified. The runbook
+snapshot refresh and this readiness update passed `git diff --check`.
+Specification trace review passed under ADR-0003/ADR-0004; this readiness
+record and the generated runbook are maintenance-only documentation and
+require no `Spec:` trailer or inline requirement markers. No product build or
+unit tests apply to this documentation-only readiness assessment.
 
-Explicitly approved in this session on 2026-10-12 for I-0008-015
-implementation readiness only, against the exact pre-approval full-byte
-SHA-256 `bf7f7d28282ec73d4b0a95989b039cf628234d94d05f379fd3cfe04fed1ff1cc`.
-All 19 assessed source hashes were verified against current bytes at revision
-`e989d2b4337550bc1577f79b9d39c09d159d2368`. This approval does not approve
-the slice plan, authorize implementation, publish a contract, or claim
+Historical approval: explicitly approved in this session on 2026-10-12 for
+I-0008-015 implementation readiness only, against the prior exact pre-approval
+full-byte SHA-256
+`bf7f7d28282ec73d4b0a95989b039cf628234d94d05f379fd3cfe04fed1ff1cc`. That
+approval remains evidence for its prior source snapshot only; it does not
+approve this refreshed assessment or the slice plan, authorize implementation,
+publish a contract, or claim whole-v1 conformance.
+
+Current approval: explicitly approved in this session on 2026-10-14 for the
+I-0008-015 implementation-readiness scope and exclusions above. The reviewed
+pre-approval readiness-record SHA-256 is
+`e7a39c2b0471078a979f75c514fa3ad0b172eff4c7d9739a67b68562a13e04e0`; the
+reviewed generated runbook SHA-256 is
+`cf42965796b7d3372325a182eaa61f6032efe231857c870c8cb64700cb47d4bf`. The
+19 assessed source hashes are the exact entries in this record's frontmatter.
+The statements above that readiness was ready for review and still required
+approval describe the pre-approval state; this approval supersedes those
+review-gate statements.
+This approval authorizes only the named readiness scope; it does not authorize
+implementation, alter the separate plan approval, publish a contract, or claim
 whole-v1 conformance.
