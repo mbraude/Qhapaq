@@ -2,14 +2,15 @@
 spec: "SPEC-0008"
 scope: remaining-portable-specification-audit-implementation
 assessment: approved
+authorizes: implementation
 process_version: 1
 sources:
   - path: AGENTS.md
     revision: 910e5fd40bfdea4ab9bf73a6ce06418633114996
     content_sha256: 916d6c0094400b87ce1c99661b90590664be588ee1713c2d8b172377567f1272
   - path: SPEC.md
-    revision: 910e5fd40bfdea4ab9bf73a6ce06418633114996
-    content_sha256: fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e
+    revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
+    content_sha256: 998108318c82d9c8c5cb5e70fb99933e3e7d0678e5c98adba8cda8086ff0eed6
   - path: specs/0003-product-evolution-roadmap.md
     revision: 910e5fd40bfdea4ab9bf73a6ce06418633114996
     content_sha256: 2b5fced51668b8bd2d586e377adbf667deabc3cb48c8569890ec7e709992ce32
@@ -88,6 +89,17 @@ Known audit candidates include the provider examples in R-0003-003; the project-
 
 Cross-spec consistency is adequately bounded: preserve R-0000-007 portability, R-0008-005 authority labels, SPEC-0004's independent execution/disclosure permissions and default-deny boundary, and SPEC-0005's protected publication, immutable artifacts, and recovery gates. No issue was found that prevents the bounded audit from inventorying all target material under its stop rule. Scope is disjoint from I-0008-013 (SPEC.md/SPEC-0001/0002), I-0008-015 (SPEC-0007), and I-0008-016 (SPEC-0006/SPEC-0008 and traceability guidance).
 
+Reassessment (2026-10-14): reviewed the intervening SPEC.md change against this
+scope. It moves the .NET reference-interface example outside R-0000-002 and
+restates the language-neutral operation mapping in that requirement. This does
+not change R-0000-007, R-0008-005, any target specification (SPEC-0003/0004/0005),
+or this slice's requirements, manifest, exclusions, or audit method. The
+editorial change is outside this slice's edit manifest and does not alter its
+readiness conclusions. The previously reviewed target-specification inventory
+and mixed-content candidates remain current because all three target files
+retain their assessed bytes. No new specification decision or implementation
+prerequisite was found.
+
 ## Conformance and prerequisite artifacts
 
 The delivery must preserve requirement identifiers; classify content consistently with R-0008-005; treat in-block examples as normative and fingerprint-relevant; verify any changed block fingerprints and all reverse-impact references; and stop at any behavior/conformance amendment. I-0008-014 requires specification traceability review, affected relative-link review, and `git diff --check`; it explicitly excludes product builds and unit tests for this documentation-only editorial slice.
@@ -98,7 +110,7 @@ No schema, vector, profile, release artifact, or published conformance vector is
 
 No unresolved decision or missing product/conformance artifact prevents review of this bounded readiness scope. The audit's named mixed-content candidates are not resolved here; the item's stop condition governs if classification would change meaning.
 
-Execution remains gated on **both** (1) explicit approval of this exact current readiness record and (2) separate explicit approval of the exact I-0008-014 plan. I-0008-014 currently says plan approval is absent. The readiness approval previously recorded for the older assessment does not approve this reassessed snapshot or the plan and does not authorize implementation.
+This reassessment is ready for review and is not approved. Execution remains gated on **both** (1) explicit approval of this exact current readiness record and (2) separate explicit approval of the exact I-0008-014 plan. I-0008-014 currently says plan approval is absent. The readiness approval previously recorded for the older assessment is historical; it does not approve this reassessed snapshot or the plan.
 
 ## Validation and approval
 
@@ -107,6 +119,16 @@ Currentness/impact review (2026-10-13): the current target-specification SHA-256
 Current assessed revision is repository HEAD `910e5fd40bfdea4ab9bf73a6ce06418633114996`; all listed committed inputs are hashed by exact bytes at that revision. The prior readiness artifact currently had SHA-256 `4b927fd7bd992fe255a90bea2a5d7c35a7cd865b0c37b12341b03cfdfa1251a3`; its pre-approval exact record hash was `771bb1d1907bf5ea0145228a2e4c903aa38035bc73612c580c34aadc771aa519`. Explicit approval on 2026-10-12 applied only to that earlier assessed snapshot and remains historical evidence, not approval of this record.
 
 Validation performed 2026-10-13: `/spec-trace-check` returned `PASS`; this readiness record is a maintenance work artifact with no changed requirement blocks, code/tests, references, or waivers. All 20 listed source paths, exact-byte hashes, and committed revisions were verified; the generated runbook is intentionally excluded for the documented source-cycle reason. The 22 source records in `work/0008/plan.md` were also verified against current bytes and resolving revisions. The one repository-relative Markdown link in this record resolves. The three target-source requirement-block counts and exact identifiers were checked (23, 43, and 35; 101 total), hashes match the recorded target snapshots, and `git diff --check` passed. No product build or unit tests apply. Readiness is scoped to I-0008-014 and does not publish a contract, authorize implementation, or assert whole-v1 conformance.
+
+Reassessment validation (2026-10-14): `work_hashes.py refresh --stale`
+updated the SPEC.md source entry; `work_hashes.py verify` reports every
+assessed source current. The shared fingerprint tool verified all 103
+requirements in scope (R-0000-007, R-0008-005, and the 101 target requirements).
+`/spec-trace-check` returned `PASS - Change-Kind: maintenance`; `git diff
+--check` passed; and the record's repository-relative link resolves. No
+product build or unit tests were run because this is a documentation-only
+readiness assessment. This exact reassessment remains `ready-for-review`, not
+approved.
 
 ### Approval evidence
 
@@ -136,3 +158,32 @@ The user explicitly approved this exact readiness snapshot in this session on
 This approval applies only to the reviewed readiness scope and snapshot.
 Separate approval of the I-0008-014 implementation plan is still required
 before implementation; no component contract is published.
+
+### Reassessment evidence
+
+Reassessed 2026-10-14 against the current SPEC.md, plan, I-0008-014, governing
+decisions, and the unchanged SPEC-0003/0004/0005 target snapshots. The exact
+SPEC.md delta was reviewed; it changes only the placement/classification of
+the .NET interface example in R-0000-002, outside this readiness scope. The
+shared fingerprint tool verified all 101 target requirement blocks and both
+governing requirements (R-0000-007 and R-0008-005). The 2026-10-13 approval
+remains evidence only for its earlier exact snapshot. This reassessed record
+was `ready-for-review` and had no new approval evidence at reassessment.
+Approval of the exact assessed snapshot is recorded below; implementation
+still requires separate approval of the I-0008-014 plan.
+
+### Approval of reassessed snapshot
+
+The user explicitly approved this exact readiness snapshot in this session on
+2026-10-14. No approver name was supplied.
+
+- Scope: SPEC-0008 implementation readiness for I-0008-014, governing
+  requirements R-0000-007 and R-0008-005, and conditional editorial-only
+  disposition of examples, rationale, and behavior-affecting defaults in
+  SPEC-0003, SPEC-0004, and SPEC-0005.
+- Exclusions: no changes to behavior, requirement meaning or identity,
+  conformance, security policy, compatibility, or release gates; no code,
+  schema, vector, profile, trace-checker, or publication changes; and no
+  whole-v1 conformance claim. The audit must stop if a candidate disposition
+  would require any such change.
+- Approved material SHA-256: `10bf0df93560d6870dcfbe933052630b09f3729b3050ccf04ad8b09fd1b83e07` (`work/0008/readiness/remaining-portable-specification-audit-implementation.md`).
