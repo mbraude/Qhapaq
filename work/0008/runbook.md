@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-14T13:36:39Z"
+generated_at: "2026-10-14T14:10:39Z"
 branch: "master"
-head: "058413671dc52d2e6f850b29674859c01ddf0230"
+head: "31af5dac159dd8bf5ef6bd290c8311bcbd1bdda2"
 source_file_count: 88
-source_set_sha256: "2b1fb1f50804f6a4e152ef5efc520efc2101302a60f44263c88f5279cdc63715"
+source_set_sha256: "c7fb578b15b4eaef4eeef9ed86f22066bd0ae3fe0f9bab82f614d758829cd456"
 ---
 
 # SPEC-0008: Work Runbook
@@ -23,7 +23,7 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Next action
 
-**Next command:** `/approve-implementation-plan 0008 item=I-0008-013`
+**Next command:** `/implement-next 0008 item=I-0008-013`
 
 **Also eligible:** `/approve-implementation-plan 0008 item=I-0008-014`<br>`/approve-implementation-plan 0008 item=I-0008-015`<br>`/spec-readiness 0008 scope=language-contract-and-traceability-audit-implementation`<br>`/implementation-plan 0008 item=I-0008-007`<br>`/spec-readiness 0008 scope=conformance-contract-schemas-implementation`<br>`/implementation-plan 0007 item=I-0007-002`<br>`/implementation-plan 0007 item=I-0007-005`
 
@@ -48,7 +48,7 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 | [I-0008-010](implementation/I-0008-010-dotnet-policy-extraction.md) | Extract .NET policy and route its path instructions |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md) |
 | [I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) | Separate artifact-authoring policy from path instructions |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md) |
 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md)<br>[D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-010](implementation/I-0008-010-dotnet-policy-extraction.md)<br>[I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) |
-| [I-0008-013](implementation/I-0008-013-portable-core-example-audit.md) | Audit portable core requirements and examples | `/approve-implementation-plan 0008 item=I-0008-013` | Open - ready | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
+| [I-0008-013](implementation/I-0008-013-portable-core-example-audit.md) | Audit portable core requirements and examples | `/implement-next 0008 item=I-0008-013` | Open - ready | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | [I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples | `/approve-implementation-plan 0008 item=I-0008-014` | Open - ready | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit portable binding specification examples | `/approve-implementation-plan 0008 item=I-0008-015` | Open - ready | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | READINESS SPEC-0008 language-contract-and-traceability-audit-implementation | Reassess implementation readiness for I-0008-016 covering R-0000-007, R-0008-004, R-0008-005, R-0008-016, R-0008-017, R-0008-018 and planned edits to specs/0006-dotnet-layered-architecture.md, specs/0008-multi-language-conformance-and-repository-organization.md. | `/spec-readiness 0008 scope=language-contract-and-traceability-audit-implementation` | Gate - reassessment required | — | Non-current sources: work/0008/plan.md(stale) |
@@ -83,5 +83,5 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 - Plans with non-current sources: none.
 - Readiness records with non-current sources: 5 of 9.
 - Structural findings: none.
-- Working-copy inputs: none (clean).
+- Working-copy inputs: `work/0008/implementation/I-0008-013-portable-core-example-audit.md`.
 - Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.
