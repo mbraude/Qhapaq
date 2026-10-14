@@ -2,6 +2,7 @@
 spec: SPEC-0008
 scope: portable-binding-specification-audit-implementation
 assessment: approved
+authorizes: implementation
 process_version: 1
 sources:
   - path: .github/instructions/specifications.instructions.md
@@ -11,8 +12,8 @@ sources:
     revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 916d6c0094400b87ce1c99661b90590664be588ee1713c2d8b172377567f1272
   - path: SPEC.md
-    revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
-    content_sha256: fe46aa58a9ca00cd962654f98fecdc1b068dbbc4d6577567019695b360b1012e
+    revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
+    content_sha256: 998108318c82d9c8c5cb5e70fb99933e3e7d0678e5c98adba8cda8086ff0eed6
   - path: conformance/README.md
     revision: b46ff279fb74bdcb1d8fe744ff1bcb9977e0b7fd
     content_sha256: 0fee06404af6fc9c5321b7b30bf990f1f28c42c777b334f7928db5d1ef806307
@@ -94,6 +95,12 @@ boundaries and fingerprint effects; ADR-0004 distinguishes editorial
 clarification from behavior amendment and requires reverse-impact review when
 requirement blocks change.
 
+Since the prior assessed snapshot, SPEC.md moved its illustrative C# interface
+example outside R-0000-002 and labeled it illustrative, leaving the portable
+requirement text language-neutral. This is consistent with R-0008-005 and does
+not change R-0000-007, the SPEC-0007 audit scope, or the conditional
+SPEC-0007-only edit manifest.
+
 SPEC-0007 is a large, structured specification covering pipeline definitions,
 dataflow, transforms, schema profiles, operation descriptors, .NET declarations,
 binding, diagnostics, AI/MCP authoring, security, compatibility, testing, and
@@ -164,7 +171,10 @@ blobs differ from their working-copy bytes only by CRLF/LF line endings; their
 LF-normalized content matches the recorded baseline. Source hashes record the
 exact current working-copy bytes.
 
-The current 19 source hashes and relative links were verified. The runbook
+The current 19 source hashes and relative links were verified. This
+reassessment additionally compared the SPEC.md delta with the prior recorded
+source snapshot and confirmed that it changes only the placement and label of
+the illustrative C# interface; R-0000-007 remains unchanged. The runbook
 snapshot refresh and this readiness update passed `git diff --check`.
 Specification trace review passed under ADR-0003/ADR-0004; this readiness
 record and the generated runbook are maintenance-only documentation and
@@ -174,21 +184,19 @@ unit tests apply to this documentation-only readiness assessment.
 Historical approval: explicitly approved in this session on 2026-10-12 for
 I-0008-015 implementation readiness only, against the prior exact pre-approval
 full-byte SHA-256
-`bf7f7d28282ec73d4b0a95989b039cf628234d94d05f379fd3cfe04fed1ff1cc`. That
-approval remains evidence for its prior source snapshot only; it does not
-approve this refreshed assessment or the slice plan, authorize implementation,
-publish a contract, or claim whole-v1 conformance.
+`bf7f7d28282ec73d4b0a95989b039cf628234d94d05f379fd3cfe04fed1ff1cc`. A
+subsequent approval on 2026-10-14 covered the then-current readiness snapshot
+with pre-approval full-byte SHA-256
+`e7a39c2b0471078a979f75c514fa3ad0b172eff4c7d9739a67b68562a13e04e0` and
+runbook SHA-256
+`cf42965796b7d3372325a182eaa61f6032efe231857c870c8cb64700cb47d4bf`. Both
+approvals remain evidence only for their respective snapshots. Neither
+approves this reassessment or the slice plan, publishes a contract, or claims
+whole-v1 conformance.
 
 Current approval: explicitly approved in this session on 2026-10-14 for the
-I-0008-015 implementation-readiness scope and exclusions above. The reviewed
-pre-approval readiness-record SHA-256 is
-`e7a39c2b0471078a979f75c514fa3ad0b172eff4c7d9739a67b68562a13e04e0`; the
-reviewed generated runbook SHA-256 is
-`cf42965796b7d3372325a182eaa61f6032efe231857c870c8cb64700cb47d4bf`. The
-19 assessed source hashes are the exact entries in this record's frontmatter.
-The statements above that readiness was ready for review and still required
-approval describe the pre-approval state; this approval supersedes those
-review-gate statements.
-This approval authorizes only the named readiness scope; it does not authorize
-implementation, alter the separate plan approval, publish a contract, or claim
-whole-v1 conformance.
+I-0008-015 implementation-readiness scope and exclusions above. Approval
+applies only to this readiness snapshot; it does not approve the separate
+slice plan or execute the slice.
+
+Approved material SHA-256: `fbc321553f64dfb0746fd9d77ba56fa1fc4a5a090446ac80c0fc4c9db5aeb0a2` (`work/0008/readiness/portable-binding-specification-audit-implementation.md`).
