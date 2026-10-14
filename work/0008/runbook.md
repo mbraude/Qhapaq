@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-14T07:16:53Z"
+generated_at: "2026-10-14T13:36:39Z"
 branch: "master"
-head: "14d8acadbe40675d0f9bca86aaccbe41bc377d3f"
+head: "058413671dc52d2e6f850b29674859c01ddf0230"
 source_file_count: 88
-source_set_sha256: "5bea9e5486b1db2c41123cd724cd1b25980cc331a3d3965ef357d80014fc2473"
+source_set_sha256: "2b1fb1f50804f6a4e152ef5efc520efc2101302a60f44263c88f5279cdc63715"
 ---
 
 # SPEC-0008: Work Runbook
@@ -62,8 +62,8 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 | [D-0007-013](../0007/decisions/D-0007-013-test-artifact-conventions.md) | Conformance loading, golden files and consumer test conventions |  | Complete | 2026-10-11 | — |
 | [D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md) | Portable conformance envelope and expected-result conventions |  | Complete | 2026-10-11 | — |
 | [I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) | Plan conformance profile and evidence delivery |  | Complete | 2026-10-13 | [D-0008-004](decisions/D-0008-004-initial-conformance-profiles.md)<br>[D-0008-005](decisions/D-0008-005-profile-version-compatibility.md)<br>[D-0008-006](decisions/D-0008-006-conformance-declarations.md)<br>[D-0008-007](decisions/D-0008-007-conformance-evidence.md)<br>[D-0008-010](decisions/D-0008-010-artifact-ownership-boundaries.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-012](decisions/D-0008-012-migration-sequencing.md)<br>[D-0008-013](decisions/D-0008-013-claim-publication.md)<br>[D-0007-009](../0007/decisions/D-0007-009-model-ownership.md)<br>[D-0007-011](../0007/decisions/D-0007-011-portable-helper-ownership.md)<br>[D-0007-013](../0007/decisions/D-0007-013-test-artifact-conventions.md)<br>[D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md) |
-| READINESS SPEC-0008 conformance-contract-schemas-implementation | Reassess implementation readiness for I-0008-017 across R-0005-034, R-0005-035, R-0007-347, R-0008-008 through R-0008-015, and R-0008-022 through R-0008-026; cover its seven schema outputs and schemas/README.md (its manifest has no specification-file edits). | `/spec-readiness 0008 scope=conformance-contract-schemas-implementation` | Gate - reassessment required | — | — |
-| [I-0008-017](implementation/I-0008-017-conformance-contract-schemas.md) | Deliver portable conformance contract schemas |  | Open - blocked | — | [I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) |
+| READINESS SPEC-0008 conformance-contract-schemas-implementation | Resolve the recorded blockers and reassess implementation readiness for I-0008-017 covering R-0005-034, R-0005-035, R-0007-347, R-0008-008, R-0008-009, R-0008-010, R-0008-011, R-0008-012, R-0008-013, R-0008-014, R-0008-015, R-0008-022, R-0008-023, R-0008-024, R-0008-025, R-0008-026. | `/spec-readiness 0008 scope=conformance-contract-schemas-implementation` | Gate - blocked | — | work/0008/readiness/conformance-contract-schemas-implementation.md records assessment: blocked |
+| [I-0008-017](implementation/I-0008-017-conformance-contract-schemas.md) | Deliver portable conformance contract schemas |  | Open - blocked | — | [I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md)<br>READINESS SPEC-0008 conformance-contract-schemas-implementation |
 | [I-0008-018](implementation/I-0008-018-profile-definitions.md) | Deliver initial profile definitions and evidence matrices |  | Open - blocked | — | [I-0008-017](implementation/I-0008-017-conformance-contract-schemas.md) |
 | [I-0007-002](../0007/implementation/I-0007-002-conformance-tooling.md) | Shared vector tooling and golden-file procedures | `/implementation-plan 0007 item=I-0007-002` | Open - ready | — | [D-0007-013](../0007/decisions/D-0007-013-test-artifact-conventions.md)<br>[D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) |
 | [I-0007-005](../0007/implementation/I-0007-005-validation-foundation-artifacts.md) | Schema profile, parsing, patterns, formats and diagnostic artifacts | `/implementation-plan 0007 item=I-0007-005` | Open - ready | — | [D-0007-015](../0007/decisions/D-0007-015-conformance-envelope.md)<br>[I-0008-012](implementation/I-0008-012-conformance-artifact-planning.md) |
@@ -79,7 +79,7 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Snapshot notes
 
-- Rows: 45 (24 Complete, 2 Gate - reassessment required, 13 Open - blocked, 6 Open - ready).
+- Rows: 45 (24 Complete, 1 Gate - blocked, 1 Gate - reassessment required, 13 Open - blocked, 6 Open - ready).
 - Plans with non-current sources: none.
 - Readiness records with non-current sources: 5 of 9.
 - Structural findings: none.
