@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-14T21:32:09Z"
+generated_at: "2026-10-14T22:17:01Z"
 branch: "master"
-head: "0d0f8db995e7f2d1c23c2aac0b6911d72dd634c7"
-source_file_count: 88
-source_set_sha256: "6938837ef0f64746bf9ef950e58b21d44ecf7e65cd07fa8a65d2a932905ab1f3"
+head: "fdfdaaa6264ccb80036159c8a9f920bfd804fe89"
+source_file_count: 87
+source_set_sha256: "ea20e29ee95715e6572184f91017fda3603d2f990a4608f3a01ffbd5d6b419e8"
 ---
 
 # SPEC-0008: Work Runbook
@@ -23,7 +23,7 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Next action
 
-**Next command:** `/spec-readiness 0008 scope=portable-binding-specification-audit-implementation`
+**Next command:** `/implement-next 0008 item=I-0008-015`
 
 **Also eligible:** `/spec-readiness 0008 scope=language-contract-and-traceability-audit-implementation`<br>`/implementation-plan 0008 item=I-0008-007`<br>`/spec-readiness 0008 scope=conformance-contract-schemas-implementation`<br>`/implementation-plan 0007 item=I-0007-002`<br>`/implementation-plan 0007 item=I-0007-005`
 
@@ -50,8 +50,7 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 | [I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy |  | Complete | 2026-10-11 | [D-0008-002](decisions/D-0008-002-convention-ownership.md)<br>[D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-010](implementation/I-0008-010-dotnet-policy-extraction.md)<br>[I-0008-011](implementation/I-0008-011-artifact-policy-routing.md) |
 | [I-0008-013](implementation/I-0008-013-portable-core-example-audit.md) | Audit portable core requirements and examples |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | [I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
-| READINESS SPEC-0008 portable-binding-specification-audit-implementation | Reassess implementation readiness for I-0008-015 covering R-0000-007, R-0008-005 and planned edits to specs/0007-portable-pipeline-definitions-and-binding.md. | `/spec-readiness 0008 scope=portable-binding-specification-audit-implementation` | Gate - reassessment required | — | Non-current sources: SPEC.md(stale) |
-| [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit portable binding specification examples |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>READINESS SPEC-0008 portable-binding-specification-audit-implementation<br>Existing plan approval has changed reviewed hashes and must be renewed after readiness is current. |
+| [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit portable binding specification examples | `/implement-next 0008 item=I-0008-015` | Open - ready | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | READINESS SPEC-0008 language-contract-and-traceability-audit-implementation | Reassess implementation readiness for I-0008-016 covering R-0000-007, R-0008-004, R-0008-005, R-0008-016, R-0008-017, R-0008-018 and planned edits to specs/0006-dotnet-layered-architecture.md, specs/0008-multi-language-conformance-and-repository-organization.md. | `/spec-readiness 0008 scope=language-contract-and-traceability-audit-implementation` | Gate - reassessment required | — | Non-current sources: SPEC.md(stale), work/0008/plan.md(stale) |
 | [I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit .NET contract and traceability boundaries |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>READINESS SPEC-0008 language-contract-and-traceability-audit-implementation |
 | [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, language contracts, and examples |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[I-0008-013](implementation/I-0008-013-portable-core-example-audit.md)<br>[I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md)<br>[I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md)<br>[I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) |
@@ -80,9 +79,9 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Snapshot notes
 
-- Rows: 46 (26 Complete, 3 Gate - reassessment required, 14 Open - blocked, 3 Open - ready).
+- Rows: 45 (26 Complete, 2 Gate - reassessment required, 13 Open - blocked, 4 Open - ready).
 - Plans with non-current sources: none.
-- Readiness records with non-current sources: 9 of 9.
+- Readiness records with non-current sources: 8 of 9.
 - Structural findings: none.
-- Working-copy inputs: `work/0007/plan.md`.
+- Working-copy inputs: `work/0008/implementation/I-0008-015-portable-binding-specification-audit.md`.
 - Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.
