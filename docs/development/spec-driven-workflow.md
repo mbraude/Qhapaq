@@ -275,7 +275,12 @@ matches the user's intent. Do not stage unrelated work to finalize an item.
 A [readiness record](../../work/templates/readiness.md) identifies the owning
 specification, named scope, source snapshots, assessment, blockers, exclusions,
 validation, and approval. `assessment` is `not-assessed`, `blocked`,
-`ready-for-review`, or `approved`. Scope lists requirement IDs and included
+`ready-for-review`, or `approved`. `authorizes` states what an approved
+assessment permits: `implementation` (execution of the assessed scope, after
+plan approval) or `planning` (concrete implementation planning only). It is
+material content, so changing it requires reassessment. New and reassessed
+records state it; for an older record without it, read the record's own text.
+Scope lists requirement IDs and included
 capabilities; it is not an assertion about an entire release.
 
 Readiness evaluates completeness, consistency, testability, security,

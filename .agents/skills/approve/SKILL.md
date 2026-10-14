@@ -10,12 +10,17 @@ argument-hint: "[work-item-id or readiness-record-path] [skip-build-and-test=tru
 
 This workflow coordinates human review and approval evidence for one reviewable
 work outcome, then prepares its commit message without performing Git delivery.
-Read [AGENTS.md](../../../AGENTS.md), the
-[specification-driven workflow](../../../docs/development/spec-driven-workflow.md),
-the target plan and item or readiness record, and the applicable specification
-instructions. Skip any of these already in the current context. Compute and
-verify hashes with the [shared workflow scripts](../../scripts/README.md)
-(`work_hashes.py`), never with ad hoc scripts.
+Read [AGENTS.md](../../../AGENTS.md), the target plan and item or readiness
+record, and the applicable specification instructions, skipping any already in
+the current context. The [shared workflow scripts](../../scripts/README.md)
+implement the [workflow guide](../../../docs/development/spec-driven-workflow.md)'s
+hash and evidence rules, so read the guide only when a case here is unclear.
+Compute and verify hashes with `work_hashes.py`, never with ad hoc scripts.
+
+Run each check once per unchanged worktree: `git_preflight.py` reports a
+`snapshot_id`, and a check already run against that snapshot in this
+invocation (or by the calling skill) need not be repeated. Rerun only what a
+later edit could change.
 
 Supported targets:
 
@@ -82,10 +87,11 @@ For a work item:
   criteria, resolution or delivery evidence, and every required output.
 - Verify prerequisites are complete, outputs exist, and every acceptance
   criterion and normative entry gate is satisfied.
-- Recompute the item's material SHA-256 exactly as specified in the workflow
-  guide with `work_hashes.py material`, and verify recorded review evidence
-  with `work_hashes.py evidence`. Verify the item and all material inputs and
-  outputs still match the recorded review snapshot.
+- Run `python .agents/scripts/work_hashes.py approval <item> [--files
+  <material input and output>...]` once: it computes the item's material
+  SHA-256 and full-byte hashes of the listed files. Verify recorded review
+  evidence with `work_hashes.py evidence`. Verify the item and all material
+  inputs and outputs still match the recorded review snapshot.
 
 For a readiness record:
 
@@ -93,16 +99,20 @@ For a readiness record:
   and no unresolved blocker.
 - Read the governing specification, linked decisions, plan, required artifacts,
   and readiness evidence.
-- Verify each recorded source hash against the exact current file bytes and the
-  recorded baseline revision with `work_hashes.py verify`.
+- Run `python .agents/scripts/work_hashes.py approval <record>` once. It
+  verifies every recorded source hash and the `process_version` and computes
+  the record's readiness material SHA-256 (which omits `assessment` and
+  `Validation and approval`); it exits 1 listing anything non-current.
 
 Stale, incomplete, blocked, ambiguous, or materially changed targets require
 renewed assessment or review, not approval.
 
 ### 2. Review the exact changes and validate
 
-Inspect every staged, unstaged, deleted, renamed, and untracked change,
-including full diffs and untracked text. Identify which changes are necessary
+Inspect every staged, unstaged, deleted, renamed, and untracked change.
+Read full diffs and untracked text, except for changes this session produced
+and has not touched since; for those, `git diff --stat` confirming the
+expected files suffices. Identify which changes are necessary
 outputs or approval evidence for the selected target. Stop before approval if
 any change is unrelated, sensitive, generated without an authoritative source,
 unreviewable, or outside the selected target.
@@ -129,13 +139,10 @@ workflow guide's immutable-snapshot rule).
 ### 3. Request explicit approval
 
 Present the target ID/path, outcome, exclusions, acceptance results, validation
-results, every file expected in the later commit, and the exact snapshot:
-
-- For a work item, show its material SHA-256 plus full-byte SHA-256 hashes for
-  the material input and output files, excluding only evidence fields permitted
-  by the workflow guide.
-- For a readiness record, show the readiness record and exact assessed
-  source/input hashes.
+results, every file expected in the later commit, and the exact snapshot: the
+block printed by `work_hashes.py approval` (material SHA-256, plus full-byte
+hashes of a work item's material input and output files; a readiness record's
+sources are bound by its verified frontmatter).
 
 Use `ask_user` to request one explicit choice:
 
@@ -143,9 +150,8 @@ Use `ask_user` to request one explicit choice:
 - Do not approve; stop for changes or further review.
 
 Before asking, verify every substantive acceptance criterion is satisfied and
-recorded. Finalize all material content, compute the material hash from that
-finalized snapshot, and compare the displayed hashes character-for-character
-with the computed values.
+recorded. Finalize all material content first, then run `approval` on that
+finalized snapshot; any later material edit requires running it again.
 
 Approval applies only to the displayed snapshot and named scope. If the user
 declines, stop without changing approval status. If material files change after
@@ -153,13 +159,16 @@ approval, stop and request renewed approval.
 
 ### 4. Record approval
 
-After explicit approval, record in the target's prescribed review section:
+After explicit approval, record in the target's prescribed review section
+(`Validation and approval` for a readiness record):
 
 - that approval was explicitly given in this session without inventing a
   person's name;
 - the date;
 - exact scope and exclusions; and
-- the reviewed snapshot hashes.
+- the `work_hashes.py approval` block, pasted verbatim. Do not add other hash
+  prose; `evidence` checks every `material SHA-256` line and `| path | hash |`
+  row it finds.
 
 Only update lifecycle metadata and review-evidence sections excluded from the
 material hash. For a work item, set `status: complete` only when its acceptance
@@ -168,18 +177,20 @@ readiness record, set `assessment: approved` only for its named scope and
 unchanged assessed snapshot. Do not mark a specification or contract version
 `Published`.
 
-Recompute the approved material hash and verify every recorded full-byte hash
-with one `work_hashes.py evidence` run over the target.
+Run one `work_hashes.py evidence <target>`; every row must be `current`.
 If approved material changed, revert only this skill's approval metadata edits,
 never discard user work, return the target to review as appropriate, and ask
 for approval again.
 
 ### 5. Generate the commit message
 
-Rerun `python .agents/scripts/git_preflight.py` and verify the complete
+Rerun `python .agents/scripts/git_preflight.py` once and verify the complete
 worktree still contains only changes within the approved target scope,
 including the approval evidence. Retain its `snapshot_id` as the identity of
-the approved worktree and report it. If concurrent or unrelated changes
+the approved worktree and report it with the `spec-trace-check` verdict and
+trailers, so a calling skill can commit without repeating those checks. Do not
+rerun `spec-trace-check` when only approval evidence and lifecycle metadata
+changed since it ran. If concurrent or unrelated changes
 appeared, stop without staging or generating a success-shaped delivery result.
 
 Generate a complete commit message that represents the entire approved

@@ -2,6 +2,7 @@
 spec: "<SPEC-NNNN or COMP-NNNN>"
 scope: "<stable scope name>"
 assessment: not-assessed
+authorizes: "<implementation or planning: what approval of this assessment permits>"
 process_version: 1
 sources:
   - path: "<repository-relative assessed input>"

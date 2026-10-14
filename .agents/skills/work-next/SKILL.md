@@ -8,10 +8,11 @@ argument-hint: "<primary-spec-id>"
 
 ## Contract
 
-Apply [AGENTS.md](../../../AGENTS.md) and the
-[workflow guide](../../../docs/development/spec-driven-workflow.md), reading
-each only if it is not already in the current context, and read
-`work/<primary-id>/runbook.md` when it exists. Execute at most one runbook row
+Apply [AGENTS.md](../../../AGENTS.md) if it is not already in context. Do not
+read the [workflow guide](../../../docs/development/spec-driven-workflow.md)
+or the existing runbook before step 1: work-runbook-sync's helper inherits the
+runbook's declared included scope and reports everything selection needs, and
+the delegated skills state the rules they apply. Execute at most one runbook row
 and its optional delivery action. Do not bypass source currentness, readiness,
 plan approval, human review, validation, dependency, branch, commit, or push
 gates.
@@ -30,7 +31,8 @@ state. Do not add a refresh solely to record an intermediate state.
 ## Procedure
 
 1. Invoke [work-runbook-sync](../work-runbook-sync/SKILL.md) with the supplied
-   primary specification and the existing runbook's declared included scope.
+   primary specification; it keeps the existing runbook's declared included
+   scope unless the user names a different one.
    This creates a missing runbook, refreshes a stale one, or reports a no-op.
    Never select from stale rows.
 2. Read the refreshed `Next command`, table, blockers, source digest, branch,

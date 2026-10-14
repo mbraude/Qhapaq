@@ -4,13 +4,18 @@
 Commands (exit 1 when a verification finds a mismatch):
   files PATH...          Full-byte SHA-256 of each file.
   sources PATH...        Ready-to-paste frontmatter `sources` entries.
-  material ITEM...       Material SHA-256 as defined in the workflow guide.
+  material ITEM...       Material SHA-256 as defined in the workflow guide for the record's kind
+                         (work item, plan, or readiness record).
   verify RECORD...       Check each record's frontmatter `sources` hashes.
   diff RECORD...         Unified diff of each non-current source since its recorded snapshot.
-  refresh RECORD (PATH... | --stale)
-                         Rewrite those frontmatter `sources` entries in place with
-                         current revision and hashes. The only writing command; run it
-                         only after judging the change, as the calling skill requires.
+  refresh RECORD [PATH...] [--stale] [--add PATH...] [--remove PATH...]
+                         Rewrite frontmatter `sources` entries in place with current
+                         revision and hashes; --add appends new entries and --remove
+                         deletes entries. The only writing command; run it only after
+                         judging the change, as the calling skill requires.
+  approval TARGET [--files PATH...]
+                         Verify a work item, plan, or readiness record is approvable and
+                         print its ready-to-paste approval evidence block.
   evidence ITEM...       Check recorded material and path/hash evidence tables.
 
 Usage:
@@ -62,11 +67,17 @@ def cmd_sources(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
     return rows, all(r["content_sha256"] for r in rows)
 
 
+def material_of(path: str, data: bytes) -> str:
+    """Material SHA-256 by record kind: plan and readiness records use their own
+    definition; work items and other files use the work-item definition."""
+    return q.source_material_sha256(path, data) or q.material_sha256(data)
+
+
 def cmd_material(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
     rows = []
     for path in paths:
         data = snap.read(path)
-        rows.append({"path": path, "material_sha256": None if data is None else q.material_sha256(data)})
+        rows.append({"path": path, "material_sha256": None if data is None else material_of(path, data)})
     return rows, all(r["material_sha256"] for r in rows)
 
 
@@ -157,12 +168,24 @@ def set_value(old: str, value: str | None) -> str:
     return f"{quote}{value}{quote}"
 
 
-def cmd_refresh(snap: q.Snapshot, record: str, wanted: list[str], stale: bool) -> tuple[list[dict], bool]:
+def source_values(snap: q.Snapshot, path: str, content: str) -> dict:
+    return {
+        "revision": q.last_commit(path) if q.is_tracked(path) else None,
+        "content_sha256": content,
+        "material_sha256": q.source_material_sha256(path, snap.read(path)),
+    }
+
+
+def cmd_refresh(snap: q.Snapshot, record: str, wanted: list[str], stale: bool,
+                add: list[str] | None = None, remove: list[str] | None = None) -> tuple[list[dict], bool]:
+    add, remove = add or [], remove or []
     data = snap.read(record)
     if data is None:
         return [{"record": record, "path": None, "state": "record-missing"}], False
-    if record in wanted:
+    if record in wanted + add:
         return [{"record": record, "path": record, "state": "refused: a record is never its own source"}], False
+    if conflict := sorted(set(remove) & set(wanted + add)):
+        return [{"record": record, "path": p, "state": "refused: both removed and refreshed"} for p in conflict], False
     text = data.decode("utf-8")
     newline = "\r\n" if "\r\n" in text else "\n"
     lines = text.split(newline)
@@ -171,33 +194,69 @@ def cmd_refresh(snap: q.Snapshot, record: str, wanted: list[str], stale: bool) -
     end = lines.index("---", 1)
     entries: list[dict] = []
     in_sources = False
+    sources_key = sources_last = None
     for index in range(1, end):
         line = lines[index]
         if re.match(r"^[A-Za-z_][\w-]*:", line):
             in_sources = line.startswith("sources:")
+            if in_sources:
+                sources_key = sources_last = index
             continue
+        if in_sources:
+            sources_last = index
         entry = SOURCE_ENTRY_RE.match(line) if in_sources else None
         if entry:
             entries.append({"path": q.unquote(entry.group(2)), "indent": len(entry.group(1)) + 2,
-                            "path_line": index, "fields": {}})
+                            "dash": entry.group(1), "raw_path": entry.group(2), "path_line": index, "fields": {}})
         elif in_sources and entries and (field := SOURCE_FIELD_RE.match(line)):
             entries[-1]["fields"][field.group(2)] = (index, field.group(3))
     by_path = {e["path"]: e for e in entries}
-    unknown = [p for p in wanted if p not in by_path]
+    unknown = [p for p in wanted + remove if p not in by_path]
     if unknown:
         return [{"record": record, "path": p, "state": "not a recorded source"} for p in unknown], False
-    derived = [p for p in wanted if q.source_kind(p) == "derived-view"]
+    derived = [p for p in wanted + add if q.source_kind(p) == "derived-view"]
     if derived:
-        return [{"record": record, "path": p, "state": "derived view; remove it instead"} for p in derived], False
-    targets = list(wanted)
+        return [{"record": record, "path": p, "state": "derived view; never a source"} for p in derived], False
+    missing = [p for p in add if snap.sha(p) is None]
+    if missing:
+        return [{"record": record, "path": p, "state": "missing"} for p in missing], False
+    edits: list[tuple[int, int, list[str] | int]] = []  # (position, order, inserted lines | delete-through index)
+    rows: list[dict] = []
+    for position, e in enumerate(entries):
+        if e["path"] in remove:
+            last = entries[position + 1]["path_line"] - 1 if position + 1 < len(entries) else sources_last
+            edits.append((e["path_line"], 2, last))
+            rows.append({"record": record, "path": e["path"], "state": "removed"})
+    new = [p for p in dict.fromkeys(add) if p not in by_path]
+    if new:
+        model = entries[0] if entries else None
+        dash = model["dash"] if model else "  "
+        quote = model["raw_path"].strip()[:1] if model and model["raw_path"].strip()[:1] in "\"'" else ""
+        style = next(iter(model["fields"].values()), (0, ""))[1] if model else ""
+        block: list[str] = []
+        for path in new:
+            values = source_values(snap, path, snap.sha(path))
+            block.append(f"{dash}- path: {quote}{path}{quote}")
+            block += [f"{dash}  {k}: {set_value(style, v)}" for k, v in values.items()
+                      if v is not None or k == "revision"]
+            state = "added (process artifact: cite only when the scope governs it)" \
+                if q.source_kind(path) == "process" else "added"
+            rows.append({"record": record, "path": path, "state": state, **values})
+        if sources_key is None:
+            edits.append((end, 1, ["sources:", *block]))
+        else:
+            if re.match(r"^sources:\s*\[\s*\]\s*$", lines[sources_key]):
+                lines[sources_key] = "sources:"
+            edits.append((sources_last + 1, 1, block))
+    targets = list(dict.fromkeys(wanted + [p for p in add if p in by_path]))
     if stale:
         for e in entries:
             fields = {k: q.unquote(v) for k, (_, v) in e["fields"].items()}
-            if e["path"] not in targets and q.source_kind(e["path"]) != "derived-view" and q.source_state(
-                    snap, e["path"], fields.get("content_sha256"), fields.get("revision"),
-                    fields.get("material_sha256")) != "current":
+            if e["path"] not in targets and e["path"] not in remove and q.source_kind(e["path"]) != "derived-view" \
+                    and q.source_state(snap, e["path"], fields.get("content_sha256"), fields.get("revision"),
+                                       fields.get("material_sha256")) != "current":
                 targets.append(e["path"])
-    rows, ok, inserts = [], True, []
+    ok = True
     for path in targets:
         e = by_path[path]
         content = snap.sha(path)
@@ -205,11 +264,7 @@ def cmd_refresh(snap: q.Snapshot, record: str, wanted: list[str], stale: bool) -
             rows.append({"record": record, "path": path, "state": "missing"})
             ok = False
             continue
-        values = {
-            "revision": q.last_commit(path) if q.is_tracked(path) else None,
-            "content_sha256": content,
-            "material_sha256": q.source_material_sha256(path, snap.read(path)),
-        }
+        values = source_values(snap, path, content)
         for key, value in values.items():
             if key in e["fields"]:
                 index, old = e["fields"][key]
@@ -219,12 +274,36 @@ def cmd_refresh(snap: q.Snapshot, record: str, wanted: list[str], stale: bool) -
             elif value is not None:
                 anchor = max([i for i, _ in e["fields"].values()] + [e["path_line"]])
                 style = next(iter(e["fields"].values()), (0, ""))[1]
-                inserts.append((anchor, f"{' ' * e['indent']}{key}: {set_value(style, value)}"))
+                edits.append((anchor + 1, 0, [f"{' ' * e['indent']}{key}: {set_value(style, value)}"]))
         rows.append({"record": record, "path": path, "state": "refreshed", **values})
-    for anchor, line in sorted(inserts, key=lambda pair: pair[0], reverse=True):
-        lines.insert(anchor + 1, line)
-    if any(r["state"] == "refreshed" for r in rows):
+    # Apply bottom-up; at one position delete first, then the appended block, then field lines, so
+    # a refreshed last entry keeps its new fields ahead of appended entries.
+    for position, _, change in sorted(edits, key=lambda e: (e[0], e[1]), reverse=True):
+        if isinstance(change, int):
+            del lines[position:change + 1]
+        else:
+            lines[position:position] = change
+    if rows and ok:
         (q.ROOT / record).write_bytes(newline.join(lines).encode("utf-8"))
+    return rows, ok
+
+
+def cmd_approval(snap: q.Snapshot, target: str, files: list[str]) -> tuple[list[dict], bool]:
+    """Everything approval evidence needs, verified in one pass: the target's material SHA-256,
+    its recorded sources (plans and readiness records), and full-byte hashes of `files`."""
+    data = snap.read(target)
+    if data is None:
+        return [{"kind": "target", "path": target, "state": "missing"}], False
+    rows = [{"kind": "material", "path": target, "sha256": material_of(target, data), "state": "current"}]
+    ok = True
+    if not q.WORK_ITEM_RE.match(target) and q.parse_frontmatter(snap.text(target)).get("sources") is not None:
+        verified, ok = cmd_verify(snap, [target])
+        rows += [{"kind": "source", "path": r["path"], "state": r["state"], "recorded": r.get("recorded"),
+                  "actual": r.get("actual")} for r in verified]
+    for path in files:
+        sha = snap.sha(path)
+        ok &= sha is not None
+        rows.append({"kind": "file", "path": path, "sha256": sha, "state": "current" if sha else "missing"})
     return rows, ok
 
 
@@ -236,7 +315,7 @@ def cmd_evidence(snap: q.Snapshot, paths: list[str], wanted: list[str]) -> tuple
             rows.append({"item": item, "kind": "item-missing", "state": "missing"})
             ok = False
             continue
-        material = q.material_sha256(snap.read(item))
+        material = material_of(item, snap.read(item))
         for heading, start, lines in q.sections(text):
             if wanted and heading not in wanted:
                 continue
@@ -297,6 +376,24 @@ def print_text(command: str, rows: list[dict]) -> None:
             print(f"{r['state']:<9} {r['record']} -> {r['path']}")
         if not rows:
             print("nothing to refresh")
+    elif command == "approval":
+        problems = [r for r in rows if r["state"] != "current"]
+        if problems:
+            print("not approvable; renew assessment or review first:")
+            for r in problems:
+                detail = f" recorded={r['recorded']} actual={r['actual']}" if r.get("recorded") else ""
+                print(f"  {r['state']:<8} {r['kind']} {r['path']}{detail}")
+            return
+        sources = sum(1 for r in rows if r["kind"] == "source")
+        if sources:
+            print(f"# {sources} recorded source and process checks current; paste the block below as evidence")
+        material = rows[0]
+        print(f"Approved material SHA-256: `{material['sha256']}` (`{material['path']}`).")
+        files = [r for r in rows if r["kind"] == "file"]
+        if files:
+            print("\n| Path | SHA-256 |\n| --- | --- |")
+            for r in files:
+                print(f"| `{r['path']}` | `{r['sha256']}` |")
     elif command == "evidence":
         for r in rows:
             if r["kind"] == "item-missing":
@@ -321,6 +418,13 @@ def main() -> int:
     refresh.add_argument("record")
     refresh.add_argument("paths", nargs="*", help="recorded source paths to refresh")
     refresh.add_argument("--stale", action="store_true", help="also refresh every non-current source")
+    refresh.add_argument("--add", nargs="+", default=[], metavar="PATH",
+                         help="append new source entries (refreshes ones already recorded)")
+    refresh.add_argument("--remove", nargs="+", default=[], metavar="PATH", help="delete recorded source entries")
+    approval = sub.add_parser("approval")
+    approval.add_argument("target")
+    approval.add_argument("--files", nargs="+", default=[], metavar="PATH",
+                          help="material input/output files to list with full-byte hashes")
     evidence = sub.add_parser("evidence")
     evidence.add_argument("paths", nargs="+")
     evidence.add_argument("--section", action="append", default=[], help="limit to a level-2 section; repeatable")
@@ -329,9 +433,12 @@ def main() -> int:
 
     snap = q.Snapshot()
     if args.command == "refresh":
-        if not args.paths and not args.stale:
-            parser.error("refresh needs source paths or --stale")
-        rows, ok = cmd_refresh(snap, q.repo_path(args.record), [q.repo_path(p) for p in args.paths], args.stale)
+        if not (args.paths or args.stale or args.add or args.remove):
+            parser.error("refresh needs source paths, --stale, --add, or --remove")
+        rows, ok = cmd_refresh(snap, q.repo_path(args.record), [q.repo_path(p) for p in args.paths], args.stale,
+                               expand(args.add), [q.repo_path(p) for p in args.remove])
+    elif args.command == "approval":
+        rows, ok = cmd_approval(snap, q.repo_path(args.target), expand(args.files))
     elif args.command == "evidence":
         rows, ok = cmd_evidence(snap, expand(args.paths), args.section)
     elif args.command == "diff":

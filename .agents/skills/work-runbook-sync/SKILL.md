@@ -39,24 +39,32 @@ omits.
 
 The output modes `--open`, `--rows`, `--json`, `--check`,
 `--judgments-template`, and `--write` are mutually exclusive; keep the same
-primary ID and `--include` arguments across invocations. Use `--help` for flag
+primary ID and `--include` arguments across invocations. Without `--include`,
+the helper keeps the existing runbook's `included_specs`; pass `--include`
+only to change the scope (an empty value clears it), so do not read the
+runbook to find it. Use `--help` for flag
 details instead of reading the script source.
 
 - Suggestions implement the command table in step 5 wherever the facts fully
   determine it: dependency-blocked rows, outcomes ready for review, eligible
   decisions, milestones without planned child slices
   (`/implementation-plan`), and slices whose single scope-matched readiness
-  record is stale, not assessed, or ready for review (a `READINESS` gate
-  before the slice, with a generated description) or is current, approved,
+  record is stale, not assessed, ready for review, or current but blocked (a
+  `READINESS` gate before the slice, with a generated description; a blocked
+  record gets status `Gate - blocked`) or is current, approved,
   covers every manifest specification edit, mentions every slice requirement,
-  and has no planning-only language (`/approve-implementation-plan`, or
+  and is not limited to planning (`/approve-implementation-plan`, or
   `/implement-next` when plan approval is recorded with unchanged reviewed
   hashes). A slice with no candidate readiness record gets an assessment gate.
+  A record's planning limit comes from its `authorizes` frontmatter field
+  when present (`implementation` or `planning`); otherwise from planning-only
+  language in a sentence that does not describe another or an older record.
 - Every other open row is `<judge>`: aggregate milestones whose child slices
-  exist, slices with blocked, ambiguous, or partially covering readiness, and
-  hints such as `planning-only-language` (shown with its line excerpt) or
+  exist, slices with ambiguous or partially covering readiness, and
+  hints such as `planning-only-language` (shown with its sentence excerpt) or
   `unmentioned_requirements` (requirement IDs the record does not name
-  literally, which ranges such as `R-0008-008–015` can cause). Hints prompt
+  literally, which ranges such as `R-0008-008–015` can cause). Hints list only
+  scope-matched readiness records when one exists. Hints prompt
   judgment; they are not verdicts. Read only the cited excerpt you need.
 - `--write [--judgments FILE|-]` renders the complete runbook from the
   suggestions overlaid with your overrides, writes it only when content other
@@ -67,7 +75,9 @@ details instead of reading the script source.
   one (with `before: <item id>`), and `{"id": ..., "drop": true}` removes a
   suggested gate. Pass them on standard input with `--judgments -`, for
   example by piping a PowerShell here-string or `ConvertTo-Json` output; never
-  write ad hoc scripts to edit the template. It exits 2 without writing when a
+  write ad hoc scripts to edit the template. `items` is an object keyed by
+  item ID (a list of entries with `id` is also accepted) and `gates` is a
+  list; any other shape exits 2. It exits 2 without writing when a
   `<judge>` remains unresolved, a judgment names an unknown or settled item, a
   gate precedes an unknown row, or a command names an unknown skill, an
   unknown `item=`, or a spec argument other than that item's specification.
@@ -220,7 +230,7 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    code so they are directly copyable. Use `<br>` between multiple blockers.
    Status must distinguish persisted lifecycle state from derived eligibility,
    for example `Open - ready`, `Open - blocked`, `Ready for review`,
-   `Complete`, `Cancelled`, or `Gate - refresh required`.
+   `Complete`, `Cancelled`, `Gate - refresh required`, or `Gate - blocked`.
 7. Populate `Date Completed` only from explicit completion/review evidence for
    an item whose persisted status is `complete`. Use ISO `YYYY-MM-DD`. Use an
    em dash for other rows. If a complete item lacks a defensible completion

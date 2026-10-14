@@ -53,11 +53,43 @@ DATE_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 SPEC_DOC_RE = re.compile(r"^(SPEC\.md|specs/(components/)?[^/]+\.md)$")
 ROW_RE = re.compile(r"^\|\s*(\d+(?:\.\d+)*)\s*\|(?:[^|\[]*\|)*?\s*\[([DI]-\d{4}-\d{3})\]\(([^)]+)\)")
 PLANNING_ONLY_RE = re.compile(r"planning[- ]only|permits planning|authori[sz]es planning", re.I)
+# A sentence describing another or an older record is not this record's own limitation.
+OTHER_RECORD_RE = re.compile(r"\b(?:earlier|older|previous|prior|former|historical|existing|superseded)\b", re.I)
+SENTENCE_END_RE = re.compile(r"(?<=[.!?;])\s+")
+AUTHORIZES = ("implementation", "planning")
 APPROVAL_RE = re.compile(r"approv", re.I)
 EXPLICIT_APPROVAL_RE = re.compile(
     r"explicitly\s+approved|approved\s+explicitly|user\s+approved|approval\s+(?:was\s+)?(?:explicitly\s+)?(?:given|recorded)",
     re.I,
 )
+
+
+def planning_limit(text: str, authorizes, other_scopes: set[str]) -> str | None:
+    """Why a readiness record may authorize planning only, or None.
+
+    An explicit `authorizes` field decides. Otherwise a heuristic flags sentences with
+    planning-only language, skipping sentences about another or an older record.
+    """
+    if authorizes is not None:
+        return None if authorizes == "implementation" else f"authorizes: {authorizes}"
+    paragraph: list[tuple[int, str]] = []
+    paragraphs: list[tuple[int, str]] = []
+    for number, line in enumerate(text.splitlines(), 1):
+        if line.strip():
+            paragraph.append((number, line.strip()))
+        elif paragraph:
+            paragraphs.append((paragraph[0][0], " ".join(t for _, t in paragraph)))
+            paragraph = []
+    if paragraph:
+        paragraphs.append((paragraph[0][0], " ".join(t for _, t in paragraph)))
+    for number, body in paragraphs:
+        for sentence in SENTENCE_END_RE.split(body):
+            if not PLANNING_ONLY_RE.search(sentence) or OTHER_RECORD_RE.search(sentence):
+                continue
+            if any(f"`{scope}`" in sentence for scope in other_scopes):
+                continue
+            return f"L{number}: {sentence[:160]}"
+    return None
 
 
 def evidence_dates(lines: list[str], start: int) -> list[dict]:
@@ -315,15 +347,18 @@ class Facts:
                     "spec": meta.get("spec"),
                     "scope": meta.get("scope"),
                     "assessment": meta.get("assessment"),
+                    "authorizes": meta.get("authorizes"),
                     "stale_sources": [f"{s['path']}({s['state']})" for s in sources if s["state"] != "current"],
-                    "planning_only_language": bool(PLANNING_ONLY_RE.search(text)),
-                    "planning_only_excerpt": next(
-                        (f"L{n}: {line.strip()[:160]}" for n, line in enumerate(text.splitlines(), 1)
-                         if PLANNING_ONLY_RE.search(line)), None),
+                    "_text": text,
                     "_source_paths": {s["path"] for s in sources if s["path"]},
                     "_mentions": set(ID_RE.findall(text)),
                     "_requirements": set(REQ_RE.findall(text)),
                 })
+        scopes = {r["scope"] for r in readiness if r["scope"]}
+        for record in readiness:
+            excerpt = planning_limit(record.pop("_text"), record["authorizes"], scopes - {record["scope"]})
+            record["planning_only_language"] = excerpt is not None
+            record["planning_only_excerpt"] = excerpt
 
         for item_id in order + cycle:
             item = items[item_id]
@@ -698,6 +733,13 @@ def suggest(item: dict, by_id: dict[str, dict]) -> tuple[dict, list[dict]]:
         blocked["blockers"] = [gate["id"], *renew]
         blocked["basis"] = f"{record['path']} awaits approval"
         return blocked, [gate]
+    if record["assessment"] == "blocked":
+        gate = readiness_gate(item, record["scope"], f"/spec-readiness {spec} scope={record['scope']}",
+                              "Gate - blocked", "Resolve the recorded blockers and reassess")
+        gate["blockers"] = [f"{record['path']} records assessment: blocked"]
+        blocked["blockers"] = [gate["id"], *renew]
+        blocked["basis"] = f"{record['path']} is current but blocked"
+        return blocked, [gate]
     if (record["assessment"] != "approved" or record["uncovered_manifest_spec_docs"]
             or record["unmentioned_requirements"] or record["planning_only_language"]):
         return dict(JUDGE), []
@@ -712,6 +754,9 @@ def suggest(item: dict, by_id: dict[str, dict]) -> tuple[dict, list[dict]]:
 
 def judge_hints(item: dict) -> dict:
     pa = item["plan_approval"]
+    candidates = item.get("readiness_candidates", [])
+    if any(c["match"] == "scope" for c in candidates):
+        candidates = [c for c in candidates if c["match"] == "scope"]
     return {
         "granularity": item["granularity"],
         "requirements": item["requirements"],
@@ -725,7 +770,7 @@ def judge_hints(item: dict) -> dict:
             + (f" uncovered_edits={','.join(c['uncovered_manifest_spec_docs'])}" if c["uncovered_manifest_spec_docs"] else "")
             + (f" unmentioned_requirements={','.join(c['unmentioned_requirements'])}" if c["unmentioned_requirements"] else "")
             + (f" planning-only-language {c['planning_only_excerpt']!r}" if c["planning_only_language"] else "")
-            for c in item.get("readiness_candidates", [])
+            for c in candidates
         ],
     }
 
@@ -753,6 +798,28 @@ def judgments_template(facts: dict) -> dict:
         "gates": gates,
         "notes": "",
     }
+
+
+def normalize_overrides(raw) -> dict:
+    """Validate the override shape; a list of `{"id": ...}` items is accepted as the mapping form."""
+    if not isinstance(raw, dict):
+        raise ValueError('expected a JSON object such as {"items": {...}, "gates": [...]}')
+    result = dict(raw)
+    items = result.get("items") or {}
+    if isinstance(items, list):
+        if not all(isinstance(e, dict) and e.get("id") for e in items):
+            raise ValueError('"items" must map item IDs to entries, or list entries that each have an "id"')
+        items = {e["id"]: {k: v for k, v in e.items() if k != "id"} for e in items}
+    if not isinstance(items, dict) or not all(isinstance(v, dict) for v in items.values()):
+        raise ValueError('"items" must map item IDs to objects such as {"command": ..., "status": ...}')
+    gates = result.get("gates") or []
+    if not isinstance(gates, list) or not all(isinstance(g, dict) and g.get("id") for g in gates):
+        raise ValueError('"gates" must be a list of objects that each have an "id"')
+    for key in ("next", "also"):
+        if key in result and not isinstance(result[key], (str, list, type(None))):
+            raise ValueError(f'"{key}" must be a string or list')
+    result["items"], result["gates"] = items, gates
+    return result
 
 
 def effective_judgments(facts: dict, overrides: dict | None) -> dict:
@@ -975,10 +1042,23 @@ def write_runbook(facts: dict, judgments: dict | None) -> int:
     return 1 if problems else 0
 
 
+def inherited_include(primary: str, value: str | None) -> str:
+    """An explicit --include wins; otherwise keep the existing runbook's declared included scope."""
+    if value is not None:
+        return value
+    runbook = ROOT / f"work/{primary.split('-')[-1]}/runbook.md"
+    if not runbook.is_file():
+        return ""
+    declared = parse_frontmatter(runbook.read_text(encoding="utf-8")).get("included_specs") or []
+    return ",".join(str(s) for s in declared) if isinstance(declared, list) else str(declared)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Collect deterministic work-runbook facts.")
     parser.add_argument("primary", help="primary specification, for example SPEC-0008")
-    parser.add_argument("--include", default="", help="comma-separated additional specifications")
+    parser.add_argument("--include", default=None,
+                        help="comma-separated additional specifications; defaults to the existing runbook's "
+                             "included_specs, and an empty value clears them")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--json", action="store_true", help="emit JSON instead of compact text")
     mode.add_argument("--open", action="store_true", help="omit settled complete/cancelled items from text output")
@@ -999,13 +1079,18 @@ def main() -> int:
     if args.out and not args.judgments_template:
         parser.error("--out requires --judgments-template")
     utf8_stdio()
-    included = [normalize_spec(s) for s in args.include.split(",") if s.strip()]
+    included = [normalize_spec(s) for s in inherited_include(normalize_spec(args.primary), args.include).split(",")
+                if s.strip()]
     facts = Facts(normalize_spec(args.primary), included).collect()
     if args.write:
         judgments = None
         if args.judgments:
             raw = sys.stdin.buffer.read() if args.judgments == "-" else Path(args.judgments).read_bytes()
-            judgments = json.loads(raw.decode("utf-8-sig") or "{}")
+            try:
+                judgments = normalize_overrides(json.loads(raw.decode("utf-8-sig") or "{}"))
+            except ValueError as error:
+                print(f"invalid --judgments: {error}", file=sys.stderr)
+                return 2
         return write_runbook(facts, judgments)
     if args.judgments_template:
         template = judgments_template(facts)

@@ -16,12 +16,14 @@ and immediately create its local commit without pushing.
    review, validation, explicit approval, evidence recording, or commit-message
    generation.
 2. Verify that the complete worktree still contains exactly the approved scope
-   and unchanged snapshot: rerun `python .agents/scripts/git_preflight.py` and
-   require its `snapshot_id` to equal the one `approve` retained after
-   recording evidence. Include the approval evidence in the same commit. If
+   and unchanged snapshot. The `git_preflight.py` run that `approve` performs
+   after recording evidence is that verification; rerun it only if anything
+   touched the worktree since, and then require the same `snapshot_id`.
+   Include the approval evidence in the same commit. If
    concurrent, unrelated, or material changes appeared, stop without staging
-   or committing. Supply these preflight facts to `commit` so it does not
-   collect them again.
+   or committing. Supply those preflight facts, the `spec-trace-check`
+   verdict, and its trailers to `commit` so it collects none of them again
+   and does not re-read content `approve` already reviewed.
 3. Invoke [commit](../commit/SKILL.md), supplying the complete message generated
    by `approve` and the matching validation mode. For implementation/code work,
    use `skip-build-and-test=false`. For design/specification-only work already

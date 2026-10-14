@@ -47,11 +47,12 @@ file is missing or a verification found a mismatch.
 | --- | --- |
 | `files PATH...` | Full-byte SHA-256 of each file. |
 | `sources PATH...` | Ready-to-paste frontmatter `sources` entries: `path`, `revision` (last commit touching the path, or `null` if untracked), `content_sha256` of the working-copy bytes, and, for decision and implementation work items, plans, and readiness records, `material_sha256`. Reports on stderr which paths differ from their revision. |
-| `material ITEM...` | The material SHA-256 defined in the workflow guide. |
+| `material ITEM...` | The material SHA-256 defined in the workflow guide for the record's kind: a plan or readiness record uses its own definition, and work items and other files use the work-item definition. |
 | `verify RECORD...` | For a plan or readiness record, its `process_version` state (`current`, `process-missing`, or `process-outdated`), then each frontmatter source with one of the source states below. Work-item, plan, and readiness sources that record `material_sha256` are checked by material and marked `(material)`; process artifacts are marked `(process source)`; a cited runbook or diagram is `derived-view`. |
-| `evidence [--section NAME] ITEM...` | Every recorded `Material SHA-256` value and `` | `path` | `sha256` | `` evidence row, checked against current bytes, with line numbers. |
+| `evidence [--section NAME] ITEM...` | Every recorded `Material SHA-256` value (checked against the record kind's material hash) and `` | `path` | `sha256` | `` evidence row, checked against current bytes, with line numbers. |
+| `approval TARGET [--files PATH...]` | Verifies that a work item, plan, or readiness record is approvable (for a plan or readiness record, every recorded source and its `process_version` are current) and prints the ready-to-paste approval evidence block: an `Approved material SHA-256` line plus a path/hash table of `--files`. Exits 1 listing anything non-current, without printing a block. |
 | `diff [--max-lines N] RECORD...` | For each non-current source, a unified diff from the recorded bytes (recovered from Git history, or the recorded revision) to the working copy, with added and removed line counts. `--max-lines 0` prints everything; the default is 200 per source. |
-| `refresh [--stale] RECORD [PATH...]` | The only writing command: rewrites the named recorded sources (or, with `--stale`, every non-current one) in the record's frontmatter in place with the current `revision`, `content_sha256`, and, for work items, plans, and readiness records, `material_sha256`. Refuses paths that are not recorded sources, derived views, and a record naming itself. Run it only after judging the delta. |
+| `refresh [--stale] RECORD [PATH...] [--add PATH...] [--remove PATH...]` | The only writing command: rewrites the named recorded sources (or, with `--stale`, every non-current one) in the record's frontmatter in place with the current `revision`, `content_sha256`, and, for work items, plans, and readiness records, `material_sha256`; `--add` appends complete entries for new sources (refreshing any already recorded) and `--remove` deletes entries. Refuses unknown or missing paths, derived views, and a record naming itself, and writes nothing when any path is refused. Run it only after judging the delta. |
 
 Paths may use globs, for example
 `python .agents/scripts/work_hashes.py material "work/0008/implementation/I-0008-01*.md"`.
@@ -132,9 +133,10 @@ python .agents\skills\work-runbook-sync\scripts\runbook_facts.py 0007 --check
 ```
 
 Do not combine `--open`, `--rows`, `--json`, `--check`, `--judgments-template`,
-or `--write`. For a coordinated
-scope, add `--include 0008` to each invocation. Transitive prerequisites are
-included automatically without that option.
+or `--write`. To set a coordinated
+scope, pass `--include 0008`; later invocations without `--include` keep the
+runbook's declared `included_specs` (an empty `--include ""` clears it).
+Transitive prerequisites are included automatically without that option.
 
 `--judgments-template --out FILE` writes the template and prints a compact
 summary: suggested commands and gates for every row the facts determine, and
@@ -142,7 +144,9 @@ hints for each remaining `<judge>` row. `--write` renders from those
 suggestions plus any overrides (`--judgments FILE`, or `-` for standard input;
 a UTF-8 byte-order mark is accepted), writes or reports a no-op, checks the
 result, and prints `Next command` and `Also eligible`. It rejects unresolved
-`<judge>` rows and commands whose `item=` or spec argument is wrong. With stale
+`<judge>` rows, overrides whose `items` is not an object keyed by item ID (or
+a list of entries with `id`) or whose `gates` is not a list, and commands whose
+`item=` or spec argument is wrong. With stale
 in-scope plans, `--write` alone renders gate mode. `--open`, `--rows`, and
 `--json` are for investigation only. Never hand-render a runbook, edit the
 template with an ad hoc script, or generate a rendering script. `--check`
