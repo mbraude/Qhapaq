@@ -4,7 +4,7 @@
 >
 > **Target:** Qhapaq v1
 >
-> **Last updated:** 2026-10-11
+> **Last updated:** 2026-10-14
 
 ## 1. Summary
 
@@ -155,14 +155,20 @@ An execution plan is host-specific derived state and is not a portable artifact.
 Unknown properties are rejected unless the normative pipeline JSON Schema
 explicitly permits them.
 
+The normative pipeline JSON Schema must encode the exact top-level members
+listed above and the closed structural shapes in Section 6.3.
+
+#### Illustrative pipeline shape
+
 The example assumes that the exact resolved contract for
 `contoso.customers.get` version `1.2.0` guarantees a required string output
 property named `id`, and that the contract for `contoso.pricing.calculate`
 version `2.0.0` guarantees a required numeric output property named `total`.
-The pipeline input schema above guarantees the required string property
+The example's pipeline input schema guarantees the required string property
 `requestedBy`.
 
-Illustrative pipeline shape using the canonical mapping-expression syntax:
+**Illustrative example:** A pipeline using the canonical mapping-expression
+syntax:
 
 ```json
 {
@@ -316,9 +322,6 @@ Illustrative pipeline shape using the canonical mapping-expression syntax:
 }
 ```
 
-The normative pipeline JSON Schema must encode these exact property names and
-the closed structural shapes in Section 6.3.
-
 ### 6.2 Node identities
 
 **[R-0007-006]** Every node has a non-empty document-local `id`. Node IDs:
@@ -376,7 +379,8 @@ collection execution follow the composition semantics in
 
 #### 6.3.1 Operation
 
-**[R-0007-013]** An `operation` node is a leaf with this exact shape:
+**[R-0007-013]** An `operation` node is a leaf with this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -408,7 +412,8 @@ respective closed schemas.
 
 #### 6.3.2 Transform
 
-**[R-0007-015]** A `transform` node has this exact shape:
+**[R-0007-015]** A `transform` node has this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -451,7 +456,8 @@ respective closed schemas.
 `language`, `inputs`, `outputSchema`, and `expression` are required.
 `language` is exactly `qhapaq.mapping/v1`. `inputs` is a closed map whose keys
 match `^[a-z][A-Za-z0-9]*$`; an input-free transform explicitly uses an empty
-map. Each value in `inputs` is exactly one member of this closed source union:
+map. Each value in `inputs` is exactly one member of this closed source union.
+**Normative examples:**
 
 ```json
 { "source": "pipeline-input" }
@@ -491,7 +497,8 @@ Unknown transform-node and source members are invalid.
 
 #### 6.3.3 Sequence
 
-**[R-0007-017]** A `sequence` node has this exact shape:
+**[R-0007-017]** A `sequence` node has this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -540,7 +547,8 @@ pass-through behavior. Unknown sequence-node members are invalid.
 
 #### 6.3.4 Parallel
 
-**[R-0007-019]** A `parallel` node has this exact shape:
+**[R-0007-019]** A `parallel` node has this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -587,7 +595,8 @@ order rather than producing a partial result.
 
 #### 6.3.5 Decorate
 
-**[R-0007-022]** A `decorate` node has this exact shape:
+**[R-0007-022]** A `decorate` node has this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -627,7 +636,8 @@ bound. Unknown decorate-node members are invalid.
 
 #### 6.3.6 Conditional
 
-**[R-0007-024]** A `conditional` node has this exact shape:
+**[R-0007-024]** A `conditional` node has this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -706,9 +716,9 @@ indeterminate comparison is incompatible. The binder must not infer, synthesize,
 widen, or choose a common output schema from the two branches. Authors must
 declare the intended contract and, when a branch's natural result has a
 different shape, use an explicit transform within that branch to normalize its
-outer result before the conditional boundary. For example, a branch that
-performs parallel work can use a sequence whose parallel step is followed by a
-normalizing transform.
+outer result before the conditional boundary.
+**Normative example:** A branch that performs parallel work can use a sequence
+whose parallel step is followed by a normalizing transform.
 
 **[R-0007-028]** Failure of either branch proof is a document-validation error associated with
 the conditional and the incompatible branch. Validation must report the
@@ -724,7 +734,8 @@ output. Unknown conditional-node members are invalid.
 
 #### 6.3.7 Try/catch recovery
 
-**[R-0007-030]** A `tryCatch` node has this exact shape:
+**[R-0007-030]** A `tryCatch` node has this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -834,7 +845,9 @@ outcome never starts `catch` and propagates unchanged. If invocation
 cancellation is requested after a catchable try failure but before `catch`
 starts, `catch` does not start and the invocation reports cancellation.
 
-**[R-0007-034]** Within the complete lexical `catch` subtree, a transform may explicitly bind:
+**[R-0007-034]** Within the complete lexical `catch` subtree, a transform may explicitly bind
+the following source.
+**Normative example:**
 
 ```json
 { "source": "caught-failure" }
@@ -929,7 +942,8 @@ produced. Unknown `tryCatch` members are invalid.
 
 #### 6.3.8 Bounded loop
 
-**[R-0007-038]** A `loop` node has this exact shape:
+**[R-0007-038]** A `loop` node has this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -982,7 +996,8 @@ invalid.
 
 #### 6.3.9 Bounded collection execution
 
-**[R-0007-042]** A `forEach` node in chunk mode has this exact shape:
+**[R-0007-042]** A `forEach` node in chunk mode has this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -1198,7 +1213,7 @@ rather than being confused with expression objects. Operator objects are the
 only executable syntax; strings never contain JSONPath, source code, or another
 expression language.
 
-The canonical foundational operator shapes are:
+**Normative examples:** The canonical foundational operator shapes are:
 
 ```json
 { "op": "input", "name": "customer" }
@@ -1241,8 +1256,9 @@ the allowed `op` values. It validates each operator's required named operands,
 recursively validates expression-valued operands, and rejects unknown members.
 It does not enumerate child operators according to the result type required by
 a parent. The mapping type checker separately infers child result schemas and
-validates context-dependent requirements, such as whether `property.value`
-produces an object and whether that object's schema permits `property.name`.
+validates context-dependent requirements.
+**Normative examples:** whether `property.value` produces an object and whether
+that object's schema permits `property.name`.
 
 **[R-0007-060]** Declared transform inputs are read with an `input` operator naming exactly one
 key from the transform's `inputs` map. Nested object values are read by
@@ -1251,9 +1267,9 @@ not encode access paths as JSONPath strings or another embedded path grammar.
 
 **[R-0007-061]** Selecting an optional property produces a type that includes the internal
 `missing` state. `missing` is not JSON `null`, is not a portable value, and
-cannot appear in a transform output. The expression must handle it explicitly
-with an operator such as `coalesce-missing`, a conditional, or
-`require-present`. Selecting a property that is absent at runtime never
+cannot appear in a transform output. The expression must handle it explicitly.
+**Normative examples:** `coalesce-missing`, a conditional, or `require-present`.
+Selecting a property that is absent at runtime never
 silently produces `null` and does not fail unless the expression explicitly
 requires the property.
 
@@ -1294,12 +1310,13 @@ result schema from its declared input schemas and proves that every successful
 result conforms to the declared output schema.
 
 Potentially absent or nullable selections do not satisfy required non-null
-outputs without an explicit operation such as coalescing, conditional handling,
-or a checked assertion. There are no implicit string, number, Boolean, enum,
-date, or identifier conversions.
+outputs without an explicit operation. **Normative examples:** coalescing,
+conditional handling, or a checked assertion. There are no implicit string,
+number, Boolean, enum, date, or identifier conversions.
 
-An expression may contain a checked partial operation, such as parsing a number.
-Such an operation must have specified failure behavior. A runtime value failure
+An expression may contain a checked partial operation.
+**Normative example:** parsing a number is a checked partial operation. Such an
+operation must have specified failure behavior. A runtime value failure
 terminates the transform before any downstream operation begins.
 
 **[R-0007-067]** `assert-number-range` is the v1 checked narrowing operation for numeric values.
@@ -1495,9 +1512,10 @@ Unicode version after publication requires a new mapping-language version.
 transformed source sequences. A match is valid only when both ends coincide
 with boundaries between original source scalars, so a match never selects only
 part of one scalar's full-fold expansion. Results and edits refer to the
-corresponding complete span in the original source. For example, under
-`"unicode-case-insensitive"`, U+00DF (`ß`) matches `ss`, but a search for one
-`s` does not match either half of that scalar's `ss` expansion. General
+corresponding complete span in the original source.
+**Normative example:** Under `"unicode-case-insensitive"`, U+00DF (`ß`)
+matches `ss`, but a search for one `s` does not match either half of that
+scalar's `ss` expansion. General
 `equal`, `not-equal`, `deep-equal`, collection equality, grouping, membership,
 ordering, and portable regular-expression matching do not accept this option
 and retain their independently specified exact semantics.
@@ -2088,9 +2106,10 @@ Failures are not values and cannot be caught by a mapping expression.
 
 **[R-0007-110]** A mapping failure's protected host diagnostic identifies the transform node,
 operator, and expression JSON Pointer without reproducing operand values. That
-diagnostic may include bounded, non-sensitive context such as a violated
-assertion bound. The portable runtime failure contains only the exact stable
-code and closed envelope defined in Section 15.2.
+diagnostic may include bounded, non-sensitive context.
+**Normative example:** a violated assertion bound may be included. The portable
+runtime failure contains only the exact stable code and closed envelope defined
+in Section 15.2.
 
 **[R-0007-111]** Runtime values are validated at portable boundaries. A value that violates a
 schema the binder had already proven is reported as a host or implementation
@@ -2684,7 +2703,7 @@ and a failed debit prevents that item and every later item from being processed.
 
 #### Numeric examples
 
-These examples are illustrative applications of the normative rules above:
+**Illustrative examples:** These are applications of the normative rules above.
 
 | Expression | Result |
 | --- | --- |
@@ -3030,9 +3049,12 @@ bundle. It contains a version-specific definition for every mapping-language
 version that the pipeline format permits. At each mapping site, the schema uses
 a closed `oneOf` whose branches are distinguished by a `language` property with
 one exact `const` value. Each branch validates the complete closed mapping-site
-shape and references only the matching version's expression definition. For
-example, a future pipeline format that permits two versions has the logical
-shape:
+shape and references only the matching version's expression definition.
+
+#### Illustrative mapping-site schema pattern
+
+**Illustrative example:** A future pipeline format that permits two mapping
+language versions might use this logical shape:
 
 ```json
 {
@@ -3094,9 +3116,10 @@ JSON Schema Draft 2020-12 under a Qhapaq v1 profile. The profile must define:
 
 **[R-0007-146]** Remote schema resolution during validation or execution is prohibited.
 The v1 profile permits only fragment-only `$ref` values that resolve within the
-containing document, such as `#/$defs/customer`. External, relative-document,
-and network references are invalid. A future format may introduce separately
-packaged, digest-pinned schema artifacts without changing v1 behavior.
+containing document. **Normative example:** `#/$defs/customer` is a fragment-only
+reference within the same document. External, relative-document, and network
+references are invalid. A future format may introduce separately packaged,
+digest-pinned schema artifacts without changing v1 behavior.
 
 **[R-0007-147]** Every Qhapaq-supported `format` is an assertion, not an annotation. A value that
 does not satisfy its declared format is invalid. An unknown or unsupported
@@ -3181,10 +3204,10 @@ property is authoring guidance only and must not be inserted by a validator,
 binder, or runtime.
 
 **[R-0007-159]** An omitted, non-required operation configuration property with a `default` is
-normalized to that concrete value. A caller never supplies a sentinel such as
-the string `"default"`. Explicit `null` is not omission and remains subject to
-the property's schema. The default value must itself satisfy the property
-schema.
+normalized to that concrete value. A caller never supplies a sentinel.
+**Normative example:** the string `"default"` is not a sentinel for omission.
+Explicit `null` is not omission and remains subject to the property's schema.
+The default value must itself satisfy the property schema.
 
 **[R-0007-160]** Normalization materializes optional defaults into the canonical pipeline
 definition before it is hashed, persisted, reviewed, or bound. Implementations
@@ -3495,12 +3518,12 @@ time-parts     = "T" (digits "S"
 digits         = 1*ASCII-DIGIT
 ```
 
-**[R-0007-194]** Components cannot skip an intermediate component: for example, `P1Y2D` and
-`PT1H2S` are invalid. A week form cannot be combined with another component.
-Signs, whitespace, fractions, lowercase unit letters, alternative ISO 8601
-forms, and a bare `P` or `PT` are invalid. Digit sequences are validated
-lexically as arbitrary-precision non-negative integers; validation must not
-overflow a host numeric type.
+**[R-0007-194]** Components cannot skip an intermediate component.
+**Normative examples:** `P1Y2D` and `PT1H2S` are invalid. A week form cannot
+be combined with another component. Signs, whitespace, fractions, lowercase
+unit letters, alternative ISO 8601 forms, and a bare `P` or `PT` are invalid.
+Digit sequences are validated lexically as arbitrary-precision non-negative
+integers; validation must not overflow a host numeric type.
 
 **[R-0007-195]** `hostname` accepts only ASCII and is valid when all of these conditions hold:
 
@@ -3609,7 +3632,8 @@ culture, time zone, DNS, network access, and host parsing libraries.
 compatible with `schemas.output` and becomes the pipeline result.
 
 **[R-0007-206]** An explicit output projection is a closed boundary-specific mapping record with
-this exact shape:
+this exact shape.
+**Normative example:**
 
 ```json
 {
@@ -3740,8 +3764,9 @@ identifier:
 
 **[R-0007-218]** The `qhapaq.` namespace is reserved for this specification and other Qhapaq
 standards. An extension identifier uses a reverse-DNS namespace with at least
-three labels, such as `com.contoso.accelerator.use`. Possession or syntax of a
-name does not grant authority.
+three labels. **Normative example:** `com.contoso.accelerator.use` is a valid
+extension identifier with at least three labels. Possession or syntax of a name
+does not grant authority.
 
 **[R-0007-219]** The operation-descriptor format freezes the core capability, side-effect, and
 idempotency vocabularies it references. `qhapaq.failure/v1` independently
@@ -3777,7 +3802,7 @@ label.
 | `qhapaq.environment.read` | Read an explicitly identified environment variable subject to host policy. |
 | `qhapaq.filesystem.read` | Read filesystem content or metadata. |
 | `qhapaq.filesystem.write` | Create, modify, rename, or delete filesystem content or metadata. |
-| `qhapaq.ipc.connect` | Connect to a declared local interprocess endpoint such as a named pipe or Unix-domain socket. |
+| `qhapaq.ipc.connect` | Connect to a declared local interprocess endpoint. **Normative examples:** a named pipe or Unix-domain socket. |
 | `qhapaq.network.connect` | Initiate an outbound network connection, including a loopback TCP or HTTP connection. |
 | `qhapaq.process.execute` | Start or invoke an external process. |
 
@@ -3816,7 +3841,7 @@ using it remain separate: a read-only network operation declares
 | Side effect | Meaning |
 | --- | --- |
 | `qhapaq.communication.emit` | Emit a message, event, notification, or other communication whose delivery is an intended external consequence. |
-| `qhapaq.external-action.trigger` | Request an externally meaningful action, such as a charge, deployment, workflow transition, or actuator command, that is not adequately described only as stored-data mutation or communication. |
+| `qhapaq.external-action.trigger` | Request an externally meaningful action that is not adequately described only as stored-data mutation or communication. **Normative examples:** a charge, deployment, workflow transition, or actuator command. |
 | `qhapaq.external-state.mutate` | Create, change, append to, rename, or delete durable or externally observable state. |
 
 **[R-0007-229]** Terms are broad consequence classes rather than protocol or CRUD verbs. An
@@ -3866,7 +3891,8 @@ of:
 | `qhapaq.unknown` | The contract supplies no idempotency guarantee. |
 
 **[R-0007-235]** For every classification other than `qhapaq.conditional`, `classification` is
-the object's only member. A conditional object additionally requires:
+the object's only member. A conditional object additionally requires the following.
+**Normative example:**
 
 ```json
 {
@@ -3917,7 +3943,8 @@ not catchable.
 
 **[R-0007-241]** Every operation and decorator failure that may be reported as a catchable
 `operation` or `control` failure is exhaustively declared by its exact
-descriptor. Each normative declaration is a closed object containing:
+descriptor. Each normative declaration is a closed object containing.
+**Normative example:**
 
 ```json
 {
@@ -4007,7 +4034,8 @@ offline by its stable `$id`; validation never requires network access.
 
 **[R-0007-252]** By default, the marked implementation source and descriptor use exact,
 case-sensitive basename matching and reside in the same physical source
-directory:
+directory.
+**Normative example:**
 
 ```text
 HttpOperation.cs
@@ -4044,6 +4072,7 @@ document. The marker may carry the descriptor build-input identity or path, but
 it does not carry portable contract fields.
 
 **[R-0007-257]** The supported authoring shapes are:
+**Normative examples:**
 
 ```csharp
 [QhapaqOperation]
@@ -4142,6 +4171,7 @@ The generated property exposes an immutable descriptor represented by the
 authoritative JSON and must not instantiate the operation.
 
 **[R-0007-264]** Conceptually, generated source includes:
+**Normative example:**
 
 ```csharp
 partial class GetCustomerOperation :
@@ -4155,7 +4185,8 @@ partial class GetCustomerOperation :
 
 **[R-0007-265]** The generator emits the public assembly-root entry point
 `<RootNamespace>.Generated.V1Alpha1.QhapaqOperationRegistration`, containing
-closed generic references and exactly these public members:
+closed generic references and exactly these public members.
+**Normative example:**
 
 ```csharp
 public static class QhapaqOperationRegistration
@@ -4190,7 +4221,8 @@ culture, and filesystem enumeration order.
 
 **[R-0007-268]** The generator produces one canonical portable operation manifest for its
 compilation. `qhapaq.operation-manifest/v1alpha1` is a closed JSON object with
-exactly these members:
+exactly these members.
+**Normative example:**
 
 ```json
 {
@@ -4352,13 +4384,26 @@ migration, and review.
 contract versions, manifest-envelope versions, and Service, CLI, or MCP contract
 versions are independent:
 
-| Axis | Example identity | Compatibility rule |
-| --- | --- | --- |
-| Descriptor document | `qhapaq.operation-descriptor/v1alpha1` | A breaking descriptor-shape or semantic change uses a new format value and schema. |
-| Generator package | `Qhapaq.Operation.Generators` package version | One release may support multiple descriptor formats through version-specific validators. |
-| Generated registration contract | Versioned .NET authoring-runtime API | Generated code declares the exact runtime contract it requires; incompatible API changes are side-by-side or major-version changes. |
-| Portable manifest envelope | `qhapaq.operation-manifest/v1alpha1` | Envelope changes are versioned independently from contained descriptor formats. |
-| Service, CLI, and MCP surfaces | Their own versioned contracts | Transport evolution does not rewrite or implicitly upgrade descriptor documents. |
+| Axis | Compatibility rule |
+| --- | --- |
+| Descriptor document | A breaking descriptor-shape or semantic change uses a new format value and schema. |
+| Generator package | One release may support multiple descriptor formats through version-specific validators. |
+| Generated registration contract | Generated code declares the exact runtime contract it requires; incompatible API changes are side-by-side or major-version changes. |
+| Portable manifest envelope | Envelope changes are versioned independently from contained descriptor formats. |
+| Service, CLI, and MCP surfaces | Transport evolution does not rewrite or implicitly upgrade descriptor documents. |
+
+#### Illustrative version identities
+
+**Illustrative examples:** These identities show the independent version axes;
+they do not require a particular package or authoring-runtime API name.
+
+| Axis | Illustrative identity |
+| --- | --- |
+| Descriptor document | `qhapaq.operation-descriptor/v1alpha1` |
+| Generator package | `Qhapaq.Operation.Generators` package version |
+| Generated registration contract | Versioned .NET authoring-runtime API |
+| Portable manifest envelope | `qhapaq.operation-manifest/v1alpha1` |
+| Service, CLI, and MCP surfaces | Their own versioned contracts |
 
 **[R-0007-291]** A generator release publishes a compatibility matrix listing every descriptor
 format, manifest envelope, and registration-contract version it accepts or
@@ -4419,9 +4464,9 @@ support.
 
 **[R-0007-398]** The stable handwritten marker is independent from a generated registration
 contract version. Version-specific generated declaration interfaces, builders,
-and registration entry points use side-by-side namespaces such as
-`Qhapaq.Abstractions.Operations.Declarations.V1Alpha1` and
-`<RootNamespace>.Generated.V1Alpha1`. A later generator may project the same
+and registration entry points use side-by-side namespaces.
+**Normative examples:** `Qhapaq.Abstractions.Operations.Declarations.V1Alpha1`
+and `<RootNamespace>.Generated.V1Alpha1`. A later generator may project the same
 unchanged operation implementation into another explicitly supported generated
 contract without copying its behavior. The generator compatibility matrix and
 manifest identify the exact generated contract; they do not make an operation
@@ -4914,8 +4959,9 @@ delimited from authoritative tool instructions.
 
 **[R-0007-421]** Structured errors use
 `qhapaq.<surface-token>.<reason>`, where `surface-token` is the middle component
-of an R-0007-411 surface ID, such as `pipeline-validate`, and the closed
-applicable reasons are `invalid-request`, `invalid-continuation`,
+of an R-0007-411 surface ID.
+**Normative example:** `pipeline-validate` is a valid surface token.
+The closed applicable reasons are `invalid-request`, `invalid-continuation`,
 `catalog-digest-mismatch`, `pipeline-digest-mismatch`, `identity-conflict`,
 `registry-conflict`, `capability-unavailable`, `cancelled`,
 `dependency-failure`, and `internal-failure`. A surface rejects a reason that
@@ -4980,7 +5026,9 @@ protected metadata.
 - expected and actual schema summaries when applicable; and
 - zero or more bounded remediation suggestions.
 
-Example:
+#### Illustrative validation diagnostic
+
+**Illustrative example:** A validation diagnostic may use this shape:
 
 ```json
 {
@@ -5769,8 +5817,8 @@ language covers data shaping without becoming a general runtime.
 ### JSON values between every operation
 
 This simplifies dynamic composition but discards native type safety and adds
-serialization overhead. Qhapaq serializes only at declared boundaries such as
-transforms, CLI, MCP, and persistence.
+serialization overhead. Qhapaq serializes only at declared boundaries.
+**Illustrative examples:** transforms, CLI, MCP, and persistence.
 
 ### Host-runtime regular-expression engines
 

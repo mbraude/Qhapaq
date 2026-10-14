@@ -12,8 +12,8 @@ sources:
     revision: cb6a46d81b52b3728d67008e9ffbda6da61f4815
     content_sha256: 8bdd26b4572fa99041587451e580818e9a540d4d64d5a2484d856b867f8345e9
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: 8fbf725e0fda9697c3eff44435481d7755141272
-    content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
+    revision: 1267f9c0475eda05ef1f118437ef64a4a2f2a859
+    content_sha256: 5cff3784f6bfc9ddb64b6bcf3f15a14d09c50d97bb25e7702ff65e01496f0d24
   - path: specs/0002-operation-catalogs-and-host-configuration.md
     revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
     content_sha256: ca889260cd2445fc3a285c978389d0d31a0541d0d2b2d5830af47cfc6b73c2f4
@@ -67,6 +67,24 @@ sources:
 # SPEC-0007: Work Plan
 
 ## Source and workflow reconciliation
+
+- Date: 2026-10-14. Reviewed the SPEC-0007 editorial audit in
+  I-0008-015. It moves illustrative pipeline, future schema-dispatch,
+  version-identity, and diagnostic examples outside requirement blocks, and
+  labels examples retained within requirement blocks as normative. It also
+  inventories defaults and rationale while preserving the language-neutral
+  boundary and schema/conformance ownership. No behavior, conformance
+  expectation, requirement meaning, SPEC-0007 work scope, status, dependency,
+  phase membership, readiness gate, or approval material changed.
+- The changed fingerprints and reverse-impact results are recorded in
+  I-0008-015's delivery evidence. The only repository occurrences carrying
+  prior fingerprints are historical `Spec:` trailers in completed decisions
+  D-0007-003 and D-0007-005; they are retained as evidence for those exact
+  historical snapshots. No code or test references require an update.
+- Refreshed only the SPEC-0007 source snapshot to the reviewed working-copy
+  bytes: baseline revision `1267f9c0475eda05ef1f118437ef64a4a2f2a859`,
+  SHA-256 `5cff3784f6bfc9ddb64b6bcf3f15a14d09c50d97bb25e7702ff65e01496f0d24`.
+  The plan's material scope and other source records remain unchanged.
 
 - Date: 2026-10-14. Reviewed the three specification changes committed in
   `93aeb7744f57ad9638d017678d9dc03be9e150e6`, following the completed

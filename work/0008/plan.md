@@ -27,8 +27,8 @@ sources:
     revision: ff91861578d0d4368836d05d1039bbd93fca4efa
     content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 30945dafc0dce8b518beac8230af5e8a917257cbd42f0210d7e294dcae67c13c
+    revision: 1267f9c0475eda05ef1f118437ef64a4a2f2a859
+    content_sha256: 5cff3784f6bfc9ddb64b6bcf3f15a14d09c50d97bb25e7702ff65e01496f0d24
   - path: docs/development/coding-conventions.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
@@ -70,6 +70,23 @@ sources:
 # SPEC-0008: Work Plan
 
 ## Source and workflow reconciliation
+
+- Date: 2026-10-14. Reconciled the SPEC-0007 source change produced by
+  I-0008-015's editorial audit. The audit separates illustrative material from
+  normative requirement blocks and labels retained normative examples; it
+  preserves required behavior, conformance expectations, and artifact
+  ownership. No SPEC-0008 requirement, I-0008-015 scope, dependency, phase
+  membership, or aggregate gate changed. The exact readiness and plan
+  approvals remain evidence for the reviewed entry snapshot; this source
+  reconciliation does not renew them or approve delivery.
+- The changed SPEC-0007 fingerprints and reverse-impact review are recorded in
+  I-0008-015's delivery evidence. Prior fingerprints in completed SPEC-0007
+  decision trailers remain historical evidence for those decisions' exact
+  snapshots; no product-code or test references require updates.
+- Refreshed only the SPEC-0007 source snapshot to the reviewed working-copy
+  bytes: baseline revision `1267f9c0475eda05ef1f118437ef64a4a2f2a859`,
+  SHA-256 `5cff3784f6bfc9ddb64b6bcf3f15a14d09c50d97bb25e7702ff65e01496f0d24`.
+  The plan's material scope and other source records remain unchanged.
 
 - Date: 2026-10-14. Reviewed the three source changes committed in
   `c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d` after completion of
