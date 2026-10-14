@@ -24,6 +24,17 @@ retained synchronization facts are reused rather than rebuilt. A row may stop
 for a consequential decision or explicit approval. That stop is the correct
 outcome, not permission to continue to another row.
 
+The initial `work-runbook-sync` invocation is a synchronization phase of this
+orchestration, not the selected row action. After it reports either a write or
+a valid no-op (`runbook inputs unchanged` and `--check` passing), resume this
+skill at step 2 in the same turn. Its standalone instruction to stop after a
+no-op applies only when the user invoked `work-runbook-sync` directly; it must
+not terminate `/work-next`. Do not call `task_complete`, present the sync
+result as the whole outcome, or stop merely because synchronization made no
+changes. Continue to select and dispatch the reported next command. Only stop
+when a gate, explicit approval, required user input, failed check, or this
+skill's post-row delivery/review point requires it.
+
 Synchronize the runbook at most twice per invocation: once before selection
 and once after the selected row and any delivery action change repository
 state. Do not add a refresh solely to record an intermediate state.
@@ -34,7 +45,9 @@ state. Do not add a refresh solely to record an intermediate state.
    primary specification; it keeps the existing runbook's declared included
    scope unless the user names a different one.
    This creates a missing runbook, refreshes a stale one, or reports a no-op.
-   Never select from stale rows.
+   Never select from stale rows. Treat a valid no-op as successful completion
+   of this synchronization phase, then continue to step 2 in this same turn;
+   do not end `/work-next` here.
 2. Read the refreshed `Next command`, table, blockers, source digest, branch,
    and `HEAD`. Use that freshly synchronized `Next command` as the global row
    selection; do not independently reread every row or rebuild the global
@@ -71,8 +84,10 @@ state. Do not add a refresh solely to record an intermediate state.
      review gate.
    - `approve-implementation-plan` and `approve` obtain their own explicit
      human approval and must not infer it from this orchestration request.
-5. If the delegated action makes no changes, keep the current runbook and
-   report the blocker or requested input; skip steps 6 to 8.
+5. If the selected row action (not the initial synchronization phase) makes no
+   changes, keep the current runbook and report the blocker or requested
+   input; skip steps 6 to 8. A synchronization no-op is handled by steps 1–2
+   and does not satisfy this stop condition.
 6. Offer a delivery choice only when the selected action produced a coherent,
    reviewable worktree outcome and the delegated workflow permits delivery.
    Ask before refreshing the runbook, so the single refresh in step 8 can be
