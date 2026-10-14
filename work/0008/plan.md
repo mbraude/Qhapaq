@@ -12,17 +12,17 @@ sources:
     revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
     content_sha256: ca889260cd2445fc3a285c978389d0d31a0541d0d2b2d5830af47cfc6b73c2f4
   - path: specs/0003-product-evolution-roadmap.md
-    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: 2b5fced51668b8bd2d586e377adbf667deabc3cb48c8569890ec7e709992ce32
+    revision: cb6a46d81b52b3728d67008e9ffbda6da61f4815
+    content_sha256: d9b5e8c81c676961f49edd4adf0a191a75bc2d5032320d65e0051955dd8cc62d
   - path: specs/0004-ai-assisted-connections.md
-    revision: 66c43b3d030e84a4ac055b6853946c401d7a9b8c
-    content_sha256: 39625b975496c96ae55c21785fd632f75d10096349acc82a4d277fc93c698e57
+    revision: cb6a46d81b52b3728d67008e9ffbda6da61f4815
+    content_sha256: 7c0df89cec4bf526e22137718f80ee562b424a71efbe1856bc6337ccd63ca07b
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
   - path: specs/0005-build-release-and-website-delivery.md
-    revision: 8a534afd2e4a4cbd28e30de6e115967977862727
-    content_sha256: 8259be3d7e256d77ab18e96c35906ce64c01d25eb7a22f45a911c0727d1a1679
+    revision: cb6a46d81b52b3728d67008e9ffbda6da61f4815
+    content_sha256: 8bdd26b4572fa99041587451e580818e9a540d4d64d5a2484d856b867f8345e9
   - path: specs/0006-dotnet-layered-architecture.md
     revision: ff91861578d0d4368836d05d1039bbd93fca4efa
     content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
@@ -135,6 +135,23 @@ sources:
   cite older guide, plan, or item snapshots remain subject to separate
   reassessment before they can support eligibility. The updated source
   baseline is `da70a0e303f4ff75ee095168d670d709ba3c1afe`.
+- Date: 2026-10-14. Reconciled the three SPEC-0003, SPEC-0004, and SPEC-0005
+  source changes delivered by I-0008-014. Those edits explicitly classify
+  normative and illustrative examples, move illustrative catalog/profile and
+  provisional MCP tool-name examples outside requirement blocks, and clarify
+  example labels. They preserve the requirements' behavior and conformance
+  meaning; no governing requirement in SPEC-0008 changed. The nine changed
+  requirement fingerprints and reverse-impact review are recorded in
+  I-0008-014's delivery evidence, and the exact source deltas were reviewed.
+  I-0008-014 remains complete for its approved snapshot. No other work-item
+  scope, dependency, or phase membership changed.
+- Refreshed only these three plan source snapshots after review. The plan's
+  material scope is unchanged. I-0008-015 and I-0008-016 readiness records
+  remain stale on previously recorded SPEC.md and/or plan material inputs;
+  I-0008-017 readiness remains blocked and stale on its recorded inputs,
+  including SPEC-0005. Their assessments and existing plan-approval evidence
+  are not renewed by this reconciliation. Reassess the exact implementation
+  scopes and renew any required plan approvals before those slices proceed.
 
 ## D-0007-014 .NET policy source impact review
 
