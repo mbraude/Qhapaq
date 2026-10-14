@@ -44,8 +44,8 @@ sources:
     revision: 911ede5a759d7288dc569002ab2bbb136caeb52d
     content_sha256: efdccc4b508826ba8302db9f5ab5ea909ef549678c23e28c3f81e694cb27a0f2
   - path: docs/development/spec-driven-workflow.md
-    revision: b627023baef4d16d8c1c3598b24ba9d66f9e96bb
-    content_sha256: da0d7ea110236bddcebc9607b435721ecf53d00dff7694a2f43a402f819b3ea2
+    revision: da70a0e303f4ff75ee095168d670d709ba3c1afe
+    content_sha256: 38d5a0d3851b57aa32b3702e0929c83b087b7a922d3682c3e5127670d2031294
   - path: docs/architecture/decisions/0003-enforce-specification-traceability.md
     revision: 8a534afd2e4a4cbd28e30de6e115967977862727
     content_sha256: da233fb4acea9077ff49822111698c3d2484b67b69bca0f9b018eafe383d6411
@@ -98,6 +98,17 @@ sources:
   readiness, approve an implementation plan, authorize execution, or publish
   a contract. The historical conformance-artifact readiness record remains
   stale and must be reassessed before that scope proceeds.
+- Date: 2026-10-13. Reviewed the workflow-guide changes since the recorded
+  source snapshot. The added `material_sha256` rule distinguishes work-item
+  material changes from lifecycle/review-evidence changes when judging source
+  currentness and readiness impact. It changes workflow interpretation, not
+  SPEC-0008 requirements, item outcomes, phase membership, or dependency
+  edges. The prior plan discussion already preserves approvals at their exact
+  reviewed snapshots; this update records the current guide bytes without
+  renewing any plan or readiness approval. Existing readiness records that
+  cite older guide, plan, or item snapshots remain subject to separate
+  reassessment before they can support eligibility. The updated source
+  baseline is `da70a0e303f4ff75ee095168d670d709ba3c1afe`.
 
 ## D-0007-014 .NET policy source impact review
 
