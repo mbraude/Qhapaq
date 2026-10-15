@@ -18,14 +18,14 @@ sources:
     revision: cb6a46d81b52b3728d67008e9ffbda6da61f4815
     content_sha256: 7c0df89cec4bf526e22137718f80ee562b424a71efbe1856bc6337ccd63ca07b
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
-    content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
+    revision: 71bf914cd8edf48b6af94544c342c4ad2c906929
+    content_sha256: 51566da6fc6521022146426661004112ee133e3600656a68a59c71e4f040c779
   - path: specs/0005-build-release-and-website-delivery.md
     revision: cb6a46d81b52b3728d67008e9ffbda6da61f4815
     content_sha256: 8bdd26b4572fa99041587451e580818e9a540d4d64d5a2484d856b867f8345e9
   - path: specs/0006-dotnet-layered-architecture.md
     revision: ff91861578d0d4368836d05d1039bbd93fca4efa
-    content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
+    content_sha256: 7e8b252a96cbfef18eaa92d7d742234a626dfbf2758dbbdd63feac055925f58a
   - path: specs/0007-portable-pipeline-definitions-and-binding.md
     revision: 1267f9c0475eda05ef1f118437ef64a4a2f2a859
     content_sha256: 5cff3784f6bfc9ddb64b6bcf3f15a14d09c50d97bb25e7702ff65e01496f0d24
@@ -34,7 +34,7 @@ sources:
     content_sha256: 436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a
   - path: docs/development/conventions/specifications.md
     revision: 911ede5a759d7288dc569002ab2bbb136caeb52d
-    content_sha256: 9ca7343adff645671b738b1002363a79f306995531d8e5210695b1745f70155a
+    content_sha256: cedd8481133460d1a2f8ad1ed5d7c02d1981d83c837cda88b13c18d1b7fd19f8
   - path: docs/development/conventions/dotnet.md
     revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
     content_sha256: d590f92c5e151ae4eb02540d48a7e029863346715204c18ebe3afdc7394d7336
@@ -87,6 +87,42 @@ sources:
   bytes: baseline revision `1267f9c0475eda05ef1f118437ef64a4a2f2a859`,
   SHA-256 `5cff3784f6bfc9ddb64b6bcf3f15a14d09c50d97bb25e7702ff65e01496f0d24`.
   The plan's material scope and other source records remain unchanged.
+- Date: 2026-10-14. Reconciled the reviewed I-0008-016 editorial audit outputs.
+  SPEC-0006 and SPEC-0008 now label retained examples according to
+  R-0008-005; the specification-authoring guidance links to that rule and
+  uses its exact labels. The edits preserve .NET contract boundaries and
+  conformance meaning. Changed requirement fingerprints and reverse-impact
+  evidence are recorded in I-0008-016; no active product-code or test
+  references were found stale. Historical fingerprints in completed decision
+  validation evidence remain tied to those decisions' reviewed snapshots.
+- Refreshed only the three reviewed source records:
+  `specs/0006-dotnet-layered-architecture.md` at baseline revision
+  `ff91861578d0d4368836d05d1039bbd93fca4efa`, working-copy SHA-256
+  `7e8b252a96cbfef18eaa92d7d742234a626dfbf2758dbbdd63feac055925f58a`;
+  `specs/0008-multi-language-conformance-and-repository-organization.md` at
+  baseline revision `71bf914cd8edf48b6af94544c342c4ad2c906929`, working-copy
+  SHA-256 `51566da6fc6521022146426661004112ee133e3600656a68a59c71e4f040c779`;
+  and `docs/development/conventions/specifications.md` at baseline revision
+  `911ede5a759d7288dc569002ab2bbb136caeb52d`, working-copy SHA-256
+  `cedd8481133460d1a2f8ad1ed5d7c02d1981d83c837cda88b13c18d1b7fd19f8`.
+  No item scope, requirement coverage, dependency, phase membership, or
+  aggregate gate changed. The plan material hash remains
+  `6a79348b7686002e8a03592ef3a76b50e737a5cdb03e5e6f24dee8a0485a9890`.
+- I-0008-016's readiness record is stale against the changed specification and
+  guidance sources and its changed item material; reassess and approve that
+  exact implementation scope before relying on it. Its recorded plan approval
+  also predates the checked acceptance criteria: current item material is
+  `798f810a11b98d61cea36ed0ceb2b07885e1d2f42c8f3891596bdd2df5fb4fd8`,
+  rather than the approved `2060cb93df653a8ba3d042366b97e7c3d436c8a04266af97e6de709acbafd3da`.
+  Do not treat that plan approval as current; renew approval for the exact
+  implementation plan after readiness is current and approved. The source
+  reconciliation does not renew either approval or approve delivery.
+- The final `/spec-trace-check` result is `PASS with warnings`: the
+  implementation namespace in SPEC-0006 R-0006-004 and the illustrative
+  language-specific C# example in SPEC-0008 are implementation-specific
+  content explicitly permitted by R-0008-005. No mechanical errors, semantic
+  errors, or new waivers were reported. The complete judgment and proposed
+  trailers are recorded in I-0008-016's delivery evidence.
 
 - Date: 2026-10-14. Reviewed the three source changes committed in
   `c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d` after completion of

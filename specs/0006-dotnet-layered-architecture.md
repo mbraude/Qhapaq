@@ -8,8 +8,8 @@
 
 The .NET reference implementation uses four logical layers:
 
-1. **Entry Points** provide user-facing adapters such as the CLI
-   and MCP server.
+1. **Entry Points** provide user-facing adapters.
+   **Illustrative example** (non-normative): the CLI and MCP server.
 2. **Service** normalizes every entry point into a common, explicitly versioned
    application contract.
 3. **Business** constructs, validates, binds, and executes pipelines through
@@ -79,17 +79,20 @@ and must not reference or register Business or DAL components directly.
 ### 4.2 Service
 
 **[R-0006-003]** Service is the common application boundary. It coordinates complete use cases
-such as constructing, validating, visualizing, and executing a pipeline. It
-normalizes entry-point inputs, applies application-level validation, invokes
-Business contracts, and translates domain outcomes into stable service
+and normalizes entry-point inputs, applies application-level validation,
+invokes Business contracts, and translates domain outcomes into stable service
 outcomes.
+
+**Normative example**: Service coordinates complete use cases such as
+constructing, validating, visualizing, and executing a pipeline.
 
 **[R-0006-004]** Service contracts are versioned independently from NuGet packages, pipeline
 document versions, and operation versions. Initial public contracts use the
 `Qhapaq.Abstractions.Service.V1` namespace, and their implementation uses the
 `Qhapaq.Service.V1` assembly and root namespace. A breaking contract change
-adds a new contract namespace and side-by-side implementation assembly, such
-as `Qhapaq.Service.V2`; it must not silently change V1 behavior.
+adds a new contract namespace and side-by-side implementation assembly.
+**Normative example**: `Qhapaq.Service.V2` is a new major contract namespace
+and implementation assembly; it must not silently change V1 behavior.
 
 **[R-0006-005]** The Service contract is public because third parties may create their own entry
 points. It is an advanced integration boundary rather than a transport
@@ -284,7 +287,8 @@ provided they preserve deterministic offline behavior and do not introduce
 network access, operation construction, credential resolution, or project-code
 execution. Generator packaging keeps the generator and dependencies used only
 by it out of a consuming application's runtime dependency closure; the shared
-assembly may be present through runtime references such as Business.
+assembly may be present through runtime references.
+**Normative example**: Business may reference the shared assembly at runtime.
 Architecture and clean package-consumer tests enforce dependency direction and
 build-time/runtime asset separation. This physical boundary does not transfer
 logical semantic ownership or diagnostic responsibilities from Business.

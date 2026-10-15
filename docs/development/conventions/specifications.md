@@ -51,8 +51,12 @@ would be implemented by different code or change independently.
   `*Retired; superseded by R-<spec>-<sequence>.*` or `*Retired.*`.
 - Do not assign identifiers to goals, non-goals, summaries, terminology,
   rationale, alternatives, open questions, future-only direction, or revision
-  history. Place examples and rationale before a block's identifier or under
-  a separate heading if edits to them should not affect references.
+  history. Follow
+  [SPEC-0008 R-0008-005](../../../specs/0008-multi-language-conformance-and-repository-organization.md#normative-content-categories)
+  when labeling examples: use **Illustrative example** outside requirement
+  blocks and **Normative example** within them. Place explanatory examples and
+  rationale before the block's identifier or under a separate heading if edits
+  to them should not affect references.
 - When changing any text inside a requirement block, find every `spec:`
   reference to its identifier, confirm the referencing code and tests still
   conform or update them, and update their fingerprints in the same change.

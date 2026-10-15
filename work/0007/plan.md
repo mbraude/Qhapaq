@@ -6,8 +6,8 @@ sources:
     revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
     content_sha256: 998108318c82d9c8c5cb5e70fb99933e3e7d0678e5c98adba8cda8086ff0eed6
   - path: specs/0008-multi-language-conformance-and-repository-organization.md
-    revision: 7178f84c93d8393c30a5a5cf57f3c923d36274fc
-    content_sha256: 26df535f12c2adfcdabb5016c8474ae8584da210dd53d7c144990d687d770926
+    revision: 71bf914cd8edf48b6af94544c342c4ad2c906929
+    content_sha256: 51566da6fc6521022146426661004112ee133e3600656a68a59c71e4f040c779
   - path: specs/0005-build-release-and-website-delivery.md
     revision: cb6a46d81b52b3728d67008e9ffbda6da61f4815
     content_sha256: 8bdd26b4572fa99041587451e580818e9a540d4d64d5a2484d856b867f8345e9
@@ -22,7 +22,7 @@ sources:
     content_sha256: 7c0df89cec4bf526e22137718f80ee562b424a71efbe1856bc6337ccd63ca07b
   - path: specs/0006-dotnet-layered-architecture.md
     revision: ff91861578d0d4368836d05d1039bbd93fca4efa
-    content_sha256: 399e0083473b9adb30375c6572e53c1c04249606e46f7aab3fd4eb8ed289232e
+    content_sha256: 7e8b252a96cbfef18eaa92d7d742234a626dfbf2758dbbdd63feac055925f58a
   - path: specs/0001-core-pipeline-model.md
     revision: c5e1c6b1e3c8c4fb1ae61ecd2f1547986f90d65d
     content_sha256: 1ccc40bf3335b1b957b679e5d8439a2abcfebf3a4338583e8aaa024340e7400e
@@ -67,6 +67,26 @@ sources:
 # SPEC-0007: Work Plan
 
 ## Source and workflow reconciliation
+
+- Date: 2026-10-14. Reviewed the current SPEC-0006 and SPEC-0008 editorial
+  example audit changes. SPEC-0006 separates illustrative Entry Points and
+  labels the Service coordination, contract-version, and shared-assembly
+  examples as normative; SPEC-0008 labels illustrative integration, capability,
+  and shared-case examples and clarifies the normative conformance example.
+  These changes clarify example authority without changing requirement
+  meaning, implementation behavior, or SPEC-0007 scope.
+- The changed fingerprints are R-0006-003, R-0006-004, R-0006-041, and
+  R-0008-007. Reviewed SPEC-0007 references in D-0007-004, D-0007-009,
+  D-0007-012, I-0007-001, I-0007-007, and I-0007-008. The updated normative
+  examples do not change those records' decisions or implementation
+  boundaries; historical approvals remain evidence for their exact snapshots.
+  No SPEC-0007 status, requirement coverage, phase membership, dependency,
+  readiness gate, or plan-approval material changes. No code or test references
+  require updates. This reconciliation does not renew approvals or authorize
+  implementation.
+- Advanced only the reviewed SPEC-0006 and SPEC-0008 source snapshots to their
+  exact current bytes. All other source records, work items, readiness records,
+  and cross-plan prerequisites remain unchanged.
 
 - Date: 2026-10-14. Reviewed the SPEC-0007 editorial audit in
   I-0008-015. It moves illustrative pipeline, future schema-dispatch,

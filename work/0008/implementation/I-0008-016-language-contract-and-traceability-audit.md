@@ -4,7 +4,7 @@ kind: implementation
 granularity: slice
 change_kind: editorial
 title: Audit .NET contract and traceability boundaries
-status: open
+status: ready-for-review
 spec: SPEC-0008
 requirements:
   - R-0000-007
@@ -43,11 +43,11 @@ decision and readiness assessment.
 
 ## Entry gates
 
-- [ ] D-0008-003 and D-0008-008 are complete.
-- [ ] This exact slice plan has explicit approval.
-- [ ] Current implementation readiness is approved for each specification
+- [x] D-0008-003 and D-0008-008 are complete.
+- [x] This exact slice plan has explicit approval.
+- [x] Current implementation readiness is approved for each specification
   file proposed for editing; planning-readiness for I-0008-002 is insufficient.
-- [ ] The audited source snapshots and the aggregate I-0008-002 scope remain
+- [x] The audited source snapshots and the aggregate I-0008-002 scope remain
   current.
 
 ## File and ownership manifest
@@ -88,13 +88,13 @@ separately approved decision.
 
 ## Exit criteria
 
-- [ ] Every example, rationale block, and potentially behavior-affecting
+- [x] Every example, rationale block, and potentially behavior-affecting
   default in the assigned specification and guidance files has a recorded
   disposition.
-- [ ] Portable behavior, .NET contract, and traceability ownership boundaries
+- [x] Portable behavior, .NET contract, and traceability ownership boundaries
   remain consistent.
-- [ ] No unapproved behavior, conformance, or architecture change is included.
-- [ ] Changed requirement fingerprints and reverse-impact references are
+- [x] No unapproved behavior, conformance, or architecture change is included.
+- [x] Changed requirement fingerprints and reverse-impact references are
   verified, if applicable.
 - [ ] Required validation passes and explicit delivery review covers the exact
   output snapshot.
@@ -129,4 +129,122 @@ behavior or architecture changes, or approve delivery.
 
 ## Delivery evidence and review
 
-No audit inventory, edits, validation, or delivery approval recorded.
+### Audit inventory and dispositions
+
+- `specs/0006-dotnet-layered-architecture.md`
+  - The Entry Points CLI/MCP mention is an illustrative overview example, not
+    a layer requirement.
+  - The use-case list in R-0006-003 remains a normative example of complete
+    Service use cases.
+  - `Qhapaq.Service.V2` in R-0006-004 remains a normative example of a new
+    side-by-side contract namespace and implementation assembly; V1 behavior
+    remains unchanged.
+  - Business as a runtime reference in R-0006-041 remains a normative example
+    of the shared assembly boundary.
+  - Project trees, call graphs, ownership maps, and the component diagram are
+    direct architectural representations, not illustrative examples; their
+    authority is unchanged.
+  - No behavior-affecting default was found.
+- `specs/0008-multi-language-conformance-and-repository-organization.md`
+  - The website, editor integration, and development-tool mentions in the
+    purpose; Visual Studio extension in artifact terminology; operation
+    family and distinct operation catalogs in the capability discussion; and
+    shared test-case families in intended uses are illustrative examples.
+  - The unqualified conformance-claim and missing-cancellation cases in
+    R-0008-007 are normative examples and remain conformance expectations.
+  - The language-specific C# mapping example, including
+    `CancellationToken = default`, is illustrative and does not define a
+    portable API default.
+  - Exact `spec:` and `spec-waive:` payloads in R-0008-016 and R-0008-018 are
+    normative syntax, not examples. Other code-like structures are likewise
+    normative representations, not illustrative examples.
+  - The `Default` level in R-0008-004 is engineering policy, not product
+    behavior. No other behavior-affecting defaults were found.
+- `docs/development/coding-conventions.md` was audited and left unchanged.
+  Its trailer, reference, and waiver snippets illustrate engineering-policy
+  grammar; its `Default` level and “by default” rules remain repository
+  engineering/security guidance, not language-specific product defaults.
+- `docs/development/conventions/specifications.md` now links R-0008-005 and
+  directs authors to use the exact **Illustrative example** and
+  **Normative example** labels on the corresponding sides of requirement
+  boundaries. Existing requirement-identifier and component-identifier
+  examples remain structural guidance.
+- The read-only .NET traceability conventions, ADR-0003, ADR-0004, D-0008-003,
+  and D-0008-008 were checked. Their native C# placements, checker/extractor
+  ownership, and portable payload boundaries remain unchanged.
+
+### Fingerprints and reverse impact
+
+The requirement edits are editorial rewordings; no requirement identity or
+meaning changed.
+
+| Requirement | Previous fingerprint | Current fingerprint |
+| --- | --- | --- |
+| R-0006-003 | `fe47d8` | `5af0ae` |
+| R-0006-004 | `555771` | `884ee4` |
+| R-0006-041 | `a98508` | `2187dc` |
+| R-0008-007 | `8b507a` | `966a6a` |
+
+The repository-wide reverse-impact search found no stale code or test
+references. It found two old fingerprints in completed Markdown decision
+validation evidence: D-0008-004 retains R-0008-007@8b507a, and D-0008-015
+retains R-0006-041@a98508. These are historical validation snapshots, not
+active code/test markers, so they remain unchanged.
+
+### Snapshot and validation
+
+The approved plan and readiness snapshots were current before execution. Their
+approved evidence is preserved without refreshing it to imply review of the
+post-edit sources. Current output snapshots:
+
+| Path | SHA-256 |
+| --- | --- |
+| `specs/0006-dotnet-layered-architecture.md` | `7e8b252a96cbfef18eaa92d7d742234a626dfbf2758dbbdd63feac055925f58a` |
+| `specs/0008-multi-language-conformance-and-repository-organization.md` | `51566da6fc6521022146426661004112ee133e3600656a68a59c71e4f040c779` |
+| `docs/development/conventions/specifications.md` | `cedd8481133460d1a2f8ad1ed5d7c02d1981d83c837cda88b13c18d1b7fd19f8` |
+| `docs/development/coding-conventions.md` (unchanged) | `436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a` |
+| This item's current material hash | `798f810a11b98d61cea36ed0ceb2b07885e1d2f42c8f3891596bdd2df5fb4fd8` |
+
+The Plan approval section retains the approved pre-execution material hash
+`2060cb93df653a8ba3d042366b97e7c3d436c8a04266af97e6de709acbafd3da`.
+`work_hashes.py verify` reports the plan stale for the edited SPEC-0006,
+SPEC-0008, and specification-authoring conventions. It reports readiness
+stale for those edited sources and this item's full-content snapshot, whose
+status and delivery evidence changed; this item's material scope hash remains
+the approved value above. These records remain at their approved baseline;
+reconciliation and any resulting reassessment are left to the workflow gates
+after this exact output is reviewed.
+
+The new relative link to R-0008-005 resolves to the intended requirement and
+heading. `git diff --check` passed. No build or unit tests apply to this
+documentation-only editorial change.
+
+### Specification trace review
+
+`/spec-trace-check` ran with semantic review enabled. The changed
+specifications contain no added, removed, renumbered, or malformed
+requirement identifiers. The four changed blocks preserve their meaning.
+Reverse impact found only the historical Markdown fingerprints listed above;
+no active code or test references are stale. No code or tests changed, and no
+waivers were added or changed.
+
+The review checked R-0006-003, R-0006-004, R-0006-041, R-0008-005, and
+R-0008-007. The normative and illustrative labels follow R-0008-005; the
+.NET contract examples preserve their original boundaries; and R-0008-007's
+claim and cancellation examples preserve the existing conformance rules.
+No behavior, ownership, checker support, or conformance claim was added.
+
+Warning: SPEC-0006 R-0006-004 names the implementation namespace
+`Qhapaq.Service.V2` (line 94), and SPEC-0008 retains an illustrative
+language-specific C# example (lines 321-331). These implementation-specific
+details are explicitly scoped examples permitted by R-0008-005; this audit
+only clarifies their normative classification and does not broaden them.
+
+Result: `PASS with warnings`; no errors or new waivers.
+
+Proposed commit trailers:
+
+```text
+Change-Kind: editorial
+Spec: R-0006-003@5af0ae, R-0006-004@884ee4, R-0006-041@2187dc, R-0008-005@107883, R-0008-007@966a6a
+```

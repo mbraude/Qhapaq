@@ -9,8 +9,10 @@
 
 This document records the proposed direction for supporting Qhapaq
 implementations in multiple languages while accommodating software artifacts
-that are not runtime implementations, such as a website, editor integrations,
-and development tools.
+that are not runtime implementations.
+
+**Illustrative example** (non-normative): A website, editor integrations, and
+development tools are software artifacts that are not runtime implementations.
 
 The decision questions are resolved in normative requirement blocks and await
 review of the exact specification snapshot where not already approved. This
@@ -84,8 +86,9 @@ An **implementation** is a runtime that consumes portable
 Qhapaq contracts and implements a declared set of conformance obligations.
 
 An **integration** connects Qhapaq to an external product or ecosystem through
-supported contracts. A Visual Studio extension is an example; its presence
-does not by itself make it a runtime implementation.
+supported contracts.
+**Illustrative example** (non-normative): A Visual Studio extension is an
+integration; its presence does not by itself make it a runtime implementation.
 
 A **website** is the public product and documentation surface, not an
 execution or credential control plane. A **development tool** supports
@@ -315,7 +318,7 @@ require explicit human direction.
 
 ### Illustrative language-specific example
 
-**Illustrative example (non-normative).** A language-specific example can
+**Illustrative example** (non-normative): A language-specific example can
 explain portable behavior without defining a portable or language-specific
 contract. Because this example is outside a requirement block, changing its
 syntax does not change a requirement fingerprint.
@@ -417,10 +420,11 @@ from these compatibility rules.
 ### Profiles versus capabilities
 
 A profile is a compatibility baseline. A capability identifies a supported
-feature or installed facility, such as a particular operation family.
+feature or installed facility.
 
-Two runtimes can satisfy the same profile while exposing different operation
-catalogs.
+**Illustrative example** (non-normative): A particular operation family could
+be a capability; two runtimes can satisfy the same profile while exposing
+different operation catalogs.
 
 **[R-0008-007]** A conformance claim must name an exact Qhapaq profile identity
 and, once profile versioning is defined, its exact profile version. A claim for
@@ -430,12 +434,13 @@ repeated in human-readable claim text.
 
 An implementation must not claim a profile with exclusions, exceptions,
 partial support, substituted behavior, or missing mandatory obligations.
-Unqualified claims such as "Qhapaq conformant" or "Qhapaq compatible" are not
-conformance claims. Progress toward a profile and capabilities outside its
-required scope may be reported separately, but must not use conformance
-language or downgrade any profile obligation. An implementation missing
-required cancellation semantics, for example, does not satisfy a profile that
-includes them.
+Progress toward a profile and capabilities outside its required scope may be
+reported separately, but must not use conformance language or downgrade any
+profile obligation.
+
+**Normative example**: Unqualified claims such as "Qhapaq conformant" or
+"Qhapaq compatible" are not conformance claims. An implementation missing
+required cancellation semantics does not satisfy a profile that includes them.
 
 ### Intended uses
 
@@ -449,10 +454,10 @@ The proposed lifecycle is:
 5. Compatibility changes are reviewed without silently changing the meaning of
    an existing claim.
 
-Shared cases could cover canonicalization, validation, exact-version binding,
-composition, cancellation, failure preservation, and policy-before-side-effect
-ordering. Harness details may vary by language; portable expected behavior
-would not.
+**Illustrative example** (non-normative): Shared cases could cover
+canonicalization, validation, exact-version binding, composition, cancellation,
+failure preservation, and policy-before-side-effect ordering. Harness details
+may vary by language; portable expected behavior would not.
 
 Progress reporting would be distinct from a full conformance claim. The
 candidate model does not treat a self-declared manifest or a passing vector
