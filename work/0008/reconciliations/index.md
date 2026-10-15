@@ -6,6 +6,8 @@ membership, ordering, status, dependencies, gates, readiness, or approval.
 
 ## Source and workflow reconciliation
 
+- [2026-10-14](2026-10-14-d-0008-016-trace-checker-architecture-revision.md)
+- [2026-10-15](2026-10-15-d-0008-016-trace-checker-architecture.md)
 - [2026-10-14](2026-10-14-source-and-workflow-reconciliation.md)
 - [2026-10-14](2026-10-14-source-and-workflow-reconciliation-02.md)
 - [2026-10-14](2026-10-14-source-and-workflow-reconciliation-03.md)
