@@ -107,6 +107,14 @@ For a readiness record:
 
 - Require `assessment: ready-for-review`, a named scope, exclusions, validation,
   and no unresolved blocker.
+- Review the material prose for lifecycle consistency both before and after
+  approval. In particular, ensure statements outside `Validation and approval`
+  do not claim that the record is still `ready-for-review` or that approval is
+  still required once `assessment` becomes `approved`. The material hash
+  intentionally excludes lifecycle metadata and approval evidence; a passing
+  hash check cannot detect contradictory prose. If approval would make material
+  prose inaccurate, stop before requesting approval and have the readiness
+  assessment revised and revalidated first.
 - Read the governing specification, linked decisions, plan, required artifacts,
   and readiness evidence.
 - Run `python .agents/scripts/work_hashes.py approval <record>` once. It
