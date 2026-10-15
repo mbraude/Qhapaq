@@ -1,7 +1,7 @@
 ---
 spec: SPEC-0008
 scope: requirement-example-audit
-assessment: ready-for-review
+assessment: approved
 authorizes: planning
 process_version: 1
 sources:
@@ -174,6 +174,11 @@ Performed in this reassessment:
 - The four child slices were confirmed `complete`, and their approved material
   hashes are listed under Completeness and consistency.
 
-Approval status: none. This record is `ready-for-review` with `authorizes:
-planning`. No explicit human approval of this snapshot has been recorded, and
-approval of the earlier snapshot does not carry over.
+Current approval: explicitly approved in this session on 2026-10-15 for the
+requirement-example-audit planning-readiness scope and exclusions above. Approval
+applies only to this readiness snapshot. It does not approve or review the
+aggregate delivery of I-0008-002, does not authorize further specification edits
+or slice creation, and does not claim whole-v1 conformance. The earlier approval of
+the superseded snapshot does not carry over.
+
+Approved material SHA-256: `891c69f183d13a8a984f18783cedb4ba6a693782c99b39edff5d6be8458e7fd9` (`work/0008/readiness/requirement-example-audit.md`).
