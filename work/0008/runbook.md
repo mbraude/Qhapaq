@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-15T16:47:01Z"
+generated_at: "2026-10-15T17:08:06Z"
 branch: "master"
-head: "c4cb62ffda867c83a53e7c621892a3db23f36f61"
+head: "c25790e0333aec71172777b6b594519da4cbc4dd"
 source_file_count: 89
-source_set_sha256: "21bfd6430b8f588f1cac942d8b156baff8845284c61fc66332d8ebbd8fc264be"
+source_set_sha256: "aa940c57cf80fb2f6b9ebdca69afe2eb52e5a82a416ec6a27fc4fadb0d4c30e8"
 ---
 
 # SPEC-0008: Work Runbook
@@ -23,7 +23,7 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Next action
 
-**Next command:** `/spec-readiness 0008 scope=requirement-example-audit`
+**Next command:** `/approve work/0008/readiness/requirement-example-audit.md`
 
 **Also eligible:** `/approve work/0008/readiness/trace-checker.md`<br>`/spec-readiness 0008 scope=conformance-contract-schemas-implementation`<br>`/implementation-plan 0007 item=I-0007-002`<br>`/implementation-plan 0007 item=I-0007-005`
 
@@ -52,11 +52,9 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 | [I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit portable binding specification examples |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | [I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit .NET contract and traceability boundaries |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md) |
-| READINESS SPEC-0008 requirement-example-audit | Reassess readiness for I-0008-002 because the requirement-example-audit record has non-current sources. | `/spec-readiness 0008 scope=requirement-example-audit` | Gate - reassessment required | — | — |
-| [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, language contracts, and examples |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[I-0008-013](implementation/I-0008-013-portable-core-example-audit.md)<br>[I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md)<br>[I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md)<br>[I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md)<br>READINESS SPEC-0008 requirement-example-audit |
+| [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, language contracts, and examples | `/approve work/0008/readiness/requirement-example-audit.md` | Open - ready | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[I-0008-013](implementation/I-0008-013-portable-core-example-audit.md)<br>[I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md)<br>[I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md)<br>[I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) |
 | [D-0008-016](decisions/D-0008-016-trace-checker-architecture.md) | Select deterministic trace-checker architecture and ownership |  | Complete | 2026-10-15 | [D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) |
-| READINESS SPEC-0008 trace-checker | Approve planning-only implementation readiness for I-0008-007 covering R-0008-016, R-0008-017, R-0008-018, and R-0008-021. Approval permits concrete implementation planning only. | `/approve work/0008/readiness/trace-checker.md` | Gate - ready for review | — | — |
-| [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |  | Open - blocked | — | [D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[D-0008-016](decisions/D-0008-016-trace-checker-architecture.md)<br>[I-0008-001](implementation/I-0008-001-engineering-policy-separation.md)<br>READINESS SPEC-0008 trace-checker |
+| [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker | `/approve work/0008/readiness/trace-checker.md` | Open - ready | — | [D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[D-0008-016](decisions/D-0008-016-trace-checker-architecture.md)<br>[I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) |
 | [D-0007-009](../0007/decisions/D-0007-009-model-ownership.md) | Model ownership and visibility map |  | Complete | 2026-10-11 | — |
 | [D-0007-011](../0007/decisions/D-0007-011-portable-helper-ownership.md) | Shared portable algorithm ownership |  | Complete | 2026-10-11 | [D-0007-009](../0007/decisions/D-0007-009-model-ownership.md) |
 | [D-0007-012](../0007/decisions/D-0007-012-generator-runtime-reuse.md) | Generator and runtime reuse boundaries |  | Complete | 2026-10-11 | [D-0007-011](../0007/decisions/D-0007-011-portable-helper-ownership.md)<br>[D-0008-010](decisions/D-0008-010-artifact-ownership-boundaries.md) |
@@ -81,9 +79,9 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Snapshot notes
 
-- Rows: 47 (29 Complete, 1 Gate - ready for review, 2 Gate - reassessment required, 13 Open - blocked, 2 Open - ready).
+- Rows: 45 (29 Complete, 1 Gate - reassessment required, 11 Open - blocked, 4 Open - ready).
 - Plans with non-current sources: none.
-- Readiness records with non-current sources: 8 of 9.
+- Readiness records with non-current sources: 7 of 9.
 - Structural findings: none.
-- Working-copy inputs: `work/0008/readiness/trace-checker.md`.
+- Working-copy inputs: `work/0008/readiness/requirement-example-audit.md`.
 - Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.
