@@ -1,7 +1,7 @@
 ---
 spec: SPEC-0008
 scope: trace-checker
-assessment: ready-for-review
+assessment: approved
 authorizes: planning
 process_version: 1
 sources:
@@ -217,3 +217,12 @@ This assessment is `ready-for-review` with `authorizes: planning`. It
 requires explicit human approval before any slice planning begins. It does not
 authorize implementation, approve the I-0008-007 manifest, establish language
 traceability support, publish a contract, or claim full v1 conformance.
+
+### Approval
+
+Explicit approval was given in this session on 2026-10-15 for the exact
+planning-only `trace-checker` readiness scope above. Implementation, approval
+of concrete slices, extractor registration, language-support claims, contract
+publication, and whole-v1 conformance remain excluded.
+
+Approved material SHA-256: `87965089fa7ce0ff77f4c7090f7be45e73afd93c2ce77f38a7d33fa8d21f9249` (`work/0008/readiness/trace-checker.md`).
