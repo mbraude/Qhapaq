@@ -4,7 +4,7 @@ kind: implementation
 granularity: slice
 change_kind: editorial
 title: Audit .NET contract and traceability boundaries
-status: ready-for-review
+status: complete
 spec: SPEC-0008
 requirements:
   - R-0000-007
@@ -248,3 +248,26 @@ Proposed commit trailers:
 Change-Kind: editorial
 Spec: R-0006-003@5af0ae, R-0006-004@884ee4, R-0006-041@2187dc, R-0008-005@107883, R-0008-007@966a6a
 ```
+
+### Delivery approval
+
+Explicitly approved in this session on 2026-10-14 for the exact
+I-0008-016 audit outcome, its conditional four-file manifest, requirements,
+scope, and exclusions recorded above. This approves delivery of the reviewed
+editorial audit only; it does not authorize behavior or architecture changes,
+checker or extractor implementation, a whole-v1 conformance claim, or contract
+publication.
+
+Approved material SHA-256: `798f810a11b98d61cea36ed0ceb2b07885e1d2f42c8f3891596bdd2df5fb4fd8` (`work/0008/implementation/I-0008-016-language-contract-and-traceability-audit.md`).
+
+| Path | SHA-256 |
+| --- | --- |
+| `work/0008/plan.md` | `345f71c1f36fb8a3f32c0a489a5b486a074c078065b9daab0acf5c376735868b` |
+| `SPEC.md` | `998108318c82d9c8c5cb5e70fb99933e3e7d0678e5c98adba8cda8086ff0eed6` |
+| `specs/0006-dotnet-layered-architecture.md` | `7e8b252a96cbfef18eaa92d7d742234a626dfbf2758dbbdd63feac055925f58a` |
+| `specs/0008-multi-language-conformance-and-repository-organization.md` | `51566da6fc6521022146426661004112ee133e3600656a68a59c71e4f040c779` |
+| `docs/development/coding-conventions.md` | `436abc18b023af448e8c8f45a117bd1b643067ddb2833642846111ed9c60b94a` |
+| `docs/development/conventions/specifications.md` | `cedd8481133460d1a2f8ad1ed5d7c02d1981d83c837cda88b13c18d1b7fd19f8` |
+| `work/0008/decisions/D-0008-003-normative-content-labeling.md` | `4675896d3619504d0c28e38fe73589584ba979aa609fd2981ee8ce05065b8801` |
+| `work/0008/decisions/D-0008-008-language-native-traceability.md` | `a12c67a643de4a82cb75ecaa5c5130d31845ba2016faad2411dbf019ee93c8c5` |
+| `work/0008/readiness/language-contract-and-traceability-audit-implementation.md` | `a447f0d4808d1c09e6e9aacd658eb93b554e9927663915b43ec83f6fcbc49e4c` |
