@@ -170,6 +170,7 @@ class Facts:
             "path": path,
             "kind": meta.get("kind"),
             "granularity": meta.get("granularity"),
+            "planning_readiness_scope": meta.get("planning_readiness_scope"),
             "status": meta.get("status"),
             "spec": meta.get("spec"),
             "title": meta.get("title"),
@@ -372,7 +373,13 @@ class Facts:
                 continue
             candidates = []
             for record in readiness:
-                by_scope = record["scope"] in (f"{item['slug']}-implementation", item["slug"])
+                by_scope = record["scope"] in (
+                    f"{item['slug']}-implementation",
+                    item["slug"],
+                ) or (
+                    item.get("planning_readiness_scope") is not None
+                    and record["scope"] == item["planning_readiness_scope"]
+                )
                 if by_scope or item_id in record["_mentions"]:
                     candidates.append({
                         "path": record["path"],
@@ -688,6 +695,72 @@ def readiness_gate(item: dict, scope: str, command: str, status: str, reason: st
     }
 
 
+# spec: R-0010-001@7f4c61
+def milestone_suggestion(item: dict, spec: str) -> tuple[dict, list[dict]]:
+    scope = item.get("planning_readiness_scope")
+    if not scope:
+        return implementation_plan_suggestion(item, spec, "milestone without planned child slices")
+
+    scoped = [
+        candidate
+        for candidate in item.get("readiness_candidates", [])
+        if candidate["scope"] == scope and candidate["match"] == "scope"
+    ]
+    if len(scoped) > 1:
+        return dict(JUDGE), []
+
+    record = scoped[0] if scoped else None
+    if record and (not record["current"] or record["assessment"] == "not-assessed"):
+        command = f"/spec-readiness {spec} scope={scope}"
+        status = "Gate - reassessment required" if not record["current"] else "Gate - assessment required"
+        reason = "Reassess" if not record["current"] else "Assess"
+        basis = f"{record['path']} is {'stale' if not record['current'] else 'not assessed'}"
+        blockers = ["Non-current sources: " + ", ".join(record["stale_sources"])] if not record["current"] else []
+    elif record and record["assessment"] == "blocked":
+        command = f"/spec-readiness {spec} scope={scope}"
+        status, reason = "Gate - blocked", "Resolve the recorded blockers and reassess"
+        basis = f"{record['path']} is current but blocked"
+        blockers = [f"{record['path']} records assessment: blocked"]
+    elif record and (
+        record["uncovered_manifest_spec_docs"]
+        or record["unmentioned_requirements"]
+        or record["planning_only_language"]
+    ):
+        return dict(JUDGE), []
+    elif record and record["assessment"] == "ready-for-review":
+        command = f"/approve {record['path']}"
+        status, reason = "Gate - ready for review", "Approve"
+        basis = f"{record['path']} awaits approval"
+        blockers = []
+    elif record and record["assessment"] != "approved":
+        return dict(JUDGE), []
+    elif record:
+        return implementation_plan_suggestion(item, spec, "planning readiness is current and approved")
+    else:
+        command = f"/spec-readiness {spec} scope={scope}"
+        status, reason = "Gate - assessment required", "Assess"
+        basis = f"planning readiness scope {scope} has no readiness record"
+        blockers = []
+
+    gate = readiness_gate(item, scope, command, status, reason)
+    gate["blockers"] = blockers
+    return {
+        "command": "",
+        "status": "Open - blocked",
+        "blockers": [gate["id"]],
+        "basis": basis,
+    }, [gate]
+
+
+def implementation_plan_suggestion(item: dict, spec: str, basis: str) -> tuple[dict, list[dict]]:
+    return {
+        "command": f"/implementation-plan {spec} item={item['id']}",
+        "status": "Open - ready",
+        "blockers": [],
+        "basis": basis,
+    }, []
+
+
 def suggest(item: dict, by_id: dict[str, dict]) -> tuple[dict, list[dict]]:
     """Deterministic row suggestion plus any gates it needs, or `<judge>` where the skill must decide.
 
@@ -706,8 +779,7 @@ def suggest(item: dict, by_id: dict[str, dict]) -> tuple[dict, list[dict]]:
     if item["granularity"] == "milestone":
         if item.get("child_items"):
             return dict(JUDGE), []  # aggregate milestone whose slices exist: awaiting verification
-        return {"command": f"/implementation-plan {spec} item={item['id']}", "status": "Open - ready",
-                "blockers": [], "basis": "milestone without planned child slices"}, []
+        return milestone_suggestion(item, spec)
     if item["granularity"] != "slice":
         return dict(JUDGE), []
     candidates = item.get("readiness_candidates", [])
@@ -766,6 +838,7 @@ def judge_hints(item: dict) -> dict:
     return {
         "granularity": item["granularity"],
         "requirements": item["requirements"],
+        "planning_readiness_scope": item.get("planning_readiness_scope"),
         "child_items": item.get("child_items", []),
         "plan_approval": pa["state"] + (f" {pa['date']}" if pa.get("date") else ""),
         "reviewed_hashes_changed": [m["path"] for m in pa.get("reviewed_hash_mismatches", [])],
@@ -885,6 +958,8 @@ def template_summary(template: dict, facts: dict) -> str:
             lines.append(f"{item_id} <judge> {hints['granularity']} plan_approval={hints['plan_approval']}"
                          + (f" reviewed_hashes_changed={brief(hints['reviewed_hashes_changed'])}" if hints["reviewed_hashes_changed"] else "")
                          + (f" child_items={','.join(hints['child_items'])}" if hints["child_items"] else "")
+                         + (f" planning_readiness_scope={hints['planning_readiness_scope']}"
+                            if hints["planning_readiness_scope"] else "")
                          + (f" spec_edits={','.join(hints['manifest_spec_edits'])}" if hints["manifest_spec_edits"] else ""))
             lines += [f"    readiness {r}" for r in hints["readiness"]]
         elif entry.get("command") or entry.get("blockers"):

@@ -3,6 +3,7 @@ id: I-0008-007
 kind: implementation
 granularity: milestone
 change_kind: extension
+planning_readiness_scope: trace-checker
 title: Implement the deterministic multi-language trace checker
 status: open
 spec: SPEC-0008

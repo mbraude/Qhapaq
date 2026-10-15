@@ -95,6 +95,7 @@ sections in its [decision](../../work/templates/decision.md) or
 | `requirements` | List of existing, non-retired requirement IDs; no heading references |
 | `depends_on` | List of globally unique item IDs, interpreted as AND prerequisites |
 | `artifacts` | List of repository-root-relative output paths; existence required at completion |
+| `planning_readiness_scope` | Optional exact readiness scope that must be current and approved before an implementation milestone can be decomposed into slices |
 
 An empty requirement list is allowed for an unresolved new capability with no
 requirement yet. Explain this in the decision item and add the resulting IDs
@@ -122,6 +123,11 @@ Promote a milestone to a slice in place if its scope remains the same. When
 splitting it, keep the milestone as an aggregate gate depending on its child
 slices and record their IDs. Retire obsolete manifests explicitly.
 Aggregate completion requires evidence and approval, not just completed children.
+When a milestone's entry gates require approved implementation readiness before
+concrete slices may be planned, set `planning_readiness_scope` to the exact
+scope name. The generated runbook must select the matching readiness assessment
+or approval action before `/implementation-plan`; missing or non-current
+readiness is not an eligible planning command.
 
 ## 4. Plan contract and source snapshots
 

@@ -23,7 +23,10 @@ exclusions, and any child slices. A milestone is not executable.
 ## Entry gates
 
 Link approved scope readiness, prerequisite items, schemas/vectors, and normative
-gates. State which evidence is still missing.
+gates. State which evidence is still missing. If current approved implementation
+readiness is required before decomposing a milestone, set the exact
+`planning_readiness_scope` in frontmatter so the generated runbook can enforce
+that gate.
 
 ## File and ownership manifest
 

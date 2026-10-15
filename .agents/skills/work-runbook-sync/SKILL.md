@@ -48,13 +48,15 @@ details instead of reading the script source.
 - Suggestions implement the command table in step 5 wherever the facts fully
   determine it: dependency-blocked rows, outcomes ready for review, eligible
   decisions, milestones without planned child slices
-  (`/implementation-plan`), and slices whose single scope-matched readiness
-  record is stale, not assessed, ready for review, or current but blocked (a
-  `READINESS` gate before the slice, with a generated description; a blocked
-  record gets status `Gate - blocked`) or is current, approved,
-  covers every manifest specification edit, mentions every slice requirement,
-  and is not limited to planning (`/approve-implementation-plan`, or
-  `/implement-next` when plan approval is recorded with unchanged reviewed
+  (`/implementation-plan`) unless the milestone declares
+  `planning_readiness_scope`, in which case its exact readiness assessment
+  and approval are gates before planning; and slices whose single
+  scope-matched readiness record is stale, not assessed, ready for review, or
+  current but blocked (a `READINESS` gate before the slice, with a generated
+  description; a blocked record gets status `Gate - blocked`) or is current,
+  approved, covers every manifest specification edit, mentions every slice
+  requirement, and is not limited to planning (`/approve-implementation-plan`,
+  or `/implement-next` when plan approval is recorded with unchanged reviewed
   hashes). A slice with no candidate readiness record gets an assessment gate.
   A record's planning limit comes from its `authorizes` frontmatter field
   when present (`implementation` or `planning`); otherwise from planning-only
@@ -191,8 +193,15 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    9. requested-spec order, plan phase order, item order, and stable ID.
 4. Create synthetic rows only for workflow gates that do not have their own
    work-item identity, such as plan synchronization, scoped readiness,
-   implementation-plan approval, or completion review. Give each a stable,
-   descriptive identity such as `SYNC SPEC-0008` or
+   implementation-plan approval, or completion review. For an implementation
+   milestone with `planning_readiness_scope`, create a scoped readiness gate
+   before planning unless that exact scope has one current, explicitly approved
+   assessment that covers the milestone's requirements and authorizes
+   implementation. A missing, stale, not-assessed, or blocked assessment gets
+   an assessment/reassessment command; a ready-for-review assessment gets an
+   approval command only when its coverage is complete and it authorizes
+   implementation. Ambiguous or partial coverage remains `<judge>`. Give each
+   gate a stable, descriptive identity such as `SYNC SPEC-0008` or
    `READINESS SPEC-0008 conformance-artifacts-implementation`. Do not persist
    synthetic status anywhere else. Readiness gates for a slice must identify
    the slice and the specification documents and capabilities they cover. Keep
@@ -207,7 +216,10 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    | Decision or delivered slice ready for review | `/approve <id>` |
    | Decisions complete and named readiness absent or stale | `/spec-readiness <spec-id> scope=<scope>` |
    | Readiness ready for review | `/approve <readiness-record-path>` |
-   | Milestone requiring concrete slices | `/implementation-plan <spec-id> item=<id>` |
+   | Milestone's declared planning readiness absent, stale, not assessed, or blocked | `/spec-readiness <spec-id> scope=<planning_readiness_scope>` |
+   | Milestone's declared planning readiness ready for review | `/approve <readiness-record-path>` |
+   | Milestone's declared planning readiness current, approved, covering its requirements, and not planning-only | `/implementation-plan <spec-id> item=<id>` |
+   | Milestone requiring concrete slices with no declared readiness gate or after that gate is satisfied | `/implementation-plan <spec-id> item=<id>` |
    | Slice lacks current, approved implementation readiness covering its requirements and every specification document its manifest may edit | `/spec-readiness <spec-id> scope=<slice-scope>-implementation` |
    | Slice implementation readiness is ready for review | `/approve <readiness-record-path>` |
    | Concrete slice has current, approved implementation readiness but lacks plan approval | `/approve-implementation-plan <spec-id> item=<id>` |
