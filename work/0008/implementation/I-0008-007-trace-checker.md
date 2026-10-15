@@ -3,7 +3,7 @@ id: I-0008-007
 kind: implementation
 granularity: milestone
 change_kind: extension
-planning_readiness_scope: trace-checker
+planning_readiness_scope: trace-checker-implementation
 title: Implement the deterministic multi-language trace checker
 status: open
 spec: SPEC-0008
@@ -34,8 +34,11 @@ language or define CI orchestration.
 D-0008-008, D-0008-011, D-0008-014, and I-0008-001 are complete. D-0008-016
 must select and approve the checker architecture and ownership; the affected
 specification, ADR, and language-placement policies must remain approved; and
-scoped implementation readiness must be reassessed and approved before
-concrete slices are created or approved.
+the `trace-checker-implementation` readiness scope must be current and approved
+for implementation before concrete slices are created. A planning-only
+readiness approval does not satisfy this gate. Each concrete slice must then
+have its own current, approved implementation-readiness assessment covering its
+exact manifest and specification edits before plan approval or execution.
 
 ## File and ownership manifest
 

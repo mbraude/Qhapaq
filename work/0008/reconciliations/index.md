@@ -6,6 +6,7 @@ membership, ordering, status, dependencies, gates, readiness, or approval.
 
 ## Source and workflow reconciliation
 
+- [2026-10-15 — I-0008-007 implementation-readiness scope](2026-10-15-i-0008-007-implementation-readiness-scope.md)
 - [2026-10-15 — D-0008-016 approval impact](2026-10-15-d-0008-016-approval-impact.md)
 - [2026-10-14](2026-10-14-d-0008-016-trace-checker-architecture-revision.md)
 - [2026-10-15](2026-10-15-d-0008-016-trace-checker-architecture.md)
