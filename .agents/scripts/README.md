@@ -48,7 +48,7 @@ file is missing or a verification found a mismatch.
 | `files PATH...` | Full-byte SHA-256 of each file. |
 | `sources PATH...` | Ready-to-paste frontmatter `sources` entries: `path`, `revision` (last commit touching the path, or `null` if untracked), `content_sha256` of the working-copy bytes, and, for decision and implementation work items, plans, and readiness records, `material_sha256`. Reports on stderr which paths differ from their revision. |
 | `material ITEM...` | The material SHA-256 defined in the workflow guide for the record's kind: a plan or readiness record uses its own definition, and work items and other files use the work-item definition. |
-| `verify RECORD...` | For a plan or readiness record, its `process_version` state (`current`, `process-missing`, or `process-outdated`), then each frontmatter source with one of the source states below. Work-item, plan, and readiness sources that record `material_sha256` are checked by material and marked `(material)`; process artifacts are marked `(process source)`; a cited runbook or diagram is `derived-view`. |
+| `verify RECORD...` | For a plan or readiness record, its `process_version` state (`current`, `process-missing`, or `process-outdated`), then each frontmatter source with one of the source states below. Work-item, plan, and readiness sources that record `material_sha256` are checked by material and marked `(material)`; process artifacts are marked `(process source)`; a cited runbook or diagram is `derived-view`; a cited reconciliation record is `reconciliation-record`. |
 | `evidence [--section NAME] ITEM...` | Every recorded `Material SHA-256` value (checked against the record kind's material hash) and path/hash evidence rows. Two-column rows default to full-byte verification; three-column rows may specify `bytes`, `material`, or `baseline` as the hash basis. In `Plan approval`, checkbox progress-only changes are distinguished from plan changes; changed paths in the item's file manifest are reported as `planned-output` and must be reviewed and snapshotted as final delivery outputs. |
 | `approval TARGET [--files PATH...]` | Verifies that a work item, plan, or readiness record is approvable (for a plan or readiness record, every recorded source and its `process_version` are current) and prints the ready-to-paste approval evidence block: an `Approved material SHA-256` line plus a path/hash table of `--files`. Exits 1 listing anything non-current, without printing a block. |
 | `diff [--max-lines N] RECORD...` | For each non-current source, a unified diff from the recorded bytes (recovered from Git history, or the recorded revision) to the working copy, with added and removed line counts. `--max-lines 0` prints everything; the default is 200 per source. |
@@ -64,6 +64,18 @@ Source states are facts, not verdicts:
 | `current` | Current bytes match the recorded hash; a work-item, plan, or readiness source with `material_sha256` matches its current material hash; or a legacy work-item source without `material_sha256` has recoverable recorded bytes (or a recorded revision) whose material hash matches current content. Checkbox-state-only changes to a work item's acceptance criteria are progress metadata. Legacy fallback is reported as `material (legacy fallback)`. |
 | `missing` | The file does not exist. |
 | `stale` | Current bytes differ, and material content differs or cannot be compared; or a recorded `material_sha256` no longer matches. In plan-approval evidence, stale hashes for manifest outputs are instead `planned-output`; final delivery review must verify their exact current bytes. |
+| `reconciliation-record` | The path is non-authoritative reconciliation history and cannot be a source. |
+
+### `plan_reconciliations.py`
+
+Extracts legacy plan-embedded reconciliation sections and validates the
+indexed record layout.
+
+| Command | Output |
+| --- | --- |
+| `extract [PLAN...]` | Prepares every requested plan migration before writing, splits dated events into bounded records, creates the index, replaces embedded history with one index link, and refuses any material-hash change or target collision. Defaults to every instantiated plan. |
+| `normalize [PLAN...]` | Moves an existing reconciliation index to the plan's final section without changing its material hash. Defaults to every instantiated plan. |
+| `check [PLAN...]` | Verifies one reconciliation index per plan, no remaining embedded reconciliation/evidence sections, resolvable index links, complete record indexing, and record back-links. Defaults to every instantiated plan. |
 ### `spec_fingerprints.py`
 
 Prints `R-…@xxxxxx` fingerprints for requirement blocks using the

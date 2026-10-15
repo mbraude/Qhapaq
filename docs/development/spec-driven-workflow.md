@@ -35,6 +35,9 @@ work/
   0007/
     plan.md
     runbook.md
+    reconciliations/
+      index.md
+      2026-10-14-source-refresh.md
     decisions/
       D-0007-001-numeric-helpers.md
     implementation/
@@ -61,6 +64,14 @@ and transitive cross-plan prerequisites. Plans, items, readiness records,
 approval evidence, and authoritative sources remain the status and eligibility
 authority. Never edit runbook rows manually or infer completion from them;
 regenerate after authoritative inputs change.
+
+A plan has one `reconciliations/index.md` and zero or more bounded
+reconciliation records when source-impact or workflow evidence exists. These
+records preserve history and link back to the plan, but are not authoritative
+inputs, generated views, or alternate status stores. They never own plan scope,
+phase membership, order, status, dependencies, gates, readiness, or approval,
+and must not appear in a record's `sources` list. The plan links only to the
+index so routine navigation does not load historical evidence.
 
 An item has one owning plan and phase. Other plans can link to it as an external
 prerequisite, not copy it. Architectural decisions and complex bugs can belong
@@ -125,11 +136,12 @@ A [plan](../../work/templates/plan.md) has frontmatter:
 For each authoritative input actually used, `path` is repository-relative,
 `revision` is the full Git commit hash supplying the baseline, and
 `content_sha256` is SHA-256 of the exact file bytes last reconciled. For a new
-uncommitted input, use `revision: null` and record why in reconciliation evidence.
+uncommitted input, use `revision: null` and record why in the bounded
+reconciliation record.
 For an edited input, keep the committed baseline revision and hash the reviewed
 working-copy bytes. Never claim uncommitted text is identical to a commit.
-Source records exclude the plan itself and generated views: runbooks and
-diagrams are never sources.
+Source records exclude the plan itself, reconciliation records, and generated
+views: reconciliation history, runbooks, and diagrams are never sources.
 
 When a source is a decision or implementation work item, also record its
 `material_sha256`, computed as defined in
@@ -137,8 +149,10 @@ When a source is a decision or implementation work item, also record its
 plan, record its `material_sha256`: SHA-256 of the plan's UTF-8 text with LF
 line endings, omitting its frontmatter `sources` list and `process_version`
 line and every level-2 section whose heading contains "reconciliation",
-"impact review", or "evidence" (case-insensitive). Keep such sections free of
-scope, phase, ordering, and gate content. When a source is a readiness record,
+"impact review", or "evidence" (case-insensitive). The canonical plan contains
+only the excluded `Reconciliation index`; the broader heading rule preserves
+legacy hash compatibility. Keep excluded sections free of scope, phase,
+ordering, and gate content. When a source is a readiness record,
 record its `material_sha256` the same way, additionally omitting its
 `assessment` line and its `## Validation and approval` section; reassessment
 findings remain material. Such a source is current when its
@@ -185,10 +199,22 @@ Order selects among eligible items but does not add dependency edges. Dependency
 graphs must be acyclic across plans; a cancelled prerequisite does not satisfy
 a dependent's gate. Rewire or cancel affected work explicitly.
 
-Reconciliation evidence records the baseline, source changes, affected items,
-readiness impact, and unresolved blockers. Do not update a source hash merely
-to silence staleness. If reconciliation is incomplete, retain the old snapshot
-and state what remains; a partially reconciled plan is not current.
+Each reconciliation operation adds one bounded record beneath
+`reconciliations/` and one link to its index. Use a `YYYY-MM-DD-<scope>.md`
+name, adding a stable numeric suffix when needed. A record states the baseline,
+source changes, affected items, readiness impact, unresolved blockers, whether
+reconciliation is complete, and links to both the index and plan. Keep one
+event per record; do not append an accumulating journal to the plan or one
+unbounded evidence file.
+
+The plan retains a level-two `Reconciliation index` section linking only to
+`reconciliations/index.md`. That section remains excluded from the plan's
+material hash. Reconciliation records and their index are non-material history:
+changing them does not change plan eligibility, and they are read only when an
+operation needs the corresponding source-impact or historical evidence. Do not
+update a source hash merely to silence staleness. If reconciliation is
+incomplete, retain the old snapshot and state what remains; a partially
+reconciled plan is not current.
 
 Plan-approval evidence binds the material hash of an applicable readiness
 record, not its full file bytes. The plan approval must separately verify that
@@ -228,8 +254,8 @@ or switch branches silently.
 Branch names and topology are operational and must not become work-item status
 or plan-frontmatter authority. A work item may move between branches without
 changing its ID, dependencies, or lifecycle. Record temporary coordination in
-the pull request or reconciliation evidence only when it materially helps
-review.
+the pull request or a bounded reconciliation record only when it materially
+helps review.
 
 Do not carry unrelated working-tree changes onto a new branch. Coherent
 uncommitted changes for the selected scope may move with an explicitly
@@ -464,7 +490,10 @@ Before reporting a mutating workflow successful:
 4. Check requirement coverage, retained scope after splits, cancelled dependencies,
    exact manifests, and normative entry/exit gates.
 5. Check source snapshots, readiness impact, and approval evidence.
-6. Run `spec-trace-check`; implementation also runs the applicable documented
+6. Check that the plan has exactly one reconciliation-index link, every indexed
+   record exists and links back, no record is unindexed, and no reconciliation
+   record appears as an authoritative source.
+7. Run `spec-trace-check`; implementation also runs the applicable documented
    checks and `build-and-test`. Never invent unavailable commands or claim
    unperformed validation.
 

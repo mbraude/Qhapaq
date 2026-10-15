@@ -112,7 +112,8 @@ for other implementation slices.
 A plan or readiness record whose
 `process_version` is missing or older than the guide's reports a
 `process_version` source in state `process-missing` or `process-outdated`; a
-cited runbook or diagram reports `derived-view`. Neither is current.
+cited runbook or diagram reports `derived-view`, and a cited reconciliation
+record reports `reconciliation-record`. None is current.
 
 It reads exact working-copy bytes and reports, with line references: transitive
 item selection and owners; plan and readiness source currentness; dependency

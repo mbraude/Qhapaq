@@ -56,23 +56,29 @@ specification text unless the user explicitly includes that migration.
 6. Populate repository-relative artifact paths and existing requirement IDs.
    Detail current decisions; leave speculative implementation work as milestones.
    Keep architectural choices in the appropriate source or as unresolved items.
-7. Update phase membership and reconciliation evidence. Compute real SHA-256
+7. Update phase membership and add one bounded reconciliation record beneath
+   `work/<owner>/reconciliations/`, linked from its index. Do not append
+   reconciliation history to the plan. The record states the baseline, source
+   changes, affected work, readiness and approval impact, blockers, completion,
+   and links to the index and plan. Compute real SHA-256
    source snapshots and full Git revisions with
    `python .agents/scripts/work_hashes.py sources <path>...`, never by hand or
    with ad hoc scripts; keep the `material_sha256` it emits for work-item,
    plan, and readiness sources. Set `process_version` to the workflow guide's current value,
    and do not cite the guide, templates, or workflow skills as sources unless
-   the specification governs them; keep the plan's reconciliation notes in
-   sections whose headings name reconciliation, impact review, or evidence,
-   which the plan's material hash excludes. To advance existing entries in place, run
+   the specification governs them. Reconciliation records are non-authoritative
+   evidence and must not appear in `sources`. Keep the plan's single
+   `Reconciliation index` section linked to `reconciliations/index.md`; the
+   material hash excludes that section. To advance existing entries in place, run
    `python .agents/scripts/work_hashes.py refresh <record> <path>...` (or
    `--stale` for every non-current source) instead of editing frontmatter by
    hand. Advance snapshots only for
    completely reviewed inputs; retain stale records and explain remaining
    reconciliation if blocked. Do not hash plans as their own sources.
 8. Check unique IDs/ownership, retained coverage, references, required sections,
-   cross-plan cycles, cancelled dependencies, source accuracy, and normative
-   gates using the workflow guide. Invoke
+   cross-plan cycles, cancelled dependencies, source accuracy, normative gates,
+   and reconciliation indexing using
+   `python .agents/scripts/plan_reconciliations.py check <plan>`. Invoke
    [spec-trace-check](../spec-trace-check/SKILL.md).
 
 ## Output and stop

@@ -36,8 +36,9 @@ State measurable completion criteria. Status and dependencies live in items.
 
 Link cross-plan prerequisite items without copying or owning them.
 
-## Reconciliation evidence
+## Reconciliation index
 
-Record baseline revision, source snapshots, affected work, readiness impact,
-unresolved blockers, and whether reconciliation is complete. Explain null
-revisions for new inputs. Do not advance snapshots after incomplete review.
+Link `reconciliations/index.md`. Store each source-impact or workflow review as
+one bounded dated record linked from that index. Reconciliation records are
+non-material history and never own current plan state. Explain null revisions
+for new inputs, and do not advance snapshots after incomplete review.

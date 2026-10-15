@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-15T01:23:47Z"
+generated_at: "2026-10-15T02:56:47Z"
 branch: "master"
-head: "bf53966bc7a98a62c2c1e0692434de6ee16c1d7d"
+head: "6d5f91614e58d6ee85998d1bbb42a403f1d16b84"
 source_file_count: 87
-source_set_sha256: "5c2c3af18e8bd86bb452d7cf35e552a4c1f56e32ae5ddf974f5513c3d6fb5ede"
+source_set_sha256: "610f4fafc6adbf44f8a45cfba56558e0b1aecfdde1a71c3b957a74444c9daf8d"
 ---
 
 # SPEC-0008: Work Runbook
@@ -23,9 +23,9 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Next action
 
-**Next command:** `/approve I-0008-016`
+**Next command:** `/implementation-plan 0008 item=I-0008-007`
 
-**Also eligible:** `/implementation-plan 0008 item=I-0008-007`<br>`/spec-readiness 0008 scope=conformance-contract-schemas-implementation`<br>`/implementation-plan 0007 item=I-0007-002`<br>`/implementation-plan 0007 item=I-0007-005`
+**Also eligible:** `/spec-readiness 0008 scope=conformance-contract-schemas-implementation`<br>`/implementation-plan 0007 item=I-0007-002`<br>`/implementation-plan 0007 item=I-0007-005`
 
 ## Runbook
 
@@ -51,8 +51,8 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 | [I-0008-013](implementation/I-0008-013-portable-core-example-audit.md) | Audit portable core requirements and examples |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | [I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
 | [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit portable binding specification examples |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md) |
-| [I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit .NET contract and traceability boundaries | `/approve I-0008-016` | Ready for review | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md) |
-| [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, language contracts, and examples |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[I-0008-013](implementation/I-0008-013-portable-core-example-audit.md)<br>[I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md)<br>[I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md)<br>[I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) |
+| [I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit .NET contract and traceability boundaries |  | Complete | 2026-10-14 | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](decisions/D-0008-008-language-native-traceability.md) |
+| [I-0008-002](implementation/I-0008-002-requirement-example-audit.md) | Audit portable requirements, language contracts, and examples |  | Open - blocked | — | [D-0008-003](decisions/D-0008-003-normative-content-labeling.md)<br>[I-0008-013](implementation/I-0008-013-portable-core-example-audit.md)<br>[I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md)<br>[I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md)<br>[I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md)<br>Aggregate audit milestone requires explicit verification after its child slices complete. |
 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker | `/implementation-plan 0008 item=I-0008-007` | Open - ready | — | [D-0008-008](decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-001](implementation/I-0008-001-engineering-policy-separation.md) |
 | [D-0007-009](../0007/decisions/D-0007-009-model-ownership.md) | Model ownership and visibility map |  | Complete | 2026-10-11 | — |
 | [D-0007-011](../0007/decisions/D-0007-011-portable-helper-ownership.md) | Shared portable algorithm ownership |  | Complete | 2026-10-11 | [D-0007-009](../0007/decisions/D-0007-009-model-ownership.md) |
@@ -78,9 +78,9 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 
 ## Snapshot notes
 
-- Rows: 44 (27 Complete, 1 Gate - reassessment required, 12 Open - blocked, 3 Open - ready, 1 Ready for review).
+- Rows: 44 (28 Complete, 1 Gate - reassessment required, 12 Open - blocked, 3 Open - ready).
 - Plans with non-current sources: none.
 - Readiness records with non-current sources: 9 of 9.
 - Structural findings: none.
-- Working-copy inputs: `docs/development/spec-driven-workflow.md`.
+- Working-copy inputs: `docs/development/spec-driven-workflow.md`, `work/0007/plan.md`, `work/0008/plan.md`.
 - Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.

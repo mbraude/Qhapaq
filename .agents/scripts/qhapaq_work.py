@@ -211,6 +211,9 @@ def progress_material_sha256(data: bytes) -> str:
 PLAN_RE = re.compile(r"^work/(?:components/)?\d{4}/plan\.md$")
 READINESS_RE = re.compile(r"^work/(?:components/)?\d{4}/readiness/[^/]+\.md$")
 DERIVED_VIEW_RE = re.compile(r"^work/(?:(?:components/)?\d{4}/runbook\.md$|diagrams/)")
+RECONCILIATION_RECORD_RE = re.compile(
+    r"^work/(?:components/)?\d{4}/reconciliations/(?:index|[^/]+)\.md$"
+)
 PROCESS_SOURCE_RE = re.compile(r"^(?:docs/development/spec-driven-workflow\.md|work/templates/)")
 PLAN_EXCLUDED_HEADING_RE = re.compile(r"reconciliation|impact review|evidence", re.I)
 GUIDE = "docs/development/spec-driven-workflow.md"
@@ -272,8 +275,10 @@ def source_material_sha256(path: str, data: bytes) -> str | None:
 
 
 def source_kind(path: str) -> str:
-    """`derived-view` (never a source), `process` (a source only when the record's
-    scope governs it), or `input`."""
+    """Classify a path as non-source evidence, a derived view, a process source,
+    or an authoritative input."""
+    if RECONCILIATION_RECORD_RE.match(path):
+        return "reconciliation-record"
     if DERIVED_VIEW_RE.match(path):
         return "derived-view"
     if PROCESS_SOURCE_RE.match(path):

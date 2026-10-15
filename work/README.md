@@ -46,6 +46,11 @@ visible, but their rows are never edited as lifecycle authority. Update the
 owning item, readiness record, approval evidence, or plan through its workflow,
 then regenerate the runbook.
 
+Each plan links to `reconciliations/index.md` for bounded source-impact and
+workflow-history records. Those records are non-material evidence, not plan
+sources or alternate lifecycle authority. Routine plan operations read the
+index or an individual record only when historical reconciliation is relevant.
+
 ## Templates
 
 Copy and populate these templates; placeholders are not accepted evidence:

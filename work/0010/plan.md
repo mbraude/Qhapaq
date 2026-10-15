@@ -102,16 +102,7 @@ may provide reusable performance improvements. They are not prerequisites for
 safe serial orchestration; SPEC-0010 must preserve SPEC-0009's authority and
 verification rules whenever derived state is reused.
 
-## Reconciliation evidence
+## Reconciliation index
 
-- Date: 2026-10-14. Bootstrapped from the new uncommitted SPEC-0010 draft.
-  The source uses `revision: null` because it has no committed baseline; its
-  content hash records the exact working-copy bytes used.
-- SPEC-0009 already governs safe reuse and measured reduction of repeated
-  parsing, hashing, validation, and runbook-selection work. This plan therefore
-  assigns durable run lifecycle, authorization, recovery, concurrency, and UI
-  decisions to SPEC-0010 rather than broadening SPEC-0009.
-- No implementation, readiness record, concrete slice, approval, or delivery
-  authority is created. Existing unrelated working-tree changes are preserved.
-- Reconciliation is complete for the initial draft; exact specification and
-  plan snapshots remain subject to human review.
+Historical source-impact and workflow evidence is stored in the [reconciliation index](reconciliations/index.md).
+The linked records are non-material and do not own current plan state.

@@ -16,8 +16,11 @@ If no plan exists, report that and suggest `work-plan-sync`; do not create it.
 ## Procedure
 
 1. Read the owning plan, selected items, readiness records, source snapshots,
-   and transitive prerequisites, including cross-plan dependencies. A phase
-   filter does not hide prerequisites needed to understand blockers.
+   and transitive prerequisites, including cross-plan dependencies. Do not read
+   reconciliation records for an ordinary roadmap view; follow the plan's
+   reconciliation index only when the user requests history or a source-impact
+   question requires a named record. A phase filter does not hide prerequisites
+   needed to understand blockers.
 2. Check source currentness with
    `python .agents/scripts/work_hashes.py verify <plan-and-records>`, then
    ID/owner agreement, references, membership, and

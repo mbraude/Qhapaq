@@ -3,11 +3,11 @@ primary_spec: "SPEC-0007"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0008"
-generated_at: "2026-10-14T06:27:23Z"
+generated_at: "2026-10-15T02:56:47Z"
 branch: "master"
-head: "863a9fd00c76338633ce4f10a61778c46e385161"
+head: "6d5f91614e58d6ee85998d1bbb42a403f1d16b84"
 source_file_count: 124
-source_set_sha256: "08484356082595c313c951668292a5aef24d36c836ed18b50efe95276a46f16c"
+source_set_sha256: "97ad31f95f7e172cb3917d08a4a87d18be94ec372c90424056470fd001babbc6"
 ---
 
 # SPEC-0007: Work Runbook
@@ -96,7 +96,7 @@ SPEC-0008 is included only as the owner of transitive prerequisites; unrelated S
 | [I-0008-011](../0008/implementation/I-0008-011-artifact-policy-routing.md) | Separate artifact-authoring policy from path instructions |  | Complete | 2026-10-11 | [D-0008-002](../0008/decisions/D-0008-002-convention-ownership.md) |
 | [I-0008-001](../0008/implementation/I-0008-001-engineering-policy-separation.md) | Separate common and specialized engineering policy |  | Complete | 2026-10-11 | [D-0008-002](../0008/decisions/D-0008-002-convention-ownership.md)<br>[D-0008-003](../0008/decisions/D-0008-003-normative-content-labeling.md)<br>[D-0008-008](../0008/decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-014](../0008/decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-010](../0008/implementation/I-0008-010-dotnet-policy-extraction.md)<br>[I-0008-011](../0008/implementation/I-0008-011-artifact-policy-routing.md) |
 | [I-0008-007](../0008/implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker | `/implementation-plan 0008 item=I-0008-007` | Open - ready | — | [D-0008-008](../0008/decisions/D-0008-008-language-native-traceability.md)<br>[D-0008-011](../0008/decisions/D-0008-011-build-ci-release-orchestration.md)<br>[D-0008-014](../0008/decisions/D-0008-014-policy-checker-delivery-boundary.md)<br>[I-0008-001](../0008/implementation/I-0008-001-engineering-policy-separation.md) |
-| READINESS SPEC-0008 conformance-contract-schemas-implementation | Assess implementation readiness for I-0008-017 across R-0005-034/035, R-0007-347 and R-0008-008-015/022-026, plus capabilities R-0000-007/009, R-0001-071-073, R-0002-031-035 (where MCP policy/disclosure applies), and R-0008-006/007. The exact schema manifest only adds seven portable schemas and modifies schemas/README.md; it does not authorize specification-document edits. | `/spec-readiness 0008 scope=conformance-contract-schemas-implementation` | Gate - reassessment required | — | — |
+| READINESS SPEC-0008 conformance-contract-schemas-implementation | Reassess implementation readiness for I-0008-017 covering R-0005-034, R-0005-035, R-0007-347, R-0008-008, R-0008-009, R-0008-010, R-0008-011, R-0008-012, R-0008-013, R-0008-014, R-0008-015, R-0008-022, R-0008-023, R-0008-024, R-0008-025, R-0008-026. | `/spec-readiness 0008 scope=conformance-contract-schemas-implementation` | Gate - reassessment required | — | Non-current sources: SPEC.md(stale), specs/0001-core-pipeline-model.md(stale), specs/0002-operation-catalogs-and-host-configuration.md(stale), specs/0005-build-release-and-website-delivery.md(stale), specs/0007-portable-pipeline-definitions-and-binding.md(stale), specs/0008-multi-language-conformance-and-repository-organization.md(stale), docs/development/conventions/specifications.md(stale) |
 | [I-0008-017](../0008/implementation/I-0008-017-conformance-contract-schemas.md) | Deliver portable conformance contract schemas |  | Open - blocked | — | [I-0008-012](../0008/implementation/I-0008-012-conformance-artifact-planning.md)<br>READINESS SPEC-0008 conformance-contract-schemas-implementation |
 | [I-0008-018](../0008/implementation/I-0008-018-profile-definitions.md) | Deliver initial profile definitions and evidence matrices |  | Open - blocked | — | [I-0008-017](../0008/implementation/I-0008-017-conformance-contract-schemas.md) |
 | [I-0008-019](../0008/implementation/I-0008-019-conformance-contract-vectors.md) | Deliver conformance contract and lifecycle vectors |  | Open - blocked | — | [I-0007-002](implementation/I-0007-002-conformance-tooling.md)<br>[I-0007-005](implementation/I-0007-005-validation-foundation-artifacts.md)<br>[I-0008-018](../0008/implementation/I-0008-018-profile-definitions.md) |
@@ -112,7 +112,7 @@ SPEC-0008 is included only as the owner of transitive prerequisites; unrelated S
 
 - Rows: 76 (1 Cancelled, 33 Complete, 1 Gate - reassessment required, 34 Open - blocked, 7 Open - ready).
 - Plans with non-current sources: none.
-- Readiness records with non-current sources: 6 of 9.
+- Readiness records with non-current sources: 9 of 9.
 - Structural findings: none.
-- Working-copy inputs: none (clean).
+- Working-copy inputs: `docs/development/spec-driven-workflow.md`, `work/0007/plan.md`, `work/0008/plan.md`.
 - Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.

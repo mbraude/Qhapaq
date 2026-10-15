@@ -104,7 +104,7 @@ def cmd_verify(snap: q.Snapshot, paths: list[str]) -> tuple[list[dict], bool]:
             recorded = source.get("content_sha256")
             material = source.get("material_sha256")
             kind = q.source_kind(source["path"])
-            state = "derived-view" if kind == "derived-view" else q.source_state(
+            state = kind if kind in ("derived-view", "reconciliation-record") else q.source_state(
                 snap, source["path"], recorded, source.get("revision"), material)
             ok &= state == "current"
             by_material = bool(material) and q.has_material(source["path"])
@@ -217,9 +217,15 @@ def cmd_refresh(snap: q.Snapshot, record: str, wanted: list[str], stale: bool,
     unknown = [p for p in wanted + remove if p not in by_path]
     if unknown:
         return [{"record": record, "path": p, "state": "not a recorded source"} for p in unknown], False
-    derived = [p for p in wanted + add if q.source_kind(p) == "derived-view"]
-    if derived:
-        return [{"record": record, "path": p, "state": "derived view; never a source"} for p in derived], False
+    non_sources = [
+        p for p in wanted + add
+        if q.source_kind(p) in ("derived-view", "reconciliation-record")
+    ]
+    if non_sources:
+        return [
+            {"record": record, "path": p, "state": f"{q.source_kind(p)}; never a source"}
+            for p in non_sources
+        ], False
     missing = [p for p in add if snap.sha(p) is None]
     if missing:
         return [{"record": record, "path": p, "state": "missing"} for p in missing], False
@@ -255,7 +261,8 @@ def cmd_refresh(snap: q.Snapshot, record: str, wanted: list[str], stale: bool,
     if stale:
         for e in entries:
             fields = {k: q.unquote(v) for k, (_, v) in e["fields"].items()}
-            if e["path"] not in targets and e["path"] not in remove and q.source_kind(e["path"]) != "derived-view" \
+            if e["path"] not in targets and e["path"] not in remove \
+                    and q.source_kind(e["path"]) not in ("derived-view", "reconciliation-record") \
                     and q.source_state(snap, e["path"], fields.get("content_sha256"), fields.get("revision"),
                                        fields.get("material_sha256")) != "current":
                 targets.append(e["path"])
@@ -401,7 +408,10 @@ def print_text(command: str, rows: list[dict]) -> None:
             print("# working copy differs from revision (hash covers working-copy bytes): " + ", ".join(notes), file=sys.stderr)
     elif command == "verify":
         for r in rows:
-            detail = "" if r["state"] in ("current", "malformed", "record-missing", "derived-view") else f" recorded={r['recorded']} actual={r['actual']}"
+            detail = "" if r["state"] in (
+                "current", "malformed", "record-missing", "derived-view",
+                "reconciliation-record"
+            ) else f" recorded={r['recorded']} actual={r['actual']}"
             basis = " (material)" if r.get("basis") == "material" else " (process source)" if r.get("kind") == "process" else ""
             print(f"{r['state']:<8} {r['record']} -> {r['path']}{basis}{detail}")
     elif command == "diff":

@@ -42,10 +42,13 @@ Do not alter product behavior, infer approval, execute slices, commit, or push.
    treat preferred order as dependency. Cancel obsolete open work with reasons.
    New requirements after valid completion create follow-up work; only an
    incorrect completion claim reopens the original.
-6. Reassess affected approvals/readiness and record the rationale. Do not
-   manufacture new source snapshots or approval just to remove a blocker.
-7. Apply the workflow validation checklist, including cross-plan cycles and
-   requirement coverage after splits. Invoke
+6. Reassess affected approvals/readiness and record the rationale in one
+   bounded record beneath the plan's `reconciliations/` directory, linked from
+   its index. Do not append history to the plan or manufacture new source
+   snapshots or approval just to remove a blocker.
+7. Apply the workflow validation checklist, including cross-plan cycles,
+   requirement coverage after splits, and
+   `python .agents/scripts/plan_reconciliations.py check <plan>`. Invoke
    [spec-trace-check](../spec-trace-check/SKILL.md). No code build is needed for
    plan-only edits unless documented checks require it.
 

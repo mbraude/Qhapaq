@@ -63,7 +63,9 @@ Readiness record rules:
 
 1. Inspect branch context and worktree, then read the governing specification,
    related requirements/ADRs, plan/items, existing readiness evidence, and
-   required artifacts. Continue on the current attached branch when it is the
+   required artifacts. Reconciliation records are non-authoritative history;
+   read a named record only when its source-impact evidence is relevant to the
+   assessed scope. Continue on the current attached branch when it is the
    user's intended delivery context, including the default branch. Recommend
    [work-branch-start](../work-branch-start/SKILL.md) for multi-commit or
    disruptive work, but do not require or silently create a branch. Check plan

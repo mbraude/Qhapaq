@@ -152,8 +152,9 @@ class Facts:
                 result.append({"path": None, "state": "malformed"})
                 continue
             path = source["path"]
-            if source_kind(path) == "derived-view":
-                result.append({"path": path, "state": "derived-view"})
+            kind = source_kind(path)
+            if kind in ("derived-view", "reconciliation-record"):
+                result.append({"path": path, "state": kind})
                 continue
             self.use(path)
             state = source_state(self.snap, path, source.get("content_sha256"), source.get("revision"),

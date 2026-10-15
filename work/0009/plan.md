@@ -138,40 +138,7 @@ unverified local state.
 These dependencies point only from SPEC-0009 to SPEC-0008. Neither prerequisite
 depends on this plan, and no SPEC-0007 or SPEC-0008 completion gate is changed.
 
-## Reconciliation evidence
+## Reconciliation index
 
-- Date: 2026-10-12. Reconciled SPEC-0009 version 0.2, which adds complete
-  runbook input manifests, conditional reuse of stored next commands,
-  incremental dependency invalidation, final-refresh collapsing, and
-  exact-identity validation receipts in R-0009-011 through R-0009-014.
-- D-0009-001 now resolves the additional architecture questions. I-0009-001
-  owns the runbook freshness manifest foundation; I-0009-002 owns workflow
-  adoption, targeted preflight, incremental invalidation, refresh collapsing,
-  and local receipt reuse; I-0009-003 includes required-validation receipt
-  verification. No new dependency points from SPEC-0007 or SPEC-0008 to this
-  plan.
-- Recorded the current working-copy bytes of the three directly related skills.
-  Their immediate changes retain fingerprint maps, input bytes, parsed fields,
-  and digests only within one invocation; use the freshly synchronized next
-  command without re-deriving global order; and strengthen the existing
-  meaningful-content no-op. They create no persistent cache, skip no freshness
-  check, and trust no prior runbook.
-- Existing SPEC-0007 and SPEC-0008 specifications, plans, items, readiness
-  records, and approvals remain unchanged. The pre-existing modifications to
-  `work/0008/runbook.md` and its new language-contract readiness record are
-  unrelated and were preserved.
-- Reconciliation is complete for this amendment. Human review of the exact
-  specification, plan, work-item, and skill snapshots is the next gate.
-- Date: 2026-10-12. Bootstrapped from the new uncommitted SPEC-0009 draft and
-  the exact current supporting sources recorded above.
-- The SPEC-0009 source record uses `revision: null` because the new draft has no
-  committed baseline. Its `content_sha256` records the exact reviewed
-  working-copy bytes used for this plan.
-- Created one open architectural decision and three future implementation
-  milestones. No implementation slice is executable, no readiness or plan is
-  approved, and no production or validation tool is changed.
-- Existing SPEC-0007 and SPEC-0008 specifications, plans, items, readiness
-  records, and approvals are unchanged. The pre-existing modification to
-  `work/0008/runbook.md` is unrelated and was preserved.
-- Reconciliation is complete for the initial draft. Human review of the exact
-  specification and plan snapshots is the next gate.
+Historical source-impact and workflow evidence is stored in the [reconciliation index](reconciliations/index.md).
+The linked records are non-material and do not own current plan state.
