@@ -116,6 +116,29 @@ class LegacyWorkItemSourceTests(unittest.TestCase):
         self.assertEqual("current", matching)
         self.assertEqual("stale", stale)
 
+    def test_work_item_source_checkbox_progress_does_not_stale_readiness(self) -> None:
+        approved = (
+            "---\n"
+            "status: open\n"
+            "id: I-0008-999\n"
+            "---\n"
+            "## Exit criteria\n"
+            "- [ ] Required validation passes.\n"
+        ).encode()
+        current = approved.replace(b"- [ ]", b"- [x]")
+        snap = self.snapshot(current)
+
+        with patch.object(q, "recover_material_bytes", return_value=approved):
+            state = q.source_state(
+                snap,
+                ITEM_PATH,
+                "b" * 64,
+                REVISION,
+                material=q.material_sha256(approved),
+            )
+
+        self.assertEqual("current", state)
+
     def test_evidence_rows_support_legacy_bytes_and_material_basis(self) -> None:
         target = item("open", "approval pending")
         material_hash = q.source_material_sha256(TARGET_PATH, target)
@@ -161,6 +184,121 @@ class LegacyWorkItemSourceTests(unittest.TestCase):
 
         self.assertEqual("recorded", result["plan_approval"]["state"])
         self.assertEqual([], result["plan_approval"]["reviewed_hash_mismatches"])
+
+    def test_plan_approval_material_ignores_checklist_progress_only(self) -> None:
+        approved = (
+            "---\n"
+            "status: open\n"
+            "id: I-0008-999\n"
+            "---\n"
+            "## Exit criteria\n"
+            "- [ ] Required validation passes.\n"
+            "\n"
+            "## Plan approval\n"
+            "Approved material SHA-256: `PLACEHOLDER`.\n"
+        ).encode()
+        recorded_hash = q.material_sha256(approved)
+        current = approved.replace(b"status: open", b"status: ready-for-review")
+        current = current.replace(b"- [ ]", b"- [x]").replace(b"PLACEHOLDER", recorded_hash.encode())
+        snap = self.snapshot(current)
+
+        with patch.object(q, "recover_material_bytes", return_value=approved):
+            rows, ok = work_hashes.cmd_evidence(snap, [ITEM_PATH], ["Plan approval"])
+
+        self.assertTrue(ok)
+        self.assertEqual("current", rows[0]["state"])
+        self.assertEqual("progress-only", rows[0]["basis"])
+
+    def test_plan_approval_manifest_output_hash_is_a_delivery_target(self) -> None:
+        old_output = b"before\n"
+        current_output = b"after\n"
+        item_record = (
+            "---\n"
+            "id: I-0008-999\n"
+            "---\n"
+            "## File and ownership manifest\n"
+            "| Action | Repository-relative path | Purpose | Project / namespace | Visibility |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            f"| Modify | `{TARGET_PATH}` | Output | N/A | N/A |\n"
+            "\n"
+            "## Plan approval\n"
+            f"| `{TARGET_PATH}` | baseline | `{q.sha256_bytes(old_output)}` |\n"
+        )
+        snap = self.snapshot(item_record.encode())
+        snap._bytes[TARGET_PATH] = current_output
+
+        rows, ok = work_hashes.cmd_evidence(snap, [ITEM_PATH], ["Plan approval"])
+
+        self.assertTrue(ok)
+        self.assertEqual("planned-output", rows[0]["state"])
+        self.assertEqual("manifest", rows[0]["basis"])
+
+    def test_plan_approval_non_manifest_input_change_remains_stale(self) -> None:
+        old_input = b"before\n"
+        current_input = b"after\n"
+        item_record = (
+            "---\n"
+            "id: I-0008-999\n"
+            "---\n"
+            "## File and ownership manifest\n"
+            "| Action | Repository-relative path | Purpose | Project / namespace | Visibility |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            f"| Modify | `{TARGET_PATH}` | Output | N/A | N/A |\n"
+            "\n"
+            "## Plan approval\n"
+            f"| `{RECORD_PATH}` | `{q.sha256_bytes(old_input)}` |\n"
+        )
+        snap = self.snapshot(item_record.encode())
+        snap._bytes[RECORD_PATH] = current_input
+
+        rows, ok = work_hashes.cmd_evidence(snap, [ITEM_PATH], ["Plan approval"])
+
+        self.assertFalse(ok)
+        self.assertEqual("stale", rows[0]["state"])
+
+    def test_plan_approval_rejects_changed_criterion_text(self) -> None:
+        approved = (
+            "---\n"
+            "status: open\n"
+            "id: I-0008-999\n"
+            "---\n"
+            "## Exit criteria\n"
+            "- [ ] Required validation passes.\n"
+            "\n"
+            "## Plan approval\n"
+            "Approved material SHA-256: `PLACEHOLDER`.\n"
+        ).encode()
+        recorded_hash = q.material_sha256(approved)
+        current = approved.replace(b"PLACEHOLDER", recorded_hash.encode())
+        current = current.replace(b"Required validation", b"Required security validation")
+        snap = self.snapshot(current)
+
+        with patch.object(q, "recover_material_bytes", return_value=approved):
+            rows, ok = work_hashes.cmd_evidence(snap, [ITEM_PATH], ["Plan approval"])
+
+        self.assertFalse(ok)
+        self.assertEqual("stale", rows[0]["state"])
+
+    def test_plan_approval_accepts_plan_byte_change_when_material_is_same(self) -> None:
+        path = "work/0008/plan.md"
+        old_plan = b"---\nsources: [old]\n---\n\n## Phase 0\n- item\n"
+        current_plan = b"---\nsources: [new]\n---\n\n## Phase 0\n- item\n"
+        item_record = (
+            "---\n"
+            "id: I-0008-999\n"
+            "---\n"
+            "## Plan approval\n"
+            f"| `{path}` | `{q.sha256_bytes(old_plan)}` |\n"
+        )
+        snap = self.snapshot(item_record.encode())
+        snap._bytes[path] = current_plan
+
+        with patch.object(q, "recover_bytes", return_value=old_plan):
+            rows, ok = work_hashes.cmd_evidence(snap, [ITEM_PATH], ["Plan approval"])
+
+        self.assertTrue(ok)
+        self.assertEqual("current", rows[0]["state"])
+        self.assertEqual("material fallback", rows[0]["basis"])
 
 
 if __name__ == "__main__":

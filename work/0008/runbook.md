@@ -3,11 +3,11 @@ primary_spec: "SPEC-0008"
 included_specs: []
 transitive_spec_owners:
   - "SPEC-0007"
-generated_at: "2026-10-15T00:49:47Z"
+generated_at: "2026-10-15T01:23:47Z"
 branch: "master"
-head: "9616880596484f1f69223791ce0dab36f6e6aeea"
+head: "bf53966bc7a98a62c2c1e0692434de6ee16c1d7d"
 source_file_count: 87
-source_set_sha256: "7f0046c24cd15201004b42012cf0e2393f71f5692733a6b4904b80b6001927cc"
+source_set_sha256: "5c2c3af18e8bd86bb452d7cf35e552a4c1f56e32ae5ddf974f5513c3d6fb5ede"
 ---
 
 # SPEC-0008: Work Runbook
@@ -82,5 +82,5 @@ SPEC-0007 is included only as the owner of transitive prerequisites; unrelated S
 - Plans with non-current sources: none.
 - Readiness records with non-current sources: 9 of 9.
 - Structural findings: none.
-- Working-copy inputs: `docs/development/conventions/specifications.md`, `specs/0006-dotnet-layered-architecture.md`, `specs/0008-multi-language-conformance-and-repository-organization.md`, `work/0007/plan.md`, `work/0008/implementation/I-0008-016-language-contract-and-traceability-audit.md`, `work/0008/plan.md`.
+- Working-copy inputs: `docs/development/spec-driven-workflow.md`.
 - Next command is the first row in dependency order with a safe command; gates precede the rows they unblock.

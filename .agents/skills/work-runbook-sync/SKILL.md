@@ -103,6 +103,12 @@ the recorded revision when those bytes are unavailable) by material hash;
 unchanged material is `current` and the output identifies the legacy fallback.
 This avoids reopening readiness or plan approval for status/evidence-only
 changes while still requiring reassessment when the source's material changes.
+Acceptance-criterion checkbox state is progress metadata. Once an item is
+`ready-for-review`, stale source hashes for files in its approved manifest are
+expected output changes, not a reason to replace its delivery-review command
+with readiness or plan approval. The delivery reviewer must verify the final
+outputs against the approved scope; those changed files are not current inputs
+for other implementation slices.
 A plan or readiness record whose
 `process_version` is missing or older than the guide's reports a
 `process_version` source in state `process-missing` or `process-outdated`; a

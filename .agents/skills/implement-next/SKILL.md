@@ -54,7 +54,12 @@ future slices.
    exact reviewed input/output snapshots; set ready-for-review.
 9. Complete only after explicit human delivery approval of that material
    snapshot. Plan approval, readiness approval, or successful tests alone are
-   insufficient. Reconcile authoritative-source changes if any before ending.
+   insufficient. Changes to files in the approved manifest are expected
+   outputs: record their final hashes and review them for conformance without
+   reopening readiness solely because their bytes changed. Reassess if a
+   change exceeds the manifest, changes approved scope, or alters required
+   behavior. Do not check acceptance criteria by changing their wording;
+   checkbox state records progress and does not change plan scope.
 
 ## Output and stop
 

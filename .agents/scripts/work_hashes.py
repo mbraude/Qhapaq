@@ -310,6 +310,22 @@ def cmd_approval(snap: q.Snapshot, target: str, files: list[str]) -> tuple[list[
     return rows, ok
 
 
+def manifest_outputs(snap: q.Snapshot, item: str) -> set[str]:
+    """Return paths in a work item's approved file manifest."""
+    outputs: set[str] = set()
+    for heading, _, lines in q.sections(snap.text(item)):
+        if heading != "File and ownership manifest":
+            continue
+        for line in lines:
+            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            if len(cells) < 2:
+                continue
+            path = re.fullmatch(r"`([^`]+)`", cells[1])
+            if path:
+                outputs.add(path.group(1))
+    return outputs
+
+
 def cmd_evidence(snap: q.Snapshot, paths: list[str], wanted: list[str]) -> tuple[list[dict], bool]:
     rows, ok = [], True
     for item in paths:
@@ -319,16 +335,25 @@ def cmd_evidence(snap: q.Snapshot, paths: list[str], wanted: list[str]) -> tuple
             ok = False
             continue
         material = material_of(item, snap.read(item))
+        outputs = manifest_outputs(snap, item)
         for heading, start, lines in q.sections(text):
             if wanted and heading not in wanted:
                 continue
             for offset, line in enumerate(lines, 1):
                 line_no = start + offset
                 for recorded in q.MATERIAL_LINE_RE.findall(line):
-                    state = "current" if recorded == material else "stale"
+                    state, basis = ("current", "material") if recorded == material else ("stale", "material")
+                    if state == "stale" and heading == "Plan approval":
+                        approved = q.recover_material_bytes(item, recorded)
+                        current = snap.read(item)
+                        if approved is not None and current is not None and (
+                            q.progress_material_sha256(approved) == q.progress_material_sha256(current)
+                        ):
+                            state, basis = "current", "progress-only"
                     ok &= state == "current"
                     rows.append({"item": item, "section": heading, "line": line_no, "kind": "material",
-                                 "path": item, "recorded": recorded, "actual": material, "state": state})
+                                 "path": item, "basis": basis, "recorded": recorded,
+                                 "actual": material, "state": state})
                 row = q.PATH_HASH_ROW_RE.match(line)
                 if row:
                     path, basis, recorded = row.group(1), (row.group(2) or "bytes").lower(), row.group(3)
@@ -338,7 +363,19 @@ def cmd_evidence(snap: q.Snapshot, paths: list[str], wanted: list[str]) -> tuple
                     else:
                         actual = snap.sha(path)
                     state = "missing" if actual is None else "current" if actual == recorded else "stale"
-                    ok &= state == "current"
+                    if basis == "baseline" and (heading != "Plan approval" or path not in outputs):
+                        state = "invalid-basis"
+                    if state == "stale" and heading == "Plan approval":
+                        if path in outputs:
+                            state, basis = "planned-output", "manifest"
+                        elif q.has_material(path):
+                            previous = q.recover_bytes(path, recorded, None)
+                            current = snap.read(path)
+                            if (previous is not None and current is not None and
+                                    q.source_material_sha256(path, previous) ==
+                                    q.source_material_sha256(path, current)):
+                                state, basis = "current", "material fallback"
+                    ok &= state in ("current", "planned-output")
                     rows.append({"item": item, "section": heading, "line": line_no, "kind": "file",
                                  "path": path, "basis": basis, "recorded": recorded, "actual": actual,
                                  "state": state})

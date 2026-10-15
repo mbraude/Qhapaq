@@ -41,6 +41,12 @@ Readiness record rules:
   changed material text. Describe an earlier or another record's limits as
   such ("the earlier `<scope>` readiness authorized planning only") so they
   are not read as this record's own.
+- Readiness must be current before plan approval and implementation. After
+  execution, changed files in the exact approved slice manifest are expected
+  outputs and do not alone require reassessment for that slice's delivery
+  review; the final review checks those outputs against the assessed scope and
+  approved requirements. They are changed inputs for other slices and require
+  currentness review before those slices proceed.
 - Readiness and plan approval are independent gates. Do not make a plan's
   temporarily unapproved status a material readiness finding or blocker; record
   the separate plan-approval gate only in `Validation and approval`. Approve

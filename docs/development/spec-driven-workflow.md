@@ -249,9 +249,13 @@ Record review evidence in the item's body: approver as explicitly supplied
 can be a full committed revision or a table of repository paths and SHA-256
 hashes of the reviewed working-copy artifacts. Include material inputs and
 outputs, excluding the evidence record itself to avoid self-referential hashes.
-Material changes to acceptance criteria, scope, dependencies, or artifacts after
-approval require renewed approval. Metadata-only recording of approval does not.
-Do not invent approver identities or claim evidence that is not available.
+The `[ ]`/`[x]` state of acceptance-criterion checkboxes is progress metadata,
+not criterion content; changing checkbox state alone does not change a plan's
+approved material scope. Changes to criterion wording, scope, dependencies, or
+the manifest still require renewed plan approval. Delivery approval records
+the final output snapshot and verifies every criterion before completion.
+Metadata-only recording of approval does not change the approved scope. Do not
+invent approver identities or claim evidence that is not available.
 
 When approval covers an uncommitted item's own material plan or resolution,
 record a **material SHA-256** alongside the full-byte hashes of its other inputs
@@ -264,12 +268,25 @@ resolution, remains covered. Label this hash as material, not a file-byte hash.
 Recompute it before relying on the approval. This permits evidence and lifecycle
 updates without requiring a separate review file or a self-referential hash.
 
-**Approved snapshots are immutable.** Once a human approves an item's material
-snapshot, no skill or agent edits that item's material content, including
-`change_kind`, unless the user explicitly requests a change after being told
-it invalidates the approval. Never revoke or invalidate a recorded approval
-silently, and never change status to `blocked` because of a finding that
-leaves approved scope, manifest, requirements, and exclusions unchanged.
+**Approved plan snapshots are immutable.** Once a human approves an item's
+material plan, no skill or agent edits its scope, criterion wording,
+dependencies, manifest, exclusions, or `change_kind` unless the user explicitly
+requests a change after being told it requires renewed plan approval. Checking
+or unchecking acceptance criteria records progress and does not alter the
+approved plan. Never revoke a recorded approval silently, or block an unchanged
+plan because execution has reached its approved outputs.
+
+Plan approval authorizes the reviewed scope and manifest; it does not approve
+the output bytes. Before execution, readiness and plan-approval evidence must
+be current, including the then-current bytes of files that are planned outputs.
+After execution, changes to paths in that exact approved manifest are expected
+outputs, not stale prerequisites for delivery review. Preserve their baseline
+hashes in plan-approval evidence, then inspect and snapshot the final bytes in
+delivery evidence. Changes to inputs outside the manifest remain stale and
+block delivery until reconciled. A changed authoritative source that alters
+required meaning or exceeds the approved scope requires a separate decision,
+readiness assessment, and plan approval; final-output review must not silently
+expand the approved change.
 
 An item's `change_kind` is the planned classification. The commit's
 `Change-Kind:` trailer comes from `spec-trace-check` on the actual diff. If
@@ -303,8 +320,17 @@ Where normative gates require actual schemas or vectors before implementation,
 readiness and slice eligibility must require those artifacts, not promises.
 Readiness neither publishes a contract nor relaxes a rollout gate.
 
-An approved readiness record applies only to its assessed source snapshot.
-Changed sources require impact review and a new assessment for affected scope.
+An approved readiness record applies to the assessed source snapshot for
+implementation eligibility. Before execution, changed sources require impact
+review and a new assessment for affected scope. After a slice has executed,
+changes to its explicitly approved manifest outputs do not retroactively
+invalidate the readiness or plan authorization for that slice's delivery
+review: the reviewer checks those final outputs against the approved scope,
+requirements, and acceptance criteria. Such changed sources are not current
+inputs for another implementation slice; reassess downstream work against the
+new source snapshot. Any out-of-manifest source change, or any output change
+that alters required behavior or the approved scope, still requires
+reconciliation and reassessment before delivery.
 A work-item, plan, or readiness source whose recorded `material_sha256` still matches has
 not changed for this purpose, and process artifacts are not readiness sources
 unless the assessed scope governs them (see

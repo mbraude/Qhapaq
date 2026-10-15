@@ -88,8 +88,12 @@ readiness record, and direct prerequisite items or existing artifacts relied
 upon. Use its material SHA-256 for the readiness input so that approval
 evidence or lifecycle-only updates do not invalidate an unchanged readiness
 assessment; continue to verify that readiness is approved and its latest
-approval evidence and sources are current. Use full-byte SHA-256 for other
-inputs. Use one run of the
+approval evidence and sources are current. Use the plan's material SHA-256 for
+the owning plan. For a file in the slice's exact modify/add/delete manifest,
+record its full-byte hash with basis `baseline`; other inputs use full-byte
+SHA-256. Baseline rows remain historical authorization evidence after
+execution and are compared with final output hashes during delivery review.
+Use one run of the
 [shared workflow scripts](../../scripts/README.md) for both:
 
 ```text
@@ -142,8 +146,9 @@ Do not change material plan content or approval evidence for unselected items.
 
 Recompute the item material hashes and verify every recorded input hash with
 `python .agents/scripts/work_hashes.py evidence --section "Plan approval" <item>...`.
-Plan-approval evidence tables identify each row's basis as `bytes` or
-`material`; unmarked rows in older records remain full-byte hashes.
+Plan-approval evidence tables identify each row's basis as `bytes`,
+`material`, or `baseline`; unmarked rows in older records remain full-byte
+hashes. Only an exact manifest path may use `baseline`.
 Check
 the full worktree and report any concurrent change; do not stage, commit, push,
 or create a commit message.

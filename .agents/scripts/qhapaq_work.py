@@ -16,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 WORK = ROOT / "work"
 PATH_HASH_ROW_RE = re.compile(
-    r"^\|\s*`([^`]+)`\s*\|(?:\s*(material|bytes)\s*\|)?\s*`([0-9a-f]{64})`\s*\|",
+    r"^\|\s*`([^`]+)`\s*\|(?:\s*(material|bytes|baseline)\s*\|)?\s*`([0-9a-f]{64})`\s*\|",
     re.I,
 )
 MATERIAL_LINE_RE = re.compile(r"material\s+SHA-256[^`]*`([0-9a-f]{64})`", re.I)
@@ -195,6 +195,17 @@ def material_text(text: str) -> str:
 
 def material_sha256(data: bytes) -> str:
     return sha256_bytes(material_text(data.decode("utf-8")).encode("utf-8"))
+
+
+def progress_material_sha256(data: bytes) -> str:
+    """Hash work-item scope and criteria while ignoring checklist completion state."""
+    text = material_text(data.decode("utf-8"))
+    text = re.sub(
+        r"(?m)^(\s*(?:[-*+]|\d+[.)])\s+)\[[ xX]\]",
+        r"\1[ ]",
+        text,
+    )
+    return sha256_bytes(text.encode("utf-8"))
 
 
 PLAN_RE = re.compile(r"^work/(?:components/)?\d{4}/plan\.md$")
@@ -418,13 +429,39 @@ def recover_bytes(path: str, sha: str, revision: str | None, depth: int = 50) ->
     return None
 
 
+def recover_material_bytes(path: str, material: str, depth: int = 50) -> bytes | None:
+    """Find committed bytes of a work item whose material hash equals `material`."""
+    candidates = work_history(path)[:depth]
+    if not candidates:
+        return None
+    request = "".join(f"{candidate}:{path}\n" for candidate in candidates).encode("utf-8")
+    result = subprocess.run(["git", "cat-file", "--batch"], cwd=ROOT, input=request, capture_output=True)
+    if result.returncode != 0:
+        return None
+    output, position = result.stdout, 0
+    for _ in candidates:
+        end = output.index(b"\n", position)
+        header = output[position:end].split()
+        position = end + 1
+        if len(header) != 3 or header[1] != b"blob":
+            continue
+        size = int(header[2])
+        data = output[position:position + size]
+        position += size + 1
+        if material_sha256(data) == material:
+            return data
+    return None
+
+
 def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str | None = None,
                  material: str | None = None) -> str:
     """Classify a recorded source snapshot against current bytes.
 
-    A work-item, plan, or readiness source that records `material_sha256` is `current`
-    when its current material SHA-256 equals that value, as the workflow guide
-    defines, and `stale` otherwise, regardless of byte changes.
+    A work-item, plan, or readiness source that records `material_sha256` is
+    `current` when its current material SHA-256 equals that value, as the
+    workflow guide defines. For work items only, checklist-state changes are
+    progress metadata and remain current when the approved material version is
+    recoverable and all other material text matches.
 
     For a legacy work-item source without a recorded material hash, compare
     recoverable recorded bytes (or the recorded revision when the bytes are
@@ -436,7 +473,15 @@ def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str 
     if actual is None:
         return "missing"
     if material and has_material(path):
-        return "current" if source_material_sha256(path, snap.read(path) or b"") == material else "stale"
+        current_bytes = snap.read(path) or b""
+        current_material = source_material_sha256(path, current_bytes)
+        if current_material == material:
+            return "current"
+        if WORK_ITEM_RE.match(path):
+            approved = recover_material_bytes(path, material)
+            if approved is not None and progress_material_sha256(approved) == progress_material_sha256(current_bytes):
+                return "current"
+        return "stale"
     if actual == recorded:
         return "current"
     key = (path, recorded, revision)
@@ -444,13 +489,19 @@ def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str 
     if key not in cache:
         cache[key] = "stale"
         if recorded and WORK_ITEM_RE.match(path):
-            current = material_sha256(snap.read(path) or b"")
+            current_bytes = snap.read(path) or b""
+            current = material_sha256(current_bytes)
             old = recover_bytes(path, recorded, revision)
             if old is not None:
                 if material_sha256(old) == current:
                     cache[key] = "current"
+                elif progress_material_sha256(old) == progress_material_sha256(current_bytes):
+                    cache[key] = "current"
             elif revision:
                 base = git_bytes("show", f"{revision}:{path}")
-                if base is not None and material_sha256(base) == current:
-                    cache[key] = "current"
+                if base is not None:
+                    if material_sha256(base) == current:
+                        cache[key] = "current"
+                    elif progress_material_sha256(base) == progress_material_sha256(current_bytes):
+                        cache[key] = "current"
     return cache[key]

@@ -90,8 +90,18 @@ For a work item:
 - Run `python .agents/scripts/work_hashes.py approval <item> [--files
   <material input and output>...]` once: it computes the item's material
   SHA-256 and full-byte hashes of the listed files. Verify recorded review
-  evidence with `work_hashes.py evidence`. Verify the item and all material
-  inputs and outputs still match the recorded review snapshot.
+  evidence with `work_hashes.py evidence`. Plan-approval hashes for paths in
+  the exact approved file manifest are baselines, not expected final bytes;
+  the evidence checker reports changed ones as `planned-output`. Review those
+  final outputs against the approved scope and include their current full-byte
+  hashes in the delivery snapshot. Every non-manifest input must remain
+  current. Checkbox-only progress changes and source-record evidence changes
+  do not renew plan approval; changed criterion wording or scope does.
+  Verify the cited readiness record's approval evidence and sources as well.
+  A source mismatch is acceptable only when that exact path is in the approved
+  item manifest as an output; require it in the final snapshot and review its
+  change against the approved requirements. Stale process versions, changed
+  readiness material, or mismatches outside the manifest still block approval.
 
 For a readiness record:
 
@@ -153,6 +163,11 @@ Before asking, verify every substantive acceptance criterion is satisfied and
 recorded. Finalize all material content first, then run `approval` on that
 finalized snapshot; any later material edit requires running it again.
 
+For a work item, identify any `planned-output` evidence rows and show the
+current output hashes from the approval snapshot. The approved baseline hash
+is historical evidence for authorization, not a stale-input failure when the
+path is in the exact approved manifest.
+
 Approval applies only to the displayed snapshot and named scope. If the user
 declines, stop without changing approval status. If material files change after
 approval, stop and request renewed approval.
@@ -178,7 +193,10 @@ readiness record, set `assessment: approved` only for its named scope and
 unchanged assessed snapshot. Do not mark a specification or contract version
 `Published`.
 
-Run one `work_hashes.py evidence <target>`; every row must be `current`.
+Run one `work_hashes.py evidence <target>`; every row must be `current`, except
+`planned-output` rows for paths in the approved manifest, which must be
+included in the exact final delivery snapshot and pass the scope/conformance
+review.
 If approved material changed, revert only this skill's approval metadata edits,
 never discard user work, return the target to review as appropriate, and ask
 for approval again.
