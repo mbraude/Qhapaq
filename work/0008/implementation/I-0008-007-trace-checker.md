@@ -11,7 +11,7 @@ requirements:
   - R-0008-017
   - R-0008-018
   - R-0008-021
-depends_on: [D-0008-008, D-0008-011, D-0008-014, I-0008-001]
+depends_on: [D-0008-008, D-0008-011, D-0008-014, D-0008-016, I-0008-001]
 artifacts: []
 ---
 
@@ -30,16 +30,20 @@ language or define CI orchestration.
 
 ## Entry gates
 
-D-0008-008, D-0008-011, D-0008-014, and I-0008-001 are complete; the affected
-specification, ADR, and language-placement policies are approved; scope
-readiness and concrete slices are approved.
+D-0008-008, D-0008-011, D-0008-014, and I-0008-001 are complete. D-0008-016
+must select and approve the checker architecture and ownership; the affected
+specification, ADR, and language-placement policies must remain approved; and
+scoped implementation readiness must be reassessed and approved before
+concrete slices are created or approved.
 
 ## File and ownership manifest
 
-Pending an approved tool ownership decision, implementation language, and
-bounded inventory of the checker, extractor registrations, fixtures, and
-integration surfaces. This milestone owns the registration and policy-match
-evidence outcomes; concrete slices must name every production and test file.
+Pending approved D-0008-016 selection of tool ownership, implementation
+language, package boundary, dependency direction, and commands, followed by a
+current approved implementation-readiness assessment and a bounded inventory
+of the checker, extractor registrations, fixtures, and integration surfaces.
+This milestone owns the registration and policy-match evidence outcomes;
+concrete slices must name every production and test file.
 
 ## Design and integration
 

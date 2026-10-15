@@ -164,6 +164,7 @@ SPEC-0007 gates remain in force.
 | 8.2 | [I-0008-014](implementation/I-0008-014-remaining-portable-specification-audit.md) | Audit roadmap, AI, and release specification examples |
 | 8.3 | [I-0008-015](implementation/I-0008-015-portable-binding-specification-audit.md) | Audit SPEC-0007 portable binding examples and defaults |
 | 8.4 | [I-0008-016](implementation/I-0008-016-language-contract-and-traceability-audit.md) | Audit SPEC-0006/SPEC-0008 and traceability guidance boundaries |
+| 8.5 | [D-0008-016](decisions/D-0008-016-trace-checker-architecture.md) | Select deterministic trace-checker architecture and ownership |
 | 9 | [I-0008-007](implementation/I-0008-007-trace-checker.md) | Implement the deterministic multi-language trace checker |
 | 10 | [I-0008-003](implementation/I-0008-003-conformance-artifacts.md) | Aggregate profile, declaration, evidence, and publication delivery |
 | 10.1 | [I-0008-017](implementation/I-0008-017-conformance-contract-schemas.md) | Deliver portable conformance contract schemas |
