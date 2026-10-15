@@ -32,7 +32,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
 
 from qhapaq_work import (  # noqa: E402
     GUIDE,
-    PATH_HASH_ROW_RE,
     ROOT,
     WORK,
     Snapshot,
@@ -42,10 +41,10 @@ from qhapaq_work import (  # noqa: E402
     rel,
     sections,
     source_kind,
-    source_material_sha256,
     source_state,
     utf8_stdio,
 )
+from work_hashes import cmd_evidence  # noqa: E402
 
 ITEM_DIRS = ("decisions", "implementation")
 ID_RE = re.compile(r"\b([DI]-\d{4}-\d{3})\b")
@@ -192,17 +191,14 @@ class Facts:
                         manifest.update(re.findall(r"`([^`\s]+)`", line))
             elif lowered == "plan approval":
                 first = next((l.strip() for l in lines if l.strip()), "")
-                rows = [(PATH_HASH_ROW_RE.match(l), n) for n, l in enumerate(lines)]
                 mismatches = []
-                for match, offset in rows:
-                    if not match or match.group(1) == path or match.group(1).endswith("/runbook.md"):
-                        continue
-                    dependency, basis, recorded = match.group(1), (match.group(2) or "bytes").lower(), match.group(3)
-                    actual = (source_material_sha256(dependency, self.snap.read(dependency))
-                              if basis == "material" and self.snap.read(dependency) is not None
-                              else self.snap.sha(dependency) if basis == "bytes" else None)
-                    if actual != recorded:
-                        mismatches.append({"path": dependency, "line": start + offset + 1})
+                if item["status"] not in ("complete", "cancelled"):
+                    rows, _ = cmd_evidence(
+                        self.snap, [path], ["Plan approval"],
+                        allow_output_changes=item["status"] in ("in-progress", "ready-for-review"),
+                    )
+                    mismatches = [{"path": row["path"], "line": row["line"]} for row in rows
+                                  if row["state"] not in ("current", "planned-output")]
                 dates = evidence_dates(lines, start)
                 if first.lower().startswith("absent"):
                     plan_approval = {"state": "absent", "line": start}
@@ -714,6 +710,8 @@ def milestone_suggestion(item: dict, spec: str) -> tuple[dict, list[dict]]:
         command = f"/spec-readiness {spec} scope={scope}"
         status = "Gate - reassessment required" if not record["current"] else "Gate - assessment required"
         reason = "Reassess" if not record["current"] else "Assess"
+        if not record["current"] and record["assessment"] == "approved":
+            status, reason = "Gate - impact review required", "Review source impact on"
         basis = f"{record['path']} is {'stale' if not record['current'] else 'not assessed'}"
         blockers = ["Non-current sources: " + ", ".join(record["stale_sources"])] if not record["current"] else []
     elif record and record["assessment"] == "blocked":
@@ -795,31 +793,36 @@ def suggest(item: dict, by_id: dict[str, dict]) -> tuple[dict, list[dict]]:
     record = scoped[0]
     blocked = {"command": "", "status": "Open - blocked", "blockers": []}
     pa = item["plan_approval"]
-    renew = ["Existing plan approval has changed reviewed hashes and must be renewed after readiness is current."] \
+    impact = ["Reviewed inputs changed; scoped impact review is required, not automatic reapproval."] \
         if pa.get("reviewed_hash_mismatches") else []
     if not record["current"] or record["assessment"] == "not-assessed":
+        status = "Gate - reassessment required" if not record["current"] else "Gate - assessment required"
+        reason = "Reassess" if not record["current"] else "Assess"
+        if not record["current"] and record["assessment"] == "approved":
+            status, reason = "Gate - impact review required", "Review source impact on"
         gate = readiness_gate(item, record["scope"], f"/spec-readiness {spec} scope={record['scope']}",
-                              "Gate - reassessment required" if not record["current"] else "Gate - assessment required",
-                              "Reassess" if not record["current"] else "Assess")
+                              status, reason)
         if not record["current"]:
             gate["blockers"] = ["Non-current sources: " + ", ".join(record["stale_sources"])]
-        blocked["blockers"] = [gate["id"], *renew]
+        blocked["blockers"] = [gate["id"], *impact]
         blocked["basis"] = f"{record['path']} is {'stale' if not record['current'] else 'not assessed'}"
         return blocked, [gate]
     if record["assessment"] == "ready-for-review":
         gate = readiness_gate(item, record["scope"], f"/approve {record['path']}", "Gate - ready for review", "Approve")
-        blocked["blockers"] = [gate["id"], *renew]
+        blocked["blockers"] = [gate["id"], *impact]
         blocked["basis"] = f"{record['path']} awaits approval"
         return blocked, [gate]
     if record["assessment"] == "blocked":
         gate = readiness_gate(item, record["scope"], f"/spec-readiness {spec} scope={record['scope']}",
                               "Gate - blocked", "Resolve the recorded blockers and reassess")
         gate["blockers"] = [f"{record['path']} records assessment: blocked"]
-        blocked["blockers"] = [gate["id"], *renew]
+        blocked["blockers"] = [gate["id"], *impact]
         blocked["basis"] = f"{record['path']} is current but blocked"
         return blocked, [gate]
     if (record["assessment"] != "approved" or record["uncovered_manifest_spec_docs"]
             or record["unmentioned_requirements"] or record["planning_only_language"]):
+        return dict(JUDGE), []
+    if pa["state"] == "recorded" and pa.get("reviewed_hash_mismatches"):
         return dict(JUDGE), []
     if pa["state"] == "recorded" and not pa.get("reviewed_hash_mismatches"):
         command, basis = f"/implement-next {spec} item={item['id']}", "readiness current and approved; plan approved"

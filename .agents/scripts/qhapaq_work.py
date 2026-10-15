@@ -194,6 +194,7 @@ def material_text(text: str) -> str:
 
 
 def material_sha256(data: bytes) -> str:
+    """Legacy work-item digest, retained for approvals recorded before checkbox normalization."""
     return sha256_bytes(material_text(data.decode("utf-8")).encode("utf-8"))
 
 
@@ -267,7 +268,7 @@ def has_material(path: str) -> bool:
 def source_material_sha256(path: str, data: bytes) -> str | None:
     """The material SHA-256 recorded for a work-item, plan, or readiness source; None otherwise."""
     if WORK_ITEM_RE.match(path):
-        return material_sha256(data)
+        return progress_material_sha256(data)
     if PLAN_RE.match(path) or READINESS_RE.match(path):
         text = plan_material_text(data.decode("utf-8"), readiness=bool(READINESS_RE.match(path)))
         return sha256_bytes(text.encode("utf-8"))
@@ -453,9 +454,21 @@ def recover_material_bytes(path: str, material: str, depth: int = 50) -> bytes |
         size = int(header[2])
         data = output[position:position + size]
         position += size + 1
-        if material_sha256(data) == material:
+        if material in (material_sha256(data), progress_material_sha256(data)):
             return data
     return None
+
+
+def material_matches(path: str, data: bytes, recorded: str) -> bool:
+    """Accept current material identities and legacy work-item approvals without rewriting evidence."""
+    if source_material_sha256(path, data) == recorded:
+        return True
+    if WORK_ITEM_RE.match(path):
+        if material_sha256(data) == recorded:
+            return True
+        approved = recover_material_bytes(path, recorded)
+        return approved is not None and progress_material_sha256(approved) == progress_material_sha256(data)
+    return False
 
 
 def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str | None = None,
@@ -478,15 +491,7 @@ def source_state(snap: Snapshot, path: str, recorded: str | None, revision: str 
     if actual is None:
         return "missing"
     if material and has_material(path):
-        current_bytes = snap.read(path) or b""
-        current_material = source_material_sha256(path, current_bytes)
-        if current_material == material:
-            return "current"
-        if WORK_ITEM_RE.match(path):
-            approved = recover_material_bytes(path, material)
-            if approved is not None and progress_material_sha256(approved) == progress_material_sha256(current_bytes):
-                return "current"
-        return "stale"
+        return "current" if material_matches(path, snap.read(path) or b"", material) else "stale"
     if actual == recorded:
         return "current"
     key = (path, recorded, revision)

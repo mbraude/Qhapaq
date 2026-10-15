@@ -333,7 +333,8 @@ def manifest_outputs(snap: q.Snapshot, item: str) -> set[str]:
     return outputs
 
 
-def cmd_evidence(snap: q.Snapshot, paths: list[str], wanted: list[str]) -> tuple[list[dict], bool]:
+def cmd_evidence(snap: q.Snapshot, paths: list[str], wanted: list[str],
+                 allow_output_changes: bool = True) -> tuple[list[dict], bool]:
     rows, ok = [], True
     for item in paths:
         text = snap.text(item)
@@ -350,13 +351,8 @@ def cmd_evidence(snap: q.Snapshot, paths: list[str], wanted: list[str]) -> tuple
                 line_no = start + offset
                 for recorded in q.MATERIAL_LINE_RE.findall(line):
                     state, basis = ("current", "material") if recorded == material else ("stale", "material")
-                    if state == "stale" and heading == "Plan approval":
-                        approved = q.recover_material_bytes(item, recorded)
-                        current = snap.read(item)
-                        if approved is not None and current is not None and (
-                            q.progress_material_sha256(approved) == q.progress_material_sha256(current)
-                        ):
-                            state, basis = "current", "progress-only"
+                    if state == "stale" and q.has_material(item) and q.material_matches(item, snap.read(item), recorded):
+                        state, basis = "current", "progress-only"
                     ok &= state == "current"
                     rows.append({"item": item, "section": heading, "line": line_no, "kind": "material",
                                  "path": item, "basis": basis, "recorded": recorded,
@@ -370,17 +366,18 @@ def cmd_evidence(snap: q.Snapshot, paths: list[str], wanted: list[str]) -> tuple
                     else:
                         actual = snap.sha(path)
                     state = "missing" if actual is None else "current" if actual == recorded else "stale"
+                    if (state == "stale" and basis == "material" and q.has_material(path)
+                            and q.material_matches(path, data, recorded)):
+                        state, basis = "current", "material compatibility"
                     if basis == "baseline" and (heading != "Plan approval" or path not in outputs):
                         state = "invalid-basis"
-                    if state == "stale" and heading == "Plan approval":
-                        if path in outputs:
+                    if state == "stale":
+                        if heading == "Plan approval" and path in outputs and allow_output_changes:
                             state, basis = "planned-output", "manifest"
-                        elif q.has_material(path):
+                        elif basis != "material" and q.has_material(path):
                             previous = q.recover_bytes(path, recorded, None)
-                            current = snap.read(path)
-                            if (previous is not None and current is not None and
-                                    q.source_material_sha256(path, previous) ==
-                                    q.source_material_sha256(path, current)):
+                            if (previous is not None and data is not None and
+                                    q.source_material_sha256(path, previous) == q.source_material_sha256(path, data)):
                                 state, basis = "current", "material fallback"
                     ok &= state in ("current", "planned-output")
                     rows.append({"item": item, "section": heading, "line": line_no, "kind": "file",
@@ -450,6 +447,7 @@ def print_text(command: str, rows: list[dict]) -> None:
             for r in files:
                 print(f"| `{r['path']}` | `{r['sha256']}` |")
     elif command == "evidence":
+        print("# Current-content comparison; historical mismatches do not revoke recorded approvals.")
         for r in rows:
             if r["kind"] == "item-missing":
                 print(f"missing  {r['item']}")

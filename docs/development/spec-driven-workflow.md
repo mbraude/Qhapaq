@@ -222,14 +222,27 @@ update a source hash merely to silence staleness. If reconciliation is
 incomplete, retain the old snapshot and state what remains; a partially
 reconciled plan is not current.
 
+Hash mismatches are change detectors, not approval revocations. First compare
+the delta with the selected scope, governing requirements, manifest, and
+assessment findings. If those are unaffected, record the impact review and
+refresh only the source metadata; preserve the assessment, authorization, and
+original approval evidence. This maintenance requires validation, not another
+human approval. A material change to the work being authorized requires a new
+authorization for that changed scope, not retroactive invalidation of the
+previous approval. If impact cannot be established, report the precise unknown
+instead of claiming that the earlier approval failed.
+
 Plan-approval evidence binds the material hash of an applicable readiness
 record, not its full file bytes. The plan approval must separately verify that
 the readiness record is currently approved, its own approval evidence matches
 its material content, and its recorded sources are current. This keeps
 assessment, lifecycle, and approval-evidence changes from invalidating an
 unchanged plan authorization while a change to readiness findings, scope, or
-other material content still requires renewed readiness and plan approval.
-Full-byte hashes remain appropriate for other material inputs and artifacts.
+other material content requires authorization of the changed scope.
+Use material hashes for work-item and plan inputs as well; reserve full-byte
+hashes for specifications and artifacts, with manifest inputs labeled as
+baselines. Do not make an unrelated edit elsewhere in a whole specification
+or plan a reason to reapprove an unchanged slice; perform scoped impact review.
 
 ## 5. Lifecycle, review, and completion
 
@@ -289,14 +302,38 @@ the final output snapshot and verifies every criterion before completion.
 Metadata-only recording of approval does not change the approved scope. Do not
 invent approver identities or claim evidence that is not available.
 
+### Historical approval versus current eligibility
+
+An explicit approval is a permanent fact about the named scope and snapshot.
+Later edits do not undo it. A completed prerequisite is satisfied by its
+`status: complete`, explicit delivery approval, recorded acceptance/validation
+evidence, and persistent outputs. Do not replay its old readiness, plan-input
+currentness, or execution-entry gates when reviewing a dependent or aggregate.
+Unchecked progress boxes in an otherwise evidenced completed record are a
+bookkeeping defect, not missing human approval; report the discrepancy without
+reopening the item or asking the user to approve it again.
+
+Currentness checks answer whether an approval's scope can authorize **new**
+work against today's inputs. Historical evidence tables describe what was
+reviewed then; comparing every historical row with today's files cannot answer
+whether that approval occurred. For aggregates, check coverage and the current
+aggregate outputs against the child outcomes, not whether every child input
+still has its old bytes. A substantive discrepancy creates explicit follow-up
+work; it does not silently revoke completed delivery.
+
 When approval covers an uncommitted item's own material plan or resolution,
 record a **material SHA-256** alongside the full-byte hashes of its other inputs
 and outputs. Compute it from the item's UTF-8 text, normalizing line endings to
 LF and omitting only the frontmatter `status` line and these level-two sections:
 `Validation and review`, `Plan approval`, and `Delivery evidence and review`.
 Omit each named heading and its body through the next level-two heading or EOF.
-Everything else, including scope, dependencies, manifest, criteria, and
-resolution, remains covered. Label this hash as material, not a file-byte hash.
+Normalize Markdown task-list checkbox state to `[ ]` before hashing; criterion
+wording remains covered. Everything else, including scope, dependencies,
+manifest, criteria, and resolution, remains covered. Label this hash as
+material, not a file-byte hash. Existing checkbox-sensitive hashes remain valid:
+compare their recoverable material snapshot using the same progress
+normalization, or accept a matching legacy material digest. Do not rewrite
+historical evidence or require reapproval to adopt the normalized digest.
 Recompute it before relying on the approval. This permits evidence and lifecycle
 updates without requiring a separate review file or a self-referential hash.
 
@@ -353,22 +390,26 @@ readiness and slice eligibility must require those artifacts, not promises.
 Readiness neither publishes a contract nor relaxes a rollout gate.
 
 An approved readiness record applies to the assessed source snapshot for
-implementation eligibility. Before execution, changed sources require impact
-review and a new assessment for affected scope. After a slice has executed,
+implementation eligibility. Before execution, changed sources require scoped
+impact review. An unchanged assessment can remain approved with a recorded
+no-impact review and refreshed source metadata; only affected findings or scope
+require a new assessment and authorization. After a slice has executed,
 changes to its explicitly approved manifest outputs do not retroactively
 invalidate the readiness or plan authorization for that slice's delivery
 review: the reviewer checks those final outputs against the approved scope,
 requirements, and acceptance criteria. Such changed sources are not current
 inputs for another implementation slice; reassess downstream work against the
-new source snapshot. Any out-of-manifest source change, or any output change
-that alters required behavior or the approved scope, still requires
-reconciliation and reassessment before delivery.
+new source snapshot only when scoped impact review identifies affected
+findings. Any out-of-manifest source change requires impact review; an output
+change that alters required behavior or the approved scope requires changed
+authorization before delivery.
 A work-item, plan, or readiness source whose recorded `material_sha256` still matches has
 not changed for this purpose, and process artifacts are not readiness sources
 unless the assessed scope governs them (see
 [section 4](#4-plan-contract-and-source-snapshots)). A readiness record states
 `process_version` like a plan.
-Preserve earlier evidence in Git; do not silently carry approval onto new text.
+Preserve earlier evidence in Git; do not silently carry approval onto new
+material scope or findings.
 
 Derived conclusions, not manually stored statuses:
 
@@ -484,6 +525,11 @@ It may then offer applicable validation, approval, commit, and push workflows,
 but it delegates to their existing skills and preserves every explicit review
 and delivery gate. One invocation advances at most one row; it never skips a
 blocked selected row for an unrelated action.
+
+When approval is followed by a commit, refresh the selected runbook after
+recording approval and before staging, so that one delivery includes its
+derived bookkeeping. Review the regenerated runbook with its helper; do not
+request a second material approval solely for this derived view.
 
 ## 9. Validation and evaluation
 

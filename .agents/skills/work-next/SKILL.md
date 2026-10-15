@@ -65,8 +65,10 @@ state. Do not add a refresh solely to record an intermediate state.
    exclusion of those edits, stale evidence, or ambiguous coverage blocks both
    commands. If this preflight fails, do not invoke the selected command or
    switch to another row; stop and direct the user to the exact scoped
-   `/spec-readiness` assessment and subsequent readiness approval, then a
-   refreshed runbook. If every row is complete or cancelled and all aggregate
+   `/spec-readiness` review, then a refreshed runbook. Changed sources on an
+   already approved assessment require impact review, not automatic
+   reassessment or reapproval; request approval only if assessed scope or
+   findings change. If every row is complete or cancelled and all aggregate
    gates are satisfied, report the runbook complete; do not invent a
    specification-complete status.
 3. State the selected row, description, owning specification, exact command,
@@ -118,6 +120,10 @@ state. Do not add a refresh solely to record an intermediate state.
      [commit-and-push](../commit-and-push/SKILL.md).
 
    Pass the exact work-item or readiness target and applicable validation mode.
+   For `Approve and commit` and `Approve, commit, and push`, also pass
+   `refresh-runbook=<primary-spec-id>`. The approval-commit workflow performs
+   the single step 8 refresh after recording approval but before staging, so
+   the same delivery includes the derived runbook.
    For `Commit` and `Commit and push`, perform the step 8 refresh first.
    Existing approval skills decide whether full build and unit tests are
    mandatory for the actual change. Ordinary commit skills validate the whole
@@ -128,10 +134,13 @@ state. Do not add a refresh solely to record an intermediate state.
    selected row, not a second work item. Place it as follows:
    - `Commit` or `Commit and push`: refresh before invoking the commit skill,
      so the commit includes the refreshed runbook.
-   - Approval variants: refresh after the approval skill records lifecycle
-     evidence. When that skill also commits, leave the refreshed runbook
-     uncommitted for the next delivery; do not start another commit round
-     solely for it.
+   - `Approve only`: refresh after the approval skill records lifecycle
+     evidence.
+   - `Approve and commit` or `Approve, commit, and push`: the delegated
+     approval-commit workflow performs this refresh before its commit, as
+     requested in step 7. Do not refresh again afterward solely to update
+     the generated branch/HEAD stamp, and do not start another commit round
+     for runbook bookkeeping.
    - `Leave changes for review`, `Build and test only`, or no delivery choice:
      refresh after the selected action and any validation.
 

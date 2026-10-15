@@ -4,7 +4,7 @@ kind: implementation
 granularity: milestone
 change_kind: editorial
 title: Audit portable requirements, language contracts, and examples
-status: open
+status: ready-for-review
 spec: SPEC-0008
 requirements:
   - R-0000-007
@@ -78,11 +78,11 @@ undocumented command is introduced by this audit.
 
 ## Exit criteria
 
-- [ ] Audited content uses the approved categories consistently.
-- [ ] Requirement identities and references remain valid.
-- [ ] Every example/default in the assigned source set has an explicit recorded disposition.
-- [ ] Any changed requirement block has reviewed reverse-impact evidence and current references.
-- [ ] Required validation passes.
+- [x] Audited content uses the approved categories consistently.
+- [x] Requirement identities and references remain valid.
+- [x] Every example/default in the assigned source set has an explicit recorded disposition.
+- [x] Any changed requirement block has reviewed reverse-impact evidence and current references.
+- [x] Required validation passes.
 - [ ] Explicit delivery review covers the exact implemented snapshot.
 
 The aggregate requires all four child slices complete. A proposed material
@@ -95,4 +95,27 @@ Absent. This milestone requires decomposition or promotion to approved slices.
 
 ## Delivery evidence and review
 
-No delivery evidence or approval recorded.
+### Aggregate delivery evidence
+
+The four child slices are complete, and each has explicit delivery approval
+for its exact outcome. Together they cover the platform specification library
+assigned to this milestone: `SPEC.md` and SPEC-0001 through SPEC-0008. The
+records document their audit inventories, classifications, output snapshots,
+fingerprint and reverse-impact reviews, validation, exclusions, and delivery
+approvals.
+
+| Child slice | Audited output scope | Approved material SHA-256 |
+| --- | --- | --- |
+| [I-0008-013](I-0008-013-portable-core-example-audit.md) | `SPEC.md`, SPEC-0001, and SPEC-0002 | `9a4bba8d11db0377d23ddd7b0c74f6e5b65168ef5aca68d57e236b1a1e7b8ab7` |
+| [I-0008-014](I-0008-014-remaining-portable-specification-audit.md) | SPEC-0003 through SPEC-0005 | `845155260f298315d5ebf1e443c723d82b3990f00ccc344da06e48257e6d6966` |
+| [I-0008-015](I-0008-015-portable-binding-specification-audit.md) | SPEC-0007 | `a633715c795a26662eab7e9d45cc3f423a1f328639f4ecfb55303c17089c4c51` |
+| [I-0008-016](I-0008-016-language-contract-and-traceability-audit.md) | SPEC-0006, SPEC-0008, and traceability guidance | `798f810a11b98d61cea36ed0ceb2b07885e1d2f42c8f3891596bdd2df5fb4fd8` |
+
+The child delivery approvals remain scoped to their respective outcomes and
+are not an aggregate approval. No behavioral or conformance change, contract
+publication, or whole-v1 conformance claim is included in this aggregate.
+
+### Aggregate delivery review
+
+This milestone is `ready-for-review`. Explicit review and approval of the
+aggregate snapshot remain outstanding; completion is not claimed.

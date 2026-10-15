@@ -207,7 +207,7 @@ class LegacyWorkItemSourceTests(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertEqual("current", rows[0]["state"])
-        self.assertEqual("progress-only", rows[0]["basis"])
+        self.assertEqual("material", rows[0]["basis"])
 
     def test_plan_approval_manifest_output_hash_is_a_delivery_target(self) -> None:
         old_output = b"before\n"
@@ -299,6 +299,154 @@ class LegacyWorkItemSourceTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual("current", rows[0]["state"])
         self.assertEqual("material fallback", rows[0]["basis"])
+
+    def test_new_work_item_hash_ignores_uncommitted_checkbox_progress(self) -> None:
+        approved = item("open", "pending") + b"## Exit criteria\n- [ ] Validation passes.\n"
+        current = approved.replace(b"- [ ]", b"- [x]")
+
+        self.assertEqual(
+            q.source_material_sha256(ITEM_PATH, approved),
+            q.source_material_sha256(ITEM_PATH, current),
+        )
+        self.assertNotEqual(
+            q.source_material_sha256(ITEM_PATH, approved),
+            q.source_material_sha256(ITEM_PATH, current.replace(b"Validation", b"Security")),
+        )
+
+    def test_delivery_material_accepts_legacy_checkbox_progress(self) -> None:
+        approved = item("ready-for-review", "pending") + b"## Exit criteria\n- [x] Review complete.\n"
+        legacy_hash = q.material_sha256(approved)
+        current = approved.replace(b"- [x]", b"- [ ]") + (
+            f"## Delivery evidence and review\nApproved material SHA-256: `{legacy_hash}`.\n"
+        ).encode()
+        snap = self.snapshot(current)
+
+        with patch.object(q, "recover_material_bytes", return_value=approved):
+            rows, ok = work_hashes.cmd_evidence(snap, [ITEM_PATH], ["Delivery evidence and review"])
+
+        self.assertTrue(ok)
+        self.assertEqual("current", rows[0]["state"])
+
+    def test_delivery_input_accepts_evidence_only_work_item_change(self) -> None:
+        approved = item("open", "pending")
+        current = item("complete", "explicit approval recorded")
+        snap = self.snapshot(
+            f"## Delivery evidence and review\n| `{TARGET_PATH}` | `{q.sha256_bytes(approved)}` |\n".encode()
+        )
+        snap._bytes[TARGET_PATH] = current
+
+        with patch.object(q, "recover_bytes", return_value=approved):
+            rows, ok = work_hashes.cmd_evidence(snap, [ITEM_PATH], ["Delivery evidence and review"])
+
+        self.assertTrue(ok)
+        self.assertEqual("current", rows[0]["state"])
+
+    def runbook_approval(self, evidence: str, status: str = "open", manifest: str = "") -> tuple:
+        text = (
+            "---\nid: I-0008-999\nkind: implementation\ngranularity: slice\n"
+            f"status: {status}\nspec: SPEC-0008\ntitle: fixture\n---\n"
+            f"## File and ownership manifest\n{manifest}\n"
+            f"## Plan approval\nApproved explicitly 2025-01-01.\n{evidence}\n"
+        )
+        facts = runbook_facts.Facts("SPEC-0008", [])
+        facts.snap._bytes[ITEM_PATH] = text.encode()
+        return facts, text
+
+    def test_runbook_accepts_unchanged_manifest_baseline(self) -> None:
+        output = b"approved baseline\n"
+        evidence = f"| `{TARGET_PATH}` | baseline | `{q.sha256_bytes(output)}` |"
+        facts, _ = self.runbook_approval(evidence, manifest=f"| Modify | `{TARGET_PATH}` | Output |")
+        facts.snap._bytes[TARGET_PATH] = output
+
+        result = facts.load_item(ITEM_PATH)
+
+        self.assertEqual([], result["plan_approval"]["reviewed_hash_mismatches"])
+
+    def test_runbook_accepts_evidence_only_input_change(self) -> None:
+        approved = item("open", "pending")
+        facts, _ = self.runbook_approval(f"| `{TARGET_PATH}` | `{q.sha256_bytes(approved)}` |")
+        facts.snap._bytes[TARGET_PATH] = item("complete", "explicit approval recorded")
+
+        with patch.object(q, "recover_bytes", return_value=approved):
+            result = facts.load_item(ITEM_PATH)
+
+        self.assertEqual([], result["plan_approval"]["reviewed_hash_mismatches"])
+
+    def test_runbook_detects_changed_own_material_plan(self) -> None:
+        facts, _ = self.runbook_approval(f"Material SHA-256: `{'b' * 64}`.")
+
+        with patch.object(q, "recover_material_bytes", return_value=None):
+            result = facts.load_item(ITEM_PATH)
+
+        self.assertEqual(
+            [ITEM_PATH],
+            [row["path"] for row in result["plan_approval"]["reviewed_hash_mismatches"]],
+        )
+
+    def test_completed_runbook_item_does_not_revalidate_historical_inputs(self) -> None:
+        facts, _ = self.runbook_approval(f"| `{TARGET_PATH}` | `{'b' * 64}` |", status="complete")
+        facts.snap._bytes[TARGET_PATH] = b"later work\n"
+
+        result = facts.load_item(ITEM_PATH)
+
+        self.assertEqual([], result["plan_approval"]["reviewed_hash_mismatches"])
+
+    def test_runbook_rejects_changed_output_baseline_before_execution(self) -> None:
+        evidence = f"| `{TARGET_PATH}` | baseline | `{q.sha256_bytes(b'approved')}` |"
+        facts, _ = self.runbook_approval(evidence, manifest=f"| Modify | `{TARGET_PATH}` | Output |")
+        facts.snap._bytes[TARGET_PATH] = b"unexpected change"
+
+        result = facts.load_item(ITEM_PATH)
+
+        self.assertEqual(TARGET_PATH, result["plan_approval"]["reviewed_hash_mismatches"][0]["path"])
+
+    def test_changed_input_requires_impact_judgment_not_automatic_reapproval(self) -> None:
+        facts, _ = self.runbook_approval(f"| `{TARGET_PATH}` | `{'b' * 64}` |")
+        facts.snap._bytes[TARGET_PATH] = b"later work\n"
+        result = facts.load_item(ITEM_PATH)
+        result["deps_ready"] = True
+        result["readiness_candidates"] = [{
+            "match": "scope", "current": True, "assessment": "approved",
+            "uncovered_manifest_spec_docs": [], "unmentioned_requirements": [],
+            "planning_only_language": False,
+        }]
+
+        suggestion, gates = runbook_facts.suggest(result, {})
+
+        self.assertEqual("<judge>", suggestion["command"])
+        self.assertEqual([], gates)
+
+    def test_delivery_material_rejects_changed_criterion(self) -> None:
+        approved = item("ready-for-review", "pending") + b"## Exit criteria\n- [ ] Review complete.\n"
+        current = approved.replace(b"Review complete", b"Security review complete") + (
+            f"## Delivery evidence and review\nApproved material SHA-256: `{q.material_sha256(approved)}`.\n"
+        ).encode()
+        snap = self.snapshot(current)
+
+        with patch.object(q, "recover_material_bytes", return_value=approved):
+            rows, ok = work_hashes.cmd_evidence(snap, [ITEM_PATH], ["Delivery evidence and review"])
+
+        self.assertFalse(ok)
+        self.assertEqual("stale", rows[0]["state"])
+
+    def test_approved_readiness_source_change_requires_impact_review_not_reassessment(self) -> None:
+        for granularity in ("slice", "milestone"):
+            with self.subTest(granularity=granularity):
+                facts, _ = self.runbook_approval("Approved scope unchanged.")
+                result = facts.load_item(ITEM_PATH)
+                result["deps_ready"] = True
+                result["granularity"] = granularity
+                result["planning_readiness_scope"] = "fixture"
+                result["readiness_candidates"] = [{
+                    "match": "scope", "current": False, "assessment": "approved",
+                    "scope": "fixture", "path": RECORD_PATH, "stale_sources": [TARGET_PATH],
+                }]
+
+                suggestion, gates = runbook_facts.suggest(result, {})
+
+                self.assertEqual("Open - blocked", suggestion["status"])
+                self.assertEqual("Gate - impact review required", gates[0]["status"])
+                self.assertEqual("/spec-readiness 0008 scope=fixture", gates[0]["command"])
 
 
 if __name__ == "__main__":

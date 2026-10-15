@@ -87,21 +87,35 @@ For a work item:
   criteria, resolution or delivery evidence, and every required output.
 - Verify prerequisites are complete, outputs exist, and every acceptance
   criterion and normative entry gate is satisfied.
+- For a completed prerequisite, verify its explicit delivery approval,
+  acceptance/validation evidence, and persistent outputs. Do not revalidate
+  historical readiness or plan-input hashes against today's files, or replay
+  its execution-entry gates. An unchecked progress box does not override an
+  evidenced delivery approval. Report bookkeeping discrepancies without
+  reopening completed work. For aggregate milestones, review child coverage
+  and aggregate outputs; do not require an execution-plan approval or a new
+  readiness assessment for an aggregate that performs no new implementation.
 - Run `python .agents/scripts/work_hashes.py approval <item> [--files
   <material input and output>...]` once: it computes the item's material
-  SHA-256 and full-byte hashes of the listed files. Verify recorded review
-  evidence with `work_hashes.py evidence`. Plan-approval hashes for paths in
-  the exact approved file manifest are baselines, not expected final bytes;
-  the evidence checker reports changed ones as `planned-output`. Review those
+  SHA-256 and full-byte hashes of the listed files. Verify the selected target's
+  applicable review evidence with
+  `work_hashes.py evidence --section "<exact heading>"`; do not
+  use an unfiltered historical evidence scan as a prerequisite-validity test.
+  Plan-approval hashes for paths in the exact approved file manifest are
+  baselines, not expected final bytes; the evidence checker reports changed
+  ones as `planned-output`. Review those
   final outputs against the approved scope and include their current full-byte
-  hashes in the delivery snapshot. Every non-manifest input must remain
-  current. Checkbox-only progress changes and source-record evidence changes
+  hashes in the delivery snapshot. Every relevant non-manifest input requires
+  currentness or scoped impact review. A mismatch alone never revokes approval:
+  distinguish an unrelated change from a change to the authorized scope before
+  requesting new review.
+  Checkbox-only progress changes and source-record evidence changes
   do not renew plan approval; changed criterion wording or scope does.
   Verify the cited readiness record's approval evidence and sources as well.
-  A source mismatch is acceptable only when that exact path is in the approved
-  item manifest as an output; require it in the final snapshot and review its
-  change against the approved requirements. Stale process versions, changed
-  readiness material, or mismatches outside the manifest still block approval.
+  A changed approved manifest output must be in the final snapshot and reviewed
+  against the approved requirements. Unresolved relevant source changes,
+  changed readiness findings, or scope expansion block new authorization, not
+  the validity of earlier approval.
 
 For a readiness record:
 
@@ -194,20 +208,25 @@ After explicit approval, record in the target's prescribed review section
   finds. Two-column rows default to full-byte hashes; three-column rows may
   label the hash basis as `bytes` or `material`.
 
-Only update lifecycle metadata and review-evidence sections excluded from the
-material hash. For a work item, set `status: complete` only when its acceptance
-criteria, persistent outputs, and required validation are satisfied. For a
+Only update lifecycle metadata, substantiated checkbox progress, and
+review-evidence sections excluded from the material hash. Mark the verified
+criteria satisfied, including the delivery-review criterion after approval,
+without changing their wording. For a work item, set `status: complete` only
+when its acceptance criteria, persistent outputs, and required validation are satisfied. For a
 readiness record, set `assessment: approved` only for its named scope and
 unchanged assessed snapshot. Do not mark a specification or contract version
 `Published`.
 
-Run one `work_hashes.py evidence <target>`; every row must be `current`, except
+Run one `work_hashes.py evidence --section "<exact approval section>" <target>`;
+check the evidence just recorded, not unrelated historical sections. Every
+applicable row must be `current`, except
 `planned-output` rows for paths in the approved manifest, which must be
 included in the exact final delivery snapshot and pass the scope/conformance
 review.
-If approved material changed, revert only this skill's approval metadata edits,
-never discard user work, return the target to review as appropriate, and ask
-for approval again.
+If current material changed after approval, stop delivery and preserve the
+recorded approval of its exact snapshot. Identify the delta for scoped impact
+review or authorization of a changed outcome; never erase historical approval
+or treat that approval as authorization for the changed material.
 
 ### 5. Generate the commit message
 

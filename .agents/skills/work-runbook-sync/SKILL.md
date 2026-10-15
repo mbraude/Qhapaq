@@ -63,7 +63,13 @@ details instead of reading the script source.
   language in a sentence that does not describe another or an older record.
 - Every other open row is `<judge>`: aggregate milestones whose child slices
   exist, slices with ambiguous or partially covering readiness, and
-  hints such as `planning-only-language` (shown with its sentence excerpt) or
+  slices whose recorded approval has changed reviewed inputs. These changes
+  require scoped impact review, not an automatic reapproval command. Preserve
+  authorization when the reviewed delta does not affect that scope, and select
+  new assessment or approval only for materially changed findings or work.
+  Completed prerequisites remain settled: historical input hashes and
+  unchecked bookkeeping boxes do not undo explicit delivery approval.
+  Other hints such as `planning-only-language` (shown with its sentence excerpt) or
   `unmentioned_requirements` (requirement IDs the record does not name
   literally, which ranges such as `R-0008-008–015` can cause). Hints list only
   scope-matched readiness records when one exists. Hints prompt
@@ -104,13 +110,19 @@ Source currentness is reported per recorded hash as `current`, `missing`, or
 the recorded revision when those bytes are unavailable) by material hash;
 unchanged material is `current` and the output identifies the legacy fallback.
 This avoids reopening readiness or plan approval for status/evidence-only
-changes while still requiring reassessment when the source's material changes.
+changes. A material source delta requires scoped impact review before deciding
+whether new assessment or authorization is needed.
 Acceptance-criterion checkbox state is progress metadata. Once an item is
 `ready-for-review`, stale source hashes for files in its approved manifest are
 expected output changes, not a reason to replace its delivery-review command
 with readiness or plan approval. The delivery reviewer must verify the final
 outputs against the approved scope; those changed files are not current inputs
 for other implementation slices.
+Use the shared evidence checker for plan-approval comparisons; do not implement
+a separate byte-only interpretation. A valid manifest `baseline` row must not
+be a mismatch when its bytes are unchanged. Changed baselines before execution
+still require impact review. A changed work-item material plan is a real
+authorization mismatch, even when its input table happens to be unchanged.
 A plan or readiness record whose
 `process_version` is missing or older than the guide's reports a
 `process_version` source in state `process-missing` or `process-outdated`; a
@@ -198,8 +210,10 @@ to match a runbook, execute work, approve an outcome, commit, or push.
    before planning unless that exact scope has one current, explicitly approved
    assessment that covers the milestone's requirements and authorizes
    implementation. A missing, stale, not-assessed, or blocked assessment gets
-   an assessment/reassessment command; a ready-for-review assessment gets an
-   approval command only when its coverage is complete and it authorizes
+   an assessment/review command. For an already approved record with changed
+   sources, label this an impact-review gate: no-impact reconciliation
+   preserves its approval without reassessment. A ready-for-review assessment
+   gets an approval command only when its coverage is complete and it authorizes
    implementation. Ambiguous or partial coverage remains `<judge>`. Give each
    gate a stable, descriptive identity such as `SYNC SPEC-0008` or
    `READINESS SPEC-0008 conformance-artifacts-implementation`. Do not persist

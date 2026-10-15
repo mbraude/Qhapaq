@@ -49,7 +49,7 @@ file is missing or a verification found a mismatch.
 | `sources PATH...` | Ready-to-paste frontmatter `sources` entries: `path`, `revision` (last commit touching the path, or `null` if untracked), `content_sha256` of the working-copy bytes, and, for decision and implementation work items, plans, and readiness records, `material_sha256`. Reports on stderr which paths differ from their revision. |
 | `material ITEM...` | The material SHA-256 defined in the workflow guide for the record's kind: a plan or readiness record uses its own definition, and work items and other files use the work-item definition. |
 | `verify RECORD...` | For a plan or readiness record, its `process_version` state (`current`, `process-missing`, or `process-outdated`), then each frontmatter source with one of the source states below. Work-item, plan, and readiness sources that record `material_sha256` are checked by material and marked `(material)`; process artifacts are marked `(process source)`; a cited runbook or diagram is `derived-view`; a cited reconciliation record is `reconciliation-record`. |
-| `evidence [--section NAME] ITEM...` | Every recorded `Material SHA-256` value (checked against the record kind's material hash) and path/hash evidence rows. Two-column rows default to full-byte verification; three-column rows may specify `bytes`, `material`, or `baseline` as the hash basis. In `Plan approval`, checkbox progress-only changes are distinguished from plan changes; changed paths in the item's file manifest are reported as `planned-output` and must be reviewed and snapshotted as final delivery outputs. |
+| `evidence [--section NAME] ITEM...` | Current-content comparisons for recorded material digests and path/hash rows. Two-column rows default to byte verification; three-column rows may specify `bytes`, `material`, or `baseline`. Work-item checkbox progress and lifecycle/evidence changes are accepted consistently in plan and delivery sections, including legacy digests. Changed manifest paths in `Plan approval` are `planned-output` for delivery review. Use `--section` for the relevant approval; a mismatch in a historical table does not revoke a completed approval. |
 | `approval TARGET [--files PATH...]` | Verifies that a work item, plan, or readiness record is approvable (for a plan or readiness record, every recorded source and its `process_version` are current) and prints the ready-to-paste approval evidence block: an `Approved material SHA-256` line plus a path/hash table of `--files`. Exits 1 listing anything non-current, without printing a block. |
 | `diff [--max-lines N] RECORD...` | For each non-current source, a unified diff from the recorded bytes (recovered from Git history, or the recorded revision) to the working copy, with added and removed line counts. `--max-lines 0` prints everything; the default is 200 per source. |
 | `refresh [--stale] RECORD [PATH...] [--add PATH...] [--remove PATH...]` | The only writing command: rewrites the named recorded sources (or, with `--stale`, every non-current one) in the record's frontmatter in place with the current `revision`, `content_sha256`, and, for work items, plans, and readiness records, `material_sha256`; `--add` appends complete entries for new sources (refreshing any already recorded) and `--remove` deletes entries. Refuses unknown or missing paths, derived views, and a record naming itself, and writes nothing when any path is refused. Run it only after judging the delta. |
@@ -65,6 +65,18 @@ Source states are facts, not verdicts:
 | `missing` | The file does not exist. |
 | `stale` | Current bytes differ, and material content differs or cannot be compared; or a recorded `material_sha256` no longer matches. In plan-approval evidence, stale hashes for manifest outputs are instead `planned-output`; final delivery review must verify their exact current bytes. |
 | `reconciliation-record` | The path is non-authoritative reconciliation history and cannot be a source. |
+
+New work-item material digests normalize task-list checkbox state. Existing
+checkbox-sensitive digests remain supported without rewriting approval
+evidence. The runbook uses the same evidence comparison as `work_hashes.py`,
+but requires unchanged manifest baselines before execution and does not
+revalidate historical plan inputs for completed items.
+
+Run the helper regression tests from the repository root:
+
+```powershell
+python -m unittest discover -s .agents\scripts\tests
+```
 
 ### `plan_reconciliations.py`
 

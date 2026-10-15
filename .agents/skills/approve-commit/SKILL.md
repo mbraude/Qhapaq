@@ -1,7 +1,7 @@
 ---
 name: approve-commit
 description: "Approve an exact ready-for-review Qhapaq work item or scoped specification-readiness record through the shared approval workflow, then commit the approved changes locally without pushing. Use when approval and a local commit are both requested; never publishes component contracts."
-argument-hint: "[work-item-id or readiness-record-path] [skip-build-and-test=true|false]"
+argument-hint: "[work-item-id or readiness-record-path] [skip-build-and-test=true|false] [refresh-runbook=<spec-id>]"
 ---
 
 # Approve and Commit a Reviewed Qhapaq Outcome
@@ -15,10 +15,20 @@ and immediately create its local commit without pushing.
    argument. Do not duplicate or replace its target resolution, exact-snapshot
    review, validation, explicit approval, evidence recording, or commit-message
    generation.
+   If the calling workflow supplies `refresh-runbook=<spec-id>`, invoke
+   [work-runbook-sync](../work-runbook-sync/SKILL.md) exactly once now, after
+   approval evidence is recorded and before the commit. Validate its generated
+   output with the helper and include only that derived runbook with the
+   approved scope. This is bookkeeping, not a new material approval. Stop if
+   regeneration changes an authoritative source or reveals a substantive
+   blocker; never silently expand the approved scope.
 2. Verify that the complete worktree still contains exactly the approved scope
    and unchanged snapshot. The `git_preflight.py` run that `approve` performs
-   after recording evidence is that verification; rerun it only if anything
-   touched the worktree since, and then require the same `snapshot_id`.
+   after recording evidence is that verification; rerun it after the requested
+   runbook refresh, or if anything touched the worktree since. After a requested
+   runbook refresh, require that the only additional change is that checked
+   derived file and retain the new
+   `snapshot_id`; otherwise require the same `snapshot_id`.
    Include the approval evidence in the same commit. If
    concurrent, unrelated, or material changes appeared, stop without staging
    or committing. Supply those preflight facts, the `spec-trace-check`

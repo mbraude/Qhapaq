@@ -49,12 +49,15 @@ items excluded from approval. A milestone is never approved for execution.
    the approval scope ambiguous.
 3. Verify plan source hashes against exact current bytes with
    `python .agents/scripts/work_hashes.py verify <plan>`. If relevant plan
-   inputs are stale or reconciliation is incomplete, stop and request
-   `work-plan-sync` before approval.
+   inputs differ, perform scoped impact review before
+   deciding they require reconciliation or changed authorization. Bookkeeping
+   or unrelated changes do not revoke recorded approvals.
 4. Require a current, approved readiness record that covers every selected
    slice's relevant requirements and capabilities. If it is absent, stale,
    blocked, or does not cover the selected scope, stop and request
-   `spec-readiness`, followed by approval of that exact readiness record.
+   `spec-readiness`. For an already approved record with changed sources, its
+   no-impact reconciliation preserves approval; request a new approval only
+   when the assessed scope or findings change.
    For an approved readiness record, verify its recorded sources with
    `python .agents/scripts/work_hashes.py verify <readiness-record>` and
    verify the latest approval section's material hash and evidence rows with
@@ -88,8 +91,9 @@ readiness record, and direct prerequisite items or existing artifacts relied
 upon. Use its material SHA-256 for the readiness input so that approval
 evidence or lifecycle-only updates do not invalidate an unchanged readiness
 assessment; continue to verify that readiness is approved and its latest
-approval evidence and sources are current. Use the plan's material SHA-256 for
-the owning plan. For a file in the slice's exact modify/add/delete manifest,
+approval evidence and sources are current. Use material SHA-256 for
+the owning plan and prerequisite work items, not full-byte hashes of their
+changing lifecycle and evidence. For a file in the slice's exact modify/add/delete manifest,
 record its full-byte hash with basis `baseline`; other inputs use full-byte
 SHA-256. Baseline rows remain historical authorization evidence after
 execution and are compared with final output hashes during delivery review.

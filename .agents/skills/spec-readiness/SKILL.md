@@ -57,7 +57,8 @@ Readiness record rules:
   verify` compares recoverable recorded bytes, or the recorded revision when
   those bytes are unavailable, by material view. A current result labeled
   `material (legacy fallback)` means the material matches and does not require
-  readiness reassessment. A stale result does.
+  readiness reassessment. A stale result requires scoped impact review, not
+  automatic reassessment or reapproval.
 
 ## Procedure
 
@@ -72,16 +73,24 @@ Readiness record rules:
    source currentness with `python .agents/scripts/work_hashes.py verify`. If
    relevant plan sources are stale, report the need for `work-plan-sync`
    before approval.
-2. Check known decisions and normative entry/exit gates. Open blocking decisions,
+2. For an already approved record with changed sources, first use
+   `work_hashes.py diff <record>` and review impact on its named requirements,
+   capabilities, exclusions, and findings. If these remain unchanged, preserve
+   `assessment: approved` and its original approval evidence, record the
+   no-impact review in `Validation and approval`, refresh only the reviewed
+   source metadata with the helper, validate, and stop. Do not turn source
+   reconciliation into a new readiness approval. If scope or findings change,
+   assess that changed scope below; the earlier approval remains historical.
+3. Check known decisions and normative entry/exit gates. Open blocking decisions,
    unverified approval, or missing required artifacts remain explicit blockers.
-3. Independently inspect completeness: closed shapes and contracts, typing,
+4. Independently inspect completeness: closed shapes and contracts, typing,
    failures, null/missing behavior, deterministic order, limits/accounting,
    policy/security/privacy, compatibility, and cross-specification consistency
    as applicable. An empty decision backlog is not proof of completeness.
-4. Map scope requirements to required conformance expectations and actual
+5. Map scope requirements to required conformance expectations and actual
    prerequisite artifacts. Distinguish specified cases from published vectors.
    Do not require unrelated release artifacts or relax specified gates.
-5. Populate or revise the scope's readiness record: findings, exclusions,
+6. Populate or revise the scope's readiness record: findings, exclusions,
    validation, blockers, and `authorizes`. Write its `sources` with the
    script, never by hand: `python .agents/scripts/work_hashes.py refresh
    <record> --stale --add <new source>... [--remove <dropped source>...]`
@@ -95,9 +104,9 @@ Readiness record rules:
    every requirement. Preserve prior approval
    history in Git; material changes need reassessment. Report newly discovered
    decision work for reconciliation rather than closing it implicitly.
-6. Apply the workflow validation checklist and invoke
+7. Apply the workflow validation checklist and invoke
    [spec-trace-check](../spec-trace-check/SKILL.md). Record only performed checks.
-7. Set blocked when findings prevent readiness; otherwise ready-for-review.
+8. Set blocked when findings prevent readiness; otherwise ready-for-review.
    Set approved only when the user explicitly approves the exact assessed
    snapshot after the required checks. Earlier approval of another scope or
    a successful commit is insufficient.

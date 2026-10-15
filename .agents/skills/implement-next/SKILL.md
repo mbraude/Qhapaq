@@ -24,6 +24,11 @@ future slices.
    disruptive work, but do not require or silently create a branch. Resolve
    prerequisite items across plans. Report absent/stale plans, missing
    artifacts, cycles, or cancelled dependencies before execution.
+   Completed prerequisites retain their explicit delivery approval; do not
+   replay their old execution-entry or currentness checks. For changed inputs
+   to this slice, establish impact on its approved scope before requiring new
+   authorization. Record no-impact reviews without rewriting the old approval
+   or requiring the user to approve unchanged work again.
 2. Surface any preceding delivery review gate. Record completion only if the
    user explicitly approves its exact unchanged material snapshot and its exit
    criteria pass. Otherwise ask whether to review it or work independently.
